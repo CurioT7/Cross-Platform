@@ -40,21 +40,23 @@ class ApiService {
   }
 }
 
+
 class GoogleAuthApi {
   static const String baseUrl = 'http://localhost:3000/api/auth';
 
-  Future<void> initiateGoogleAuth() async {
+  Future<String> initiateGoogleAuth() async {
     final response = await http.get(Uri.parse('$baseUrl/google'));
 
-    if (response.statusCode == 200) {
-      print('Redirected to Google\'s authentication page.');
+    if (response.statusCode == 302) {
+      // Extract the URL that the user should be redirected to from the response
+      return response.headers['location']!;
     } else {
       throw Exception('Failed to initiate Google authentication.');
     }
   }
 
-  Future<String> handleGoogleAuthCallback() async {
-    final response = await http.get(Uri.parse('$baseUrl/google/callback'));
+  Future<String> handleGoogleAuthCallback(String code) async {
+    final response = await http.get(Uri.parse('$baseUrl/google/callback?code=$code'));
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
@@ -69,7 +71,6 @@ class GoogleAuthApi {
     }
   }
 }
-
 class MockGoogleAuthApi {
   static const String baseUrl = 'http://localhost:3000/api/auth';
 

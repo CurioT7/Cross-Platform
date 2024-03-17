@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'signup_email.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -41,12 +40,12 @@ class _SignupPageState extends State<SignupPage> {
                     child: Image.asset('images/signup.jpg'),
                   ),
                   _buildIntroText(),
+                  _buildTermsAndConditionsCheckbox(),
                   _buildSignupButton(
                       "Continue with Google", FontAwesomeIcons.google, context),
                   _buildSignupButton("Continue with Email",
                       FontAwesomeIcons.envelope, context),
                   _buildLoginPrompt(),
-                  _buildTermsAndConditionsCheckbox(),
                 ],
               ),
             ),
@@ -59,84 +58,139 @@ class _SignupPageState extends State<SignupPage> {
   Widget _buildIntroText() {
     return Column(
       children: const <Widget>[
-        Text(
-          "Sign up",
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange,
-          ),
-        ),
         SizedBox(height: 20),
         Text(
-          "Welcome to Reddit, the front page of the internet.",
+          "Create an Account to continue",
           style: TextStyle(
             fontSize: 17,
-            color: Colors.orange,
+            color: Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
       ],
     );
   }
-
-Widget _buildSignupButton(String text, IconData icon, BuildContext context) {
-  return SignupButton(
-    text: text,
-    icon: icon,
-    termsAccepted: _termsAndConditionsAccepted,
-  );
-}
-
-  Widget _buildTermsAndConditionsCheckbox() {
-    return Row(
-      children: <Widget>[
-        Checkbox(
-          value: _termsAndConditionsAccepted,
-          onChanged: (bool? value) {
-            setState(() {
-              _termsAndConditionsAccepted = value!;
-            });
-          },
+Widget _buildTermsAndConditionsCheckbox() {
+  return Column(
+    children: <Widget>[
+      GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text(
+                  'Terms and Conditions',
+                ),
+                content: const SingleChildScrollView(
+                  child: Text(
+                    'Dummy agreement text',
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Close'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: RichText(
+          text: TextSpan(
+            text: 'User ',
+            style: TextStyle(
+              color: Colors.orange,
+              fontWeight: FontWeight.bold,
+            ),
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Agreement',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
         ),
-        GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Text(
-                    'Terms and Conditions',
+      ),
+      GestureDetector(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text(
+                  'Privacy Policy',
+                ),
+                content: const SingleChildScrollView(
+                  child: Text(
+                    'Dummy privacy policy text',
+                    textAlign: TextAlign.left,
                   ),
-                  content: const SingleChildScrollView(
-                    // pulled points to the left
-                    child: Text(
-                      'By signing up, you agree to not take the last slice of pizza without asking. You also agree to laugh at our jokes, even the bad ones. Remember, a day without laughter is a day wasted!',
-                      textAlign: TextAlign.left,
-                    ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('Close'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                   ),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text('Close'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          child: const Text(
+                ],
+              );
+            },
+          );
+        },
+        child: RichText(
+          text: TextSpan(
+            text: 'Acknowledged that you understand the ',
+            style: TextStyle(
+              color: Colors.orange,
+              fontWeight: FontWeight.bold,
+            ),
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Privacy Policy',
+                style: TextStyle(
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      Row(
+        children: <Widget>[
+          Checkbox(
+            value: _termsAndConditionsAccepted,
+            onChanged: (bool? value) {
+              setState(() {
+                _termsAndConditionsAccepted = value!;
+              });
+            },
+          ),
+          const Text(
             "I agree to the terms and conditions",
             style: TextStyle(
                 color: Colors.orange,
                 fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
+                fontSize: 12,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    ],
+  );
+}
+  Widget _buildSignupButton(String text, IconData icon, BuildContext context) {
+    return SignupButton(
+      text: text,
+      icon: icon,
+      termsAccepted: _termsAndConditionsAccepted,
     );
   }
 
@@ -168,8 +222,6 @@ Widget _buildSignupButton(String text, IconData icon, BuildContext context) {
     );
   }
 }
-
-
 
 class SignupButton extends StatelessWidget {
   final String text;
@@ -238,35 +290,35 @@ class SignupButton extends StatelessWidget {
     );
   }
 }
+
+
 class GoogleAuthSignInService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: <String>[
-      'email',
-      'https://www.googleapis.com/auth/contacts.readonly',
-    ],
-  );
   final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
 
   Future<void> handleSignIn(BuildContext context) async {
     try {
       print('Initiating Google Authentication...');
-      await _googleAuthApi.initiateGoogleAuth();
-      print('Redirecting to Google...');
-      final GoogleSignInAccount? account = await _googleSignIn.signIn();
+      final String url = await _googleAuthApi.initiateGoogleAuth();
+      if (await canLaunchUrl(Uri.parse(url))) {
+        print('Redirecting to Google...');
+        await launchUrl(Uri.parse(url));
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> handleGoogleAuthCallback(String code) async {
+    try {
       print('Handling callback...');
-      final GoogleSignInAuthentication googleAuth = await account!.authentication;
-      print('Extracted Access Token: ${googleAuth.accessToken}');
+      final String accessToken = await _googleAuthApi.handleGoogleAuthCallback(code);
+      print('Extracted Access Token: $accessToken');
       print('Storing Access Token...');
-      final String accessToken = await _googleAuthApi.handleGoogleAuthCallback();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('accessToken', accessToken);
-      print('Redirecting to home page...');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SignUpWithEmail(),
-        ),
-      );
+      print('Access Token stored.');
     } catch (error) {
       print(error);
     }

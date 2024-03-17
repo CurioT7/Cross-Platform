@@ -6,6 +6,7 @@ import 'package:flutter_application_1/services/mock_api_service.dart';
 import 'Home_screen.dart';
 import 'reddit_colors.dart';
 import 'forgot_password_page.dart';
+import "signup.dart";
 
 class SignInPage extends StatefulWidget {
   const SignInPage({Key? key}) : super(key: key);
@@ -129,6 +130,10 @@ void _signInEmail() async {
               child: TextButton(
                 onPressed: () {
                   // TODO: Implement sign up
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignupPage()),
+                  );
                 },
                 child: Text('Sign Up', style: TextStyle(color: Colors.grey),), // Changed to only text
               ),

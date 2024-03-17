@@ -248,19 +248,24 @@ class SignupButton extends StatelessWidget {
       child: MaterialButton(
         minWidth: double.infinity,
         height: 60,
-        onPressed: termsAccepted
-            ? () {
-                if (text == "Continue with Google") {
-                  _googleSignInService.handleSignIn(context);
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SignUpWithEmail(),
-                    ),
-                  );
-                }
-              }
+        onPressed:  termsAccepted
+            ? () async {
+          if (text == "Continue with Google") {
+            final String url = await _googleSignInService.handleSignIn();
+            if (await canLaunchUrl(Uri.parse(url))) {
+              await launchUrl(Uri.parse(url));
+            } else {
+              throw 'Could not launch $url';
+            }
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpWithEmail(),
+              ),
+            );
+          }
+        }
             : null,
         color: Colors.transparent,
         elevation: 0,
@@ -295,18 +300,14 @@ class SignupButton extends StatelessWidget {
 class GoogleAuthSignInService {
   final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
 
-  Future<void> handleSignIn(BuildContext context) async {
+  Future<String> handleSignIn() async {
     try {
       print('Initiating Google Authentication...');
       final String url = await _googleAuthApi.initiateGoogleAuth();
-      if (await canLaunchUrl(Uri.parse(url))) {
-        print('Redirecting to Google...');
-        await launchUrl(Uri.parse(url));
-      } else {
-        throw 'Could not launch $url';
-      }
+      return url;
     } catch (error) {
       print(error);
+      rethrow;
     }
   }
 

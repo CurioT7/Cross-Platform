@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'signup.dart';
-// import 'package:firebase_core/firebase_core.dart';
-Future<void> main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(
-  //   options: FirebaseOptions(
-  //     apiKey: 'AIzaSyBqiGQOy7b5ialwfc7PVDiX8OtEZ0TRGVk',
-  //     appId: '1:824083216537:android:5c002a498811b1f7da6008',
-  //     messagingSenderId: '824083216537',
-  //     projectId: "cruio-3d9a5",
-  //   ),
-  // );
+import 'package:uni_links/uni_links.dart';
 
+
+Stream<String?> get linkStream => linkStream;
+
+Future<void> main() async {
   runApp(MyApp());
+
+  linkStream.listen((String? link) {
+    if (link != null && link.isNotEmpty) {
+      final Uri deepLink = Uri.parse(link);
+      final String? code = deepLink.queryParameters['code'];
+      if (code != null) {
+        GoogleAuthSignInService().handleGoogleAuthCallback(code);
+      }
+    }
+  }, onError: (err) {
+    // Handle the error here
+  });
 }
+
+// ... rest of your code ...
 
 
 class MyApp extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart';
 import 'package:animate_do/animate_do.dart';
+import 'userName.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   @override
@@ -9,12 +9,8 @@ class SignUpWithEmail extends StatefulWidget {
 
 class _SignUpWithEmailState extends State<SignUpWithEmail> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _apiService = ApiService();
-  final ValueNotifier<bool> rotateNotifier = ValueNotifier<bool>(false);
-  bool _passwordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +22,20 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
         ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              // Navigate to login page
+            },
+            child: const Text(
+              "Log in",
+              style: TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 40),
@@ -42,30 +52,16 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
                       radius: 50.0,
                       child: Image.asset('images/signup.jpg'),
                     ),
-                    CustomTextField('UserName', _usernameController),
-                    const SizedBox(height: 20),
                     CustomTextField('Email', _emailController),
                     const SizedBox(height: 20),
                     CustomTextField(
                       'Password',
                       _passwordController,
-                      obscureText: !_passwordVisible,
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _passwordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _passwordVisible = !_passwordVisible;
-                          });
-                        },
-                      ),
+                      obscureText: true,
                     ),
                     const SizedBox(height: 50),
-                    LoginButton(_formKey, _usernameController, _emailController,
-                        _passwordController, _apiService),
+                    LoginButton(_formKey,_emailController,
+                        _passwordController),
                   ],
                 ),
               ),
@@ -77,31 +73,54 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
   }
 }
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String labelText;
   final TextEditingController controller;
   final bool obscureText;
-  final Widget? suffixIcon;
+  final Function(String)? onChanged;
 
   const CustomTextField(
     this.labelText,
     this.controller, {
     this.obscureText = false,
-    this.suffixIcon,
+    this.onChanged,
   });
+
+  @override
+  _CustomTextFieldState createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  bool? _isValid;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
+      controller: widget.controller,
+      onChanged: (value) {
+        widget.onChanged?.call(value);
+        setState(() {
+          if (widget.labelText == 'Email') {
+            Pattern pattern =
+                r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+            RegExp regex = new RegExp(pattern.toString());
+            _isValid = regex.hasMatch(value);
+          } else if (widget.labelText == 'Password') {
+            _isValid = value.length >= 8;
+          }
+        });
+      },
       decoration: InputDecoration(
-        labelText: labelText,
-        suffixIcon: suffixIcon,
+        labelText: widget.labelText,
+        suffixIcon: _isValid == null
+            ? null
+            : _isValid!
+                ? Icon(Icons.check_circle, color: Colors.green)
+                : Icon(Icons.error, color: Colors.red),
       ),
-      obscureText: obscureText,
+      obscureText: widget.obscureText,
       validator: (value) {
-        if (labelText == 'Email') {
-          // Check if the email is in the correct format
+        if (widget.labelText == 'Email') {
           Pattern pattern =
               r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
           RegExp regex = new RegExp(pattern.toString());
@@ -109,8 +128,7 @@ class CustomTextField extends StatelessWidget {
             return 'Enter a valid email';
           else
             return null;
-        } else if (labelText == 'Password') {
-          // Check if the password length is greater than 8
+        } else if (widget.labelText == 'Password') {
           if (value!.length < 8)
             return 'Password must be longer than 8 characters';
           else
@@ -121,16 +139,12 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
-
 class LoginButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
-  final TextEditingController usernameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
-  final ApiService apiService;
 
-  const LoginButton(this.formKey, this.usernameController, this.emailController,
-      this.passwordController, this.apiService);
+  const LoginButton(this.formKey, this.emailController, this.passwordController);
 
   @override
   Widget build(BuildContext context) {
@@ -145,28 +159,19 @@ class LoginButton extends StatelessWidget {
           minWidth: double.infinity,
           height: 60,
           onPressed: () async {
-            print('Username: ${usernameController.text}');
-            final isRegistered =
-                await apiService.isUsernameAvailable(usernameController.text);
-            if (isRegistered['success'] == false) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Username is already taken'),
+            if (formKey.currentState!.validate()) {
+              formKey.currentState!.save();
+              print('Email: ${emailController.text}');
+              print('Password: ${passwordController.text}');
+              print('Signing up...');
+              // -DEBUG: await apiService.signup(emailController.text, passwordController.text);
+              print('Signup successful');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateUsernamePage(),
                 ),
               );
-            } else {
-              if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
-                print('Username: ${usernameController.text}');
-                print('Email: ${emailController.text}');
-                print('Password: ${passwordController.text}');
-                await apiService.signup(
-                  usernameController.text,
-                  emailController.text,
-                  passwordController.text,
-                );
-                Navigator.pop(context);
-              }
             }
           },
           color: Colors.transparent,

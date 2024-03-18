@@ -66,6 +66,12 @@ class _SignInWithEmailState extends State<SignInPage> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Column(
                 children: <Widget>[
+                  const SizedBox(height: 20), 
+                  Text(
+                      'Log In to Curio',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold), // Big text
+                    ),
+                  const SizedBox(height: 20), 
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () {},
@@ -75,12 +81,19 @@ class _SignInWithEmailState extends State<SignInPage> {
                     ),
                     elevation: 0,
                     height: 50,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    child: Stack(
                       children: <Widget>[
-                        FaIcon(FontAwesomeIcons.google, color: Colors.blue),
-                        SizedBox(width: 10),
-                        Text('Continue with Google', style: TextStyle(color: Colors.black, fontSize: 16)),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            child: Image.asset('lib/assets/images/google.png', height: 30, width: 30),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text('Continue with Google', style: TextStyle(color: Colors.black, fontSize: 16)),
+                        ),
                       ],
                     ),
                   ),

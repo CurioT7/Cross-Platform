@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'signup_email.dart';
+import 'package:flutter_application_1/Views/signUp/signup_email.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/services/auth_services.dart';
+import 'package:flutter_application_1/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SignupPage extends StatefulWidget {
@@ -24,6 +24,13 @@ class _SignupPageState extends State<SignupPage> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
         ),
+        title: Image.asset(
+          'lib/assets/images/Curio.png',
+          fit: BoxFit.contain,
+          height: 60,
+        ),
+        centerTitle:
+            true, // This ensures that the title is in the center of the AppBar
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -34,11 +41,6 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 50.0,
-                    child: Image.asset('images/signup.jpg'),
-                  ),
                   _buildIntroText(),
                   _buildTermsAndConditionsCheckbox(),
                   _buildSignupButton(
@@ -70,6 +72,7 @@ class _SignupPageState extends State<SignupPage> {
       ],
     );
   }
+
   Widget _buildTermsAndConditionsCheckbox() {
     return Column(
       children: <Widget>[
@@ -186,6 +189,7 @@ class _SignupPageState extends State<SignupPage> {
       ],
     );
   }
+
   Widget _buildSignupButton(String text, IconData icon, BuildContext context) {
     return SignupButton(
       text: text,
@@ -248,24 +252,24 @@ class SignupButton extends StatelessWidget {
       child: MaterialButton(
         minWidth: double.infinity,
         height: 60,
-        onPressed:  termsAccepted
+        onPressed: termsAccepted
             ? () async {
-          if (text == "Continue with Google") {
-            final String url = await _googleSignInService.handleSignIn();
-            if (await canLaunchUrl(Uri.parse(url))) {
-              await launchUrl(Uri.parse(url));
-            } else {
-              throw 'Could not launch $url';
-            }
-          } else {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SignUpWithEmail(),
-              ),
-            );
-          }
-        }
+                if (text == "Continue with Google") {
+                  final String url = await _googleSignInService.handleSignIn();
+                  if (await canLaunchUrl(Uri.parse(url))) {
+                    await launchUrl(Uri.parse(url));
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignUpWithEmail(),
+                    ),
+                  );
+                }
+              }
             : null,
         color: Colors.transparent,
         elevation: 0,
@@ -296,7 +300,6 @@ class SignupButton extends StatelessWidget {
   }
 }
 
-
 class GoogleAuthSignInService {
   final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
 
@@ -314,7 +317,8 @@ class GoogleAuthSignInService {
   Future<void> handleGoogleAuthCallback(String code) async {
     try {
       print('Handling callback...');
-      final String accessToken = await _googleAuthApi.handleGoogleAuthCallback(code);
+      final String accessToken =
+          await _googleAuthApi.handleGoogleAuthCallback(code);
       print('Extracted Access Token: $accessToken');
       print('Storing Access Token...');
       SharedPreferences prefs = await SharedPreferences.getInstance();

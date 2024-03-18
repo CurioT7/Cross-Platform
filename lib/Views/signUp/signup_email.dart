@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'userName.dart';
-import 'package:flutter_application_1/services/auth_services.dart';
+import 'package:flutter_application_1/utils/helpers.dart';
+import 'package:flutter_application_1/Views/signIn/sign_in_page.dart';
+
 
 class SignUpWithEmail extends StatefulWidget {
   @override
@@ -23,10 +25,23 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
         ),
+        title: Image.asset(
+          'lib/assets/images/Curio.png',
+          fit: BoxFit.contain,
+          height: 60,
+        ),
+        centerTitle:
+        true, // This ensures that the title is in the center of the AppBar
         actions: <Widget>[
           TextButton(
             onPressed: () {
               // Navigate to login page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SignInPage(),
+                ),
+              );
             },
             child: const Text(
               "Log in",
@@ -48,11 +63,6 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    CircleAvatar(
-                      backgroundColor: Colors.transparent,
-                      radius: 50.0,
-                      child: Image.asset('images/signup.jpg'),
-                    ),
                     CustomTextField('Email', _emailController),
                     const SizedBox(height: 20),
                     CustomTextField(
@@ -74,72 +84,7 @@ class _SignUpWithEmailState extends State<SignUpWithEmail> {
   }
 }
 
-class CustomTextField extends StatefulWidget {
-  final String labelText;
-  final TextEditingController controller;
-  final bool obscureText;
-  final Function(String)? onChanged;
 
-  const CustomTextField(
-      this.labelText,
-      this.controller, {
-        this.obscureText = false,
-        this.onChanged,
-      });
-
-  @override
-  _CustomTextFieldState createState() => _CustomTextFieldState();
-}
-
-class _CustomTextFieldState extends State<CustomTextField> {
-  bool? _isValid;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.controller,
-      onChanged: (value) {
-        widget.onChanged?.call(value);
-        setState(() {
-          if (widget.labelText == 'Email') {
-            Pattern pattern =
-                r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-            RegExp regex = new RegExp(pattern.toString());
-            _isValid = regex.hasMatch(value);
-          } else if (widget.labelText == 'Password') {
-            _isValid = value.length >= 8;
-          }
-        });
-      },
-      decoration: InputDecoration(
-        labelText: widget.labelText,
-        suffixIcon: _isValid == null
-            ? null
-            : _isValid!
-            ? Icon(Icons.check_circle, color: Colors.green)
-            : Icon(Icons.error, color: Colors.red),
-      ),
-      obscureText: widget.obscureText,
-      validator: (value) {
-        if (widget.labelText == 'Email') {
-          Pattern pattern =
-              r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-          RegExp regex = new RegExp(pattern.toString());
-          if (!regex.hasMatch(value!))
-            return 'Enter a valid email';
-          else
-            return null;
-        } else if (widget.labelText == 'Password') {
-          if (value!.length < 8)
-            return 'Password must be longer than 8 characters';
-          else
-            return null;
-        }
-        return null;
-      },
-    );
-  }
-}
 class LoginButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -165,7 +110,8 @@ class LoginButton extends StatelessWidget {
               print('Email: ${emailController.text}');
               print('Password: ${passwordController.text}');
               print('Signing up...');
-              // -DEBUG: await apiService.signup(emailController.text, passwordController.text);
+              // -DEBUG: await apiService.isEmailAvailable(emailController.text);
+              // -TODO: save the email and password to be passed to the next page
               print('Signup successful');
               Navigator.push(
                 context,

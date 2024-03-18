@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'reddit_colors.dart'; // Import the Reddit color palette
+import 'package:flutter_application_1/utils/reddit_colors.dart';
+import 'package:flutter_application_1/utils/helpers.dart';
 
 class ForgotPasswordPage extends StatelessWidget {
+  final _emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,27 +40,7 @@ class ForgotPasswordPage extends StatelessWidget {
           const SizedBox(height: 20),
           const Text('Enter your email address or username and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
           const SizedBox(height: 20),
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Email or Username',
-              fillColor: redditGrey,
-              filled: true,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  borderSide: BorderSide.none, // Set border side to none
-                ), enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  borderSide: BorderSide.none, // Set border side to none
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  borderSide: BorderSide(color: Colors.black), // Set border side to a visible color when focused
-                ),
-            ),
-            onChanged: (value) {
-              // Implement email or username change logic
-            },
-          ),
+          CustomTextField('Email', _emailController),
           const SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

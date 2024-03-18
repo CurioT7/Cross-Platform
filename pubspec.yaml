@@ -34,6 +34,10 @@ dependencies:
   firebase_auth: ^4.17.8
   http: ^1.2.0
   google_sign_in: ^6.2.1
+  font_awesome_flutter: ^9.1.0
+  animate_do: ^2.0.0
+  shared_preferences: ^2.0.8
+  url_launcher: ^6.0.9
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 
 
@@ -59,8 +63,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   assets:
-    - lib\assets\images\Curio.png
-    - lib\assets\images\google.png
+    - lib/assets/images/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

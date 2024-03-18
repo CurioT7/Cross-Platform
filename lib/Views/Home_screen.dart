@@ -1,15 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Views/Auth_page.dart';
 import 'package:flutter_application_1/Views/user_profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
-  Future<void> _signOut(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const AuthPage()));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +29,7 @@ class HomeScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                _signOut(context);
+                //
               },
               child: const Text('Logout'),
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Views/Auth_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter_application_1/Views/signIn/sign_in_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const AuthPage(),
+      home: SignInPage(),
     );
   }
 }

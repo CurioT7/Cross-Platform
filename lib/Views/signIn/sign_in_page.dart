@@ -69,7 +69,7 @@ class _SignInWithEmailState extends State<SignInPage> {
                   const SizedBox(height: 20), 
                   Text(
                       'Log In to Curio',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold), // Big text
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold), 
                     ),
                   const SizedBox(height: 20), 
                   const SizedBox(height: 20),

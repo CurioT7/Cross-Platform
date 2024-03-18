@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/sign_in_page.dart';
+import 'package:curio/Views/insettingspage/account_settings_page.dart';
 
 Future<void> main() async {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SignInPage(),
+      home: AccountSettingsPage(),
     );
   }
 }

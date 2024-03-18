@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:curio/Views/signIn/sign_in_page.dart';
 
 Future<void> main() async {
-
-
   runApp(const MyApp());
 }
 

@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String _baseUrl = 'http://your_backend_url'; // Replace with your backend URL
+  final String _baseUrl = 'http://localhost:3000/api/auth'; // Replace with your backend URL
 
-  Future<http.Response> signIn(String email, String password) async {
+  Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/signin'),
+      Uri.parse('$_baseUrl/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'email': email,
+        'username': username,
         'password': password,
       }),
     );

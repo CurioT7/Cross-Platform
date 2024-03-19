@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/component_app_bar.dart';
+import 'package:curio/views/signin/forgot_password_page.dart';
+import 'package:curio/utils/component_user_info_sub_appbar.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -22,14 +24,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            UserInfoSubBar(),
             // Current Password
             TextField(
               controller: _currentPasswordController,
               decoration: InputDecoration(
                 labelText: 'Current password',
                 suffix: TextButton(
-                  onPressed: () {
-                    // Forgot password action
+
+                  onPressed: () async {
+                    final selectedLocation = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                    );
                   },
                   child: Text(
                     'Forgot password',

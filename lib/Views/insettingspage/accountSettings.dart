@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:curio/utils/constants.dart';
-import 'package:curio/views/insettingspage/blocked_accounts_page.dart';
-import 'package:curio/views/insettingspage/change_password_page.dart';
-import 'package:curio/views/insettingspage/location_customization_page.dart';
-import 'package:curio/views/insettingspage/update_email_adress_page.dart';
-import 'package:curio/utils/component_app_bar.dart';
-import 'package:curio/Views/insettingspage/gender_page.dart';
+import 'package:curio/views/insettingspage/blockedAccounts.dart';
+import 'package:curio/views/insettingspage/ChangePassword.dart';
+import 'package:curio/views/insettingspage/locationCustomization.dart';
+import 'package:curio/views/insettingspage/updateEmailAdress.dart';
+import 'package:curio/utils/componentAppBar.dart';
+import 'package:curio/views/insettingspage/genderPopUp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:curio/views/insettingspage/connected_accounts_page.dart';
+import 'package:curio/views/insettingspage/connectedAccounts.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -70,7 +70,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+                  MaterialPageRoute(builder: (context)  => ChangePasswordPage()),
               );
             },
           ),
@@ -130,10 +130,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   _isConnected = !_isConnected;
                 });
                 if (_isConnected) {
-                  // Navigate to ConnectedAccountsPage
+                  // Navigate to ConnectToGooglePage
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ConnectedAcountsPage()),
+                    MaterialPageRoute(builder: (context) => ConnectToGooglePage()),
                   );
                 }
               },

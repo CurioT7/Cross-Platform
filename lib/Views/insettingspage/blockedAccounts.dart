@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:curio/utils/component_app_bar.dart';
+import 'package:curio/utils/componentAppBar.dart';
 
 class BlockedAccountsPage extends StatefulWidget {
   @override

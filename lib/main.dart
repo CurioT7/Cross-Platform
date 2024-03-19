@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/sign_in_page.dart';
-import 'package:curio/Views/insettingspage/account_settings_page.dart';
+import 'package:curio/Views/insettingspage/accountSettings.dart';
 
 Future<void> main() async {
   runApp(const MyApp());

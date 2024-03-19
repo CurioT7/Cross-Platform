@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:curio/utils/component_app_bar.dart';
-import 'package:curio/utils/component_user_info_sub_appbar.dart';
+import 'package:curio/utils/componentAppBar.dart';
+import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/views/signin/forgot_password_page.dart';
 
 class UpdateEmailAdressPage extends StatefulWidget {
@@ -12,6 +12,44 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
+
+  void _validateAndSave() {
+    String newEmail = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+
+    // Check if the email is valid
+    if (!_isValidEmail(newEmail)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please enter a valid email address.'),
+        ),
+      );
+      return;
+    }
+    // Check if the password is valid
+    if (!_isValidPassword(password)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Password should be at least 8 characters.'),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).pop();
+  }
+
+  bool _isValidEmail(String email) {
+    // Regular expression to validate email format
+    // This is a basic validation; you may use a more sophisticated approach
+    Pattern emailPattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+    RegExp regex = RegExp(emailPattern.toString());
+    return regex.hasMatch(email);
+  }
+
+  bool _isValidPassword(String password) {
+    return password.length >= 8;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +76,6 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
                 onTap: () {
                   setState(() {
                     _obscureText = !_obscureText;
-                    print(_obscureText);
                   });
                 },
                 child: Icon(
@@ -56,7 +93,6 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
                 context,
                 MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
               );
-
             },
             child: Container(
               alignment: Alignment.centerRight,
@@ -81,9 +117,7 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
               SizedBox(width: 20),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Save logic
-                  },
+                  onPressed: _validateAndSave,
                   child: Text('Save'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,

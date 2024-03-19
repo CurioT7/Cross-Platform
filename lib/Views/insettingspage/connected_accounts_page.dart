@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:curio/utils/component_app_bar.dart';
-import 'package:curio/utils/component_user_info_sub_appbar.dart';
+import 'package:curio/utils/componentAppBar.dart';
+import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/views/signin/forgot_password_page.dart';
 
-class ChangePasswordPage extends StatefulWidget {
+class ConnectedAccountsPage extends StatefulWidget {
   @override
-  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+  _ConnectedAccountsPageState createState() => _ConnectedAccountsPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
-  TextEditingController _currentPasswordController = TextEditingController();
+class _ConnectedAccountsPageState extends State<ConnectedAccountsPage> {
   TextEditingController _newPasswordController = TextEditingController();
   TextEditingController _confirmNewPasswordController = TextEditingController();
 
-  bool _isEmailValid = false;
   bool _isNewPasswordValid = false;
   bool _arePasswordsMatching = false;
 
@@ -21,7 +19,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ComponentAppBar(
-        title: 'Reset password',
+        title: 'Connected Accounts',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -29,27 +27,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             UserInfoSubBar(),
-            // Current Password
-            TextField(
-              controller: _currentPasswordController,
-              decoration: InputDecoration(
-                labelText: 'Current password',
-                suffix: TextButton(
-                  onPressed: () async {
-                    final selectedLocation = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-                    );
-                  },
-                  child: Text(
-                    'Forgot password',
-                  ),
-                ),
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 10),
-
             // New Password
             TextField(
               controller: _newPasswordController,
@@ -57,7 +34,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               obscureText: true,
               onChanged: (value) {
                 setState(() {
-                  _isNewPasswordValid = value.length >= 8; // Validate new password
+                  _isNewPasswordValid = value.length >= 8;
+                  _arePasswordsMatching = value == _confirmNewPasswordController.text;
                 });
               },
             ),
@@ -70,7 +48,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               obscureText: true,
               onChanged: (value) {
                 setState(() {
-                  _arePasswordsMatching = _newPasswordController.text == value; // Check if passwords match
+                  _arePasswordsMatching = value == _newPasswordController.text;
                 });
               },
             ),
@@ -91,7 +69,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      // Validate email, new password, and password match
+                      // Validate new password and password match
                       _validateAndSave();
                     },
                     child: Text('Save'),
@@ -109,10 +87,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
   void _validateAndSave() {
-    // Check email format
-    RegExp emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegExp.hasMatch(_currentPasswordController.text)) {
-      // Show invalid email snack bar
+    // Check if any of the passwords is less than 8 characters or they don't match
+    if (!_isNewPasswordValid || !_arePasswordsMatching) {
+      // Show error snack bar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -125,30 +102,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             child: Container(
               height: 40,
               alignment: Alignment.center,
-              child: Text('Invalid email.'),
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-
-    // Check if any of the passwords is less than 8 characters
-    if (_newPasswordController.text.length < 8 || _confirmNewPasswordController.text.length < 8) {
-      // Show password length snack bar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
-          ),
-          backgroundColor: Colors.grey,
-          content: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 40,
-              alignment: Alignment.center,
-              child: Text('Passwords should be at least 8 characters.'),
+              child: Text('Passwords should be at least 8 characters and match.'),
             ),
           ),
         ),
@@ -158,7 +112,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
 
     // If everything is valid, proceed with saving
     // Save logic
-    print('Updating email and password...');
+    print('Updating connected accounts...');
     // Show success snack bar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -172,7 +126,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           child: Container(
             height: 40,
             alignment: Alignment.center,
-            child: Text('Email and password updated successfully.'),
+            child: Text('Connected accounts updated successfully.'),
           ),
         ),
       ),

@@ -68,6 +68,17 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  fonts:
+    - family: IBM Plex Sans
+      fonts:
+        - asset: lib/assets/fonts/IBM_Plex_Sans/IBMPlexSans-Regular.ttf
+        - asset: lib/assets/fonts/IBM_Plex_Sans/IBMPlexSans-Bold.ttf
+        - asset: lib/assets/fonts/IBM_Plex_Sans/IBMPlexSans-Italic.ttf
+        - asset: lib/assets/fonts/IBM_Plex_Sans/IBMPlexSans-BoldItalic.ttf
+
+    - family: IBM Plex Sans Light
+      fonts:
+        - asset: lib/assets/fonts/IBM_Plex_Sans_Light/IBMPlexSans-Light.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

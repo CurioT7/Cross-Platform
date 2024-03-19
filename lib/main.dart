@@ -1,21 +1,53 @@
+import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:curio/Views/signIn/sign_in_page.dart';
 
-Future<void> main() async {
-  runApp(const MyApp());
-}
+import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
+import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
+
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Curio',
+      title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SignInPage(),
+      home: homePageBeforeSignin(),
     );
   }
 }
+
+class homePageBeforeSignin extends StatelessWidget {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey <ScaffoldState>();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+
+      key: _scaffoldKey,
+      endDrawer: sideBarBeforeLogin(),
+      bottomNavigationBar: homeNavigationBar(),
+      appBar: AppBar(
+        title: Text('Side menu'),
+
+        actions: [ IconButton(
+          icon: Icon(Icons.account_circle),
+          onPressed: () {
+            _scaffoldKey.currentState!.openEndDrawer();
+
+          },
+        ),
+        ],
+
+      ),
+    );
+  }
+}
+
+
+
+
+
+

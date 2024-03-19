@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/user_profile.dart';
+import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
+import 'package:curio/Views/homeNavbar.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -8,6 +10,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: sidebarAfterLogIn(),
+      bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
         title: const Text('Home Screen'),
       ),

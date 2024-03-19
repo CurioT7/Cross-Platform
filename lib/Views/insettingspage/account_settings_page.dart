@@ -6,11 +6,9 @@ import 'package:curio/views/insettingspage/change_password_page.dart';
 import 'package:curio/views/insettingspage/location_customization_page.dart';
 import 'package:curio/views/insettingspage/update_email_adress_page.dart';
 import 'package:curio/utils/component_app_bar.dart';
-import 'package:curio/Views/insettingspage/bottom_sheet_page.dart';
-
-
-
-
+import 'package:curio/Views/insettingspage/gender_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/views/insettingspage/connected_accounts_page.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -19,16 +17,31 @@ class AccountSettingsPage extends StatefulWidget {
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
   String _selectedGender = 'Man'; // Initial selected gender
-  String _selectedLocation= 'No location specified';
+  String _selectedLocation = 'No location specified';
   bool _isConnected = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData(); // Load initial data when the widget initializes
+  }
 
+  void _loadInitialData() async {
+    // You can add other initializations here if needed
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? initialGender = prefs.getString('selectedGender');
+    if (initialGender != null) {
+      setState(() {
+        _selectedGender = initialGender;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: ComponentAppBar(title: 'Account Settings',),
+      appBar: ComponentAppBar(title: 'Account Settings'),
       body: ListView(
         children: <Widget>[
           Container(
@@ -63,21 +76,19 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ),
           ListTile(
             leading: Container(
-                alignment: Alignment.topLeft,
-                width: 28,
-                height: double.infinity,
-                child: Icon(Icons.location_on_outlined, color: KIconColor,)),
-
+              alignment: Alignment.topLeft,
+              width: 28,
+              height: double.infinity,
+              child: Icon(Icons.location_on_outlined, color: KIconColor,),
+            ),
             title: Text('Location customization', style: kTitleHeader),
             subtitle: Column(
-
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_selectedLocation,style: kMoreInfoTextStyle,textAlign: TextAlign.left,),
-                Text( "Specify a location to customize your recommendations and feed. Reddit does not track your precise geolocation data.",style: kMoreInfoTextStyle,)
+                Text(_selectedLocation, style: kMoreInfoTextStyle, textAlign: TextAlign.left,),
+                Text("Specify a location to customize your recommendations and feed. Reddit does not track your precise geolocation data.", style: kMoreInfoTextStyle,)
               ],
-            ), // Display selected location or default text
-
+            ),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () async {
               final selectedLocation = await Navigator.push(
@@ -85,11 +96,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                 MaterialPageRoute(builder: (context) => LocationCustomizationPage()),
               );
               setState(() {
-                _selectedLocation = selectedLocation; // Update the selected location
+                _selectedLocation = selectedLocation;
               });
             },
           ),
-
           ListTile(
             leading: Icon(Icons.person_outlined, color: KIconColor),
             title: Text('Gender', style: kTitleHeader),
@@ -98,12 +108,11 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               showGenderBottomSheet(context, (String gender) {
                 setState(() {
-                  _selectedGender = gender; // Update the gender state
+                  _selectedGender = gender;
                 });
               });
             },
           ),
-
           Container(
             color: KDeviderColor,
             child: Padding(
@@ -112,18 +121,24 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Image.asset('lib/assets/images/google.png', height:40 , width: 40),
+            leading: Image.asset('lib/assets/images/google.png', height: 40, width: 40),
             title: Text('Google', style: kTitleHeader),
             trailing: TextButton(
-              child: Text((_isConnected?"Connect":"Disconnect"), style: KConnectedAccountsButtonColor),
+              child: Text((_isConnected ? "Connect" : "Disconnect"), style: KConnectedAccountsButtonColor),
               onPressed: () {
                 setState(() {
-                        _isConnected = !_isConnected;
-              });
+                  _isConnected = !_isConnected;
+                });
+                if (_isConnected) {
+                  // Navigate to ConnectedAccountsPage
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ConnectedAcountsPage()),
+                  );
+                }
               },
             ),
           ),
-
           Container(
             color: KDeviderColor,
             child: Padding(

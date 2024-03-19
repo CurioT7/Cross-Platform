@@ -39,6 +39,7 @@ dependencies:
   shared_preferences: ^2.0.8
   url_launcher: ^6.0.9
   settings_ui: ^2.0.2
+
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 
 

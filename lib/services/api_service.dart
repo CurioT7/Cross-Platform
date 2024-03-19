@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String _baseUrl = 'http://localhost:3000/api/auth'; // Replace with your backend URL
+  final String _baseUrl = 'http://localhost:3000/api/auth'; 
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(

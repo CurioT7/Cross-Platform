@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:curio/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:curio/Views/Home_screen.dart';
@@ -5,6 +7,7 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/Views/signUp/signup.dart';
+import 'package:http/http.dart' as http;
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -20,7 +23,7 @@ class _SignInWithEmailState extends State<SignInPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+        return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: redditBackgroundWhite,
       appBar: AppBar(
@@ -153,8 +156,8 @@ class _SignInWithEmailState extends State<SignInPage> {
               ),
             ),
             SizedBox(height: 20),
-            LoginButton(_formKey, _emailController, _passwordController),
-            const SizedBox(height: 90),
+             LoginButton(_formKey, _emailController, _passwordController),
+                        const SizedBox(height: 90),
           ],
         ),
       ),
@@ -182,8 +185,8 @@ class LoginButton extends StatelessWidget {
           minWidth: double.infinity,
           height: 60,
           onPressed: () async {
-            if (formKey.currentState!.validate()) {
-              formKey.currentState!.save();
+         
+            
               print('Email: ${emailController.text}');
               print('Password: ${passwordController.text}');
               print('Signing up...');
@@ -191,12 +194,34 @@ class LoginButton extends StatelessWidget {
               // -TODO: save the email and password to be passed to the next page
               print('Signup successful');
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                ),
-              );
-            }
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              // Call the signIn method from the ApiService class
+              final ApiService apiService = ApiService();
+              final http.Response response = await apiService.signIn(emailController.text, passwordController.text);
+              if (response.statusCode == 200) {
+                // If the server returns a 200 OK response, then parse the JSON.
+                Map<String, dynamic> data = jsonDecode(response.body);
+                String token = data['token'];
+                // Use the token
+                print('Login successful. Token: $token');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              } else if (response.statusCode == 404) {
+                // If the server returns a 404 response, the username or password was incorrect.
+                print('Invalid credentials, check username or password');
+              } else {
+                // If the server returns a response with a status code other than 200 or 404, throw an exception.
+                throw Exception('Failed to login');
+              }
+            
           },
           color: redditOrange,
           elevation: 0,

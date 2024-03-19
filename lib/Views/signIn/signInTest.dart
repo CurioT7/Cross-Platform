@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:curio/Views/signIn/sign_in_page.dart';
+import 'package:curio/Views/signIn/signin.dart';
 import 'package:curio/Views/signUp/signup.dart';
 
 void main() {

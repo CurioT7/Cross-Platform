@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'userName.dart';
 import 'package:curio/utils/helpers.dart';
-import 'package:curio/Views/signIn/sign_in_page.dart';
+import 'package:curio/Views/signIn/signin.dart';
 
 
 class SignUpWithEmail extends StatefulWidget {

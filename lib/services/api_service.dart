@@ -17,6 +17,31 @@ class ApiService {
       }),
     );
     return response;
+  Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
+    final String url = '$_baseUrl/api/auth/change_email';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    final Map<String, dynamic> body = {
+      'email': newEmail,
+      'password': password,
+    };
+
+    try {
+      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final responseData = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        // Edit the success message here
+        String editedMessage = "Your email has been successfully changed to $newEmail. Please verify your new email address.";
+        return {'success': true, 'message': editedMessage};
+      } else {
+        return {'success': false, 'message': responseData['message']};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error: $e'};
+    }
   }
   Future<Map<String, dynamic>> signup(String username, String email, String password) async {
     final response = await http.post(

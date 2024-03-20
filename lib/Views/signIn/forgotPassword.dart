@@ -6,6 +6,7 @@ import 'dart:convert';
 
 class ForgotPasswordPage extends StatelessWidget {
   final _emailController = TextEditingController();
+  final ApiService apiService = ApiService();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +28,17 @@ class ForgotPasswordPage extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async{
                 // Implement help button logic
+                var response= await apiService.ForgotPassword(_emailController.text);
+                if(response['success'] == true) {
+                  // Implement success logic
+                  print('Success');
+                } else {
+                  // Implement failure logic
+                  print('Failure');
+                }
+
               },
               child: const Text('Help', style: TextStyle(color: redditGrey)),
             ),

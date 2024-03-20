@@ -7,6 +7,7 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/Views/signUp/signup_email.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:http/http.dart' as http;
 
 class SignInPage extends StatefulWidget {
@@ -20,10 +21,13 @@ class _SignInWithEmailState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final ApiService apiService = ApiService();
+  final GoogleAuthSignInService googleAuthSignInService =
+      GoogleAuthSignInService();
 
   @override
   Widget build(BuildContext context) {
-        return Scaffold(
+    return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: redditBackgroundWhite,
       appBar: AppBar(
@@ -70,15 +74,22 @@ class _SignInWithEmailState extends State<SignInPage> {
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Column(
                 children: <Widget>[
-                  const SizedBox(height: 20), 
+                  const SizedBox(height: 20),
                   Text(
-                      'Log In to Curio',
-                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold), 
-                    ),
-                  const SizedBox(height: 20), 
+                    'Log In to Curio',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   MaterialButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      String url = await googleAuthSignInService.handleSignIn();
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40),
@@ -91,12 +102,15 @@ class _SignInWithEmailState extends State<SignInPage> {
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 10.0),
-                            child: Image.asset('lib/assets/images/google.png', height: 30, width: 30),
+                            child: Image.asset('lib/assets/images/google.png',
+                                height: 30, width: 30),
                           ),
                         ),
                         Align(
                           alignment: Alignment.center,
-                          child: Text('Continue with Google', style: TextStyle(color: Colors.black, fontSize: 16)),
+                          child: Text('Continue with Google',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 16)),
                         ),
                       ],
                     ),
@@ -107,7 +121,10 @@ class _SignInWithEmailState extends State<SignInPage> {
                       Expanded(child: Divider(color: Colors.black)),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text("  OR  ", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400)),
+                        child: Text("  OR  ",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400)),
                       ),
                       Expanded(child: Divider(color: Colors.black)),
                     ],
@@ -156,8 +173,8 @@ class _SignInWithEmailState extends State<SignInPage> {
               ),
             ),
             SizedBox(height: 20),
-             LoginButton(_formKey, _emailController, _passwordController),
-                        const SizedBox(height: 90),
+            LoginButton(_formKey, _emailController, _passwordController),
+            const SizedBox(height: 90),
           ],
         ),
       ),
@@ -185,44 +202,41 @@ class LoginButton extends StatelessWidget {
           minWidth: double.infinity,
           height: 60,
           onPressed: () async {
-         
-            
-              print('Email: ${emailController.text}');
-              print('Password: ${passwordController.text}');
-              print('Signing up...');
-              ApiService apiService = ApiService();
+            print('Email: ${emailController.text}');
+            print('Password: ${passwordController.text}');
+            print('Signing up...');
+            ApiService apiService = ApiService();
 
-              final http.Response response = await apiService.signIn(emailController.text, passwordController.text);
-              if (response.statusCode == 200) {
-                // If the server returns a 200 OK response, then parse the JSON.
-                Map<String, dynamic> data = jsonDecode(response.body);
-                String token = data['token'];
-                // Use the token
-                print('Login successful. Token: $token');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ),
-                );
-              } else if (response.statusCode == 404) {
-                // If the server returns a 404 response, the username or password was incorrect.
-                print('Invalid credentials, check username or password');
-              } else {
-                // If the server returns a response with a status code other than 200 or 404, throw an exception.
-                throw Exception('Failed to login');
-              }
-
-              // -DEBUG:
-              print('Signup successful');
+            final http.Response response = await apiService.signIn(
+                emailController.text, passwordController.text);
+            if (response.statusCode == 200) {
+              // If the server returns a 200 OK response, then parse the JSON.
+              Map<String, dynamic> data = jsonDecode(response.body);
+              String token = data['token'];
+              // Use the token
+              print('Login successful. Token: $token');
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ),
-                );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(),
+                ),
+              );
+            } else if (response.statusCode == 404) {
+              // If the server returns a 404 response, the username or password was incorrect.
+              print('Invalid credentials, check username or password');
+            } else {
+              // If the server returns a response with a status code other than 200 or 404, throw an exception.
+              throw Exception('Failed to login');
+            }
 
-            
+            // -DEBUG:
+            print('Signup successful');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(),
+              ),
+            );
           },
           color: redditOrange,
           elevation: 0,

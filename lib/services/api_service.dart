@@ -91,7 +91,26 @@ class ApiService {
       throw Exception('Failed to check email availability');
     }
   }
+  Future<Map<String, dynamic>> ForgotPassword(String email) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/forgot_password'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to send reset password link');
+    }
+  }
 }
+
+
 
 
 class GoogleAuthApi {

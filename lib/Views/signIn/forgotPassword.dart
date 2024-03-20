@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/utils/helpers.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ForgotPasswordPage extends StatelessWidget {
   final _emailController = TextEditingController();
@@ -8,7 +10,7 @@ class ForgotPasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: redditBackgroundWhite,
+        backgroundColor: redditBackgroundWhite, // Set your desired color
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items to the start and end of the row
           children: [
@@ -33,6 +35,7 @@ class ForgotPasswordPage extends StatelessWidget {
           ],
         ),
       ),
+      backgroundColor: redditBackgroundWhite, // Set your desired color
       body: Column(
         children: <Widget>[
           SizedBox(height: MediaQuery.of(context).padding.top), // Add spacing to sit under the AppBar
@@ -42,14 +45,32 @@ class ForgotPasswordPage extends StatelessWidget {
           const SizedBox(height: 20),
           CustomTextField('Email', _emailController),
           const SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: redditOrange,
+          Container(
+            height: 50, 
+            width: double.infinity, 
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: redditOrange,
+              ),
+              onPressed: () async {
+                final response = await http.post(
+                  Uri.parse('http://localhost:3000/api/auth/reset_password/{token}'), // Replace {token} with the actual token
+                  headers: <String, String>{
+                    'Content-Type': 'application/json; charset=UTF-8',
+                  },
+                  body: jsonEncode(<String, String>{
+                    'password': _emailController.text,
+                  }),
+                );
+
+                if (response.statusCode == 200) {
+                  print('Password reset successful');
+                } else {
+                  print('Failed to reset password: ${response.body}');
+                }
+              },
+              child: const Text('Reset Password', style: TextStyle(color: Colors.white)),
             ),
-            onPressed: () {
-              // Implement reset password logic
-            },
-            child: const Text('Reset Password', style: TextStyle(color: Colors.white),)
           ),
         ],
       ),

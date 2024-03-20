@@ -202,7 +202,7 @@ class LoginButton extends StatelessWidget {
             Navigator.push(
               context,
                 MaterialPageRoute(
-                  builder: (context) =>  CreateUsernamePage(email: emailController.text, password: passwordController.text),
+                  builder: (context) => CreateUsernamePage(email: emailController.text, password: passwordController.text),
                 ),
               );
           },

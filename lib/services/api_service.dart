@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String _baseUrl = 'https://user1710892633887.requestly.tech/api/auth';
+  final String _baseUrl = 'http://localhost:3000/api/auth';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -30,6 +30,7 @@ class ApiService {
         'password': password,
       }),
     );
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {

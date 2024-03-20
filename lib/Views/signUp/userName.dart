@@ -48,9 +48,12 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
                     child: Column(
                       children: <Widget>[
                         CustomTextField('Username', _usernameController, onValidChanged: (isValid) {
-                         setState(() {
-                            _isUsernameAvailable = isValid;
-                         });
+                          // check if the usrename is available through api
+                          apiService.isUsernameAvailable(_usernameController.text).then((isUsernameAvailable) {
+                            setState(() {
+                              _isUsernameAvailable = isUsernameAvailable['success'];
+                            });
+                          });
                         }),
                         const SizedBox(height: 20), // Add a SizedBox widget for padding
                         ElevatedButton(

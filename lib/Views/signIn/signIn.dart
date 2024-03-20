@@ -190,17 +190,8 @@ class LoginButton extends StatelessWidget {
               print('Email: ${emailController.text}');
               print('Password: ${passwordController.text}');
               print('Signing up...');
-              // -DEBUG: await apiService.isEmailAvailable(emailController.text);
-              // -TODO: save the email and password to be passed to the next page
-              print('Signup successful');
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ),
-                );
-              // Call the signIn method from the ApiService class
-              final ApiService apiService = ApiService();
+              ApiService apiService = ApiService();
+
               final http.Response response = await apiService.signIn(emailController.text, passwordController.text);
               if (response.statusCode == 200) {
                 // If the server returns a 200 OK response, then parse the JSON.
@@ -221,6 +212,16 @@ class LoginButton extends StatelessWidget {
                 // If the server returns a response with a status code other than 200 or 404, throw an exception.
                 throw Exception('Failed to login');
               }
+
+              // -DEBUG:
+              print('Signup successful');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+
             
           },
           color: redditOrange,

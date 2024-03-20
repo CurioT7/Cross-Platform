@@ -3,7 +3,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
-import 'package:curio/Views/signIn/forgot_password_page.dart';
+import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/Views/signUp/signup.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

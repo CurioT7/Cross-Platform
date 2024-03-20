@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/utils/helpers.dart';
+import 'package:curio/services/api_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

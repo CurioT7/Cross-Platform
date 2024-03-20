@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/utils/componentUserInfoSubAppBar.dart';
-import 'package:curio/views/signin/forgot_password_page.dart';
+import 'package:curio/views/signIn/forgotPassword.dart';
 
 class UpdateEmailAdressPage extends StatefulWidget {
   @override

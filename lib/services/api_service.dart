@@ -17,6 +17,7 @@ class ApiService {
       }),
     );
     return response;
+  }
   Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {

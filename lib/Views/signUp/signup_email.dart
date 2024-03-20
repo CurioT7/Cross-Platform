@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:curio/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -6,7 +5,7 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/signIn.dart';
 import 'package:curio/Views/signUp/userName.dart';
-import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -20,6 +19,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final ApiService apiService = ApiService();
+  final GoogleAuthSignInService googleAuthSignInService = GoogleAuthSignInService();
   bool validEmail = false;
   bool validPassword = false;
 
@@ -76,11 +76,20 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const Text(
                     ' Hi new Friend!, Welcome to Curio',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   MaterialButton(
-                    onPressed: () {},
+                    onPressed: () async{
+                      String url = await googleAuthSignInService.handleSignIn();
+                      if( await canLaunchUrlString(url)){
+                        await launchUrlString(url);
+                      }else{
+                        throw 'Could not launch $url';
+                      }
+
+                    },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40),

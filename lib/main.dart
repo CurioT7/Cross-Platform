@@ -3,14 +3,25 @@ import 'package:flutter/material.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
-
-
+import 'package:curio/services/api_service.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
+  final GoogleAuthSignInService googleAuthSignInService = GoogleAuthSignInService();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      onGenerateRoute: (settings) {
+      if (settings.name!.startsWith('/auth/google/callback')) {
+        final uri = Uri.parse(settings.name!);
+        final code = uri.queryParameters['code'];
+        if (code != null) {
+          googleAuthSignInService.handleGoogleAuthCallback(code);
+        }
+      }
+      return null;
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,

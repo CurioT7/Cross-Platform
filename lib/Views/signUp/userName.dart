@@ -3,6 +3,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:curio/utils/helpers.dart';
 import 'package:curio/services/api_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CreateUsernamePage extends StatefulWidget {
   final String email;
@@ -16,6 +17,7 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
   final _usernameController = TextEditingController();
   bool? _isUsernameAvailable;
   final ApiService apiService = ApiService();
+  final FlutterSecureStorage storage = FlutterSecureStorage(); // Declare storage here
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +77,8 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
     if (_formKey.currentState!.validate()) {
       var response = await apiService.signup(widget.email, widget.password, _usernameController.text); // Call the signup method of the apiService
       if (response['success'] == true) {
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomeScreen()));
+        await storage.write(key: 'token', value: response['token']); // Store the token in the secure storage
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) =>  HomeScreen())); // Navigate to the HomeScreen
       } else {
         print('Signup failed');
         // Show error message

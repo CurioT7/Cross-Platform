@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:curio/Views/user_profile.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
 
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  HomeScreen({Key? key}) : super(key: key);
+  Future<String?> getToken() async {
+    return await storage.read(key: 'token');
+  }
 
   @override
   Widget build(BuildContext context) {

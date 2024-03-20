@@ -5,7 +5,8 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/signIn.dart';
 import 'package:curio/Views/signUp/userName.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -23,7 +24,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
   bool validEmail = false;
   bool validPassword = false;
 
-  @override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -82,12 +83,14 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async{
-                      String url = await googleAuthSignInService.handleSignIn();
-                      if( await canLaunchUrlString(url)){
-                        await launchUrlString(url);
-                      }else{
-                        throw 'Could not launch $url';
+                      String dummy = 'http://192.168.1.2:3000/api/auth/google';
+
+                      if (await canLaunch(dummy)) {
+                        await launch(dummy);
+                      } else {
+                        throw 'Could not launch $dummy';
                       }
+                      // request to the server token??
 
                     },
                     color: Colors.grey[200],

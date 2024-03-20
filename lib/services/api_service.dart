@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String _baseUrl = 'http://localhost:3000/api/auth';
+  final String _baseUrl = 'http://192.168.1.2:3000/api/auth';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -57,27 +57,27 @@ class ApiService {
       }),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to signup');
     }
   }
 
-  Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/username_available'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
+  final response = await http.get(
+    Uri.parse('$_baseUrl/username_available/$username'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
 
-    if (response.statusCode == 200 || response.statusCode == 409) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to check username availability');
-    }
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Failed to check username availability');
   }
+}
   Future<Map<String,dynamic>> isEmailAvailable(String email) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/email_available'),
@@ -213,22 +213,16 @@ class ApiService {
 
 
 class GoogleAuthApi {
-  static const String baseUrl = 'http://localhost:3000/api/auth';
+  static const String baseUrl = 'http://192.168.1.2:3000/api/auth';
 
   Future<String> initiateGoogleAuth() async {
     final response = await http.get(Uri.parse('$baseUrl/google'));
-
-    if (response.statusCode == 302) {
-      // Extract the URL that the user should be redirected to from the response
-      return response.headers['location']!;
-    } else {
-      throw Exception('Failed to initiate Google authentication.');
-    }
+    print(response.headers);
+    return response.body;
   }
 
   Future<String> handleGoogleAuthCallback(String code) async {
-    final response = await http.get(Uri.parse('$baseUrl/google/callback?code=$code'));
-
+    final response = await http.get(Uri.parse('$baseUrl/google/callback'));
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       if (responseBody['success']) {
@@ -260,14 +254,12 @@ class GoogleAuthSignInService {
   final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
 
   Future<String> handleSignIn() async {
-    try {
+
       print('Initiating Google Authentication...');
       final String url = await _googleAuthApi.initiateGoogleAuth();
+      print('Google Authentication initiated.');
       return url;
-    } catch (error) {
-      print(error);
-      rethrow;
-    }
+
   }
 
   Future<void> handleGoogleAuthCallback(String code) async {

@@ -10,7 +10,7 @@ import 'package:curio/views/insettingspage/genderPopUp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/views/insettingspage/connectedAccounts.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-
+import 'package:curio/views/insettingspage/notificationSettings.dart';
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
@@ -196,7 +196,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => BlockedAccountsPage()),
+                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
 
 
               );

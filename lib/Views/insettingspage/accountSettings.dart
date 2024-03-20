@@ -182,6 +182,26 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               );
             },
           ),
+          Container(
+            color: KDeviderColor,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text('CONTACT SETTINGS', style: kSubtitleTextStyle),
+            ),
+          ),
+          ListTile(
+            leading: Icon(FontAwesomeIcons.bell, color: KIconColor),
+            title: Text('Manage Notifications', style: kTitleHeader),
+            trailing: Icon(Icons.arrow_forward, color: KIconColor),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BlockedAccountsPage()),
+
+
+              );
+            },
+          ),
         ],
       ),
     );

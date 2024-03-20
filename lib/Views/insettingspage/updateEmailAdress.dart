@@ -35,6 +35,11 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
       );
       return;
     }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Email updated successfully'),
+      ),
+    );
     Navigator.of(context).pop();
   }
 

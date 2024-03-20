@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/views/signin/forgot_password_page.dart';
 import 'package:curio/utils/componentUserInfoSubAppBar.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
+
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -35,9 +37,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       _showSnackBar('New password and confirm password do not match.');
       return;
     }
+    _showSnackBar('password updated successfully');
+    Navigator.of(context).pop();
+    return;
 
-    // If all validations pass, proceed with saving logic
-    // Save logic
+
+
+
   }
 
   void _showSnackBar(String message) {

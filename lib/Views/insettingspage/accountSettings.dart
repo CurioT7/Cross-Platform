@@ -9,6 +9,7 @@ import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/views/insettingspage/genderPopUp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/views/insettingspage/connectedAccounts.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -19,6 +20,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   String _selectedGender = 'Man'; // Initial selected gender
   String _selectedLocation = 'No location specified';
   bool _isConnected = false;
+  String _username = '';
+  String _email = '';
+
+  ApiServiceMahmoud _apiService = ApiServiceMahmoud();
 
   @override
   void initState() {
@@ -34,6 +39,26 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       setState(() {
         _selectedGender = initialGender;
       });
+    }
+    _fetchUserProfile();
+  }
+
+  void _fetchUserProfile() async {
+    try {
+      // Fetch user profile data
+      Map<String, dynamic> userProfile = await _apiService.getUserProfile();
+      print(userProfile); // Print the fetched data for debugging
+      setState(() {
+        _selectedGender = userProfile['gender'];
+        _username = userProfile['username'];
+        _email = userProfile['email'];
+        print(_selectedGender);
+        print(_username);
+        print(_email);
+
+      });
+    } catch (e) {
+      print('Failed to fetch user profile: $e');
     }
   }
 
@@ -54,7 +79,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ListTile(
             leading: Icon(FontAwesomeIcons.cog, color: KIconColor),
             title: Text('Update email address', style: kTitleHeader),
-            subtitle: Text('mahmoud9salah2002@gmail.com', style: kMoreInfoTextStyle),
+            subtitle: Text(_email.isNotEmpty ? _email : 'Loading...', style: kMoreInfoTextStyle),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
               Navigator.push(
@@ -70,7 +95,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                  MaterialPageRoute(builder: (context)  => ChangePasswordPage()),
+                MaterialPageRoute(builder: (context)  => ChangePasswordPage()),
               );
             },
           ),

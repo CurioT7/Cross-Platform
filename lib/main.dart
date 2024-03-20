@@ -1,4 +1,5 @@
 import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
@@ -41,7 +42,7 @@ class homePageBeforeSignin extends StatelessWidget {
     return Scaffold(
 
       key: _scaffoldKey,
-      endDrawer: sideBarBeforeLogin(),
+      endDrawer:sidebarAfterLogIn(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
         title: Text('Side menu'),

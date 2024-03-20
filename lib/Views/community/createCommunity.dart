@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:curio/services/logicAPI.dart';
+import 'package:flutter/widgets.dart';
 
 class createCommunity extends StatefulWidget {
   @override
@@ -8,6 +9,8 @@ class createCommunity extends StatefulWidget {
 }
 
 class _createCommunityState extends State<createCommunity> {
+  String token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWY0NDI4NGI4YjFjMTM5OWNkOGFiMjIiLCJpYXQiOjE3MTA3ODgxNjEsImV4cCI6MTcxMDg3NDU2MX0.Dkf0kU7xh_jppyR07VJveTUi78aI45J_NpvxX1XGRio';
   String? errorMessage;
   bool isSwitched = false;
   bool isButtonEnabled = false;
@@ -17,6 +20,7 @@ class _createCommunityState extends State<createCommunity> {
   String listTileSubtitle =
       "Anyone can view, post, and comment to this community";
   final TextEditingController _textEditingController = TextEditingController();
+  final logicAPI apiLogic = logicAPI();
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,7 @@ class _createCommunityState extends State<createCommunity> {
           ),
           bottom: PreferredSize(
             preferredSize:
-                Size.fromHeight(MediaQuery.of(context).size.width * 0.002),
+            Size.fromHeight(MediaQuery.of(context).size.width * 0.002),
             child: Container(
               decoration: BoxDecoration(
                 boxShadow: [
@@ -124,7 +128,7 @@ class _createCommunityState extends State<createCommunity> {
                         if (isMatch == false ||
                             _textEditingController.text.length < 3) {
                           errorMessage =
-                              'Community names must be between 3-21 characters and'
+                          'Community names must be between 3-21 characters and'
                               ' can only contain letters, numbers, or underscores.';
                         }
                       });
@@ -148,7 +152,7 @@ class _createCommunityState extends State<createCommunity> {
               GestureDetector(
                 onTap: () async {
                   Map<String, String>? result =
-                      await _displayTypeCommunityBottomSheet(context);
+                  await _displayTypeCommunityBottomSheet(context);
 
                   if (result != null) {
                     setState(() {
@@ -211,49 +215,70 @@ class _createCommunityState extends State<createCommunity> {
                   ),
                 ],
               ),
+
               SizedBox(
                 height: MediaQuery.of(context).size.width * 0.04,
               ),
-              Center(
-                  child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.9,
-                height: MediaQuery.of(context).size.width * 0.11,
-                child: ElevatedButton(
-                  onPressed: isButtonEnabled
-                      ? () {
-                          // Button action when clicked
-                        }
-                      : null,
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.disabled)) {
-                          return Colors.grey.shade200;
-                        }
-                        return Colors.blue.shade900;
-                      },
+              Center( child:
+              ElevatedButton(
+
+                onPressed: isButtonEnabled
+                    ? () {
+                  setState(() {
+                    // Set loading state if needed
+                  });
+                  apiLogic
+                      .createCommunity(_textEditingController.text,
+                      listTileTitle, isSwitched, token)
+                      .then((_) {
+                    setState(() {
+                      Text('Community cxreated succssfully');
+                    });
+                  }).catchError((error) {
+                    setState(() {
+                      // Handle errors here
+                      print('Error creating community: $error');
+                    });
+                  });
+                }
+                    : null,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (!isButtonLoading)
+                      Text(
+                        'Create community',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: MediaQuery.of(context).size.width * 0.05,
+                        ),
+                      ),
+                    if (isButtonLoading)
+                      CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                  ],
+                ),
+                style: ButtonStyle(
+                  fixedSize: MaterialStateProperty.all<Size>(
+                    Size(
+                      MediaQuery.of(context).size.width * 0.9, // Width
+                      MediaQuery.of(context).size.width * 0.12, // Height
                     ),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      if (!isButtonLoading)
-                        Text(
-                          'Create community',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: MediaQuery.of(context).size.width * 0.05,
-                          ),
-                        ),
-                      if (isButtonLoading)
-                        CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                    ],
+
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.disabled)) {
+                        return Colors.grey.shade200;
+                      }
+                      return Colors.blue.shade900;
+                    },
                   ),
                 ),
-              ))
+              )
+              )
             ],
           ),
         ));
@@ -284,12 +309,12 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                 ),
                 Center(
                     child: Text(
-                  'Community type',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: MediaQuery.of(context).size.width * 0.045,
-                  ),
-                )),
+                      'Community type',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: MediaQuery.of(context).size.width * 0.045,
+                      ),
+                    )),
                 ListTile(
                   contentPadding: EdgeInsets.only(
                     left: MediaQuery.of(context).size.width * 0.05,
@@ -318,7 +343,7 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                     Navigator.pop(context, {
                       'title': 'Public',
                       'subtitle':
-                          'Anyone can view, post, and comment to this community'
+                      'Anyone can view, post, and comment to this community'
                     })
                   },
                 ),
@@ -347,12 +372,12 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                       ),
                     ),
                     onTap: () => {
-                          Navigator.pop(context, {
-                            'title': 'Restricted',
-                            'subtitle':
-                                'Anyone can view this community, but only approved users can post'
-                          })
-                        }),
+                      Navigator.pop(context, {
+                        'title': 'Restricted',
+                        'subtitle':
+                        'Anyone can view this community, but only approved users can post'
+                      })
+                    }),
                 ListTile(
                     contentPadding: EdgeInsets.only(
                       left: MediaQuery.of(context).size.width * 0.05,
@@ -378,15 +403,15 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                       ),
                     ),
                     onTap: () => {
-                          Navigator.pop(
-                            context,
-                            {
-                              'title': 'Private',
-                              'subtitle':
-                                  'Only approved users can view and submit to this community'
-                            },
-                          )
-                        }),
+                      Navigator.pop(
+                        context,
+                        {
+                          'title': 'Private',
+                          'subtitle':
+                          'Only approved users can view and submit to this community'
+                        },
+                      )
+                    }),
               ],
             ),
           ));

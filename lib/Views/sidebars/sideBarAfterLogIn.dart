@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
+import 'package:curio/Views/insettingspage/accountSettings.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -273,7 +274,13 @@ class sidebarAfterLogIn extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => {},
+            onTap: () => {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+              )
+            },
           ),
         ],
       ),

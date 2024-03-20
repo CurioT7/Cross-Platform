@@ -6,7 +6,7 @@ import 'package:curio/Views/Home_screen.dart';
 import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
-import 'package:curio/Views/signUp/signup.dart';
+import 'package:curio/Views/signUp/signup_email.dart';
 import 'package:http/http.dart' as http;
 
 class SignInPage extends StatefulWidget {
@@ -54,7 +54,7 @@ class _SignInWithEmailState extends State<SignInPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => SignupPage(),
+                    builder: (context) => SignUpWithEmail(),
                   ),
                 );
               },
@@ -229,7 +229,7 @@ class LoginButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(50),
           ),
           child: const Text(
-            'Continue',
+            'Login',
             style: TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 18,

@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String _baseUrl = 'http://localhost:3000/api/auth'; 
+  final String _baseUrl = 'https://user1710892633887.requestly.tech/api/auth';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -29,8 +30,7 @@ class ApiService {
         'password': password,
       }),
     );
-
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to signup');
@@ -108,5 +108,36 @@ class MockGoogleAuthApi {
   Future<String> handleGoogleAuthCallback() async {
     print('Mock: Handling Google Authentication Callback...');
     return 'mock_access_token';
+  }
+}
+
+
+class GoogleAuthSignInService {
+  final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
+
+  Future<String> handleSignIn() async {
+    try {
+      print('Initiating Google Authentication...');
+      final String url = await _googleAuthApi.initiateGoogleAuth();
+      return url;
+    } catch (error) {
+      print(error);
+      rethrow;
+    }
+  }
+
+  Future<void> handleGoogleAuthCallback(String code) async {
+    try {
+      print('Handling callback...');
+      final String accessToken =
+      await _googleAuthApi.handleGoogleAuthCallback(code);
+      print('Extracted Access Token: $accessToken');
+      print('Storing Access Token...');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+      print('Access Token stored.');
+    } catch (error) {
+      print(error);
+    }
   }
 }

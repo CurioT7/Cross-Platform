@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/reddit_colors.dart';
-
+import 'package:curio/services/api_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class CustomTextField extends StatefulWidget {
@@ -8,12 +9,14 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController controller;
   final bool obscureText;
   final Function(String)? onChanged;
+  final ValueChanged<bool>? onValidChanged;
 
   const CustomTextField(
       this.labelText,
-      this.controller, {
+      this.controller, {super.key,
         this.obscureText = false,
         this.onChanged,
+        this.onValidChanged,
       });
 
   @override
@@ -42,6 +45,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             _isValid = value.length >= 3;
             // TODO- check with the backend if the username is available
           }
+          widget.onValidChanged?.call(_isValid!);
         });
       },
       decoration: InputDecoration(
@@ -82,8 +86,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
           else
             return null;
         }
-        return null;
+        else if (widget.labelText == 'Username')
+          if (value!.length < 3)
+            return 'Username must be longer than 3 characters';
+          else
+            return null;
       },
     );
   }
 }
+
+

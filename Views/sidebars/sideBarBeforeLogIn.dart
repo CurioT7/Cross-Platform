@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'sideBarAfterLogIn.dart';
-import 'package:curio/Views/signUp/signup.dart';
+import 'package:curio/Views/signUp/signup_email.dart';
 class sideBarBeforeLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class sideBarBeforeLogin extends StatelessWidget {
             onTap: () => {Navigator.pop(context),
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignupPage()),
+                MaterialPageRoute(builder: (context) => SignUpWithEmail()),
               )},
           ),
           ListTile(

@@ -227,8 +227,7 @@ class _createCommunityState extends State<createCommunity> {
                         setState(() {
                           // Set loading state if needed
                         });
-                        apiLogic
-                            .createCommunity(_textEditingController.text,
+                        apiLogic.createCommunity(_textEditingController.text,
                                 listTileTitle, isSwitched, token)
                             .then((_) {
                           setState(() {

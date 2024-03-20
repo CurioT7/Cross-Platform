@@ -109,6 +109,104 @@ class ApiService {
       throw Exception('Failed to send reset password link');
     }
   }
+
+
+  Future<Map<String, dynamic>> reportUser() async {
+    final String endpoint = '/api/report_user'; // Endpoint for reporting user
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to report user: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to report user: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
+    final String endpoint = '/user/$username/about'; // Endpoint for fetching user about info
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('User not found: ${response.body}');
+      } else {
+        throw Exception('Failed to fetch user about info: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user about info: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId, String subredditId) async {
+    final String endpoint = '/api/friend'; // Endpoint for creating user-subreddit relationship
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    // Define the request body
+    final Map<String, dynamic> requestBody = {
+      'userId': userId,
+      'subredditId': subredditId,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(requestBody),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('Failed to create user-subreddit relationship: ${response.body}');
+      } else {
+        throw Exception('Failed to create user-subreddit relationship: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to create user-subreddit relationship: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId, String subredditId) async {
+    final String endpoint = '/api/unfriend'; // Endpoint for removing user-subreddit relationship
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    // Define the request body
+    final Map<String, dynamic> requestBody = {
+      'userId': userId,
+      'subredditId': subredditId,
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        body: jsonEncode(requestBody),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('Subreddit not found: ${response.body}');
+      } else {
+        throw Exception('Failed to remove user-subreddit relationship: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to remove user-subreddit relationship: $e');
+    }
+  }
 }
 
 

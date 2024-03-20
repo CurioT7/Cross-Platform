@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:curio/Views/signIn/signin.dart';
-import 'package:curio/Views/signUp/signup.dart';
+import 'package:curio/Views/signUp/signup_email.dart';
 
 void main() {
   testWidgets('Sign In Page - UI Test', (WidgetTester tester) async {
     // Build the SignInPage widget.
-    await tester.pumpWidget(MaterialApp(home: SignInPage()));
+    await tester.pumpWidget(MaterialApp(home: SignUpWithEmail()));
 
     // Verify that the title is displayed correctly.
     expect(find.text('Log In to Curio'), findsOneWidget);
@@ -20,7 +20,7 @@ void main() {
 
   testWidgets('Sign In Page - Button Test', (WidgetTester tester) async {
     // Build the SignInPage widget.
-    await tester.pumpWidget(MaterialApp(home: SignInPage()));
+    await tester.pumpWidget(MaterialApp(home: SignUpWithEmail()));
 
     // Tap the "Continue" button.
     await tester.tap(find.text('Continue'));
@@ -33,14 +33,14 @@ void main() {
 
   testWidgets('Sign In Page - Navigation Test', (WidgetTester tester) async {
     // Build the SignInPage widget.
-    await tester.pumpWidget(MaterialApp(home: SignInPage()));
+    await tester.pumpWidget(MaterialApp(home: SignUpWithEmail()));
 
     // Tap the "Sign Up" button.
     await tester.tap(find.text('Sign Up'));
     await tester.pump();
 
     // Verify that the SignUpPage is pushed onto the navigation stack.
-    expect(find.byType(SignupPage), findsOneWidget);
+    expect(find.byType(SignUpWithEmail), findsOneWidget);
 
     // Go back to the SignInPage.
     await tester.pageBack();

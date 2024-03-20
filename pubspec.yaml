@@ -38,6 +38,7 @@ dependencies:
   animate_do: ^2.0.0
   shared_preferences: ^2.0.8
   url_launcher: ^6.0.9
+  intl: ^0.17.0
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 
 

@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   final String _baseUrl = 'http://192.168.1.2:3000/api/auth';
@@ -212,68 +216,38 @@ Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
 
 
 
-class GoogleAuthApi {
-  static const String baseUrl = 'http://192.168.1.2:3000/api/auth';
-
-  Future<String> initiateGoogleAuth() async {
-    final response = await http.get(Uri.parse('$baseUrl/google'));
-    print(response.headers);
-    return response.body;
-  }
-
-  Future<String> handleGoogleAuthCallback(String code) async {
-    final response = await http.get(Uri.parse('$baseUrl/google/callback'));
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      if (responseBody['success']) {
-        print('Google authentication successful.');
-        return responseBody['accessToken'];
-      } else {
-        throw Exception('Failed to authenticate with Google: ${responseBody['message']}');
-      }
-    } else {
-      throw Exception('Failed to handle Google authentication callback.');
-    }
-  }
-}
-class MockGoogleAuthApi {
-  static const String baseUrl = 'http://localhost:3000/api/auth';
-
-  Future<void> initiateGoogleAuth() async {
-    print('Mock: Initiating Google Authentication...');
-  }
-
-  Future<String> handleGoogleAuthCallback() async {
-    print('Mock: Handling Google Authentication Callback...');
-    return 'mock_access_token';
-  }
-}
-
 
 class GoogleAuthSignInService {
-  final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final userCredential = ValueNotifier<UserCredential?>(null);
+  final storage = FlutterSecureStorage();
+  Future<dynamic> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-  Future<String> handleSignIn() async {
+      final GoogleSignInAuthentication? googleAuth =
+      await googleUser?.authentication;
 
-      print('Initiating Google Authentication...');
-      final String url = await _googleAuthApi.initiateGoogleAuth();
-      print('Google Authentication initiated.');
-      return url;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
 
+      userCredential.value = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = _auth.currentUser;
+      print(user);
+      print(userCredential.value);
+      // save the user token
+      await storage.write(key: 'token', value: userCredential.value!.credential!.token.toString());
+  }
+  catch (e) {
+    print('Error: $e');
+  }
   }
 
-  Future<void> handleGoogleAuthCallback(String code) async {
-    try {
-      print('Handling callback...');
-      final String accessToken =
-      await _googleAuthApi.handleGoogleAuthCallback(code);
-      print('Extracted Access Token: $accessToken');
-      print('Storing Access Token...');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('accessToken', accessToken);
-      print('Access Token stored.');
-    } catch (error) {
-      print(error);
-    }
+  Future<void> signOutGoogle() async {
+    await googleSignIn.signOut();
+    print("User Signed Out");
   }
 }

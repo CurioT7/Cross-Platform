@@ -5,7 +5,10 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/signIn.dart';
 import 'package:curio/Views/signUp/userName.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curio/firebase_options.dart';
+import 'package:curio/Views/Home_screen.dart';
 
 
 class SignUpWithEmail extends StatefulWidget {
@@ -20,11 +23,12 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final ApiService apiService = ApiService();
-  final GoogleAuthSignInService googleAuthSignInService = GoogleAuthSignInService();
+  final GoogleAuthSignInService _googleAuthSignInService =
+      GoogleAuthSignInService();
   bool validEmail = false;
   bool validPassword = false;
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -82,15 +86,10 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   MaterialButton(
-                    onPressed: () async{
-                      String dummy = 'http://192.168.1.2:3000/api/auth/google';
-
-                      if (await canLaunch(dummy)) {
-                        await launch(dummy);
-                      } else {
-                        throw 'Could not launch $dummy';
-                      }
-                      // request to the server token??
+                    onPressed: () async {
+                      await _googleAuthSignInService.signInWithGoogle();
+                      // After successful sign in, navigate to the HomeScreen
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
 
                     },
                     color: Colors.grey[200],
@@ -181,8 +180,7 @@ class LoginButton extends StatelessWidget {
   final TextEditingController passwordController;
   final bool validInput;
 
-  const LoginButton(
-      this.formKey, this.emailController, this.passwordController,
+  const LoginButton(this.formKey, this.emailController, this.passwordController,
       {this.validInput = false, super.key});
 
   @override
@@ -196,8 +194,8 @@ class LoginButton extends StatelessWidget {
         child: MaterialButton(
           minWidth: double.infinity,
           height: 60,
-          onPressed:() async {
-           // check for the eamil if exist
+          onPressed: () async {
+            // check for the eamil if exist
             // ApiService apiService = ApiService();
             // var response = await apiService.checkEmail(emailController.text);
             // if (response.statusCode == 200) {
@@ -213,10 +211,12 @@ class LoginButton extends StatelessWidget {
             print('Password: ${passwordController.text}');
             Navigator.push(
               context,
-                MaterialPageRoute(
-                  builder: (context) => CreateUsernamePage(email: emailController.text, password: passwordController.text),
-                ),
-              );
+              MaterialPageRoute(
+                builder: (context) => CreateUsernamePage(
+                    email: emailController.text,
+                    password: passwordController.text),
+              ),
+            );
           },
           color: redditOrange,
           elevation: 0,

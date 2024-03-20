@@ -83,12 +83,10 @@ class _SignInWithEmailState extends State<SignInPage> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async {
-                      String url = await googleAuthSignInService.handleSignIn();
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(url);
-                      } else {
-                        throw 'Could not launch $url';
-                      }
+await googleAuthSignInService.signInWithGoogle();
+                      // After successful sign in, navigate to the HomeScreen
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (context) => HomeScreen()));
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(

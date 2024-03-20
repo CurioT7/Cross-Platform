@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
 class SignupPage extends StatefulWidget {
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -255,12 +256,10 @@ class SignupButton extends StatelessWidget {
         onPressed: termsAccepted
             ? () async {
                 if (text == "Continue with Google") {
-                  final String url = await _googleSignInService.handleSignIn();
-                  if (await canLaunchUrl(Uri.parse(url))) {
-                    await launchUrl(Uri.parse(url));
-                  } else {
-                    throw 'Could not launch $url';
-                  }
+                  await _googleSignInService.signInWithGoogle();
+                  // After successful sign in, navigate to the HomeScreen
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => SignUpWithEmail()));
                 } else {
                   Navigator.push(
                     context,
@@ -297,35 +296,5 @@ class SignupButton extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class GoogleAuthSignInService {
-  final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
-
-  Future<String> handleSignIn() async {
-    try {
-      print('Initiating Google Authentication...');
-      final String url = await _googleAuthApi.initiateGoogleAuth();
-      return url;
-    } catch (error) {
-      print(error);
-      rethrow;
-    }
-  }
-
-  Future<void> handleGoogleAuthCallback(String code) async {
-    try {
-      print('Handling callback...');
-      final String accessToken =
-          await _googleAuthApi.handleGoogleAuthCallback(code);
-      print('Extracted Access Token: $accessToken');
-      print('Storing Access Token...');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('accessToken', accessToken);
-      print('Access Token stored.');
-    } catch (error) {
-      print(error);
-    }
   }
 }

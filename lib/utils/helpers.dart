@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:curio/services/api_service.dart';
+import 'package:curio/Views/Home_screen.dart';
 
 
 class CustomTextField extends StatefulWidget {
@@ -99,3 +101,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
 }
 
 
+class GoogleSignInButton extends StatelessWidget {
+  final GoogleAuthSignInService _googleAuthSignInService = GoogleAuthSignInService();
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () async {
+        await _googleAuthSignInService.signInWithGoogle();
+        // After successful sign in, navigate to the HomeScreen
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomeScreen()));
+      },
+      child: Text('Continue with Google'),
+    );
+  }
+}

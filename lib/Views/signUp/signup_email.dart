@@ -1,3 +1,4 @@
+import 'package:curio/Views/Home_screen.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
@@ -5,7 +6,11 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/signIn.dart';
 import 'package:curio/Views/signUp/userName.dart';
-import 'package:url_launcher/url_launcher_string.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -19,9 +24,11 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final ApiService apiService = ApiService();
-  final GoogleAuthSignInService googleAuthSignInService = GoogleAuthSignInService();
+  final GoogleAuthSignInService googleAuthSignInService =
+      GoogleAuthSignInService();
   bool validEmail = false;
   bool validPassword = false;
+  final storage = FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -81,14 +88,25 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const SizedBox(height: 20),
                   const SizedBox(height: 20),
                   MaterialButton(
-                    onPressed: () async{
-                      String url = await googleAuthSignInService.handleSignIn();
-                      if( await canLaunchUrlString(url)){
-                        await launchUrlString(url);
-                      }else{
-                        throw 'Could not launch $url';
-                      }
+                    onPressed: () async {
+                      print("Signing in with Google...");
 
+                    await GoogleSignIn().signOut();
+                      // sign in with google
+                      UserCredential? userCredential =
+                          await googleAuthSignInService.signInWithGoogle();
+                      if (userCredential != null) {
+                        String? accessToken =
+                            userCredential.credential?.accessToken;
+                            await apiService.signInWithToken(accessToken!);
+
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(),
+                        ),
+                      );
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(
@@ -178,8 +196,7 @@ class LoginButton extends StatelessWidget {
   final TextEditingController passwordController;
   final bool validInput;
 
-  const LoginButton(
-      this.formKey, this.emailController, this.passwordController,
+  const LoginButton(this.formKey, this.emailController, this.passwordController,
       {this.validInput = false, super.key});
 
   @override
@@ -193,8 +210,8 @@ class LoginButton extends StatelessWidget {
         child: MaterialButton(
           minWidth: double.infinity,
           height: 60,
-          onPressed:() async {
-           // check for the eamil if exist
+          onPressed: () async {
+            // check for the eamil if exist
             // ApiService apiService = ApiService();
             // var response = await apiService.checkEmail(emailController.text);
             // if (response.statusCode == 200) {
@@ -210,10 +227,12 @@ class LoginButton extends StatelessWidget {
             print('Password: ${passwordController.text}');
             Navigator.push(
               context,
-                MaterialPageRoute(
-                  builder: (context) => CreateUsernamePage(email: emailController.text, password: passwordController.text),
-                ),
-              );
+              MaterialPageRoute(
+                builder: (context) => CreateUsernamePage(
+                    email: emailController.text,
+                    password: passwordController.text),
+              ),
+            );
           },
           color: redditOrange,
           elevation: 0,

@@ -1,13 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
+import 'package:curio/Views/insettingspage/accountSettings.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class sidebarAfterLogIn extends StatelessWidget {
+
+
+
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  sidebarAfterLogIn({Key? key}) : super(key: key);
+  Future<String?> getToken() async {
+    return await storage.read(key: 'token');
+  }
+
+  //String username = "Maximillian12";
   final logicAPI apiLogic = logicAPI();
+  Map<String, dynamic>? userDetails;
+
+  Future<Map<String, dynamic>> _fetchUsername() async {
+    try {
+      String? token = await getToken();
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+      final username = await apiLogic.fetchUsername(token);
+      final data= await apiLogic.extractUsername(username);
+      print('DATA HERE');
+      print(data);
+      return data;
+    } catch (e) {
+      throw Exception('Error fetching user details: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchUserDetails() async {
+    try {
+      String? token = await getToken();
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+
+      final usernameData = await _fetchUsername();
+      String username = usernameData['username'];
+
+      final userData = await apiLogic.fetchUserData(username);
+      final data = await apiLogic.extractUserDetails(userData);
+
+      print('DATA HERE');
+      print(data);
+      return data;
+    } catch (e) {
+      throw Exception('Error fetching user details: $e');
+    }
+  }
 
   @override
+
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -28,32 +80,42 @@ class sidebarAfterLogIn extends StatelessWidget {
                   padding: EdgeInsets.only(
                       bottom: MediaQuery.of(context).size.width * 0.035),
                 ),
-                Center(
-                  child: FutureBuilder<String>(
-                      future: apiLogic.fetchUsername(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return Text(
-                              'Error fetching username: ${snapshot.error}');
-                        } else {
-                          return Text(
-                            'u/$apiLogic.fetchUsername();',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'IBM Plex Sans',
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.045,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          );
-                        }
-                      }),
-                ),
+
+                // Text(
+                //   'u/$username',
+                //   style: TextStyle(
+                //     color: Colors.black,
+                //     fontFamily: 'IBM Plex Sans',
+                //     fontSize:
+                //     MediaQuery.of(context).size.width * 0.045,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                //   textAlign: TextAlign.center,
+                // ),
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _fetchUsername(),
+                  builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator(); // Show a loading spinner while waiting for _fetchUsername to complete
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}'); // Show an error message if _fetchUsername fails
+                    } else {
+                      String username = snapshot.data!['username']; // Get the username from the data returned by _fetchUsername
+                      return Text(
+                        'u/$username',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'IBM Plex Sans',
+                          fontSize: MediaQuery.of(context).size.width * 0.045,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      );
+                    }
+                  },
+                )
+                ,
+
                 Padding(
                   padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).size.width * 0.04,
@@ -76,14 +138,40 @@ class sidebarAfterLogIn extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Karma #',
-                          style: TextStyle(
-                            fontFamily: 'IBM Plex Sans Light',
-                            fontSize: MediaQuery.of(context).size.width * 0.035,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          child: FutureBuilder<Map<String, dynamic>>(
+                            future: _fetchUserDetails(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                              bool isLoading =
+                              (snapshot.connectionState == ConnectionState.waiting);
+
+                              if (isLoading) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                print(
+                                    'Error fetching user details: ${snapshot.error}');
+                                return Text(
+                                    'Error fetching user details: ${snapshot.error}');
+
+                              } else {
+                                final userDetails = snapshot.data!;
+
+                                return Text(
+                                  '${userDetails['postKarma'] + userDetails['commentKarma']}',
+                                  style: TextStyle(
+                                    fontFamily: 'IBM Plex Sans Light',
+                                    color: Colors.black,
+                                    fontSize:
+                                    MediaQuery.of(context).size.width * 0.035,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ),
+
                         Text(
                           'Karma',
                           style: TextStyle(
@@ -117,14 +205,52 @@ class sidebarAfterLogIn extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Widgets inside the Column
-                        Text(
-                          '21d',
-                          style: TextStyle(
-                            fontFamily: 'IBM Plex Sans Light',
-                            fontSize: MediaQuery.of(context).size.width * 0.035,
-                            fontWeight: FontWeight.bold,
+
+                        Container(
+                          child: FutureBuilder<Map<String, dynamic>>(
+                            future: _fetchUserDetails(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                              bool isLoading =
+                              (snapshot.connectionState == ConnectionState.waiting);
+
+                              if (isLoading) {
+                                return CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                print(
+                                    'Error fetching user details: ${snapshot.error}');
+                                return Text(
+                                    'Error fetching user details: ${snapshot.error}');
+
+                              } else {
+                                final userDetails = snapshot.data!;
+                                return FutureBuilder<int>(
+                                  future: apiLogic.daysSinceCakeDay(userDetails),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return Text('Error calculating days since cake day: ${snapshot.error}');
+                                    } else {
+                                      final days = snapshot.data!;
+                                      return Text(
+                                          '${days}d',
+                                          style: TextStyle(
+                                            fontFamily: 'IBM Plex Sans Light',
+                                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                                            fontWeight: FontWeight.bold,
+                                          )
+                                      );
+                                    }
+                                  },
+                                );
+
+                              }
+                            },
                           ),
                         ),
+
+
                         Text(
                           'Reddit age',
                           style: TextStyle(
@@ -206,7 +332,12 @@ class sidebarAfterLogIn extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+              );
+            },
           ),
         ],
       ),

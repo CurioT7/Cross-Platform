@@ -2,15 +2,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class createCommunity extends StatefulWidget {
   @override
   _createCommunityState createState() => _createCommunityState();
+
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  createCommunity({Key? key}) : super(key: key);
+  Future<String?> getToken() async {
+    return await storage.read(key: 'token');
+  }
+
 }
 
 class _createCommunityState extends State<createCommunity> {
-  String token =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWY0NDI4NGI4YjFjMTM5OWNkOGFiMjIiLCJpYXQiOjE3MTA3ODgxNjEsImV4cCI6MTcxMDg3NDU2MX0.Dkf0kU7xh_jppyR07VJveTUi78aI45J_NpvxX1XGRio';
+  String? token ;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeToken();
+  }
+
+  Future<void> initializeToken() async {
+    token = await widget.getToken();
+  }
+
   String? errorMessage;
   bool isSwitched = false;
   bool isButtonEnabled = false;
@@ -40,9 +58,9 @@ class _createCommunityState extends State<createCommunity> {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey,
-                    blurRadius: 0.1,
-                    spreadRadius: 0.2,
-                    offset: Offset(0, 2),
+                    blurRadius: MediaQuery.of(context).size.width * 0.002,
+                    spreadRadius: MediaQuery.of(context).size.width * 0.004,
+                    offset: Offset(0, MediaQuery.of(context).size.width * 0.008),
                   ),
                 ],
               ),
@@ -227,21 +245,38 @@ class _createCommunityState extends State<createCommunity> {
                   setState(() {
                     // Set loading state if needed
                   });
-                  apiLogic
-                      .createCommunity(_textEditingController.text,
-                      listTileTitle, isSwitched, token)
-                      .then((_) {
-                    setState(() {
-                      Text('Community cxreated succssfully');
+                  if (token != null) {
+                    apiLogic
+                        .createCommunity(_textEditingController.text,
+                        isSwitched, listTileTitle, token!)
+                        .then((_) {
+                      setState(() {
+                        // Show a SnackBar with a success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Community created successfully'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      });
+                    }).catchError((error) {
+                      setState(() {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error creating community: $error'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        print('Error creating community: $error');
+                      });
                     });
-                  }).catchError((error) {
-                    setState(() {
-                      // Handle errors here
-                      print('Error creating community: $error');
-                    });
-                  });
+                  }
+                  else{
+                    print('Token is null');
+                  }
                 }
                     : null,
+
                 child: Stack(
                   alignment: Alignment.center,
                   children: [

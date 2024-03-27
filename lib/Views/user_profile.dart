@@ -1,23 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:curio/services/api_service.dart';
+import 'package:curio/services/logicAPI.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserProfilePage extends StatefulWidget {
-  final String userId;
-  final bool isCurrentUser;
 
-  const UserProfilePage({
-    required this.userId,
-    required this.isCurrentUser,
-  });
+  //String username = "Maximillian12";
+  final logicAPI apiLogic = logicAPI();
+  Map<String, dynamic>? userDetails;
 
   @override
   _UserProfilePageState createState() => _UserProfilePageState();
+
+
+  final FlutterSecureStorage storage = FlutterSecureStorage();
+  UserProfilePage({Key? key}) : super(key: key);
+  Future<String?> getToken() async {
+    var token =  await storage.read(key: 'token');
+    return token;
+  }
+
+
+
+  Future<Map<String, dynamic>> _fetchUsername() async {
+    try {
+      String? token = await getToken();
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+      final username = await apiLogic.fetchUsername(token);
+      final data= await apiLogic.extractUsername(username);
+      print('DATA HERE');
+      print(data);
+      return data;
+    } catch (e) {
+      throw Exception('Error fetching user details: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchUserDetails() async {
+    try {
+      String? token = await getToken();
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+
+      final usernameData = await _fetchUsername();
+      String username = usernameData['username'];
+
+      final userData = await apiLogic.fetchUserData(username);
+      final data = await apiLogic.extractUserDetails(userData);
+
+      print('DATA HERE');
+      print(data);
+      return data;
+    } catch (e) {
+      throw Exception('Error fetching user details: $e');
+    }
+  }
+//
+// Future<Map<String, dynamic>> _fetchUserDetails() async {
+//   try {
+//     final userData = await apiLogic.fetchUserData(username);
+//     final data= await apiLogic.extractUserDetails(userData);
+//     print('DATA HERE');
+//     print(data);
+//     return data;
+//   } catch (e) {
+//     throw Exception('Error fetching user details: $e');
+//   }
+// }
+
 }
+
+
 
 class _UserProfilePageState extends State<UserProfilePage> {
   bool _isFollowing = false;
   String _message = '';
   int _selectedIndex = 0;
+  Map<String, dynamic> _userData = {};
+
+
   Map<String, dynamic> _userData = {};
 
   static const List<String> _sections = ['Posts', 'Comments', 'About'];
@@ -239,26 +303,75 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Row(
+                        //   children: [
+                        //     Column(
+                        //       children: [
+                        //         Text(
+                        //           _userData['postKarma'].toString() ?? '0',
+                        //           style: TextStyle(fontWeight: FontWeight.bold),
+                        //         ),
+                        //         Text('Post Karma'),
+                        //       ],
+                        //     ),
+                        //     SizedBox(width: 125.0), // Add space here
+                        //     Column(
+                        //       children: [
+                        //         Text(
+                        //           _userData['commentKarma'].toString() ?? '0',
+                        //           style: TextStyle(fontWeight: FontWeight.bold),
+                        //         ),
+                        //         Text('Comment Karma'),
+                        //       ],
+                        //     ),
+                        //   ],
+                        // ),
                         Row(
                           children: [
-                            Column(
-                              children: [
-                                Text(
-                                  _userData['postKarma'].toString() ?? '0',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('Post Karma'),
-                              ],
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: widget._fetchUserDetails(),
+                              builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return CircularProgressIndicator(); // Show a loading spinner while waiting for the future to complete
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}'); // Show an error message if the future completes with an error
+                                } else {
+                                  // The future has completed with a result, you can now use it
+                                  final userDetails = snapshot.data!;
+                                  return Column(
+                                    children: [
+                                      Text(
+                                        userDetails['postKarma'].toString() ?? '0',
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      Text('Post Karma'),
+                                    ],
+                                  );
+                                }
+                              },
                             ),
                             SizedBox(width: 125.0), // Add space here
-                            Column(
-                              children: [
-                                Text(
-                                  _userData['commentKarma'].toString() ?? '0',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Text('Comment Karma'),
-                              ],
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: widget._fetchUserDetails(),
+                              builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return CircularProgressIndicator(); // Show a loading spinner while waiting for the future to complete
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}'); // Show an error message if the future completes with an error
+                                } else {
+                                  // The future has completed with a result, you can now use it
+                                  final userDetails = snapshot.data!;
+                                  return Column(
+                                    children: [
+                                      Text(
+                                        userDetails['commentKarma'].toString() ?? '0',
+                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                      Text('Comment Karma'),
+                                    ],
+                                  );
+                                }
+                              },
                             ),
                           ],
                         ),

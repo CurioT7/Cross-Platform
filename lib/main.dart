@@ -3,7 +3,7 @@ import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
-
+import 'package:curio/Views/community/aboutComunity.dart';
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
 import 'package:curio/services/api_service.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: homePageBeforeSignin(),
+      home: AboutComunityPage(),
     );
   }
 }

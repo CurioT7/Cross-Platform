@@ -1,17 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 class ApiService {
-  final String _baseUrl = 'http://192.168.1.2:3000';
+  final String _baseUrl = 'http://localhost:3000/api/auth';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/login'),
+      Uri.parse('$_baseUrl/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -22,9 +18,7 @@ class ApiService {
     );
     return response;
   }
-
-  Future<Map<String, dynamic>> changeEmail(String newEmail, String password,
-      String token) async {
+  Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -36,8 +30,7 @@ class ApiService {
     };
 
     try {
-      final response = await http.patch(
-          Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
@@ -51,11 +44,9 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-
-  Future<Map<String, dynamic>> signup(String username, String email,
-      String password) async {
+  Future<Map<String, dynamic>> signup(String username, String email, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/signup'),
+      Uri.parse('$_baseUrl/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -66,7 +57,7 @@ class ApiService {
       }),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to signup');
@@ -75,22 +66,21 @@ class ApiService {
 
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/api/auth/username_available/$username'),
+      Uri.parse('$_baseUrl/username_available'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 409) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to check username availability');
     }
   }
-
-  Future<Map<String, dynamic>> isEmailAvailable(String email) async {
+  Future<Map<String,dynamic>> isEmailAvailable(String email) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/auth/email_available/$email'),
+      Uri.parse('$_baseUrl/email_available'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -102,10 +92,9 @@ class ApiService {
       throw Exception('Failed to check email availability');
     }
   }
-
   Future<Map<String, dynamic>> ForgotPassword(String email) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/forgot_password'),
+      Uri.parse('$_baseUrl/forgot_password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -152,16 +141,14 @@ class ApiService {
         // Handle 404 error specifically
         throw Exception('User not found: ${response.body}');
       } else {
-        throw Exception(
-            'Failed to fetch user about info: ${response.statusCode}');
+        throw Exception('Failed to fetch user about info: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to fetch user about info: $e');
     }
   }
 
-  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId,
-      String subredditId) async {
+  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId, String subredditId) async {
     final String endpoint = '/api/friend'; // Endpoint for creating user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -182,20 +169,16 @@ class ApiService {
         return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
         // Handle 404 error specifically
-        throw Exception(
-            'Failed to create user-subreddit relationship: ${response.body}');
+        throw Exception('Failed to create user-subreddit relationship: ${response.body}');
       } else {
-        throw Exception(
-            'Failed to create user-subreddit relationship: ${response
-                .statusCode}');
+        throw Exception('Failed to create user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to create user-subreddit relationship: $e');
     }
   }
 
-  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId,
-      String subredditId) async {
+  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId, String subredditId) async {
     final String endpoint = '/api/unfriend'; // Endpoint for removing user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -218,46 +201,47 @@ class ApiService {
         // Handle 404 error specifically
         throw Exception('Subreddit not found: ${response.body}');
       } else {
-        throw Exception(
-            'Failed to remove user-subreddit relationship: ${response
-                .statusCode}');
+        throw Exception('Failed to remove user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to remove user-subreddit relationship: $e');
     }
   }
+}
 
-  Future<Map<String, dynamic>> signInWithToken(String token) async {
-    final String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    final url = Uri.parse('$_baseUrl$endpoint');
 
-    // Define the request body
-    final Map<String, dynamic> requestBody = {
-      'token': token,
-    };
 
-    try {
-      final http.Response response = await http.post(
-        url,
-        body: jsonEncode(requestBody),
-        headers: {'Content-Type': 'application/json'},
-      );
-      final Map<String, dynamic> responseData = jsonDecode(response.body);
-      if (responseData['success'] == true) {
-        // Save the token in shared preferences
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', responseData['accessToken']);
-        return responseData;
+
+class GoogleAuthApi {
+  static const String baseUrl = 'http://localhost:3000/api/auth';
+
+  Future<String> initiateGoogleAuth() async {
+    final response = await http.get(Uri.parse('$baseUrl/google'));
+
+    if (response.statusCode == 302) {
+      // Extract the URL that the user should be redirected to from the response
+      return response.headers['location']!;
+    } else {
+      throw Exception('Failed to initiate Google authentication.');
+    }
+  }
+
+  Future<String> handleGoogleAuthCallback(String code) async {
+    final response = await http.get(Uri.parse('$baseUrl/google/callback?code=$code'));
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      if (responseBody['success']) {
+        print('Google authentication successful.');
+        return responseBody['accessToken'];
       } else {
-        throw Exception(
-            'Failed to sign in with token: ${responseData['message']}');
+        throw Exception('Failed to authenticate with Google: ${responseBody['message']}');
       }
-    } catch (e) {
-      throw Exception('Failed to sign in with token: $e');
+    } else {
+      throw Exception('Failed to handle Google authentication callback.');
     }
   }
 }
-
 class MockGoogleAuthApi {
   static const String baseUrl = 'http://localhost:3000/api/auth';
 
@@ -271,32 +255,33 @@ class MockGoogleAuthApi {
   }
 }
 
+
 class GoogleAuthSignInService {
+  final GoogleAuthApi _googleAuthApi = GoogleAuthApi();
 
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<String> handleSignIn() async {
     try {
-      // Trigger the Google Sign In process
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-      // Obtain the GoogleSignInAuthentication object
-      final GoogleSignInAuthentication googleAuth = await googleUser!
-          .authentication;
-      // Create a new credential
-
-      final googleCredential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      // save the token into secure storage
-      // Once signed in, return the UserCredential
-      print("Token from google: ${googleAuth.accessToken}");
-      // Once signed in, return the UserCredential
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-          googleCredential);
-      return userCredential;
-    }catch (e) {
-      print(e.toString());
+      print('Initiating Google Authentication...');
+      final String url = await _googleAuthApi.initiateGoogleAuth();
+      return url;
+    } catch (error) {
+      print(error);
+      rethrow;
     }
-    return null;
+  }
+
+  Future<void> handleGoogleAuthCallback(String code) async {
+    try {
+      print('Handling callback...');
+      final String accessToken =
+      await _googleAuthApi.handleGoogleAuthCallback(code);
+      print('Extracted Access Token: $accessToken');
+      print('Storing Access Token...');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('accessToken', accessToken);
+      print('Access Token stored.');
+    } catch (error) {
+      print(error);
+    }
   }
 }

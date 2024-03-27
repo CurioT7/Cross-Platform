@@ -7,17 +7,11 @@ import 'package:curio/utils/helpers.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/Views/signUp/signup_email.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
-
-
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:http/http.dart' as http;
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
-
 
   @override
   _SignInWithEmailState createState() => _SignInWithEmailState();
@@ -30,7 +24,6 @@ class _SignInWithEmailState extends State<SignInPage> {
   final ApiService apiService = ApiService();
   final GoogleAuthSignInService googleAuthSignInService =
       GoogleAuthSignInService();
-  final storage = FlutterSecureStorage();
 
   @override
   Widget build(BuildContext context) {
@@ -90,22 +83,12 @@ class _SignInWithEmailState extends State<SignInPage> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async {
-
-                      await GoogleSignIn().signOut();
-                      // sign in with google
-                      UserCredential? userCredential =
-                      await googleAuthSignInService.signInWithGoogle();
-                      if (userCredential != null) {
-                        String? accessToken =
-                            userCredential.credential?.accessToken;
-                        await apiService.signInWithToken(accessToken!);
+                      String url = await googleAuthSignInService.handleSignIn();
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url);
+                      } else {
+                        throw 'Could not launch $url';
                       }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
-                        ),
-                      );
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(
@@ -219,13 +202,14 @@ class LoginButton extends StatelessWidget {
           minWidth: double.infinity,
           height: 60,
           onPressed: () async {
-
-            print('Sign in...');
+            print('Email: ${emailController.text}');
+            print('Password: ${passwordController.text}');
+            print('Signing up...');
             ApiService apiService = ApiService();
 
             final http.Response response = await apiService.signIn(
                 emailController.text, passwordController.text);
-            if (response.statusCode == 201) {
+            if (response.statusCode == 200) {
               // If the server returns a 200 OK response, then parse the JSON.
               Map<String, dynamic> data = jsonDecode(response.body);
               String token = data['token'];
@@ -239,7 +223,7 @@ class LoginButton extends StatelessWidget {
               );
             } else if (response.statusCode == 404) {
               // If the server returns a 404 response, the username or password was incorrect.
-              throw Exception('Invalid credentials');
+              print('Invalid credentials, check username or password');
             } else {
               // If the server returns a response with a status code other than 200 or 404, throw an exception.
               throw Exception('Failed to login');

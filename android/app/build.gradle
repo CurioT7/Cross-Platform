@@ -63,11 +63,5 @@ android {
 flutter {
     source '../..'
 }
-apply plugin: 'com.android.application'
-// Other plugins
 
-apply plugin: 'com.google.gms.google-services' // Check this line
 dependencies {}
-afterEvaluate {
-    mapDebugSourceSetPaths.dependsOn(processDebugGoogleServices)
-}

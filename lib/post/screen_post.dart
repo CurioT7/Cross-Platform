@@ -80,9 +80,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               (index) => PostCard(
                                     title: titleController.text,
                                     content: descriptionController.text,
-                                    upvotes: 1,
-                                    comments: 0,
-                                    downvotes: 0,
                                     username: selectedCommunity,
                                     postTime: 'postTime',
                                   ));

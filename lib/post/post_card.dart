@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
-
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final String title;
   final String content;
-  final int? upvotes;
-  final int? comments;
-  final int? downvotes;
-  final int? shares;
   final String? username;
   final String? postTime;
   final String? userImage;
@@ -16,15 +11,26 @@ class PostCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.content,
-    this.upvotes,
-    this.comments,
-    this.downvotes,
-    this.shares,
     this.username,
     this.postTime,
     this.userImage,
     this.postImage,
   });
+
+  @override
+  _PostCardState createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  int upvotes = 0;
+  int downvotes = 0;
+  int comments = 0;
+  int shares = 0;
+  bool pressed = false;
+  bool upvotePressed = false;
+  bool downvotePressed = false;
+  bool commentPressed = false;
+  bool sharePressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -36,44 +42,107 @@ class PostCard extends StatelessWidget {
           children: <Widget>[
             ListTile(
               leading: CircleAvatar(
-                backgroundImage: userImage != null ? NetworkImage(userImage!) : null,
+                backgroundImage:
+                    widget.userImage != null ? NetworkImage(widget.userImage!) : null,
               ),
-              title: Text(username ?? 'Unknown'),
-              subtitle: Text(postTime ?? 'Unknown time'),
+              title: Text(widget.username ?? 'Unknown'),
+              subtitle: Text(widget.postTime ?? 'Unknown time'),
               trailing: const Icon(Icons.more_vert),
             ),
-            if (postImage != null)
+            if (widget.postImage != null)
               Image.network(
-                postImage!,
+                widget.postImage!,
                 fit: BoxFit.cover,
               ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text(title),
+              child: Text(widget.title),
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                IconButton(
-                  icon: const Icon(Icons.thumb_up),
-                  onPressed: () {},
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_upward, color: upvotePressed ? Colors.red : Colors.black),
+                        onPressed: () {
+                          setState(() {
+                              upvotes = upvotePressed ? upvotes - 1 : upvotes + 1;
+                              if(downvotePressed) {
+                                downvotes--;
+                                downvotePressed = false;
+                              }
+                              pressed = !pressed;
+                              upvotePressed = !upvotePressed;
+                          });
+                        },
+                      ),
+                      Text(upvotes.toString()),
+                    ],
+                  ),
                 ),
-                Text('${upvotes ?? 0}'),
-                IconButton(
-                  icon: const Icon(Icons.thumb_down),
-                  onPressed: () {},
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_downward, color: downvotePressed ? Colors.red : Colors.black),
+                        onPressed: () {
+                          setState(() {
+                            downvotes = downvotePressed ? downvotes - 1 : downvotes + 1;
+                            if(upvotePressed) {
+                              upvotes--;
+                              upvotePressed = false;
+                            }
+                            downvotePressed = !downvotePressed;
+                            pressed = !pressed;
+                          });
+
+                        },
+                      ),
+                      Text(downvotes.toString()),
+                    ],
+                  ),
                 ),
-                Text('${downvotes ?? 0}'),
-                IconButton(
-                  icon:const  Icon(Icons.comment),
-                  onPressed: () {},
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.comment, color: commentPressed ? Colors.blue : Colors.black),
+                        onPressed: () {
+                          setState(() {
+                            commentPressed = !commentPressed;
+                            comments= commentPressed ? comments + 1 : comments - 1;
+                          });
+                        },
+                      ),
+                      Text(comments.toString()),
+                    ],
+                  ),
                 ),
-                Text('${comments ?? 0}'),
-                IconButton(
-                  icon:const  Icon(Icons.share),
-                  onPressed: () {},
+                const Expanded(
+                  flex: 3,
+                  child: SizedBox(), // Empty space
                 ),
-                Text('${shares ?? 0}'),
+                Expanded(
+                  flex: 2,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.share, color: sharePressed ? Colors.blue : Colors.black),
+                        onPressed: () {
+                          setState(() {
+                            sharePressed = !sharePressed;
+                            shares = sharePressed ? shares + 1 : shares - 1;
+                          });
+                        },
+                      ),
+                      Text(shares.toString()),
+                    ],
+                  ),
+                ),
               ],
             ),
           ],

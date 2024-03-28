@@ -103,7 +103,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const AddPostScreen(type: 'text'),
+                          builder: (context) =>  HomeScreen()
                         ),
                       );
                     },

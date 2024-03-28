@@ -3,11 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 class ApiService {
-  final String _baseUrl = 'http://192.168.1.2:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -52,27 +51,28 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> signup(String username, String email,
-      String password) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/signup'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'username': username,
-        'email': email,
-        'password': password,
-      }),
+Future<UserCredential?> signup(String email, String password) async {
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
     );
 
-    if (response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('Failed to signup');
-    }
-  }
+    // After creating the user, send an email verification
+    await userCredential.user!.sendEmailVerification();
 
+    return userCredential;
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'weak-password') {
+      print('The password provided is too weak.');
+    } else if (e.code == 'email-already-in-use') {
+      print('The account already exists for that email.');
+    }
+  } catch (e) {
+    print(e);
+  }
+  return null;
+}
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/auth/username_available/$username'),
@@ -229,7 +229,8 @@ class ApiService {
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     final String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    final url = Uri.parse('$_baseUrl$endpoint');
+    final baseUrl = 'http://10.0.2.2:3000';
+    final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body
     final Map<String, dynamic> requestBody = {

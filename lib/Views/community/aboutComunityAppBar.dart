@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
 
 class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const AboutCommunityAppBar({Key? key}) : super(key: key);
+  final String subredditName;
+
+  const AboutCommunityAppBar({Key? key, required this.subredditName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +21,7 @@ class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidge
             children: [
               Image.asset(
                 'lib/assets/images/bannerimage.png', // Your image from assets
+                //todo: change the image path to the api path
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: 100, // Cover the entire app bar
@@ -38,7 +42,7 @@ class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidge
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'r/PrequelMemes', // The name of the community.
+                            'r/$subredditName', // Use the subreddit name passed to the widget
                             style: TextStyle(color: Colors.white, fontSize: 20.0),
                           ),
                           SizedBox(height: 8.0),
@@ -48,12 +52,13 @@ class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidge
                               SizedBox(width: 4.0),
                               Text(
                                 '366 Collecting Fine Additions', // The online members count.
+                                 //todo: change the online members count to the api path when the backend add this feture
                                 style: TextStyle(color: Colors.white, fontSize: 12.0),
                               ),
 
                             ],
                           ),
-                              ],
+                        ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -94,12 +99,14 @@ class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidge
               TextButton(
                 onPressed: () {
                   // What to do when the Menu button is pressed
+                  //todo: check if u will actually use this button
                 },
                 child: Text('About', style: TextStyle(color: Colors.black)),
               ),
               TextButton(
                 onPressed: () {
                   // What to do when the Info button is pressed
+                  //todo: check if u will actually use this button(yara's button  )
                 },
                 child: Text('Menu', style: TextStyle(color: Colors.black)),
               ),
@@ -113,4 +120,3 @@ class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidge
   @override
   Size get preferredSize => Size.fromHeight(190); // Adjust the total height to accommodate the buttons.
 }
-

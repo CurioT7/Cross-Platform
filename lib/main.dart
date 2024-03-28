@@ -7,6 +7,8 @@ import 'package:curio/Views/community/aboutComunity.dart';
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
 import 'package:curio/services/api_service.dart';
+import 'package:curio/Views/sidebars/inLeftSideBarAll.dart';
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AboutComunityPage(),
+      home:AllPage(),
     );
   }
 }

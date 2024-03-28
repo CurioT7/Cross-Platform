@@ -1,31 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Views/homeNavbar.dart';
 import 'package:curio/Views/community/aboutComunityAppBar.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
 
 class AboutComunityPage extends StatefulWidget {
-  const AboutComunityPage({Key? key});
+  final String subredditName;
+
+  const AboutComunityPage({Key? key, required this.subredditName}) : super(key: key);
 
   @override
   State<AboutComunityPage> createState() => _AboutComunityPageState();
 }
 
 class _AboutComunityPageState extends State<AboutComunityPage> {
-  final List<String> rules = [
-    'No doxxing',
-    'No brigading or inciting harassment',
-    'Be civil',
-    'No bigotry',
-    'Suicide prevention',
-    'Moderator discretion',
-    'Content regulation',
-    'No sex work-related content',
-  ];
+  late Map<String, dynamic> subredditInfo = {};
+  List<String> rules = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch default subreddit information when the widget initializes
+    fetchSubredditInfo(widget.subredditName);
+  }
+
+  Future<void> fetchSubredditInfo(String subredditName) async {
+    try {
+      // Fetch subreddit information using ApiServiceMahmoud
+      final apiService = ApiServiceMahmoud();
+      final data = await apiService.getSubredditInfo(subredditName);
+      setState(() {
+        subredditInfo = data['subreddit'];
+        rules = List<String>.from(subredditInfo['rules']);
+      });
+    } catch (e) {
+      print('Error fetching subreddit information: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AboutCommunityAppBar(), // Use the AboutComunityAppBar here
-      body: Container(
+      appBar: AboutCommunityAppBar(subredditName: widget.subredditName),
+      body: subredditInfo.isNotEmpty
+          ? Container(
         color: Color(0xffFfFfFf),
         child: ListView(
           children: <Widget>[
@@ -45,7 +62,7 @@ class _AboutComunityPageState extends State<AboutComunityPage> {
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'r/AlexandriaEgy is a subreddit for the city of Alexandria, Egypt and its residents, visitors and admirers. Whether you want to share your photos, stories, news, events, questions or tips about this ancient and beautiful city, You are welcome to join our community and celebrate its rich history and culture.',
+                    subredditInfo['description'] ?? 'Description not available',
                     style: TextStyle(
                       fontSize: 16,
                     ),
@@ -97,19 +114,22 @@ class _AboutComunityPageState extends State<AboutComunityPage> {
             ListView.separated(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemCount: 3,
+              itemCount: subredditInfo['moderators'].length,
               itemBuilder: (BuildContext context, int index) {
+                final moderator = subredditInfo['moderators'][index];
                 return ListTile(
-                  title: Text('u/Moderator $index'),
+                  title: Text(moderator['username']),
                 );
               },
               separatorBuilder: (BuildContext context, int index) => Divider(),
             ),
           ],
         ),
+      )
+          : Center(
+        child: CircularProgressIndicator(),
       ),
       bottomNavigationBar: homeNavigationBar(),
     );
   }
 }
-

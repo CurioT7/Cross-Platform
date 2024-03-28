@@ -143,7 +143,7 @@ class _PostToPageState extends State<PostToPage> {
                       title: Text(displayedCommunities[index]),
                       onTap: () {
                         setState(() {
-                          selectedCommunity = displayedCommunities[index];
+                         Navigator.pop(context, displayedCommunities[index]);
                         });
                       },
                       tileColor: selectedCommunity == displayedCommunities[index]

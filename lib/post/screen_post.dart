@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:curio/Views/community/createCommunity.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,6 +20,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final linkController = TextEditingController();
   bool optionSelected = false; // Add this line
   bool isAttachmentAdded = false; // Add this line
+  String? selectedCommunity;
   Attachment? attachment;
   XFile? _pickedImage;
 
@@ -71,36 +73,77 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 (BuildContext context, TextEditingValue value, Widget? child) {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
-                    ? () {
+                    ? () async {
+                        if (selectedCommunity != null) {
+                          List<PostCard> posts = List.generate(
+                              4,
+                              (index) => PostCard(
+                                    title: titleController.text,
+                                    content: descriptionController.text,
+                                    upvotes: 1,
+                                    comments: 0,
+                                    downvotes: 0,
+                                    username: selectedCommunity,
+                                    postTime: 'postTime',
+                                  ));
 
-                        List<PostCard> posts = List.generate(
-                            4,
-                            (index) => PostCard(
-                              title: titleController.text,
-                              content: descriptionController.text,
-                              upvotes: 1,
-                              comments: 0,
-                              downvotes: 0,
-                              username: 'username',
-                              postTime: 'postTime',
-                                ));
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                              appBar: AppBar(
-                                title: const Text('Posts'),
-                              ),
-                              body: ListView.builder(
-                                itemCount: posts.length,
-                                itemBuilder: (context, index) {
-                                  return posts[index];
-                                },
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: const Text('Posts'),
+                                ),
+                                body: ListView.builder(
+                                  itemCount: posts.length,
+                                  itemBuilder: (context, index) {
+                                    return posts[index];
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          // ignore: unused_local_variable
+                          String? selectedCommunity = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const PostToPage()),
+                          );
+                          if (selectedCommunity != null) {
+                            setState(() {
+                              this.selectedCommunity = selectedCommunity;
+                            });
+                          }
+                        }
+                        // List<PostCard> posts = List.generate(
+                        //     4,
+                        //     (index) => PostCard(
+                        //       title: titleController.text,
+                        //       content: descriptionController.text,
+                        //       upvotes: 1,
+                        //       comments: 0,
+                        //       downvotes: 0,
+                        //       username: 'username',
+                        //       postTime: 'postTime',
+                        //         ));
+                        //
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Scaffold(
+                        //       appBar: AppBar(
+                        //         title: const Text('Posts'),
+                        //       ),
+                        //       body: ListView.builder(
+                        //         itemCount: posts.length,
+                        //         itemBuilder: (context, index) {
+                        //           return posts[index];
+                        //         },
+                        //       ),
+                        //     ),
+                        //   ),
+                        // );
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -118,7 +161,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: const Text('Next'),
+                child: Text(selectedCommunity != null ? 'Post' : 'Next'),
               );
             },
           ),
@@ -130,6 +173,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
             padding: const EdgeInsets.fromLTRB(1, 0, 1, 1),
             child: Column(
               children: [
+                if (selectedCommunity != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          // Add this line
+                          child: CommunityBar(
+                            community: selectedCommunity,
+                            onTap: () async {
+                              // ignore: unused_local_variable
+                              String? selectedCommunity = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PostToPage(),
+                                ),
+                              );
+                              if (selectedCommunity != null) {
+                                setState(() {
+                                  this.selectedCommunity = selectedCommunity;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
@@ -321,6 +392,62 @@ class URLComponent extends StatelessWidget {
             controller.clear();
             onClear();
           },
+        ),
+      ),
+    );
+  }
+}
+
+class CommunityBar extends StatelessWidget {
+  final String? community;
+  final VoidCallback onTap;
+
+  const CommunityBar({super.key, required this.community, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Add this line
+          children: [
+            Row(
+              // Wrap the first two widgets in a Row
+              children: [
+                const Icon(Icons.arrow_drop_down),
+                const SizedBox(width: 8), // Add some spacing
+                Text(community ?? 'Select a community'),
+              ],
+            ),
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Rules'),
+                      content: const Text('This is a dummy popup message.'),
+                      actions: [
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Text('Rules'),
+            ),
+          ],
         ),
       ),
     );

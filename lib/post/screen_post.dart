@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
+import 'package:curio/post/post_card.dart';
 
 class AddPostScreen extends StatefulWidget {
   final String type;
@@ -53,7 +54,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       );
     }
 
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -72,16 +72,35 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () {
-                        if (NextScreen()) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PostToPage(),
+
+                        List<PostCard> posts = List.generate(
+                            4,
+                            (index) => PostCard(
+                              title: titleController.text,
+                              content: descriptionController.text,
+                              upvotes: 1,
+                              comments: 0,
+                              downvotes: 0,
+                              username: 'username',
+                              postTime: 'postTime',
+                                ));
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Scaffold(
+                              appBar: AppBar(
+                                title: const Text('Posts'),
+                              ),
+                              body: ListView.builder(
+                                itemCount: posts.length,
+                                itemBuilder: (context, index) {
+                                  return posts[index];
+                                },
+                              ),
                             ),
-                          );
-                        } else {
-                          print('Please enter all the fields');
-                        }
+                          ),
+                        );
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -276,24 +295,21 @@ class Attachment {
   final dynamic data;
   Widget component;
 
-
   Attachment({required this.type, required this.data, required this.component});
-
-
 }
 
 class URLComponent extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onClear;
 
-  const URLComponent({super.key, required this.controller, required this.onClear});
+  const URLComponent(
+      {super.key, required this.controller, required this.onClear});
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
-
         hintText: 'URL',
         border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),

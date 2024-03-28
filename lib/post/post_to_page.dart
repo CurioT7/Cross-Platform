@@ -11,6 +11,7 @@ class PostToPage extends StatefulWidget {
 
 class _PostToPageState extends State<PostToPage> {
   final TextEditingController searchController = TextEditingController();
+  String? selectedCommunity;
   List<String> allCommunities =
       List.generate(50, (index) => 'Community ${index + 1}');
   List<String> displayedCommunities = [];
@@ -140,6 +141,14 @@ class _PostToPageState extends State<PostToPage> {
                     // Otherwise, return the ListTile for the community
                     return ListTile(
                       title: Text(displayedCommunities[index]),
+                      onTap: () {
+                        setState(() {
+                          selectedCommunity = displayedCommunities[index];
+                        });
+                      },
+                      tileColor: selectedCommunity == displayedCommunities[index]
+                          ? Colors.blue[100] // Color when selected
+                          : null, // Default color when not selected
                     );
                   }
                 },

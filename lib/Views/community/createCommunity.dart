@@ -3,16 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class createCommunity extends StatefulWidget {
   @override
   _createCommunityState createState() => _createCommunityState();
 
-  final FlutterSecureStorage storage = FlutterSecureStorage();
-  createCommunity({Key? key}) : super(key: key);
-  Future<String?> getToken() async {
-    return await storage.read(key: 'token');
-  }
+
 
 }
 
@@ -22,12 +20,9 @@ class _createCommunityState extends State<createCommunity> {
   @override
   void initState() {
     super.initState();
-    initializeToken();
+
   }
 
-  Future<void> initializeToken() async {
-    token = await widget.getToken();
-  }
 
   String? errorMessage;
   bool isSwitched = false;
@@ -241,10 +236,19 @@ class _createCommunityState extends State<createCommunity> {
               ElevatedButton(
 
                 onPressed: isButtonEnabled
-                    ? () {
+                    ? () async {
                   setState(() {
                     // Set loading state if needed
                   });
+                  try {
+                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                    token = prefs.getString('token');
+                    print(token);
+                   // await prefs.remove('token');
+                  }
+                  catch(e){
+                    print(e);
+                  }
                   if (token != null) {
                     apiLogic
                         .createCommunity(_textEditingController.text,

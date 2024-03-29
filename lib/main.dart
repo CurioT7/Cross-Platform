@@ -1,4 +1,5 @@
 import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/Views/community/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: homePageBeforeSignin(),
+     // home: homePageBeforeSignin(),
+      home: communityProfile(),
     );
   }
 }

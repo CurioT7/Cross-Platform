@@ -27,6 +27,7 @@ class logicAPI {
       'postKarma': userData['postKarma'],
       'commentKarma': userData['commentKarma'],
       'cakeDay': userData['cakeDay'],
+      'profilePicture': userData['profilePicture'],
     };
   }
 
@@ -124,6 +125,88 @@ class logicAPI {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Error creating community: $e');
+    }
+  }
+
+  //Community profile page functions
+  Future<Map<String, dynamic>> joinCommunity(String token, String communityName) async {
+
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/friend'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'subreddit': communityName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('Subreddit not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error');
+    } else {
+      throw Exception('Unexpected error occurred');
+    }
+  }
+
+
+  Future<Map<String, dynamic>> fetchCommunityData(String communityName) async {
+
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/r/$communityName'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = json.decode(response.body);
+      Map<String, dynamic> subredditData = responseData['subreddit'];
+      return {
+        'privacyMode': subredditData['privacyMode'],
+        'name': subredditData['name'],
+        'description': subredditData['description'],
+        'membersCount': subredditData['members'].length,
+        'banner': subredditData['banner'],
+        'icon': subredditData['icon'],
+      };
+    } else if (response.statusCode == 404) {
+      throw Exception('Subreddit not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error');
+    } else {
+      throw Exception('Unexpected error occurred');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCommunityProfilePosts(String subreddit) async {
+    final response = await http.get(Uri.parse('$_baseUrl/api/r/$subreddit/hot' ));
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = json.decode(response.body);
+      List<dynamic> posts = jsonResponse['posts'];
+
+      return posts.map((post) {
+        return {
+          'title': post['title'],
+          'content': post['content'],
+          'authorName': post['authorName'],
+          'views': post['views'],
+          'createdAt': post['createdAt'],
+          'upvotes': post['upvotes'],
+          'downvotes': post['downvotes'],
+          'comments': post['comments'].length, // Assuming you want the count of comments
+          'shares': post['shares'],
+        };
+      }).toList();
+    } else if (response.statusCode == 404) {
+      throw Exception('Subreddit not found');
+    } else {
+      throw Exception('Failed to load posts');
     }
   }
 }

@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+//import 'dart:html';
 
+import 'package:flutter/material.dart';
+import 'package:curio/Views/sidebars/inLeftSideBarAll.dart';
 class CustomSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,8 @@ class CustomSidebar extends StatelessWidget {
               ListTile(
                 title: Text('See All'),
                 onTap: () {
-                  // Implement your see all functionality here
+
+
                 },
               ),
             ],
@@ -67,7 +70,10 @@ class CustomSidebar extends StatelessWidget {
               // Update the state of the app
               // ...
               // Then close the drawer
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AllPage()),
+              );
             },
           ),
         ],

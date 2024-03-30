@@ -4,6 +4,9 @@ import 'package:curio/Views/Home_screen.dart';
 import 'package:curio/utils/helpers.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class CreateUsernamePage extends StatefulWidget {
   final String email;
@@ -84,28 +87,63 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
       ),
     );
   }
-
-  void _continue() async {
-    // Make the method asynchronous
-    if (_formKey.currentState!.validate()) {
-      var response;
-      if (widget.token != null) {
-        response = await apiService.signInWithToken(
-            widget.token!);
-      } else {
-        response = await apiService.signup(
-            _usernameController.text, widget.email, widget.password);
-      }
-      if (response['success'] && response['accessToken'] != null) {
-       // this is a session storage?
-        // storage save per session or per device? ans: per device change it to session
-        await storage.write(key: 'token', value: response['accessToken']);
-        Navigator.of(context).pushReplacement(
-          // load the token to the home screen
-            MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else {
-        print(response['message']);
-      }
+void _continue() async {
+  if (_formKey.currentState!.validate()) {
+    UserCredential? userCredential;
+    if (widget.token != null) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', widget.token!);
+    } else {
+      userCredential = await apiService.signup(widget.email, widget.password);
     }
+
+    if (userCredential != null) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = await userCredential.user!.getIdToken();
+      await prefs.setString('token', token!);
+
+      // Navigate to a new screen that waits for email verification
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => EmailVerificationScreen()),
+      );
+    } else {
+      print('Signup failed');
+    }
+  }
+}
+}
+class EmailVerificationScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FutureBuilder(
+        future: checkEmailVerified(),
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Text('Verifying your email...'));
+          } else {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else {
+              if (snapshot.data == true) {
+                // If email is verified, navigate to HomeScreen
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
+                });
+              }
+              return Center(child: Text('Please verify your email'));
+            }
+          }
+        },
+      ),
+    );
+  }
+
+  Future<bool> checkEmailVerified() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    await user!.reload();
+    return user.emailVerified;
   }
 }

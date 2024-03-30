@@ -10,7 +10,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:curio/post/screen_post.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -99,12 +99,11 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                         String? accessToken =
                             userCredential.credential?.accessToken;
                             await apiService.signInWithToken(accessToken!);
-
                       }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => HomeScreen(),
+                          builder: (context) =>  HomeScreen()
                         ),
                       );
                     },

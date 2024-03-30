@@ -6,6 +6,7 @@ import 'package:curio/Views/homeNavbar.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/post/screen_post.dart';
 
 
 
@@ -48,8 +49,6 @@ class HomeScreen extends StatelessWidget {
               onPressed: () async{
                 try {
                   final SharedPreferences prefs = await SharedPreferences.getInstance();
-                  var value = prefs.getString('token');
-                  print(value);
                 await prefs.remove('token');
                 }
                 catch(e){
@@ -65,6 +64,13 @@ class HomeScreen extends StatelessWidget {
 
               },
               child: const Text('Logout'),
+            ),
+            // another elevated button to create a post
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  const AddPostScreen(type: 'text')));
+              },
+              child: const Text('Create a Post'),
             ),
           ],
         ),

@@ -90,6 +90,7 @@ class _SignInWithEmailState extends State<SignInPage> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async {
+                      print("Signing in with Google...");
 
                       await GoogleSignIn().signOut();
                       // sign in with google
@@ -99,6 +100,7 @@ class _SignInWithEmailState extends State<SignInPage> {
                         String? accessToken =
                             userCredential.credential?.accessToken;
                         await apiService.signInWithToken(accessToken!);
+
                       }
                       Navigator.push(
                         context,
@@ -222,10 +224,12 @@ class LoginButton extends StatelessWidget {
 
             print('Sign in...');
             ApiService apiService = ApiService();
+            print('Email: ${emailController.text}');
+            print('Password: ${passwordController.text}');
 
             final http.Response response = await apiService.signIn(
                 emailController.text, passwordController.text);
-            if (response.statusCode == 201) {
+            if (response.statusCode == 200) {
               // If the server returns a 200 OK response, then parse the JSON.
               Map<String, dynamic> data = jsonDecode(response.body);
               String token = data['token'];

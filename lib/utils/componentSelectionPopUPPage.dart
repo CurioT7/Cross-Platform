@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/topTime.dart'; // Import the new page for time selection
 
+// This is the showSortPostsBottomSheet function which shows a bottom sheet for sorting posts.
 void showSortPostsBottomSheet(BuildContext context, String initialSort, Function(String, IconData) updateSortAndIcon) {
   showModalBottomSheet(
     context: context,
@@ -20,7 +21,7 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                   TextButton(
                     onPressed: () {
                       updateSortAndIcon(selectedSort, selectedIcon); // Pass both selected sort type and icon to the updateSortAndIcon function
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(); // Close the bottom sheet
                     },
                     child: Text('Done', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
@@ -39,22 +40,20 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                   groupValue: selectedSort,
                   secondary: Icon(item['icon']),
                   onChanged: (value) {
+                    // If 'Top' is selected, show the time selection bottom sheet.
                     if (value == 'Top') {
-                      // Navigate to the TimeSelectionPage if "Top" is selected
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => TimeSelectionPage(updateSortAndIcon: (newSort) {
-                            setModalState(() {
-                              selectedSort = 'Top $newSort'; // Concatenate "Top" with the selected value
-                              selectedIcon = Icons.arrow_upward_sharp;
-                            });
-                          }),
-                        ),
-                      );
+                      // Call the showTimeSelection function to show the bottom sheet.
+                      showTimeSelection(context, (newSort) {
+                        setModalState(() {
+                          selectedSort = 'Top $newSort'; // Concatenate 'Top' with the selected time frame.
+                          selectedIcon = Icons.arrow_upward_sharp; // Keep the same icon for 'Top'.
+                        });
+                      });
                     } else {
+                      // For other sort types, just update the state.
                       setModalState(() {
-                        selectedSort = value ?? ''; // Ensure value is non-nullable
-                        selectedIcon = item['icon'];
+                        selectedSort = value ?? ''; // Ensure the value is non-nullable.
+                        selectedIcon = item['icon']; // Update the icon for the selected sort type.
                       });
                     }
                   },

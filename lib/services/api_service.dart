@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-
+import 'package:curio/post/community_card.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000';
 
@@ -122,8 +124,60 @@ Future<UserCredential?> signup(String email, String password) async {
   }
 
 
+
+  Future<List<Community>> getCommunities(String token) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/subreddit/$token'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return Community.getCommunities(jsonDecode(response.body));
+    } else {
+      // retrun some dummy data
+      return Community.getCommunities([
+        {
+          'name': 'Flutter',
+          'image': Icons.flutter_dash,
+          'followers': 100,
+          'isFollowing': false,
+        },
+        {
+          'name': 'Dart',
+          'image': Icons.code,
+          'followers': 50,
+          'isFollowing': true,
+        },
+        {
+          'name': 'Firebase',
+          'image': Icons.fireplace,
+          'followers': 200,
+          'isFollowing': false,
+        },
+      ]);
+    }
+  }
+
+
+  Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/subreddit/$communityId/members'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to fetch subreddit members');
+    }
+  }
+
   Future<Map<String, dynamic>> reportUser() async {
-    final String endpoint = '/api/report_user'; // Endpoint for reporting user
+    const String endpoint = '/api/report_user'; // Endpoint for reporting user
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {

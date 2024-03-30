@@ -7,8 +7,32 @@ import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
 import 'package:curio/services/api_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:curio/post/community_card.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+// void main() async{
+//   List<Community> communities = Community.getCommunities();
+//   // create community cards
+//   List<Widget> communityCards = [];
+//   for (Community community in communities) {
+//     communityCards.add(CommunityCard(
+//       community: community,
+//       onTap: () {
+//         print('Tapped on ${community.name}');
+//       },
+//     ));
+//   }
+//   // display the cards
+//   runApp(MaterialApp(
+//     home: Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Communities'),
+//       ),
+//       body: ListView(
+//         children: communityCards,
+//       ),
+//     ),
+//   ));
+// }
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

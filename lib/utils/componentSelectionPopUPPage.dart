@@ -1,11 +1,12 @@
-// SortPostsBottomSheet.dart
 import 'package:flutter/material.dart';
+import 'package:curio/utils/topTime.dart'; // Import the new page for time selection
 
-void showSortPostsBottomSheet(BuildContext context, String initialSort, Function(String) updateSort) {
+void showSortPostsBottomSheet(BuildContext context, String initialSort, Function(String, IconData) updateSortAndIcon) {
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
       String selectedSort = initialSort; // Use the initial sort type passed to the function
+      IconData selectedIcon = Icons.whatshot; // Default icon
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
           return Column(
@@ -18,7 +19,7 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                 actions: [
                   TextButton(
                     onPressed: () {
-                      updateSort(selectedSort); // Pass the selected sort type to the updateSort function
+                      updateSortAndIcon(selectedSort, selectedIcon); // Pass both selected sort type and icon to the updateSortAndIcon function
                       Navigator.of(context).pop();
                     },
                     child: Text('Done', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
@@ -27,9 +28,9 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
               ),
               ...[
                 {'sort': 'Hot', 'icon': Icons.whatshot},
-                {'sort': 'New', 'icon': Icons.fiber_new},
-                {'sort': 'Top', 'icon': Icons.grade},
-                {'sort': 'Controversial', 'icon': Icons.thumbs_up_down},
+                {'sort': 'New', 'icon': Icons.new_releases_outlined},
+                {'sort': 'Top', 'icon': Icons.arrow_upward_sharp},
+                {'sort': 'Controversial', 'icon': Icons.warning_amber_rounded},
                 {'sort': 'Rising', 'icon': Icons.trending_up},
               ].map((Map<String, dynamic> item) {
                 return RadioListTile<String>(
@@ -38,9 +39,24 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                   groupValue: selectedSort,
                   secondary: Icon(item['icon']),
                   onChanged: (value) {
-                    setModalState(() {
-                      selectedSort = value!;
-                    });
+                    if (value == 'Top') {
+                      // Navigate to the TimeSelectionPage if "Top" is selected
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TimeSelectionPage(updateSortAndIcon: (newSort) {
+                            setModalState(() {
+                              selectedSort = 'Top $newSort'; // Concatenate "Top" with the selected value
+                              selectedIcon = Icons.arrow_upward_sharp;
+                            });
+                          }),
+                        ),
+                      );
+                    } else {
+                      setModalState(() {
+                        selectedSort = value ?? ''; // Ensure value is non-nullable
+                        selectedIcon = item['icon'];
+                      });
+                    }
                   },
                 );
               }).toList(),

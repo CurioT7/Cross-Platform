@@ -3,6 +3,8 @@ import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -11,19 +13,16 @@ class sidebarAfterLogIn extends StatelessWidget {
 
 
 
-  final FlutterSecureStorage storage = FlutterSecureStorage();
-  sidebarAfterLogIn({Key? key}) : super(key: key);
-  Future<String?> getToken() async {
-    return await storage.read(key: 'token');
-  }
 
   //String username = "Maximillian12";
   final logicAPI apiLogic = logicAPI();
   Map<String, dynamic>? userDetails;
 
   Future<Map<String, dynamic>> _fetchUsername() async {
+
     try {
-      String? token = await getToken();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
       if (token == null) {
         throw Exception('Token is null');
       }
@@ -32,14 +31,19 @@ class sidebarAfterLogIn extends StatelessWidget {
       print('DATA HERE');
       print(data);
       return data;
-    } catch (e) {
+      await prefs.remove('token');
+    }
+    catch (e) {
       throw Exception('Error fetching user details: $e');
     }
+
   }
 
   Future<Map<String, dynamic>> _fetchUserDetails() async {
     try {
-      String? token = await getToken();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      print(token);
       if (token == null) {
         throw Exception('Token is null');
       }

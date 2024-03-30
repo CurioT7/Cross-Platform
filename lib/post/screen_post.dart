@@ -5,7 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
-import 'package:curio/post/post_card.dart';
+import 'package:curio/widgets/postCard.dart';
+import 'package:curio/models/post.dart';
 
 class AddPostScreen extends StatefulWidget {
   final String type;
@@ -86,30 +87,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                   if(isCommunitySelected) {
-                    List<PostCard> posts = List.generate(
-                        4,
-                            (index) =>
-                            PostCard(
-                              title: titleController.text,
-                              content: descriptionController.text,
-                              username: selectedCommunity.name,
-                              postTime: 'postTime',
-                            ));
+                    int index = 0;
+                    Post post = Post(
+                          id: 'post_$index',
+                          title: 'Post Title $index',
+                          content: 'Post Content $index',
+                          authorName: 'Author $index',
+                          views: index * 10,
+                          createdAt: DateTime.now().subtract(Duration(days: index)),
+                          upvotes: index * 100,
+                          downvotes: index * 10,
+                          linkedSubreddit: 'subreddit_$index',
+                          comments: List.generate(index, (i) => 'Comment $i'), // Generate some fake comments
+                          shares: index * 5,
+                          isNSFW: false,
+                          isSpoiler: false,
+                          isOC: false,
+                          isCrosspost: false,
+                          awards: index * 3,
+                          media: 'https://via.placeholder.com/150',
+                          link: 'https://example.com/post_$index',
+                          isDraft: false,
+                        );
+                    PostCard Card = PostCard(post: post);
+                    // TODO: SEND THE POST TO THE SERVER
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Scaffold(
-                              appBar: AppBar(
-                                title: const Text('Posts'),
-                              ),
-                              body: ListView.builder(
-                                itemCount: posts.length,
-                                itemBuilder: (context, index) {
-                                  return posts[index];
-                                },
-                              ),
-                            ),
+                        builder: (context) => Card,
                       ),
                     );
                   }

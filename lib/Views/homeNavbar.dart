@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:curio/post/screen_post.dart';
 class homeNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -38,6 +38,29 @@ class homeNavigationBar extends StatelessWidget {
         fontFamily: 'IBM Plex Sans Light',
         fontSize: MediaQuery.of(context).size.width * 0.03,
       ),
+      onTap: (index) {
+        switch (index) {
+          case 0:
+            // Handle tap on 'Home'
+            break;
+          case 1:
+            // Handle tap on 'Communities'
+            break;
+          case 2:
+            // Handle tap on 'Create'
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddPostScreen(type:'text')),
+            );
+            break;
+          case 3:
+            // Handle tap on 'Chat'
+            break;
+          case 4:
+            // Handle tap on 'Inbox'
+            break;
+        }
+      },
     );
   }
 }

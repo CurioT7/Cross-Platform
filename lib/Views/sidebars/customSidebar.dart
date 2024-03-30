@@ -7,39 +7,60 @@ class CustomSidebar extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child: Text('Sidebar Header'),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-          ),
-          ListTile(
+          ExpansionTile(
             title: Text('Recently Visited'),
-            onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
-              Navigator.pop(context);
-            },
+            children: <Widget>[
+              ListTile(
+                title: Text('Subreddit 1'),
+                trailing: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    // Implement your delete functionality here
+                  },
+                ),
+              ),
+              ListTile(
+                title: Text('Subreddit 2'),
+                trailing: IconButton(
+                  icon: Icon(Icons.clear),
+                  onPressed: () {
+                    // Implement your delete functionality here
+                  },
+                ),
+              ),
+              ListTile(
+                title: Text('See All'),
+                onTap: () {
+                  // Implement your see all functionality here
+                },
+              ),
+            ],
           ),
-          ListTile(
+          Divider(),
+          ExpansionTile(
             title: Text('Your Communities'),
-            onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
-              Navigator.pop(context);
-            },
+            children: <Widget>[
+              ListTile(
+                title: Text('Community 1'),
+                trailing: IconButton(
+                  icon: Icon(Icons.star_border),
+                  onPressed: () {
+                    // Implement your favorite functionality here
+                  },
+                ),
+              ),
+              ListTile(
+                title: Text('Community 2'),
+                trailing: IconButton(
+                  icon: Icon(Icons.star_border),
+                  onPressed: () {
+                    // Implement your favorite functionality here
+                  },
+                ),
+              ),
+            ],
           ),
-          ListTile(
-            title: Text('Favorites'),
-            onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
-              Navigator.pop(context);
-            },
-          ),
+          Divider(),
           ListTile(
             title: Text('All'),
             onTap: () {

@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => GestureDetector(
               onTap: () => Scaffold.of(context).openEndDrawer(),
               child: CircleAvatar(
-                backgroundImage: NetworkImage('User Image URL'), // Replace with actual user image URL
+                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=13'),
               ),
             ),
           ),

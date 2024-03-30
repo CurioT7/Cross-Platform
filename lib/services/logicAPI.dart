@@ -33,6 +33,9 @@ class logicAPI {
 
   Future<Map<String, dynamic>> fetchUsername( String token ) async {
     print (token);
+    //to delete
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+
     final response = await http.get( Uri.parse('$_baseUrl/api/settings/v1/me'),   headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
@@ -94,6 +97,8 @@ class logicAPI {
   // }
   Future<Map<String, dynamic>> createCommunity(String communityName, bool isOver18, String typeCommunity, String token) async {
     try {
+      token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+
       final response = await http.post(
         Uri.parse('$_baseUrl/api/createSubreddit'),
         headers: <String, String>{
@@ -130,6 +135,8 @@ class logicAPI {
 
   //Community profile page functions
   Future<Map<String, dynamic>> joinCommunity(String token, String communityName) async {
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+    print("inside join community inside logicapi");
 
     final response = await http.post(
       Uri.parse('$_baseUrl/api/friend'),
@@ -149,20 +156,50 @@ class logicAPI {
     } else if (response.statusCode == 500) {
       throw Exception('Internal Server Error');
     } else {
+      print('Unexpected status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
       throw Exception('Unexpected error occurred');
     }
   }
 
+  Future<Map<String, dynamic>> leaveCommunity(String token, String communityName) async {
+    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+    print("inside join community inside logicapi");
+
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/unfriend'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'subreddit': communityName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('Subreddit not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error');
+    } else {
+      print('Unexpected status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Unexpected error occurred');
+    }
+  }
 
   Future<Map<String, dynamic>> fetchCommunityData(String communityName) async {
 
     final response = await http.get(
-      Uri.parse('$_baseUrl/api/r/$communityName'),
+      Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
+// print(communityName);
+// print('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}');
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = json.decode(response.body);
       Map<String, dynamic> subredditData = responseData['subreddit'];
@@ -184,8 +221,8 @@ class logicAPI {
   }
 
   Future<List<Map<String, dynamic>>> fetchCommunityProfilePosts(String subreddit) async {
-    final response = await http.get(Uri.parse('$_baseUrl/api/r/$subreddit/hot' ));
-
+    final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/hot' ));
+//
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
       List<dynamic> posts = jsonResponse['posts'];

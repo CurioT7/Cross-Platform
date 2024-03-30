@@ -14,7 +14,7 @@ class communityProfile extends StatefulWidget {
 
 class _CommunityProfileState extends State<communityProfile> {
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = "Movies dignissimos";
+  String communityName = 'Moviesdignissimos';
   bool hasJoined = false;
 
   List<Map<String, dynamic>> posts = [];
@@ -25,7 +25,8 @@ class _CommunityProfileState extends State<communityProfile> {
   String? banner;
   String? icon;
 
-  void fetchCommunityData() async {
+  void _fetchCommunityData() async {
+    print('Fetching community data');
     logicAPI api = logicAPI();
     Map<String, dynamic> communityData = await api.fetchCommunityData(communityName);
     setState(() {
@@ -35,6 +36,8 @@ class _CommunityProfileState extends State<communityProfile> {
       membersCount = communityData['membersCount'];
       banner = communityData['banner'];
       icon = communityData['icon'];
+
+      print('Community Data: $communityData');
     });
   }
 
@@ -44,28 +47,29 @@ class _CommunityProfileState extends State<communityProfile> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _fetchCommunityData();
     fetchPosts();
   }
 
-  // void fetchPosts() async {
-  //   logicAPI api = logicAPI();
-  //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
-  //   setState(() {
-  //     posts = fetchedPosts;
-  //   });
-  // }
   void fetchPosts() async {
     logicAPI api = logicAPI();
     List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
-    Map<String, dynamic> fetchedUserDetails = await _fetchUserDetails();
-    String profilePicture = fetchedUserDetails['profilePicture'];
     setState(() {
-      posts = fetchedPosts.map((post) => {
-        ...post,
-        'userImage': profilePicture,
-      }).toList();
+      posts = fetchedPosts;
     });
   }
+  // void fetchPosts() async {
+  //   logicAPI api = logicAPI();
+  //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
+  //   Map<String, dynamic> fetchedUserDetails = await _fetchUserDetails();
+  //   String profilePicture = fetchedUserDetails['profilePicture'];
+  //   setState(() {
+  //     posts = fetchedPosts.map((post) => {
+  //       ...post,
+  //       'userImage': profilePicture,
+  //     }).toList();
+  //   });
+  // }
 
 
   @override
@@ -95,8 +99,8 @@ class _CommunityProfileState extends State<communityProfile> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
       if (token == null) {
-        throw Exception('Token is null');
-      }
+       // throw Exception('Token is null');
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";  }
       final username = await apiLogic.fetchUsername(token);
       final data= await apiLogic.extractUsername(username);
       print('DATA HERE');
@@ -116,7 +120,9 @@ class _CommunityProfileState extends State<communityProfile> {
       String? token = prefs.getString('token');
       print(token);
       if (token == null) {
-        throw Exception('Token is null');
+        //throw Exception('Token is null');
+        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+
       }
 
       final usernameData = await _fetchUsername();
@@ -147,9 +153,9 @@ class _CommunityProfileState extends State<communityProfile> {
               CircleAvatar(
                 radius: MediaQuery.of(context).size.width * 0.05,
 
-                backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
+                //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                //backgroundImage: AssetImage('lib/assets/images/example.jpg'),
+                backgroundImage: AssetImage('lib/assets/images/example.jpg'),
               ),
               SizedBox(width: MediaQuery.of(context).size.width * 0.03),
               Column(
@@ -225,17 +231,31 @@ class _CommunityProfileState extends State<communityProfile> {
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token == null) {
-                        throw Exception('Token is null');
+                        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
                       }
-                      await apiLogic.joinCommunity(token, communityName);
-                      setState(() {
-                        hasJoined = true; // Set hasJoined to true after the user has joined the community
-                      });
-                      // TODO:  update the UI after the user has joined the community
-                      //Update text of button to "Joined" in white button, text font and border in darkgrey
-
+                      if (hasJoined) {
+                        try {
+                          await apiLogic.leaveCommunity(token, communityName);
+                          setState(() {
+                            hasJoined = false; // Set hasJoined to false after the user has left the community
+                          });
+                        } catch (e) {
+                          print('Error leaving community: $e');
+                          //TODO:  handle the error, show a message to the user
+                        }
+                      } else {
+                        try {
+                          await apiLogic.joinCommunity(token, communityName);
+                          setState(() {
+                            hasJoined = true; // Set hasJoined to true after the user has joined the community
+                          });
+                        } catch (e) {
+                          print('Error joining community: $e');
+                          //TODO:  handle the error, show a message to the user
+                        }
+                      }
                     } catch (e) {
-                      print('Error joining community: $e');
+                      print('Error in SharedPreferences: $e');
                       //TODO:  handle the error, show a message to the user
                     }
                   },

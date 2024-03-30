@@ -34,7 +34,7 @@ class logicAPI {
   Future<Map<String, dynamic>> fetchUsername( String token ) async {
     print (token);
     //to delete
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+   // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
     final response = await http.get( Uri.parse('$_baseUrl/api/settings/v1/me'),   headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -97,7 +97,7 @@ class logicAPI {
   // }
   Future<Map<String, dynamic>> createCommunity(String communityName, bool isOver18, String typeCommunity, String token) async {
     try {
-      token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+    //  token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
       final response = await http.post(
         Uri.parse('$_baseUrl/api/createSubreddit'),
@@ -163,7 +163,7 @@ class logicAPI {
   }
 
   Future<Map<String, dynamic>> leaveCommunity(String token, String communityName) async {
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+   // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
     print("inside join community inside logicapi");
 
     final response = await http.post(
@@ -222,13 +222,14 @@ class logicAPI {
 
   Future<List<Map<String, dynamic>>> fetchCommunityProfilePosts(String subreddit) async {
     final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/hot' ));
-//
+
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = json.decode(response.body);
       List<dynamic> posts = jsonResponse['posts'];
 
       return posts.map((post) {
         return {
+          '_id': post['_id'],
           'title': post['title'],
           'content': post['content'],
           'authorName': post['authorName'],
@@ -236,8 +237,18 @@ class logicAPI {
           'createdAt': post['createdAt'],
           'upvotes': post['upvotes'],
           'downvotes': post['downvotes'],
-          'comments': post['comments'].length, // Assuming you want the count of comments
+          'linkedSubreddit': post['linkedSubreddit'],
+          'comments': post['comments'],
           'shares': post['shares'],
+          'isNSFW': post['isNSFW'],
+          'isSpoiler': post['isSpoiler'],
+          'isOC': post['isOC'],
+          'isCrosspost': post['isCrosspost'],
+          'awards': post['awards'],
+          'media': post['media'],
+          'link': post['link'],
+          'isDraft': post['isDraft'],
+          '__v': post['__v'],
         };
       }).toList();
     } else if (response.statusCode == 404) {

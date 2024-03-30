@@ -1,6 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:curio/post/community_card.dart';
+import 'package:curio/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostToPage extends StatefulWidget {
   const PostToPage({Key? key}) : super(key: key);
@@ -11,27 +12,37 @@ class PostToPage extends StatefulWidget {
 
 class _PostToPageState extends State<PostToPage> {
   final TextEditingController searchController = TextEditingController();
-  String? selectedCommunity;
-  List<String> allCommunities =
-      List.generate(50, (index) => 'Community ${index + 1}');
-  List<String> displayedCommunities = [];
+  Future<List<Community>>? communities;
+  List<Community> communityList = [];
+  List<Community> displayedCommunities = [];
   int itemCount = 3; // Initial number of items to display
   bool showButton = true; // Flag to control the visibility of the button
 
   @override
   void initState() {
     super.initState();
-    displayedCommunities = List<String>.from(allCommunities.getRange(0, itemCount));    searchController.addListener(() {
+    fetchCommunities();
+  }
+Future<void> fetchCommunities() async {
+  final sharedPrefs = await SharedPreferences.getInstance();
+  String token = sharedPrefs.getString('token')!;
+  // get the communities from the API
+  print('Fetching communities from user token: $token');
+  communities = ApiService().getCommunities(token);
+  if (communities != null) {
+    communityList = await communities!;
+    displayedCommunities = communityList.sublist(0, itemCount);
+    searchController.addListener(() {
       setState(() {
-        displayedCommunities = allCommunities
-            .where((community) => community
+        displayedCommunities = communityList
+            .where((community) => community.name
                 .toLowerCase()
                 .contains(searchController.text.toLowerCase()))
             .toList();
       });
     });
   }
-
+}
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
@@ -88,8 +99,8 @@ class _PostToPageState extends State<PostToPage> {
                     ),
                     onChanged: (value) {
                       setState(() {
-                        displayedCommunities = allCommunities
-                            .where((community) => community
+                        displayedCommunities = communityList
+                            .where((community) => community.name
                                 .toLowerCase()
                                 .contains(value.toLowerCase()))
                             .toList();
@@ -113,15 +124,16 @@ class _PostToPageState extends State<PostToPage> {
               height: maxWidth,
               child: ListView.builder(
                 itemCount: displayedCommunities.length + (showButton ? 1 : 0),
-    itemBuilder: (context, index) {
+                itemBuilder: (context, index) {
                   if (index == displayedCommunities.length) {
                     // If this is the last item, return the "Load More" button
                     return showButton
                         ? OutlinedButton(
                             onPressed: () {
                               setState(() {
-                                itemCount = allCommunities.length;
-                                displayedCommunities = List<String>.from(allCommunities.getRange(0, itemCount));                                showButton = false;
+                                displayedCommunities = List<Community>.from(
+                                    communityList); // Display all items
+                                showButton = false;
                               });
                             },
                             style: OutlinedButton.styleFrom(
@@ -138,17 +150,17 @@ class _PostToPageState extends State<PostToPage> {
                           )
                         : Container(); // Return an empty Container when the button should not be shown
                   } else {
-                    // Otherwise, return the ListTile for the community
-                    return ListTile(
-                      title: Text(displayedCommunities[index]),
+                    // Otherwise, return the CommunityCard for the community
+                    return CommunityCard(
+                      community: displayedCommunities[index],
                       onTap: () {
-                        setState(() {
-                         Navigator.pop(context, displayedCommunities[index]);
-                        });
+                        // send the selected community to the post screen
+                        Navigator.pop(
+                          context,
+                          displayedCommunities[index]
+                        );
+
                       },
-                      tileColor: selectedCommunity == displayedCommunities[index]
-                          ? Colors.blue[100] // Color when selected
-                          : null, // Default color when not selected
                     );
                   }
                 },
@@ -159,4 +171,5 @@ class _PostToPageState extends State<PostToPage> {
       ),
     );
   }
+
 }

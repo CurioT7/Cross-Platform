@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:curio/Views/community/createCommunity.dart';
+import 'package:curio/post/community_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
-import 'package:curio/post/post_card.dart';
+import 'package:curio/widgets/postCard.dart';
+import 'package:curio/models/post.dart';
 
 class AddPostScreen extends StatefulWidget {
   final String type;
@@ -20,7 +21,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final linkController = TextEditingController();
   bool optionSelected = false; // Add this line
   bool isAttachmentAdded = false; // Add this line
-  String? selectedCommunity;
+  late Community selectedCommunity;
+  bool isCommunitySelected = false;
   Attachment? attachment;
   XFile? _pickedImage;
 
@@ -30,6 +32,16 @@ class _AddPostScreenState extends State<AddPostScreen> {
     titleController.dispose();
     descriptionController.dispose();
     linkController.dispose();
+  }
+  @override
+  void initState() {
+    super.initState();
+    selectedCommunity = Community(
+      name: 'Select a community',
+      image: FontAwesomeIcons.arrowDown,
+      followers: 0,
+      isFollowing: false,
+    );
   }
 
   @override
@@ -74,46 +86,50 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                        if (selectedCommunity != null) {
-                          List<PostCard> posts = List.generate(
-                              4,
-                              (index) => PostCard(
-                                    title: titleController.text,
-                                    content: descriptionController.text,
-                                    username: selectedCommunity,
-                                    postTime: 'postTime',
-                                  ));
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                appBar: AppBar(
-                                  title: const Text('Posts'),
-                                ),
-                                body: ListView.builder(
-                                  itemCount: posts.length,
-                                  itemBuilder: (context, index) {
-                                    return posts[index];
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          // ignore: unused_local_variable
-                          String? selectedCommunity = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const PostToPage()),
-                          );
-                          if (selectedCommunity != null) {
-                            setState(() {
-                              this.selectedCommunity = selectedCommunity;
-                            });
-                          }
-                        }
-                        // List<PostCard> posts = List.generate(
+                  if(isCommunitySelected) {
+                    int index = 0;
+                    Post post = Post(
+                          id: 'post_$index',
+                          title: 'Post Title $index',
+                          content: 'Post Content $index',
+                          authorName: 'Author $index',
+                          views: index * 10,
+                          createdAt: DateTime.now().subtract(Duration(days: index)),
+                          upvotes: index * 100,
+                          downvotes: index * 10,
+                          linkedSubreddit: 'subreddit_$index',
+                          comments: List.generate(index, (i) => 'Comment $i'), // Generate some fake comments
+                          shares: index * 5,
+                          isNSFW: false,
+                          isSpoiler: false,
+                          isOC: false,
+                          isCrosspost: false,
+                          awards: index * 3,
+                          media: 'https://via.placeholder.com/150',
+                          link: 'https://example.com/post_$index',
+                          isDraft: false,
+                        );
+                    PostCard Card = PostCard(post: post);
+                    // TODO: SEND THE POST TO THE SERVER
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Card,
+                      ),
+                    );
+                  }
+                  else {
+                    selectedCommunity = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const PostToPage(),
+                      ),
+                    );
+                    setState(() {
+                      isCommunitySelected = true;
+                    });
+                  }
+                                              // List<PostCard> posts = List.generate(
                         //     4,
                         //     (index) => PostCard(
                         //       title: titleController.text,
@@ -158,7 +174,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-                child: Text(selectedCommunity != null ? 'Post' : 'Next'),
+                child: // I want make it Post when the selected Community is set and Post whenn the selecetcommunity is not set
+                    Text(isCommunitySelected ? 'Post' : 'Next'),
               );
             },
           ),
@@ -170,7 +187,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
             padding: const EdgeInsets.fromLTRB(1, 0, 1, 1),
             child: Column(
               children: [
-                if (selectedCommunity != null)
+                if (isCommunitySelected)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
@@ -178,21 +195,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         Expanded(
                           // Add this line
                           child: CommunityBar(
-                            community: selectedCommunity,
+                            community: selectedCommunity.name,
+                            image: selectedCommunity.image,
                             onTap: () async {
                               // ignore: unused_local_variable
-                              String? selectedCommunity = await Navigator.push(
+                               selectedCommunity = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const PostToPage(),
                                 ),
+
                               );
-                              if (selectedCommunity != null) {
-                                setState(() {
-                                  this.selectedCommunity = selectedCommunity;
-                                });
+                              setState(() {
+                                isCommunitySelected = true;
+                                print(selectedCommunity.name);
+                              });
                               }
-                            },
                           ),
                         ),
                       ],
@@ -394,12 +412,12 @@ class URLComponent extends StatelessWidget {
     );
   }
 }
-
 class CommunityBar extends StatelessWidget {
   final String? community;
+  final IconData? image;
   final VoidCallback onTap;
 
-  const CommunityBar({super.key, required this.community, required this.onTap});
+  CommunityBar({Key? key, required this.community, required this.onTap, this.image}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -412,13 +430,12 @@ class CommunityBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Add this line
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              // Wrap the first two widgets in a Row
               children: [
-                const Icon(Icons.arrow_drop_down),
-                const SizedBox(width: 8), // Add some spacing
+                Icon(image),
+                const SizedBox(width: 8),
                 Text(community ?? 'Select a community'),
               ],
             ),

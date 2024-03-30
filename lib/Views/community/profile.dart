@@ -1,3 +1,4 @@
+import 'package:curio/Models/post.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:curio/Views/community/topAppBar.dart';
@@ -7,6 +8,8 @@ import 'package:curio/services/logicAPI.dart';
 import 'package:curio/post/post_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+//import postcard.dart
+import 'package:curio/widgets/postCard.dart';
 class communityProfile extends StatefulWidget {
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
@@ -99,8 +102,9 @@ class _CommunityProfileState extends State<communityProfile> {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
       if (token == null) {
-       // throw Exception('Token is null');
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";  }
+        throw Exception('Token is null');
+       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+        }
       final username = await apiLogic.fetchUsername(token);
       final data= await apiLogic.extractUsername(username);
       print('DATA HERE');
@@ -120,8 +124,8 @@ class _CommunityProfileState extends State<communityProfile> {
       String? token = prefs.getString('token');
       print(token);
       if (token == null) {
-        //throw Exception('Token is null');
-        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+        throw Exception('Token is null');
+       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
       }
 
@@ -231,7 +235,8 @@ class _CommunityProfileState extends State<communityProfile> {
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token == null) {
-                        token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+                        throw Exception('Token is null');
+                       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
                       }
                       if (hasJoined) {
                         try {
@@ -312,15 +317,15 @@ class _CommunityProfileState extends State<communityProfile> {
           controller: _scrollController,
           itemCount: posts.length,
           itemBuilder: (context, index) {
-            return PostCard(
-              title: posts[index]['title'],
-              content: posts[index]['content'],
-              username: posts[index]['authorName'],
-              postTime: posts[index]['createdAt'],
-              userImage: posts[index]['profilePicture'],
-
-              // Add other fields as required
-            );
+            // return PostCard(
+            //   title: posts[index]['title'],
+            //   content: posts[index]['content'],
+            //   username: posts[index]['authorName'],
+            //   postTime: posts[index]['createdAt'],
+            //   userImage: posts[index]['profilePicture'],
+            //
+            //   // Add other fields as required
+            // );
           },
         ),
       ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:curio/models/post.dart';
 
 class MockApiService {
   Future<http.Response> signIn(String email, String password) async {
@@ -24,5 +25,61 @@ class MockApiService {
       };
       return http.Response(jsonEncode(response), 400);
     }
+  }
+
+  Future<List<Post>> getBestPosts() async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Return a list of fake posts
+    return List.generate(100, (index) => Post(
+      id: 'post_$index',
+      title: 'Post Title $index',
+      content: 'Post Content $index',
+      authorName: 'Author $index',
+      views: index * 10,
+      createdAt: DateTime.now().subtract(Duration(days: index)),
+      upvotes: index * 100,
+      downvotes: index * 10,
+      linkedSubreddit: 'subreddit_$index',
+      comments: List.generate(index, (i) => 'Comment $i'), // Generate some fake comments
+      shares: index * 5,
+      isNSFW: false,
+      isSpoiler: false,
+      isOC: false,
+      isCrosspost: false,
+      awards: index * 3,
+      media: 'https://via.placeholder.com/150',
+      link: 'https://example.com/post_$index',
+      isDraft: false,
+    ));
+  }
+
+  Future<Post> getRandomPost(String subreddit) async {
+    // Simulate network delay
+    await Future.delayed(Duration(seconds: 1));
+
+    // Return a fake post
+    return Post(
+      id: 'random_post',
+      title: 'Random Post',
+      content: 'This is a random post from r/$subreddit',
+      authorName: 'Random Author',
+      views: 100,
+      createdAt: DateTime.now(),
+      upvotes: 1000,
+      downvotes: 100,
+      linkedSubreddit: subreddit,
+      comments: List.generate(10, (i) => 'Comment $i'), // Generate some fake comments
+      shares: 50,
+      isNSFW: false,
+      isSpoiler: false,
+      isOC: false,
+      isCrosspost: false,
+      awards: 10,
+      media: 'https://via.placeholder.com/150',
+      link: 'https://example.com/random_post',
+      isDraft: false,
+    );
   }
 }

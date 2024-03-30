@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:curio/models/post.dart';
 
 class ApiService {
-  final String baseUrl = 'http://192.168.1.2:3000/api';
+  final String baseUrl = 'http://10.0.2.2:3000/api/posts';
   int _page = 0;
 
   Future<List<Post>> getBestPosts() async {

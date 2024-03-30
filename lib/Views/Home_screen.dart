@@ -21,8 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FlutterSecureStorage storage = FlutterSecureStorage();
-  final MockApiService _apiService = MockApiService(); // Use the mock API service
-  // final ApiService _apiService = ApiService(); // Use the real API service
+  // final MockApiService _apiService = MockApiService(); // Use the mock API service
+  final ApiService _apiService = ApiService(); // Use the real API service
   final ScrollController _scrollController = ScrollController();
   List<Post> _posts = [];
   bool _isLoading = true;
@@ -65,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       endDrawer: sidebarAfterLogIn(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
+
         leading: Builder(
           builder: (context) => IconButton(
             icon: Icon(Icons.menu),

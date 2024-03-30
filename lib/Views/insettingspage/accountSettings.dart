@@ -1,3 +1,4 @@
+import 'package:curio/Views/insettingspage/notificationSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:curio/utils/constants.dart';
@@ -196,7 +197,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => BlockedAccountsPage()),
+                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
 
 
               );

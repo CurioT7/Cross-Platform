@@ -1,3 +1,4 @@
+import 'package:curio/Views/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
@@ -294,7 +295,11 @@ class sidebarAfterLogIn extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => {},
+            onTap: () => {Navigator.pop(context),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfilePage()),
+              )},
           ),
           ListTile(
             contentPadding: EdgeInsets.only(

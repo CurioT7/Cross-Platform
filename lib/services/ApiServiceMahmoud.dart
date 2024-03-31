@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiServiceMahmoud {
-  final String _baseUrl = 'https://user1709759645693.requestly.tech'; // Base URL
+  final String _baseUrl = 'http://10.0.2.2:3000'; // Base URL
 
   Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';

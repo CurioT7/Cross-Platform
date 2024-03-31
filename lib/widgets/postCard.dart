@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/models/post.dart';
+import 'package:share/share.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -73,7 +74,9 @@ class _PostCardState extends State<PostCard> {
                 Spacer(), // Creates flexible space
                 IconButton(
                   icon: Icon(Icons.share),
-                  onPressed: () {},
+                  onPressed: () {
+                    Share.share('Check out this post: ${widget.post.link}');
+                  },
                 ),
               ],
             ),

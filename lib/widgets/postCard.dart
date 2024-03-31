@@ -32,7 +32,12 @@ class _PostCardState extends State<PostCard> {
             subtitle: Text(widget.post.content),
           ),
           if (widget.post.media != null) // Assuming media is a URL to the post's image
-            Image.network(widget.post.media!),
+            Image.network(
+              widget.post.media!,
+              errorBuilder: (context, error, stackTrace) {
+                return Text('Could not load image.');
+              },
+            ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

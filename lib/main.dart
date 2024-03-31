@@ -1,14 +1,13 @@
-import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:curio/Views/signIn/signin.dart';
-import 'package:curio/Views/insettingspage/accountSettings.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
-import 'package:curio/services/api_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:curio/post/community_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'controller/history_cubit/history_cubit.dart';
+
 // void main() async{
 //   List<Community> communities = Community.getCommunities();
 //   // create community cards
@@ -36,50 +35,56 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final storage = FlutterSecureStorage();
+  const storage = FlutterSecureStorage();
   await storage.deleteAll();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return BlocProvider(
+      create: (context) => HistoryCubit(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            // surface: Colors.transparent,
+            // surfaceTint: Colors.transparent,
+          ),
+        ),
+        home: homePageBeforeSignin(),
       ),
-      home: homePageBeforeSignin(),
     );
   }
 }
 
-
 class homePageBeforeSignin extends StatelessWidget {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey <ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  homePageBeforeSignin({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       key: _scaffoldKey,
       endDrawer: sideBarBeforeLogin(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
-        title: Text('Side menu'),
-
-        actions: [ IconButton(
-          icon: Icon(Icons.account_circle),
-          onPressed: () {
-            _scaffoldKey.currentState!.openEndDrawer();
-
-          },
-        ),
+        title: const Text('Side menu'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              _scaffoldKey.currentState!.openEndDrawer();
+            },
+          ),
         ],
-
       ),
     );
   }
 }
-
-

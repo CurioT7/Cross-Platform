@@ -91,20 +91,18 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                     onPressed: () async {
                       print("Signing in with Google...");
 
-                    await GoogleSignIn().signOut();
+                      await GoogleSignIn().signOut();
                       // sign in with google
                       UserCredential? userCredential =
                           await googleAuthSignInService.signInWithGoogle();
                       if (userCredential != null) {
                         String? accessToken =
                             userCredential.credential?.accessToken;
-                            await apiService.signInWithToken(accessToken!);
+                        await apiService.signInWithToken(accessToken!);
                       }
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) =>  HomeScreen()
-                        ),
+                        MaterialPageRoute(builder: (context) => HomeScreen()),
                       );
                     },
                     color: Colors.grey[200],

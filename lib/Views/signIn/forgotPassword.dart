@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/utils/helpers.dart';
-import 'package:curio/services/api_service.dart';
-import 'package:http/http.dart' as http;
+import 'package:curio/services/passwordService.dart';
+import 'resetPassword.dart';
+import 'package:logger/logger.dart';
 import 'dart:convert';
 
 class ForgotPasswordPage extends StatelessWidget {
+  ForgotPasswordPage({Key? key}) : super(key: key);
+
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
-  final ApiService apiService = ApiService();
+  final PasswordService apiService = PasswordService();
+  final logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: redditBackgroundWhite, // Set your desired color
+        backgroundColor: redditBackgroundWhite,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items to the start and end of the row
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
               child: Row(
@@ -29,62 +35,58 @@ class ForgotPasswordPage extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () async{
-                // Implement help button logic
-                var response= await apiService.ForgotPassword(_emailController.text);
-                if(response['success'] == true) {
-                  // Implement success logic
-                  print('Success');
-                } else {
-                  // Implement failure logic
-                  print('Failure');
-                }
-
-              },
+              onPressed: () => _requestPasswordReset(context),
               child: const Text('Help', style: TextStyle(color: redditGrey)),
             ),
           ],
         ),
       ),
-      backgroundColor: redditBackgroundWhite, // Set your desired color
+      backgroundColor: redditBackgroundWhite,
       body: Column(
         children: <Widget>[
-          SizedBox(height: MediaQuery.of(context).padding.top), // Add spacing to sit under the AppBar
+          SizedBox(height: MediaQuery.of(context).padding.top),
           const Text('Reset Your Password', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          const Text('Enter your email address or username and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
+          const Text('Enter your username and email address and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
+          const SizedBox(height: 20),
+          CustomTextField('Username', _usernameController),
           const SizedBox(height: 20),
           CustomTextField('Email', _emailController),
           const SizedBox(height: 20),
-          Container(
+          SizedBox(
             height: 50, 
             width: double.infinity, 
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: redditOrange,
               ),
-              onPressed: () async {
-                final response = await http.post(
-                  Uri.parse('http://localhost:3000/api/auth/reset_password/{token}'), // Replace {token} with the actual token
-                  headers: <String, String>{
-                    'Content-Type': 'application/json; charset=UTF-8',
-                  },
-                  body: jsonEncode(<String, String>{
-                    'password': _emailController.text,
-                  }),
-                );
-
-                if (response.statusCode == 200) {
-                  print('Password reset successful');
-                } else {
-                  print('Failed to reset password: ${response.body}');
-                }
-              },
-              child: const Text('Reset Password', style: TextStyle(color: Colors.white)),
+              onPressed: () => _requestPasswordReset(context),
+              child: const Text('Request Password Reset', style: TextStyle(color: Colors.white)),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _requestPasswordReset(BuildContext context) async {
+    var response = await apiService.requestPasswordReset(
+      _usernameController.text,
+      _emailController.text,
+    );
+
+    var responseMap = jsonDecode(response.body);
+
+    if (responseMap['success'] != null && responseMap['success']) {
+      logger.i('Success');
+      if (Navigator.canPop(context)) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+        );
+      }
+    } else {
+      logger.i('Failure');
+    }
   }
 }

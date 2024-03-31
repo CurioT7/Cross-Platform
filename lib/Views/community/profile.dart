@@ -4,9 +4,13 @@ import 'package:curio/Views/community/topAppBar.dart';
 //import logicAPI.dart
 import 'package:curio/services/logicAPI.dart';
 //import postcard
-import 'package:curio/post/post_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/widgets/postCard.dart';
+import 'package:curio/models/post.dart';
+import 'package:curio/utils/componentSelectionPopUPPage.dart';
 
+//import postcard.dart
+import 'package:curio/widgets/postCard.dart';
 class communityProfile extends StatefulWidget {
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
@@ -14,7 +18,7 @@ class communityProfile extends StatefulWidget {
 
 class _CommunityProfileState extends State<communityProfile> {
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = "Movies dignissimos";
+  String communityName = 'Technology sint';
   bool hasJoined = false;
 
   List<Map<String, dynamic>> posts = [];
@@ -25,7 +29,8 @@ class _CommunityProfileState extends State<communityProfile> {
   String? banner;
   String? icon;
 
-  void fetchCommunityData() async {
+  void _fetchCommunityData() async {
+    print('Fetching community data');
     logicAPI api = logicAPI();
     Map<String, dynamic> communityData = await api.fetchCommunityData(communityName);
     setState(() {
@@ -35,37 +40,91 @@ class _CommunityProfileState extends State<communityProfile> {
       membersCount = communityData['membersCount'];
       banner = communityData['banner'];
       icon = communityData['icon'];
+
+      print('Community Data: $communityData');
+
     });
   }
 
+
+  String _selectedSort = 'Hot';
+  IconData _selectedIcon = Icons.whatshot; // Default icon
+
+  void fetchPosts(String newSort, IconData newIcon) async {
+    setState(() {
+      _selectedSort = newSort;
+      _selectedIcon = newIcon;
+    });
+
+    logicAPI api = logicAPI();
+    switch (_selectedSort) {
+      case 'Hot':
+      // Call the API function for 'Hot' sort type
+        List<Map<String, dynamic>> fetchedPosts = await api
+            .fetchCommunityProfilePosts(communityName, 'hot');
+        setState(() {
+          posts = fetchedPosts;
+          print("fetchedposts");
+          print(posts);
+        });
+        break;
+      case 'New':
+        List<Map<String, dynamic>> fetchedPosts = await api
+            .fetchCommunityProfilePosts(communityName, 'new');
+        setState(() {
+          posts = fetchedPosts;
+          print("fetchedposts");
+          print(posts);
+        });
+        break;
+      case 'Top':
+        List<Map<String, dynamic>> fetchedPosts = await api
+            .fetchCommunityProfilePosts(communityName, 'top');
+        setState(() {
+          posts = fetchedPosts;
+          print("fetchedposts");
+          print(posts);
+        });
+        break;
+      case 'Random':
+        List<Map<String, dynamic>> fetchedPosts = await api
+            .fetchCommunityProfilePosts(communityName, 'random');
+        setState(() {
+          posts = fetchedPosts;
+          print("fetchedposts");
+          print(posts);
+        });
+        break;
+    }
+  }
   ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
-    fetchPosts();
+    _fetchCommunityData();
+    //fetchPosts();
+    // WidgetsBinding.instance?.addPostFrameCallback((_) {
+    //   showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);
+    // });
   }
+
+
+
 
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
   //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
+  //   Map<String, dynamic> fetchedUserDetails = await _fetchUserDetails();
+  //   String profilePicture = fetchedUserDetails['profilePicture'];
   //   setState(() {
-  //     posts = fetchedPosts;
+  //     posts = fetchedPosts.map((post) => {
+  //       ...post,
+  //       'userImage': profilePicture,
+  //     }).toList();
   //   });
   // }
-  void fetchPosts() async {
-    logicAPI api = logicAPI();
-    List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
-    Map<String, dynamic> fetchedUserDetails = await _fetchUserDetails();
-    String profilePicture = fetchedUserDetails['profilePicture'];
-    setState(() {
-      posts = fetchedPosts.map((post) => {
-        ...post,
-        'userImage': profilePicture,
-      }).toList();
-    });
-  }
 
 
   @override
@@ -96,6 +155,7 @@ class _CommunityProfileState extends State<communityProfile> {
       String? token = prefs.getString('token');
       if (token == null) {
         throw Exception('Token is null');
+        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
       }
       final username = await apiLogic.fetchUsername(token);
       final data= await apiLogic.extractUsername(username);
@@ -117,6 +177,8 @@ class _CommunityProfileState extends State<communityProfile> {
       print(token);
       if (token == null) {
         throw Exception('Token is null');
+        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+
       }
 
       final usernameData = await _fetchUsername();
@@ -147,10 +209,9 @@ class _CommunityProfileState extends State<communityProfile> {
               CircleAvatar(
                 radius: MediaQuery.of(context).size.width * 0.05,
 
-                backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
+                //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                //backgroundImage: AssetImage('lib/assets/images/example.jpg'),
-              ),
+                backgroundImage:  AssetImage('assets/images/example.jpg'),              ),
               SizedBox(width: MediaQuery.of(context).size.width * 0.03),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,16 +287,31 @@ class _CommunityProfileState extends State<communityProfile> {
                       String? token = prefs.getString('token');
                       if (token == null) {
                         throw Exception('Token is null');
+                        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
                       }
-                      await apiLogic.joinCommunity(token, communityName);
-                      setState(() {
-                        hasJoined = true; // Set hasJoined to true after the user has joined the community
-                      });
-                      // TODO:  update the UI after the user has joined the community
-                      //Update text of button to "Joined" in white button, text font and border in darkgrey
-
+                      if (hasJoined) {
+                        try {
+                          await apiLogic.leaveCommunity(token, communityName);
+                          setState(() {
+                            hasJoined = false; // Set hasJoined to false after the user has left the community
+                          });
+                        } catch (e) {
+                          print('Error leaving community: $e');
+                          //TODO:  handle the error, show a message to the user
+                        }
+                      } else {
+                        try {
+                          await apiLogic.joinCommunity(token, communityName);
+                          setState(() {
+                            hasJoined = true; // Set hasJoined to true after the user has joined the community
+                          });
+                        } catch (e) {
+                          print('Error joining community: $e');
+                          //TODO:  handle the error, show a message to the user
+                        }
+                      }
                     } catch (e) {
-                      print('Error joining community: $e');
+                      print('Error in SharedPreferences: $e');
                       //TODO:  handle the error, show a message to the user
                     }
                   },
@@ -287,20 +363,38 @@ class _CommunityProfileState extends State<communityProfile> {
             ),
           ),
           Divider(thickness: 1.0),
+          TextButton(
+            onPressed: () {
+              showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);            },
+            child: Text('Sort Posts'),
+          ),
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
               itemCount: posts.length,
               itemBuilder: (context, index) {
-                return PostCard(
+                Post post = Post(
+                  id: posts[index]['_id'],
                   title: posts[index]['title'],
                   content: posts[index]['content'],
-                  username: posts[index]['authorName'],
-                  postTime: posts[index]['createdAt'],
-                  userImage: posts[index]['profilePicture'],
-
-                  // Add other fields as required
+                  authorName: posts[index]['authorName'],
+                  views: posts[index]['views'],
+                  createdAt: DateTime.parse(posts[index]['createdAt']),
+                  upvotes: posts[index]['upvotes'],
+                  downvotes: posts[index]['downvotes'],
+                  linkedSubreddit: posts[index]['linkedSubreddit'],
+                  comments: List<String>.from(posts[index]['comments']),
+                  shares: posts[index]['shares'],
+                  isNSFW: posts[index]['isNSFW'],
+                  isSpoiler: posts[index]['isSpoiler'],
+                  isOC: posts[index]['isOC'],
+                  isCrosspost: posts[index]['isCrosspost'],
+                  awards: posts[index]['awards'],
+                  media: posts[index]['media'],
+                  link: posts[index]['link'],
+                  isDraft: posts[index]['isDraft'],
                 );
+                return PostCard(post: post);
               },
             ),
           ),

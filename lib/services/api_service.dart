@@ -6,7 +6,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000';
 
@@ -52,28 +53,14 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-
-Future<UserCredential?> signup(String email, String password) async {
-  try {
-    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-
-    // After creating the user, send an email verification
-    await userCredential.user!.sendEmailVerification();
-
-    return userCredential;
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'weak-password') {
-      print('The password provided is too weak.');
-    } else if (e.code == 'email-already-in-use') {
-      print('The account already exists for that email.');
-    }
-  } catch (e) {
-    print(e);
-  }
-  return null;
+Future<UserCredential?> signup(String email, String password,String username ,BuildContext context) async {
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
+  ),
+);
+    return null;
 }
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     final response = await http.get(
@@ -300,6 +287,7 @@ Future<UserCredential?> signup(String email, String password) async {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
       if (responseData['success'] == true) {
         // Save the token in shared preferences
+        print("Sign in with token: ${responseData['accessToken']}");
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', responseData['accessToken']);
         return responseData;

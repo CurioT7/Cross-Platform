@@ -302,7 +302,6 @@ Future<UserCredential?> signup(String email, String password) async {
         // Save the token in shared preferences
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', responseData['accessToken']);
-        print("Token stored in shared preferences: ${responseData['accessToken']}");
         return responseData;
       } else {
         throw Exception(

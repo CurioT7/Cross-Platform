@@ -12,7 +12,7 @@ AppBar topAppBar(BuildContext context, ValueNotifier<double> blurValue) {
               return ImageFiltered(
                 imageFilter: ui.ImageFilter.blur(sigmaX: value, sigmaY: value),
                 child: Image.asset(
-                  'lib/assets/images/example.jpg',
+                    'assets/images/example.jpg',
                   width: MediaQuery.of(context).size.width * 1.5,
                   height: MediaQuery.of(context).size.width * 0.15,
                   fit: BoxFit.fill,

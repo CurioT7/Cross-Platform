@@ -262,4 +262,41 @@ print("correct");
       throw Exception('Failed to load posts');
     }
   }
+  Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
+    final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/$timeinterval'));
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = json.decode(response.body);
+      List<dynamic> posts = jsonResponse['post'];
+
+      return posts.map((post) {
+        return {
+          '_id': post['_id'],
+          'title': post['title'],
+          'content': post['content'],
+          'authorName': post['authorName'],
+          'views': post['views'],
+          'createdAt': DateTime.parse(post['createdAt']),
+          'upvotes': post['upvotes'],
+          'downvotes': post['downvotes'],
+          'linkedSubreddit': post['linkedSubreddit'],
+          'comments': List<String>.from(post['comments']),
+          'shares': post['shares'],
+          'isNSFW': post['isNSFW'],
+          'isSpoiler': post['isSpoiler'],
+          'isOC': post['isOC'],
+          'isCrosspost': post['isCrosspost'],
+          'awards': post['awards'],
+          'media': post['media'],
+          'link': post['link'],
+          'isDraft': post['isDraft'],
+          '__v': post['__v'],
+        };
+      }).toList();
+    } else if (response.statusCode == 404) {
+      throw Exception('Subreddit not found');
+    } else {
+      throw Exception('Failed to load posts');
+    }
+  }
 }

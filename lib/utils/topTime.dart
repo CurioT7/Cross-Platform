@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 // This is a helper function that shows the bottom sheet for time selection.
-void showTimeSelection(BuildContext context, Function(String) updateSortAndIcon) {
-  showModalBottomSheet(
+Future<double?> showTimeSelection(BuildContext context, Function(String) updateSortAndIcon) {
+  return showModalBottomSheet<double>(
     context: context,
     builder: (BuildContext context) {
       return StatefulBuilder(
@@ -14,42 +14,42 @@ void showTimeSelection(BuildContext context, Function(String) updateSortAndIcon)
                   title: Text('Now'),
                   onTap: () {
                     updateSortAndIcon('Now');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 0.3);
                   },
                 ),
                 ListTile(
                   title: Text('Today'),
                   onTap: () {
                     updateSortAndIcon('Today');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 1.0);
                   },
                 ),
                 ListTile(
                   title: Text('This Week'),
                   onTap: () {
                     updateSortAndIcon('This Week');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 7.0);
                   },
                 ),
                 ListTile(
                   title: Text('This Month'),
                   onTap: () {
                     updateSortAndIcon('This Month');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 30.0);
                   },
                 ),
                 ListTile(
                   title: Text('This Year'),
                   onTap: () {
                     updateSortAndIcon('This Year');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 365.0);
                   },
                 ),
                 ListTile(
                   title: Text('All Time'),
                   onTap: () {
                     updateSortAndIcon('All Time');
-                    Navigator.of(context).pop();
+                    Navigator.pop(context, 500.0);
                   },
                 ),
               ],
@@ -58,5 +58,5 @@ void showTimeSelection(BuildContext context, Function(String) updateSortAndIcon)
         },
       );
     },
-  );
+  ) ?? Future.value(0.0);
 }

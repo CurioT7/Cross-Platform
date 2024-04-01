@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/topTime.dart'; // Import the new page for time selection
 
-// This is the showSortPostsBottomSheet function which shows a bottom sheet for sorting posts.
-void showSortPostsBottomSheet(BuildContext context, String initialSort, Function(String, IconData) updateSortAndIcon, [bool isCommunity = false]) {
+Future<double?> showSortPostsBottomSheet(BuildContext context, String initialSort, IconData selectedIcon, Function(String, IconData) updateSortAndIcon, Function(String) fetchPosts, [bool isCommunity = false]) {
+  Future<double?> timeSelected = Future.value(null);
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
-      String selectedSort = initialSort; // Use the initial sort type passed to the function
-      IconData selectedIcon = Icons.whatshot; // Default icon
+      String selectedSort = initialSort;
+      IconData selectedSortIcon = selectedIcon; // Store the selected icon separately
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setModalState) {
           return Column(
@@ -20,21 +20,21 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                 actions: [
                   TextButton(
                     onPressed: () {
-                      updateSortAndIcon(selectedSort, selectedIcon); // Pass both selected sort type and icon to the updateSortAndIcon function
-                      Navigator.of(context).pop(); // Close the bottom sheet
+                      updateSortAndIcon(selectedSort, selectedSortIcon); // Pass the selected icon
+                      print('Selected Sort: $selectedSort');
+                      fetchPosts(selectedSort); // Fetch posts based on the selected sorting criteria
+                      Navigator.of(context).pop();
                     },
                     child: Text('Done', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 ],
               ),
               ...[
-                {'sort': 'Hot', 'icon': Icons.whatshot},
-                {'sort': 'New', 'icon': Icons.new_releases_outlined},
-                {'sort': 'Top', 'icon': Icons.arrow_upward_sharp},
-                {'sort': 'Random', 'icon': Icons.warning_amber_rounded},
-                //if is community is true hide Rising
-                if (!isCommunity){'sort': 'Rising', 'icon': Icons.trending_up},
-                //{'sort': 'Rising', 'icon': Icons.trending_up},
+                {'sort': 'hot', 'icon': Icons.whatshot},
+                {'sort': 'new', 'icon': Icons.new_releases_outlined},
+                {'sort': 'top', 'icon': Icons.arrow_upward_sharp},
+                if (!isCommunity){'sort': 'random', 'icon': Icons.shuffle},
+                if (!isCommunity){'sort': 'rising', 'icon': Icons.trending_up},
               ].map((Map<String, dynamic> item) {
                 return RadioListTile<String>(
                   title: Text(item['sort']),
@@ -42,22 +42,28 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
                   groupValue: selectedSort,
                   secondary: Icon(item['icon']),
                   onChanged: (value) {
-                    // If 'Top' is selected, show the time selection bottom sheet.
-                    if (value == 'Top') {
+                    if (value == 'top') {
                       // Call the showTimeSelection function to show the bottom sheet.
-                      showTimeSelection(context, (newSort) {
+                      timeSelected= showTimeSelection(context, (newSort) {
                         setModalState(() {
-                          selectedSort = 'Top $newSort'; // Concatenate 'Top' with the selected time frame.
+                          if (!isCommunity){selectedSort = 'Top $newSort';}
+                          else{selectedSort='top';};
+                          print('Selected Sort: $selectedSort');
                           selectedIcon = Icons.arrow_upward_sharp; // Keep the same icon for 'Top'.
+                          Navigator.pop(context);
+
+
                         });
                       });
                     } else {
                       // For other sort types, just update the state.
+
                       setModalState(() {
                         selectedSort = value ?? ''; // Ensure the value is non-nullable.
                         selectedIcon = item['icon']; // Update the icon for the selected sort type.
                       });
                     }
+
                   },
                 );
               }).toList(),
@@ -67,4 +73,7 @@ void showSortPostsBottomSheet(BuildContext context, String initialSort, Function
       );
     },
   );
+  // print the value to be returned
+
+  return timeSelected;
 }

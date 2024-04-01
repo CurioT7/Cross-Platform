@@ -11,14 +11,17 @@ import 'package:curio/utils/componentSelectionPopUPPage.dart';
 
 //import postcard.dart
 import 'package:curio/widgets/postCard.dart';
+
+import 'aboutComunity.dart';
 class communityProfile extends StatefulWidget {
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
 
 class _CommunityProfileState extends State<communityProfile> {
+  Future<double?> timeSelection=Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Technology sint';
+  String communityName = 'Technology suscipit';
   bool hasJoined = false;
 
   List<Map<String, dynamic>> posts = [];
@@ -29,6 +32,12 @@ class _CommunityProfileState extends State<communityProfile> {
   String? banner;
   String? icon;
 
+  void _updateSortAndIcon(String newSort, IconData newIcon) {
+    setState(() {
+      _selectedSort = newSort;
+      _selectedIcon = newIcon;
+    });
+  }
   void _fetchCommunityData() async {
     print('Fetching community data');
     logicAPI api = logicAPI();
@@ -50,15 +59,15 @@ class _CommunityProfileState extends State<communityProfile> {
   String _selectedSort = 'Hot';
   IconData _selectedIcon = Icons.whatshot; // Default icon
 
-  void fetchPosts(String newSort, IconData newIcon) async {
+  void fetchPosts(String newSort) async {
     setState(() {
       _selectedSort = newSort;
-      _selectedIcon = newIcon;
+     // _selectedIcon = newIcon;
     });
 
     logicAPI api = logicAPI();
     switch (_selectedSort) {
-      case 'Hot':
+      case 'hot':
       // Call the API function for 'Hot' sort type
         List<Map<String, dynamic>> fetchedPosts = await api
             .fetchCommunityProfilePosts(communityName, 'hot');
@@ -68,7 +77,7 @@ class _CommunityProfileState extends State<communityProfile> {
           print(posts);
         });
         break;
-      case 'New':
+      case 'new':
         List<Map<String, dynamic>> fetchedPosts = await api
             .fetchCommunityProfilePosts(communityName, 'new');
         setState(() {
@@ -77,24 +86,32 @@ class _CommunityProfileState extends State<communityProfile> {
           print(posts);
         });
         break;
-      case 'Top':
+
+      case 'top':
+        print("im here");
+        var timeInterval = await timeSelection;
+
+        print("Time interval");
+        print(timeInterval);
+
         List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchCommunityProfilePosts(communityName, 'top');
+            .fetchTopPosts(communityName, (timeInterval! * 24).toString());
         setState(() {
           posts = fetchedPosts;
           print("fetchedposts");
           print(posts);
         });
         break;
-      case 'Random':
-        List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchCommunityProfilePosts(communityName, 'random');
-        setState(() {
-          posts = fetchedPosts;
-          print("fetchedposts");
-          print(posts);
-        });
-        break;
+
+      // case 'Random':
+      //   List<Map<String, dynamic>> fetchedPosts = await api
+      //       .fetchCommunityProfilePosts(communityName, 'random');
+      //   setState(() {
+      //     posts = fetchedPosts;
+      //     print("fetchedposts");
+      //     print(posts);
+      //   });
+      //   break;
     }
   }
   ScrollController _scrollController = ScrollController();
@@ -347,7 +364,7 @@ class _CommunityProfileState extends State<communityProfile> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => communityProfile()), // Replace SecondPage() with the actual page you want to navigate to
+                      MaterialPageRoute(builder: (context) => AboutComunityPage(subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
                     );
                   },
                   child: Text(
@@ -365,7 +382,9 @@ class _CommunityProfileState extends State<communityProfile> {
           Divider(thickness: 1.0),
           TextButton(
             onPressed: () {
-              showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);            },
+              timeSelection= showSortPostsBottomSheet(context, _selectedSort,Icons.whatshot,_updateSortAndIcon,  fetchPosts, true);
+              print('Time Selection');
+              print(timeSelection);},
             child: Text('Sort Posts'),
           ),
           Expanded(

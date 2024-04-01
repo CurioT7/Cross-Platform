@@ -36,7 +36,7 @@ class _AllPageState extends State<AllPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    showSortPostsBottomSheet(context, _selectedSort, _updateSortAndIcon);
+                   // showSortPostsBottomSheet(context, _selectedSort, _updateSortAndIcon);
                   },
                   child: Row(
                     children: [

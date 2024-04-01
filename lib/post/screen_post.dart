@@ -10,7 +10,7 @@ import 'package:curio/models/post.dart';
 
 class AddPostScreen extends StatefulWidget {
   final String type;
-  const AddPostScreen({Key? key, required this.type}) : super(key: key);
+  const AddPostScreen({super.key, required this.type});
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
@@ -33,6 +33,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     descriptionController.dispose();
     linkController.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -86,50 +87,53 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                  if(isCommunitySelected) {
-                    int index = 0;
-                    Post post = Post(
-                          id: 'post_$index',
-                          title: 'Post Title $index',
-                          content: 'Post Content $index',
-                          authorName: 'Author $index',
-                          views: index * 10,
-                          createdAt: DateTime.now().subtract(Duration(days: index)),
-                          upvotes: index * 100,
-                          downvotes: index * 10,
-                          linkedSubreddit: 'subreddit_$index',
-                          comments: List.generate(index, (i) => 'Comment $i'), // Generate some fake comments
-                          shares: index * 5,
-                          isNSFW: false,
-                          isSpoiler: false,
-                          isOC: false,
-                          isCrosspost: false,
-                          awards: index * 3,
-                          media: 'https://via.placeholder.com/150',
-                          link: 'https://example.com/post_$index',
-                          isDraft: false,
-                        );
-                    PostCard Card = PostCard(post: post);
-                    // TODO: SEND THE POST TO THE SERVER
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Card,
-                      ),
-                    );
-                  }
-                  else {
-                    selectedCommunity = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PostToPage(),
-                      ),
-                    );
-                    setState(() {
-                      isCommunitySelected = true;
-                    });
-                  }
-                                              // List<PostCard> posts = List.generate(
+                        if (isCommunitySelected) {
+                          int index = 0;
+                          Post post = Post(
+                            id: 'post_$index',
+                            title: 'Post Title $index',
+                            content: 'Post Content $index',
+                            authorName: 'Author $index',
+                            views: index * 10,
+                            createdAt:
+                                DateTime.now().subtract(Duration(days: index)),
+                            upvotes: index * 100,
+                            downvotes: index * 10,
+                            linkedSubreddit: 'subreddit_$index',
+                            comments: List.generate(
+                                index,
+                                (i) =>
+                                    'Comment $i'), // Generate some fake comments
+                            shares: index * 5,
+                            isNSFW: false,
+                            isSpoiler: false,
+                            isOC: false,
+                            isCrosspost: false,
+                            awards: index * 3,
+                            media: 'https://via.placeholder.com/150',
+                            link: 'https://example.com/post_$index',
+                            isDraft: false,
+                          );
+                          PostCard Card = PostCard(post: post);
+                          // TODO: SEND THE POST TO THE SERVER
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Card,
+                            ),
+                          );
+                        } else {
+                          selectedCommunity = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PostToPage(),
+                            ),
+                          );
+                          setState(() {
+                            isCommunitySelected = true;
+                          });
+                        }
+                        // List<PostCard> posts = List.generate(
                         //     4,
                         //     (index) => PostCard(
                         //       title: titleController.text,
@@ -195,23 +199,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
                         Expanded(
                           // Add this line
                           child: CommunityBar(
-                            community: selectedCommunity.name,
-                            image: selectedCommunity.image,
-                            onTap: () async {
-                              // ignore: unused_local_variable
-                               selectedCommunity = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const PostToPage(),
-                                ),
-
-                              );
-                              setState(() {
-                                isCommunitySelected = true;
-                                print(selectedCommunity.name);
-                              });
-                              }
-                          ),
+                              community: selectedCommunity.name,
+                              image: selectedCommunity.image,
+                              onTap: () async {
+                                // ignore: unused_local_variable
+                                selectedCommunity = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PostToPage(),
+                                  ),
+                                );
+                                setState(() {
+                                  isCommunitySelected = true;
+                                  print(selectedCommunity.name);
+                                });
+                              }),
                         ),
                       ],
                     ),
@@ -229,7 +231,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 0 + (attachment != null ? 50.0 : 0),
                   child: Visibility(
                     visible: attachment != null && !optionSelected,
@@ -412,12 +414,14 @@ class URLComponent extends StatelessWidget {
     );
   }
 }
+
 class CommunityBar extends StatelessWidget {
   final String? community;
   final IconData? image;
   final VoidCallback onTap;
 
-  CommunityBar({Key? key, required this.community, required this.onTap, this.image}) : super(key: key);
+  const CommunityBar(
+      {super.key, required this.community, required this.onTap, this.image});
 
   @override
   Widget build(BuildContext context) {

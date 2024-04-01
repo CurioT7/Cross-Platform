@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import'package:shared_preferences/shared_preferences.dart';
 
 class CommunityCard extends StatelessWidget {
   final Community community;
   final Function onTap;
 
-  const CommunityCard({super.key, required this.community, required this.onTap});
+  const CommunityCard(
+      {super.key, required this.community, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +43,7 @@ class CommunityCard extends StatelessWidget {
     );
   }
 }
+
 class Community {
   // some dummy data
   final String name;
@@ -62,13 +63,13 @@ class Community {
   String get isFollowingText => isFollowing ? 'Following' : 'Follow';
 
   static List<Community> getCommunities(List<dynamic> json) {
-    return json.map((community) => Community(
-      name: community['name'],
-      image: community['image'],
-      followers: community['followers'],
-      isFollowing: community['isFollowing'],
-    )).toList();
+    return json
+        .map((community) => Community(
+              name: community['name'],
+              image: community['image'],
+              followers: community['followers'],
+              isFollowing: community['isFollowing'],
+            ))
+        .toList();
   }
 }
-
-

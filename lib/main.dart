@@ -1,14 +1,10 @@
-import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:curio/Views/signIn/signin.dart';
-import 'package:curio/Views/insettingspage/accountSettings.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
-import 'package:curio/services/api_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:curio/post/community_card.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 // void main() async{
 //   List<Community> communities = Community.getCommunities();
 //   // create community cards
@@ -36,12 +32,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  final storage = FlutterSecureStorage();
+  const storage = FlutterSecureStorage();
   await storage.deleteAll();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,36 +47,32 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: homePageBeforeSignin(),
+      home: HomePageBeforeSignIn(),
     );
   }
 }
 
+class HomePageBeforeSignIn extends StatelessWidget {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-class homePageBeforeSignin extends StatelessWidget {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey <ScaffoldState>();
+  HomePageBeforeSignIn({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       key: _scaffoldKey,
       endDrawer: sideBarBeforeLogin(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
-        title: Text('Side menu'),
-
-        actions: [ IconButton(
-          icon: Icon(Icons.account_circle),
-          onPressed: () {
-            _scaffoldKey.currentState!.openEndDrawer();
-
-          },
-        ),
+        title: const Text('Side menu'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              _scaffoldKey.currentState!.openEndDrawer();
+            },
+          ),
         ],
-
       ),
     );
   }
 }
-
-

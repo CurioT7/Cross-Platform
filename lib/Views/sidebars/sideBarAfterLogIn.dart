@@ -1,4 +1,3 @@
-import 'package:curio/Views/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
@@ -6,21 +5,19 @@ import 'package:curio/Views/insettingspage/accountSettings.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../my_profile_screen.dart';
+
 class sidebarAfterLogIn extends StatelessWidget {
-
-
-
-
   //String username = "Maximillian12";
   final logicAPI apiLogic = logicAPI();
   Map<String, dynamic>? userDetails;
 
-  Future<Map<String, dynamic>> _fetchUsername() async {
+  sidebarAfterLogIn({super.key});
 
+  Future<Map<String, dynamic>> _fetchUsername() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -28,16 +25,14 @@ class sidebarAfterLogIn extends StatelessWidget {
         throw Exception('Token is null');
       }
       final username = await apiLogic.fetchUsername(token);
-      final data= await apiLogic.extractUsername(username);
+      final data = apiLogic.extractUsername(username);
       print('DATA HERE');
       print(data);
       return data;
       await prefs.remove('token');
-    }
-    catch (e) {
+    } catch (e) {
       throw Exception('Error fetching user details: $e');
     }
-
   }
 
   Future<Map<String, dynamic>> _fetchUserDetails() async {
@@ -53,7 +48,7 @@ class sidebarAfterLogIn extends StatelessWidget {
       String username = usernameData['username'];
 
       final userData = await apiLogic.fetchUserData(username);
-      final data = await apiLogic.extractUserDetails(userData);
+      final data = apiLogic.extractUserDetails(userData);
 
       print('DATA HERE');
       print(data);
@@ -64,7 +59,6 @@ class sidebarAfterLogIn extends StatelessWidget {
   }
 
   @override
-
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -79,11 +73,11 @@ class sidebarAfterLogIn extends StatelessWidget {
                 Container(
                   width: MediaQuery.of(context).size.width * 0.35,
                   height: MediaQuery.of(context).size.width * 0.5,
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).size.width * 0.035),
                   child: Image.asset(
                     'lib/assets/images/avatar.jpeg',
                   ),
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).size.width * 0.035),
                 ),
 
                 // Text(
@@ -99,13 +93,16 @@ class sidebarAfterLogIn extends StatelessWidget {
                 // ),
                 FutureBuilder<Map<String, dynamic>>(
                   future: _fetchUsername(),
-                  builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                  builder: (BuildContext context,
+                      AsyncSnapshot<Map<String, dynamic>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(); // Show a loading spinner while waiting for _fetchUsername to complete
+                      return const CircularProgressIndicator(); // Show a loading spinner while waiting for _fetchUsername to complete
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}'); // Show an error message if _fetchUsername fails
+                      return Text(
+                          'Error: ${snapshot.error}'); // Show an error message if _fetchUsername fails
                     } else {
-                      String username = snapshot.data!['username']; // Get the username from the data returned by _fetchUsername
+                      String username = snapshot.data![
+                          'username']; // Get the username from the data returned by _fetchUsername
                       return Text(
                         'u/$username',
                         style: TextStyle(
@@ -118,8 +115,7 @@ class sidebarAfterLogIn extends StatelessWidget {
                       );
                     }
                   },
-                )
-                ,
+                ),
 
                 Padding(
                   padding: EdgeInsets.only(
@@ -129,17 +125,14 @@ class sidebarAfterLogIn extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width *
-                          0.08,
-                      height: MediaQuery.of(context).size.width *
-                          0.08,
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.08,
+                      height: MediaQuery.of(context).size.width * 0.08,
                       child: Image.asset(
                         'lib/assets/images/karmaFlower.jpg',
                       ),
                     ),
                     SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -148,17 +141,16 @@ class sidebarAfterLogIn extends StatelessWidget {
                             future: _fetchUserDetails(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                              bool isLoading =
-                              (snapshot.connectionState == ConnectionState.waiting);
+                              bool isLoading = (snapshot.connectionState ==
+                                  ConnectionState.waiting);
 
                               if (isLoading) {
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 print(
                                     'Error fetching user details: ${snapshot.error}');
                                 return Text(
                                     'Error fetching user details: ${snapshot.error}');
-
                               } else {
                                 final userDetails = snapshot.data!;
 
@@ -168,7 +160,8 @@ class sidebarAfterLogIn extends StatelessWidget {
                                     fontFamily: 'IBM Plex Sans Light',
                                     color: Colors.black,
                                     fontSize:
-                                    MediaQuery.of(context).size.width * 0.035,
+                                        MediaQuery.of(context).size.width *
+                                            0.035,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 );
@@ -176,7 +169,6 @@ class sidebarAfterLogIn extends StatelessWidget {
                             },
                           ),
                         ),
-
                         Text(
                           'Karma',
                           style: TextStyle(
@@ -197,7 +189,6 @@ class sidebarAfterLogIn extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
-
                     Icon(
                       Icons.cake, // Using the cake icon from Material Icons
                       size: MediaQuery.of(context).size.width *
@@ -205,7 +196,6 @@ class sidebarAfterLogIn extends StatelessWidget {
                       color: Colors.blue, // Adjust the color as needed
                     ),
                     SizedBox(width: MediaQuery.of(context).size.width * 0.02),
-
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -216,45 +206,46 @@ class sidebarAfterLogIn extends StatelessWidget {
                             future: _fetchUserDetails(),
                             builder: (BuildContext context,
                                 AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                              bool isLoading =
-                              (snapshot.connectionState == ConnectionState.waiting);
+                              bool isLoading = (snapshot.connectionState ==
+                                  ConnectionState.waiting);
 
                               if (isLoading) {
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 print(
                                     'Error fetching user details: ${snapshot.error}');
                                 return Text(
                                     'Error fetching user details: ${snapshot.error}');
-
                               } else {
                                 final userDetails = snapshot.data!;
                                 return FutureBuilder<int>(
-                                  future: apiLogic.daysSinceCakeDay(userDetails),
+                                  future:
+                                      apiLogic.daysSinceCakeDay(userDetails),
                                   builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
                                     } else if (snapshot.hasError) {
-                                      return Text('Error calculating days since cake day: ${snapshot.error}');
+                                      return Text(
+                                          'Error calculating days since cake day: ${snapshot.error}');
                                     } else {
                                       final days = snapshot.data!;
-                                      return Text(
-                                          '${days}d',
+                                      return Text('${days}d',
                                           style: TextStyle(
                                             fontFamily: 'IBM Plex Sans Light',
-                                            fontSize: MediaQuery.of(context).size.width * 0.035,
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.035,
                                             fontWeight: FontWeight.bold,
-                                          )
-                                      );
+                                          ));
                                     }
                                   },
                                 );
-
                               }
                             },
                           ),
                         ),
-
 
                         Text(
                           'Reddit age',
@@ -269,9 +260,9 @@ class sidebarAfterLogIn extends StatelessWidget {
                     ),
                   ],
                 ),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
-                  child: Divider(
+                  child: const Divider(
                     thickness: 1.5,
                     color: Colors.grey,
                   ),
@@ -289,17 +280,20 @@ class sidebarAfterLogIn extends StatelessWidget {
               color: Colors.grey[500],
               size: MediaQuery.of(context).size.width * 0.05,
             ),
-            title: Text(
+            title: const Text(
               'My profile',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            onTap: () => {Navigator.pop(context),
+            onTap: () => {
+              Navigator.pop(context),
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => UserProfilePage()),
-              )},
+                MaterialPageRoute(
+                    builder: (context) => const MyProfileScreen(isUser: true)),
+              )
+            },
           ),
           ListTile(
             contentPadding: EdgeInsets.only(
@@ -311,7 +305,7 @@ class sidebarAfterLogIn extends StatelessWidget {
               color: Colors.grey[500],
               size: MediaQuery.of(context).size.width * 0.05,
             ),
-            title: Text(
+            title: const Text(
               'Create a community',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -335,7 +329,7 @@ class sidebarAfterLogIn extends StatelessWidget {
               color: Colors.grey[500],
               size: MediaQuery.of(context).size.width * 0.05,
             ),
-            title: Text(
+            title: const Text(
               'Settings',
               style: TextStyle(
                 fontWeight: FontWeight.bold,

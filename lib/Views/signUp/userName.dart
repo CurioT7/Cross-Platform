@@ -9,11 +9,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 
 class CreateUsernamePage extends StatefulWidget {
-  final String email;
-  final String password;
+  final String? email;
+  final String? password;
   final String? token;
 
-  const CreateUsernamePage({Key? key, required this.email, required this.password, this.token}) : super(key: key);
+  const CreateUsernamePage({Key? key,  this.email,  this.password, this.token}) : super(key: key);
   @override
   _CreateUsernamePageState createState() => _CreateUsernamePageState();
   }
@@ -89,61 +89,27 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
   }
 void _continue() async {
   if (_formKey.currentState!.validate()) {
-    UserCredential? userCredential;
+
     if (widget.token != null) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', widget.token!);
-    } else {
-      userCredential = await apiService.signup(widget.email, widget.password);
-    }
-
-    if (userCredential != null) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = await userCredential.user!.getIdToken();
-      await prefs.setString('token', token!);
-
-      // Navigate to a new screen that waits for email verification
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => EmailVerificationScreen()),
+      // TODO send the username to the server and check if it is available
+      // if it is available, navigate to the next page HomeScreen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(),
+        ),
       );
     } else {
-      print('Signup failed');
+      if (widget.email != null && widget.password != null) {
+        await apiService.signup(widget.email!, widget.password!, _usernameController.text, context);
+      } else {
+        // Handle the case where email or password is null
+        // For example, show an error message
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Email or password is missing'),
+        ));
+      }
     }
   }
 }
-}
-class EmailVerificationScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder(
-        future: checkEmailVerified(),
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: Text('Verifying your email...'));
-          } else {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else {
-              if (snapshot.data == true) {
-                // If email is verified, navigate to HomeScreen
-                WidgetsBinding.instance!.addPostFrameCallback((_) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  );
-                });
-              }
-              return Center(child: Text('Please verify your email'));
-            }
-          }
-        },
-      ),
-    );
-  }
-
-  Future<bool> checkEmailVerified() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    await user!.reload();
-    return user.emailVerified;
-  }
 }

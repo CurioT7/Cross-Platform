@@ -46,7 +46,7 @@ dependencies:
   flutter_riverpod: ^2.0.2
   routemaster: ^1.0.1
   image_picker: ^1.0.7
-
+  share: ^2.0.4
 
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 

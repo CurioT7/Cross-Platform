@@ -118,7 +118,15 @@ class _AboutComunityPageState extends State<AboutComunityPage> {
               itemBuilder: (BuildContext context, int index) {
                 final moderator = subredditInfo['moderators'][index];
                 return ListTile(
-                  title: Text(moderator['username']),
+                  title: Row(
+                    children: [
+
+                      Text(moderator['username']),
+                      SizedBox(width: 15),
+                      Text(moderator['role']),
+
+                    ],
+                  ),
                 );
               },
               separatorBuilder: (BuildContext context, int index) => Divider(),

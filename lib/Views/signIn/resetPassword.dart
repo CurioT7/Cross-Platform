@@ -6,12 +6,12 @@ import 'package:curio/services/passwordService.dart';
 import 'package:logger/logger.dart';
 
 class ResetPasswordPage extends StatelessWidget {
-  final _tokenController = TextEditingController();
+  final String? token;
   final _passwordController = TextEditingController();
   final PasswordService passwordService = PasswordService();
   final logger = Logger();
 
-  ResetPasswordPage({Key? key}) : super(key: key);
+  ResetPasswordPage({Key? key, this.token}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,8 +26,6 @@ class ResetPasswordPage extends StatelessWidget {
           SizedBox(height: MediaQuery.of(context).padding.top),
           const Text('Enter Your New Password', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          CustomTextField('Reset Token', _tokenController),
-          const SizedBox(height: 20),
           CustomTextField('New Password', _passwordController),
           const SizedBox(height: 20),
           SizedBox(
@@ -39,7 +37,7 @@ class ResetPasswordPage extends StatelessWidget {
               ),
               onPressed: () async {
                 var response = await passwordService.resetPassword(
-                  _tokenController.text,
+                  token!,
                   _passwordController.text,
                 );
                 var responseMap = jsonDecode(response.body);

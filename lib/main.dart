@@ -1,8 +1,9 @@
 import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/Views/signIn/resetPassword.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
-
+import 'package:routemaster/routemaster.dart';
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
 import 'package:curio/services/api_service.dart';
@@ -42,15 +43,14 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+    return MaterialApp.router(
+      routerDelegate: RoutemasterDelegate(routesBuilder: (context) => routes),
+      routeInformationParser: const RoutemasterParser(),
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: homePageBeforeSignin(),
     );
   }
 }
@@ -83,3 +83,13 @@ class homePageBeforeSignin extends StatelessWidget {
 }
 
 
+final routes = RouteMap(
+  routes: {
+    '/': (_) => MaterialPage(child: homePageBeforeSignin()),
+    '/home': (_) => MaterialPage(child: HomeScreen()),
+    '/reset-password/:token': (routeData) {
+      final token = routeData.pathParameters['token'];
+      return MaterialPage(child: ResetPasswordPage(token: token));
+    },
+  },
+);

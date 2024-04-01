@@ -7,7 +7,7 @@ import 'package:logger/logger.dart';
 import 'dart:convert';
 
 class ForgotPasswordPage extends StatelessWidget {
-  ForgotPasswordPage({Key? key}) : super(key: key);
+  ForgotPasswordPage({super.key});
 
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -82,7 +82,7 @@ class ForgotPasswordPage extends StatelessWidget {
       if (Navigator.canPop(context)) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ResetPasswordPage()),
+          MaterialPageRoute(builder: (context) => ResetPasswordPage(token: '',)),
         );
       }
     } else {

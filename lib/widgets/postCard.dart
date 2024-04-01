@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/models/post.dart';
+import 'package:share/share.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -32,7 +33,12 @@ class _PostCardState extends State<PostCard> {
             subtitle: Text(widget.post.content),
           ),
           if (widget.post.media != null) // Assuming media is a URL to the post's image
-            Image.network(widget.post.media!),
+            Image.network(
+              widget.post.media!,
+              errorBuilder: (context, error, stackTrace) {
+                return Text('Could not load image.');
+              },
+            ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -68,7 +74,9 @@ class _PostCardState extends State<PostCard> {
                 Spacer(), // Creates flexible space
                 IconButton(
                   icon: Icon(Icons.share),
-                  onPressed: () {},
+                  onPressed: () {
+                    Share.share('Check out this post: ${widget.post.link}');
+                  },
                 ),
               ],
             ),

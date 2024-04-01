@@ -1,4 +1,3 @@
-import 'package:curio/Views/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/services/logicAPI.dart';
@@ -9,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../history_screen.dart';
 import '../my_profile_screen.dart';
 
 class sidebarAfterLogIn extends StatelessWidget {
@@ -63,7 +61,6 @@ class sidebarAfterLogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.only(
           top: MediaQuery.of(context).size.width * 0.09,
@@ -294,7 +291,7 @@ class sidebarAfterLogIn extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const MyProfileScreen()),
+                    builder: (context) => const MyProfileScreen(isUser: true)),
               )
             },
           ),
@@ -320,29 +317,6 @@ class sidebarAfterLogIn extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (context) => createCommunity()),
               )
-            },
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width * 0.05,
-              bottom: MediaQuery.of(context).size.width * 0.01,
-            ),
-            leading: Icon(
-              Icons.history,
-              color: Colors.grey[500],
-              size: MediaQuery.of(context).size.width * 0.05,
-            ),
-            title: const Text(
-              'History',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HistoryScreen()),
-              );
             },
           ),
           ListTile(

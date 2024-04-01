@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -7,8 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 
-import '../Views/Home_screen.dart';
-
+import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
   final String _baseUrl = 'http://10.0.2.2:3000';
 
@@ -19,15 +18,15 @@ class ApiService {
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'usernameOrEmail': username,
+        'username': username,
         'password': password,
       }),
     );
     return response;
   }
 
-  Future<Map<String, dynamic>> changeEmail(
-      String newEmail, String password, String token) async {
+  Future<Map<String, dynamic>> changeEmail(String newEmail, String password,
+      String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -39,14 +38,13 @@ class ApiService {
     };
 
     try {
-      final response = await http.patch(Uri.parse(url),
-          headers: headers, body: jsonEncode(body));
+      final response = await http.patch(
+          Uri.parse(url), headers: headers, body: jsonEncode(body));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         // Edit the success message here
-        String editedMessage =
-            "Your email has been successfully changed to $newEmail. Please verify your new email address.";
+        String editedMessage = "Your email has been successfully changed to $newEmail. Please verify your new email address.";
         return {'success': true, 'message': editedMessage};
       } else {
         return {'success': false, 'message': responseData['message']};
@@ -55,31 +53,15 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-
-  Future<UserCredential?> signup(String email, String password) async {
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      // After creating the user, send an email verification
-      await userCredential.user!.sendEmailVerification();
-
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
-    } catch (e) {
-      print(e);
-    }
+Future<UserCredential?> signup(String email, String password,String username ,BuildContext context) async {
+    Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
+  ),
+);
     return null;
-  }
-
+}
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/auth/username_available/$username'),
@@ -128,6 +110,8 @@ class ApiService {
     }
   }
 
+
+
   Future<List<Community>> getCommunities(String token) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/subreddit/$token'),
@@ -163,6 +147,7 @@ class ApiService {
     }
   }
 
+
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/subreddit/$communityId/members'),
@@ -196,8 +181,7 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
-    final String endpoint =
-        '/user/$username/about'; // Endpoint for fetching user about info
+    final String endpoint = '/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -217,10 +201,9 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createUserSubredditRelationship(
-      String userId, String subredditId) async {
-    const String endpoint =
-        '/api/friend'; // Endpoint for creating user-subreddit relationship
+  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId,
+      String subredditId) async {
+    final String endpoint = '/api/friend'; // Endpoint for creating user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -244,17 +227,17 @@ class ApiService {
             'Failed to create user-subreddit relationship: ${response.body}');
       } else {
         throw Exception(
-            'Failed to create user-subreddit relationship: ${response.statusCode}');
+            'Failed to create user-subreddit relationship: ${response
+                .statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to create user-subreddit relationship: $e');
     }
   }
 
-  Future<Map<String, dynamic>> removeUserSubredditRelationship(
-      String userId, String subredditId) async {
-    const String endpoint =
-        '/api/unfriend'; // Endpoint for removing user-subreddit relationship
+  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId,
+      String subredditId) async {
+    final String endpoint = '/api/unfriend'; // Endpoint for removing user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -277,7 +260,8 @@ class ApiService {
         throw Exception('Subreddit not found: ${response.body}');
       } else {
         throw Exception(
-            'Failed to remove user-subreddit relationship: ${response.statusCode}');
+            'Failed to remove user-subreddit relationship: ${response
+                .statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to remove user-subreddit relationship: $e');
@@ -285,14 +269,15 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
-    const baseUrl = 'http://10.0.2.2:3000';
-    const String endpoint = '/api/auth/google/';
+    final String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
+    final baseUrl = 'http://10.0.2.2:3000';
     final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body
     final Map<String, dynamic> requestBody = {
       'token': token,
     };
+
     try {
       final http.Response response = await http.post(
         url,
@@ -300,13 +285,11 @@ class ApiService {
         headers: {'Content-Type': 'application/json'},
       );
       final Map<String, dynamic> responseData = jsonDecode(response.body);
-      log(response.statusCode.toString());
-      if (response.statusCode == 200) {
+      if (responseData['success'] == true) {
         // Save the token in shared preferences
+        print("Sign in with token: ${responseData['accessToken']}");
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        log(responseData['accessToken']);
         await prefs.setString('token', responseData['accessToken']);
-        log(prefs.getString('token').toString());
         return responseData;
       } else {
         throw Exception(
@@ -319,7 +302,7 @@ class ApiService {
 }
 
 class MockGoogleAuthApi {
-  // static const String baseUrl = 'http://localhost:3000/api/auth';
+  static const String baseUrl = 'http://localhost:3000/api/auth';
 
   Future<void> initiateGoogleAuth() async {
     print('Mock: Initiating Google Authentication...');
@@ -332,14 +315,15 @@ class MockGoogleAuthApi {
 }
 
 class GoogleAuthSignInService {
+
   Future<UserCredential?> signInWithGoogle() async {
     try {
       // Trigger the Google Sign In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
       // Obtain the GoogleSignInAuthentication object
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser!
+          .authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -350,12 +334,10 @@ class GoogleAuthSignInService {
       // Once signed in, return the UserCredential
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
-
-      final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(googleCredential);
-      log(userCredential.credential?.accessToken ?? '');
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+          googleCredential);
       return userCredential;
-    } catch (e) {
+    }catch (e) {
       print(e.toString());
     }
     return null;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/post/screen_post.dart';
+import 'package:curio/Views/community/profile.dart';
 class homeNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,10 @@ class homeNavigationBar extends StatelessWidget {
             // Handle tap on 'Home'
             break;
           case 1:
-            // Handle tap on 'Communities'
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>communityProfile()),
+            );
             break;
           case 2:
             // Handle tap on 'Create'

@@ -9,8 +9,6 @@ import 'package:curio/Views/signUp/userName.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:curio/post/screen_post.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -91,18 +89,20 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                     onPressed: () async {
                       print("Signing in with Google...");
 
-                      await GoogleSignIn().signOut();
+                    await GoogleSignIn().signOut();
                       // sign in with google
                       UserCredential? userCredential =
                           await googleAuthSignInService.signInWithGoogle();
                       if (userCredential != null) {
                         String? accessToken =
                             userCredential.credential?.accessToken;
-                        await apiService.signInWithToken(accessToken!);
+                            await apiService.signInWithToken(accessToken!);
                       }
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
+                        MaterialPageRoute(
+                          builder: (context) =>  CreateUsernamePage(token: userCredential!.credential!.accessToken),
+                        ),
                       );
                     },
                     color: Colors.grey[200],
@@ -186,7 +186,6 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
     );
   }
 }
-
 class LoginButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -194,7 +193,7 @@ class LoginButton extends StatelessWidget {
   final bool validInput;
 
   const LoginButton(this.formKey, this.emailController, this.passwordController,
-      {this.validInput = false, super.key});
+      {this.validInput = false, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -207,19 +206,7 @@ class LoginButton extends StatelessWidget {
         child: MaterialButton(
           minWidth: double.infinity,
           height: 60,
-          onPressed: () async {
-            // check for the eamil if exist
-            // ApiService apiService = ApiService();
-            // var response = await apiService.checkEmail(emailController.text);
-            // if (response.statusCode == 200) {
-            //   print('Email already exist');
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(
-            //       content: Text('Email already exist'),
-            //       duration: Duration(seconds: 2),
-            //     ),
-            //   );
-            // }
+          onPressed: validInput ? () async {
             print('Email: ${emailController.text}');
             print('Password: ${passwordController.text}');
             Navigator.push(
@@ -230,8 +217,9 @@ class LoginButton extends StatelessWidget {
                     password: passwordController.text),
               ),
             );
-          },
-          color: redditOrange,
+          } : null, // Disable the button if the inputs are not valid
+          color: validInput ? redditOrange : Colors.grey, // Change the color based on whether the input is valid
+          disabledColor: Colors.grey, // Set the color of the disabled button
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50),

@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart'; // Import the custom widget file
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import 'controller/history_cubit/history_cubit.dart';
 
 // void main() async{
 //   List<Community> communities = Community.getCommunities();
@@ -45,29 +42,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HistoryCubit(),
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            // surface: Colors.transparent,
-            // surfaceTint: Colors.transparent,
-          ),
-        ),
-        home: homePageBeforeSignin(),
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: HomePageBeforeSignIn(),
     );
   }
 }
 
-class homePageBeforeSignin extends StatelessWidget {
+class HomePageBeforeSignIn extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  homePageBeforeSignin({super.key});
+  HomePageBeforeSignIn({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(

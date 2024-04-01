@@ -123,7 +123,7 @@ class ApiService {
     const String endpoint = 'settings/v1/me/prefs';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
 
     final url = Uri.parse('$baseUrl$endpoint');
 
@@ -136,6 +136,130 @@ class ApiService {
       );
       if (response.statusCode == 200) {
         return AccountInfo.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('User submitted posts not found: ${response.body}');
+      } else {
+        throw Exception(
+            'Failed to fetch user submitted posts: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user submitted posts: $e');
+    }
+  }
+
+  Future<AccountInfo> followUser(String userName) async {
+    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String endpoint = 'me/friends';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ??
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
+
+    final url = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({"friendUsername": userName}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('User submitted posts not found: ${response.body}');
+      } else {
+        throw Exception(
+            'Failed to fetch user submitted posts: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user submitted posts: $e');
+    }
+  }
+
+  Future<AccountInfo> unfollowUser(String userName) async {
+    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String endpoint = 'me/friends';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ??
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
+
+    final url = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({"friendUsername": userName}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('User submitted posts not found: ${response.body}');
+      } else {
+        throw Exception(
+            'Failed to fetch user submitted posts: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user submitted posts: $e');
+    }
+  }
+
+  Future<AccountInfo> blockUser(String userName) async {
+    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String endpoint = 'User/block';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ??
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
+
+    final url = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({"usernameToBlock": userName}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        // Handle 404 error specifically
+        throw Exception('User submitted posts not found: ${response.body}');
+      } else {
+        throw Exception(
+            'Failed to fetch user submitted posts: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user submitted posts: $e');
+    }
+  }
+
+  Future<AccountInfo> unblockUser(String userName) async {
+    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String endpoint = 'User/unblock';
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ??
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
+
+    final url = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({"usernameToBlock": userName}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
         // Handle 404 error specifically
         throw Exception('User submitted posts not found: ${response.body}');

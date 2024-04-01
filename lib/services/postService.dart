@@ -3,23 +3,28 @@ import 'dart:convert';
 import 'package:curio/models/post.dart';
 
 class ApiService {
-  final String baseUrl = 'http://10.0.2.2:3000/api/posts';
-  int _page = 0;
+  final String baseUrl = 'http://192.168.1.3:3000/api';
 
-  Future<List<Post>> getBestPosts() async {
-    final response = await http.get(Uri.parse('$baseUrl/best'));
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responseBody = json.decode(response.body);
-      if (responseBody['success']) {
-        List<dynamic> postsJson = responseBody['SortedPosts'];
-        return postsJson.map((json) => Post.fromJson(json)).toList();
+    Future<List<Post>> getBestPosts() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/best'));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          List<dynamic> postsJson = responseBody['SortedPosts'];
+          return postsJson.map((json) => Post.fromJson(json)).toList();
+        } else {
+          throw Exception('Failed to load posts');
+        }
       } else {
-        throw Exception('Failed to load posts');
+        throw Exception('Failed to load posts with status code: ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to load posts');
+    } catch (e) {
+      print('Exception occurred: $e');
+      throw e;
     }
   }
+
 
   Future<Post> getRandomPost(String subreddit) async {
     final response = await http.get(Uri.parse('$baseUrl/r/$subreddit/random'));

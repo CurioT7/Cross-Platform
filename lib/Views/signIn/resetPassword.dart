@@ -6,12 +6,12 @@ import 'package:curio/services/passwordService.dart';
 import 'package:logger/logger.dart';
 
 class ResetPasswordPage extends StatelessWidget {
-  final String? token;
+  final _tokenController = TextEditingController();
   final _passwordController = TextEditingController();
   final PasswordService passwordService = PasswordService();
   final logger = Logger();
 
-  ResetPasswordPage({Key? key, this.token}) : super(key: key);
+  ResetPasswordPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,8 @@ class ResetPasswordPage extends StatelessWidget {
           SizedBox(height: MediaQuery.of(context).padding.top),
           const Text('Enter Your New Password', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
+          CustomTextField('Token', _tokenController),
+          const SizedBox(height: 20),
           CustomTextField('New Password', _passwordController),
           const SizedBox(height: 20),
           SizedBox(
@@ -37,14 +39,25 @@ class ResetPasswordPage extends StatelessWidget {
               ),
               onPressed: () async {
                 var response = await passwordService.resetPassword(
-                  token!,
+                  _tokenController.text,
                   _passwordController.text,
                 );
-                var responseMap = jsonDecode(response.body);
-                if (responseMap['success'] != null && responseMap['success']) {
-                  logger.i('Password reset successful');
+                if (response.statusCode == 200) {
+                  var responseMap = jsonDecode(response.body);
+                  if (responseMap['success'] != null && responseMap['success']) {
+                    logger.i('Password reset successful');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Password reset successful')),
+                    );
+                  } else {
+                    logger.i('Failed to reset password');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to reset password')),
+                    );
+                  }
                 } else {
-                  logger.i('Failed to reset password');
+                  logger.e('Failed to reset password, status code: ${response.statusCode}');
+                  logger.e('Response body: ${response.body}');
                 }
               },
               child: const Text('Reset Password', style: TextStyle(color: Colors.white)),

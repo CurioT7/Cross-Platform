@@ -82,7 +82,7 @@ class ForgotPasswordPage extends StatelessWidget {
       if (Navigator.canPop(context)) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ResetPasswordPage(token: '',)),
+          MaterialPageRoute(builder: (context) => ResetPasswordPage()),
         );
       }
     } else {

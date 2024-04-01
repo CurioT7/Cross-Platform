@@ -89,7 +89,7 @@ final routes = RouteMap(
     '/home': (_) => MaterialPage(child: HomeScreen()),
     '/reset-password/:token': (routeData) {
       final token = routeData.pathParameters['token'];
-      return MaterialPage(child: ResetPasswordPage(token: token));
+      return MaterialPage(child: ResetPasswordPage());
     },
   },
 );

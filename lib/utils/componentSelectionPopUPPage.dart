@@ -46,7 +46,8 @@ Future<double?> showSortPostsBottomSheet(BuildContext context, String initialSor
                       // Call the showTimeSelection function to show the bottom sheet.
                       timeSelected= showTimeSelection(context, (newSort) {
                         setModalState(() {
-                          selectedSort = 'top $newSort'; // Concatenate 'Top' with the selected time frame.
+                          if (!isCommunity){selectedSort = 'top $newSort';}
+                          else{selectedSort='top';};
                           print('Selected Sort: $selectedSort');
                           selectedIcon = Icons.arrow_upward_sharp; // Keep the same icon for 'Top'.
                         });

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
@@ -29,13 +30,54 @@ class ApiServiceMahmoud {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-
-  Future<Map<String, dynamic>> getUserProfile() async {
-    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+  Future<Map<String, dynamic>> changePassword(String oldPassword, String newPassword, String token) async {
+    final String url = '$_baseUrlDataBase/api/auth/change_password';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('old password sent to api $oldPassword');
+    print('new password sent to api $newPassword');
+    final Map<String, dynamic> body = {
+      'oldPassword': oldPassword,
+      'password': newPassword,
+    };
 
     try {
-      final response = await http.get(url);
+      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final responseData = jsonDecode(response.body);
+        print('the response i recived is ')  ;
+        print(responseData);
+      if (response.statusCode == 200) {
+        return {'success': true, 'message': responseData['message']};
+
+      } else if (response.statusCode == 400) {
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 401) {
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 404) {
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 500) {
+        return {'success': false, 'message': responseData['message']};
+      } else {
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserProfile(String token) async {
+    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the request header
+        },
+      );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -50,6 +92,7 @@ class ApiServiceMahmoud {
       throw Exception('Failed to fetch user profile: $e');
     }
   }
+
 
   Future<Map<String, dynamic>> getUserPreferences(String username) async {
     final String endpoint = '/api/settings/v1/me/prefs'; // Endpoint for fetching user preferences

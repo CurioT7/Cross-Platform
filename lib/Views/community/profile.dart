@@ -21,7 +21,7 @@ class communityProfile extends StatefulWidget {
 class _CommunityProfileState extends State<communityProfile> {
   Future<double?> timeSelection=Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Technology suscipit';
+  String communityName = 'Travel voluptas';
   bool hasJoined = false;
 
   List<Map<String, dynamic>> posts = [];

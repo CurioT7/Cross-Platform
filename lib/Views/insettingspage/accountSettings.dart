@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/views/insettingspage/connectedAccounts.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/views/insettingspage/updateEmailAdress.dart';
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
@@ -49,6 +50,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   void _fetchUserProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
+
       String? token = prefs.getString('token');
 
       if (token == null) {

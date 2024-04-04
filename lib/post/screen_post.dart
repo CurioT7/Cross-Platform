@@ -8,6 +8,9 @@ import 'package:curio/post/post_to_page.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/models/post.dart';
 
+import '../widgets/community_bar.dart';
+import '../widgets/poll_component.dart';
+
 class AddPostScreen extends StatefulWidget {
   final String type;
   const AddPostScreen({super.key, required this.type});
@@ -55,18 +58,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
       } else {
         return false;
       }
-    }
-
-    if (attachment != null) {
-      attachment!.component = URLComponent(
-        controller: linkController,
-        onClear: () {
-          setState(() {
-            attachment = null;
-            isAttachmentAdded = false;
-          });
-        },
-      );
     }
 
     return Scaffold(
@@ -201,6 +192,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           child: CommunityBar(
                               community: selectedCommunity.name,
                               image: selectedCommunity.image,
+                              communityId: selectedCommunity
+                                  .name, // TODO: Change this to the actual community ID
                               onTap: () async {
                                 // ignore: unused_local_variable
                                 selectedCommunity = await Navigator.push(
@@ -232,7 +225,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 0 + (attachment != null ? 50.0 : 0),
+                  height: 0 +
+                      (attachment != null && attachment?.type != 'poll'
+                          ? 50
+                          : 0),
                   child: Visibility(
                     visible: attachment != null && !optionSelected,
                     child: Builder(
@@ -248,16 +244,38 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
                 if (widget.type == 'text')
                   Expanded(
-                    child: TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: 'body (optional)',
-                        border: InputBorder.none,
-                        fillColor: theme.cardColor,
-                        counterText: '',
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: descriptionController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              hintText: 'body (optional)',
+                              border: InputBorder.none,
+                              fillColor: theme.cardColor,
+                              counterText: '',
+                            ),
+                            maxLines: null,
+                          ),
+                          if (attachment?.type == 'poll' && attachment != null)
+                            SizedBox(
+                              height: 200, // Set the height to 200
+                              child: Visibility(
+                                visible: attachment != null && !optionSelected,
+                                child: Builder(
+                                  builder: (context) {
+                                    return Row(
+                                      children: [
+                                        Expanded(child: attachment!.component),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      maxLines: null,
                     ),
                   ),
               ],
@@ -361,7 +379,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                                  // Add your action for the poll icon here
+                                  setState(() {
+                                    attachment = Attachment(
+                                      type: 'poll',
+                                      data: null,
+                                      component: PollComponent(
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                      ),
+                                    );
+                                    isAttachmentAdded = true;
+                                  });
                                 },
                         ),
                         if (!keyboardOpen) const Text('Poll'),
@@ -409,63 +441,6 @@ class URLComponent extends StatelessWidget {
             controller.clear();
             onClear();
           },
-        ),
-      ),
-    );
-  }
-}
-
-class CommunityBar extends StatelessWidget {
-  final String? community;
-  final IconData? image;
-  final VoidCallback onTap;
-
-  const CommunityBar(
-      {super.key, required this.community, required this.onTap, this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(image),
-                const SizedBox(width: 8),
-                Text(community ?? 'Select a community'),
-              ],
-            ),
-            TextButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text('Rules'),
-                      content: const Text('This is a dummy popup message.'),
-                      actions: [
-                        TextButton(
-                          child: const Text('OK'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              child: const Text('Rules'),
-            ),
-          ],
         ),
       ),
     );

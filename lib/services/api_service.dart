@@ -62,6 +62,25 @@ Future<UserCredential?> signup(String email, String password,String username ,Bu
 );
     return null;
 }
+  Future<List<Map<String, String>>> communityRules(String communityId) async {
+    //TODO: Implement this method to fetch community rules from the API
+    // Mock API call
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Mock response
+    return [
+      {'header': 'Rule 1', 'body': 'This is the body for Rule 1'},
+      {'header': 'Rule 2', 'body': 'This is the body for Rule 2'},
+      {'header': 'Rule 3', 'body': 'This is the body for Rule 3'},
+      {'header': 'Rule 4', 'body': 'This is the body for Rule 4'},
+      {'header': 'Rule 5', 'body': 'This is the body for Rule 5'},
+      {'header': 'Rule 6', 'body': 'This is the body for Rule 6'},
+      {'header': 'Rule 7', 'body': 'This is the body for Rule 7'},
+      {'header': 'Rule 8', 'body': 'This is the body for Rule 8'},
+      {'header': 'Rule 9', 'body': 'This is the body for Rule 9'},
+      {'header': 'Rule 10', 'body': 'This is the body for Rule 10'},
+    ];
+  }
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/auth/username_available/$username'),

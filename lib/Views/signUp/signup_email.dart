@@ -101,7 +101,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>  CreateUsernamePage(token: userCredential!.credential!.accessToken),
+                          builder: (context) =>  HomeScreen(),
                         ),
                       );
                     },

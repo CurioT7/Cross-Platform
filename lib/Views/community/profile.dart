@@ -19,7 +19,7 @@ class communityProfile extends StatefulWidget {
 }
 
 class _CommunityProfileState extends State<communityProfile> {
-  Future<double?> timeSelection=Future.value(0.0);
+  Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
   String communityName = 'Travel voluptas';
   bool hasJoined = false;
@@ -34,14 +34,16 @@ class _CommunityProfileState extends State<communityProfile> {
 
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
-      _selectedSort = newSort;
-      _selectedIcon = newIcon;
+       newSort= _selectedSort;
+       newIcon= _selectedIcon ;
     });
   }
+
   void _fetchCommunityData() async {
     print('Fetching community data');
     logicAPI api = logicAPI();
-    Map<String, dynamic> communityData = await api.fetchCommunityData(communityName);
+    Map<String, dynamic> communityData = await api.fetchCommunityData(
+        communityName);
     setState(() {
       privacyMode = communityData['privacyMode'];
       name = communityData['name'];
@@ -51,7 +53,6 @@ class _CommunityProfileState extends State<communityProfile> {
       icon = communityData['icon'];
 
       print('Community Data: $communityData');
-
     });
   }
 
@@ -62,7 +63,7 @@ class _CommunityProfileState extends State<communityProfile> {
   void fetchPosts(String newSort) async {
     setState(() {
       _selectedSort = newSort;
-     // _selectedIcon = newIcon;
+      // _selectedIcon = newIcon;
     });
 
     logicAPI api = logicAPI();
@@ -87,7 +88,7 @@ class _CommunityProfileState extends State<communityProfile> {
         });
         break;
 
-      case 'top':
+      default:
         print("im here");
         var timeInterval = await timeSelection;
 
@@ -95,7 +96,7 @@ class _CommunityProfileState extends State<communityProfile> {
         print(timeInterval);
 
         List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchTopPosts(communityName, (timeInterval! * 24).toString());
+            .fetchTopPosts(communityName, ((timeInterval! * 24).ceil()).toString());
         setState(() {
           posts = fetchedPosts;
           print("fetchedposts");
@@ -103,17 +104,18 @@ class _CommunityProfileState extends State<communityProfile> {
         });
         break;
 
-      // case 'Random':
-      //   List<Map<String, dynamic>> fetchedPosts = await api
-      //       .fetchCommunityProfilePosts(communityName, 'random');
-      //   setState(() {
-      //     posts = fetchedPosts;
-      //     print("fetchedposts");
-      //     print(posts);
-      //   });
-      //   break;
+    // case 'Random':
+    //   List<Map<String, dynamic>> fetchedPosts = await api
+    //       .fetchCommunityProfilePosts(communityName, 'random');
+    //   setState(() {
+    //     posts = fetchedPosts;
+    //     print("fetchedposts");
+    //     print(posts);
+    //   });
+    //   break;
     }
   }
+
   ScrollController _scrollController = ScrollController();
 
   @override
@@ -121,13 +123,12 @@ class _CommunityProfileState extends State<communityProfile> {
     super.initState();
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
+    fetchPosts('hot');
     //fetchPosts();
     // WidgetsBinding.instance?.addPostFrameCallback((_) {
     //   showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);
     // });
   }
-
-
 
 
   // void fetchPosts() async {
@@ -153,7 +154,10 @@ class _CommunityProfileState extends State<communityProfile> {
 
   _scrollListener() {
     double scrollPosition = _scrollController.position.pixels;
-    double limit = MediaQuery.of(context).size.width * 0.3; // Set your limit here
+    double limit = MediaQuery
+        .of(context)
+        .size
+        .width * 0.3; // Set your limit here
 
     if (scrollPosition > limit) {
       blurValue.value = 3.0; // Set a high blur value
@@ -166,7 +170,6 @@ class _CommunityProfileState extends State<communityProfile> {
   Map<String, dynamic>? userDetails;
 
   Future<Map<String, dynamic>> _fetchUsername() async {
-
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -175,7 +178,7 @@ class _CommunityProfileState extends State<communityProfile> {
         // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
       }
       final username = await apiLogic.fetchUsername(token);
-      final data= await apiLogic.extractUsername(username);
+      final data = await apiLogic.extractUsername(username);
       print('DATA HERE');
       print(data);
       return data;
@@ -184,7 +187,6 @@ class _CommunityProfileState extends State<communityProfile> {
     catch (e) {
       throw Exception('Error fetching user details: $e');
     }
-
   }
 
   Future<Map<String, dynamic>> _fetchUserDetails() async {
@@ -222,35 +224,59 @@ class _CommunityProfileState extends State<communityProfile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+              SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.04),
               CircleAvatar(
-                radius: MediaQuery.of(context).size.width * 0.05,
+                radius: MediaQuery
+                    .of(context)
+                    .size
+                    .width * 0.05,
 
                 //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                backgroundImage:  AssetImage('assets/images/example.jpg'),              ),
-              SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+                backgroundImage: AssetImage('assets/images/example.jpg'),),
+              SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.03),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('r/$name',
                       style: TextStyle(
-                          fontSize: MediaQuery.of(context).size.width * 0.045,
+                          fontSize: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.045,
                           fontWeight: FontWeight.bold)),
                   Row(
                     children: [
                       Text('$membersCount members',
                           style: TextStyle(
                               fontSize:
-                              MediaQuery.of(context).size.width * 0.03,
+                              MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.03,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.bold,
                               fontFamily: 'IBM_Plex_Sans_Light')),
-                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                      SizedBox(width: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.02),
                       //draw green filled icon circle
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.02,
-                        height: MediaQuery.of(context).size.width * 0.02,
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.02,
+                        height: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.02,
                         decoration: BoxDecoration(
                           color: Colors.green,
                           shape: BoxShape.circle,
@@ -259,7 +285,10 @@ class _CommunityProfileState extends State<communityProfile> {
                       Text(' 2,654 online',
                           style: TextStyle(
                               fontSize:
-                              MediaQuery.of(context).size.width * 0.03,
+                              MediaQuery
+                                  .of(context)
+                                  .size
+                                  .width * 0.03,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.bold,
                               fontFamily: 'IBM_Plex_Sans_Light')),
@@ -270,11 +299,20 @@ class _CommunityProfileState extends State<communityProfile> {
 
               //choose height and width of button
 
-              SizedBox(width: MediaQuery.of(context).size.width * 0.23),
+              SizedBox(width: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.23),
               SizedBox(
-                width: MediaQuery.of(context).size.width *
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width *
                     0.11, // Set the width of the button
-                height: MediaQuery.of(context).size.width *
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .width *
                     0.07, // Set the height of the button
 
                 child: TextButton(
@@ -282,16 +320,19 @@ class _CommunityProfileState extends State<communityProfile> {
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {
-                          return Colors.white; // Set the button color to white if the user has joined
+                          return Colors
+                              .white; // Set the button color to white if the user has joined
                         } else {
-                          return Colors.blue.shade900; // Otherwise, set it to dark blue
+                          return Colors.blue
+                              .shade900; // Otherwise, set it to dark blue
                         }
                       },
                     ),
                     side: MaterialStateProperty.resolveWith<BorderSide>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {
-                          return BorderSide(color: Colors.grey); // Set the border color to dark grey if the user has joined
+                          return BorderSide(color: Colors
+                              .grey); // Set the border color to dark grey if the user has joined
                         } else {
                           return BorderSide.none; // Otherwise, no border
                         }
@@ -300,7 +341,8 @@ class _CommunityProfileState extends State<communityProfile> {
                   ),
                   onPressed: () async {
                     try {
-                      final SharedPreferences prefs = await SharedPreferences.getInstance();
+                      final SharedPreferences prefs = await SharedPreferences
+                          .getInstance();
                       String? token = prefs.getString('token');
                       if (token == null) {
                         throw Exception('Token is null');
@@ -308,19 +350,41 @@ class _CommunityProfileState extends State<communityProfile> {
                       }
                       if (hasJoined) {
                         try {
+                          _fetchCommunityData();
                           await apiLogic.leaveCommunity(token, communityName);
                           setState(() {
-                            hasJoined = false; // Set hasJoined to false after the user has left the community
+                            showLeaveCommunityDialog(context, communityName);
                           });
                         } catch (e) {
                           print('Error leaving community: $e');
                           //TODO:  handle the error, show a message to the user
+                          // show popup showLeaveCommunityDialog
+
                         }
                       } else {
                         try {
                           await apiLogic.joinCommunity(token, communityName);
                           setState(() {
-                            hasJoined = true; // Set hasJoined to true after the user has joined the community
+                            hasJoined = true;
+                            _fetchCommunityData();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                content: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                      'You have succesfully joined the community: $communityName',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+
+                            );
                           });
                         } catch (e) {
                           print('Error joining community: $e');
@@ -331,12 +395,18 @@ class _CommunityProfileState extends State<communityProfile> {
                       print('Error in SharedPreferences: $e');
                       //TODO:  handle the error, show a message to the user
                     }
+
                   },
                   child: Text(
-                    hasJoined ? 'Joined' : 'Join', // Change the text based on whether the user has joined or not
+                    hasJoined ? 'Joined' : 'Join',
+                    // Change the text based on whether the user has joined or not
                     style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.025,
-                      color: hasJoined ? Colors.grey : Colors.white, // Change the text color based on whether the user has joined or not
+                      fontSize: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.025,
+                      color: hasJoined ? Colors.grey : Colors.white,
+                      // Change the text color based on whether the user has joined or not
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -344,7 +414,10 @@ class _CommunityProfileState extends State<communityProfile> {
               ),
             ],
           ),
-          SizedBox(height: MediaQuery.of(context).size.width * 0.02),
+          SizedBox(height: MediaQuery
+              .of(context)
+              .size
+              .width * 0.02),
           Padding(
             padding: EdgeInsets.only(
                 left: 20.0), // Adjust the padding value as needed
@@ -354,7 +427,10 @@ class _CommunityProfileState extends State<communityProfile> {
                 Text(
                   '$description',
                   style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontSize: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.03,
                       fontFamily: "IBM_Plex_Sans_Light",
 
                       color: Colors.black),
@@ -364,28 +440,53 @@ class _CommunityProfileState extends State<communityProfile> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => AboutComunityPage(subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
+                      MaterialPageRoute(builder: (context) =>
+                          AboutComunityPage(
+                              subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
                     );
                   },
                   child: Text(
                     "See more",
                     style: TextStyle(
                         color: Colors.blue[900],
-                        fontSize: MediaQuery.of(context).size.width * 0.03,
-                        fontWeight: FontWeight.bold// Set the color to dark blue
+                        fontSize: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.03,
+                        fontWeight: FontWeight
+                            .bold // Set the color to dark blue
                     ),
                   ),
                 )
               ],
             ),
           ),
-          Divider(thickness: 1.0),
+         // Divider(thickness: 1.0),
           TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+
+            ),
             onPressed: () {
-              timeSelection= showSortPostsBottomSheet(context, _selectedSort,Icons.whatshot,_updateSortAndIcon,  fetchPosts, true);
+              timeSelection = showSortPostsBottomSheet(
+                  context, _selectedSort, Icons.whatshot, _updateSortAndIcon,
+                  fetchPosts, true);
               print('Time Selection');
-              print(timeSelection);},
-            child: Text('Sort Posts'),
+              print(timeSelection);
+            },
+
+            child: Row(
+              children: [
+
+
+
+                Icon(_selectedIcon,  color: Colors.grey,),
+                Text('${_selectedSort.toUpperCase()} POSTS', style: TextStyle(color: Colors.grey),),
+              Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
+            ],
+            ),
+
           ),
           Expanded(
             child: ListView.builder(
@@ -398,7 +499,7 @@ class _CommunityProfileState extends State<communityProfile> {
                   content: posts[index]['content'],
                   authorName: posts[index]['authorName'],
                   views: posts[index]['views'],
-                  createdAt: DateTime.parse(posts[index]['createdAt']),
+                  createdAt: posts[index]['createdAt'] is String ? DateTime.parse(posts[index]['createdAt']) : posts[index]['createdAt'],
                   upvotes: posts[index]['upvotes'],
                   downvotes: posts[index]['downvotes'],
                   linkedSubreddit: posts[index]['linkedSubreddit'],
@@ -422,5 +523,111 @@ class _CommunityProfileState extends State<communityProfile> {
     );
   }
 
-
+  void showLeaveCommunityDialog(BuildContext context, String communityName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          content: Container(
+            width: MediaQuery
+                .of(context)
+                .size
+                .width *1.6,
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.14,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'Are you sure you want to leave the r/$communityName community?',
+                    textAlign: TextAlign.left,),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.07,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                              side: BorderSide(color: Colors.grey),
+                            ),
+                            child: Text(
+                                'Cancel', style: TextStyle(color: Colors.grey)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          height: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.07,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            child: Text(
+                                'Leave', style: TextStyle(color: Colors.white)),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              hasJoined = false;
+                              _fetchCommunityData();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    backgroundColor: Colors.transparent,
+                                    elevation: 0,
+                                    content: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius: BorderRadius.circular(
+                                            30.0),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0, vertical: 8.0),
+                                      child: Text(
+                                          'You have left the community: $communityName',
+                                          style: TextStyle(
+                                              color: Colors.white)),
+                                    ),
+                                  )
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

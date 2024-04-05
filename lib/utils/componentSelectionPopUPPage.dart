@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/topTime.dart'; // Import the new page for time selection
-
+import 'dart:async';
 Future<double?> showSortPostsBottomSheet(BuildContext context, String initialSort, IconData selectedIcon, Function(String, IconData) updateSortAndIcon, Function(String) fetchPosts, [bool isCommunity = false]) {
   Future<double?> timeSelected = Future.value(null);
+  var completer = Completer<double?>();
   showModalBottomSheet(
     context: context,
     builder: (BuildContext context) {
@@ -46,8 +47,9 @@ Future<double?> showSortPostsBottomSheet(BuildContext context, String initialSor
                       // Call the showTimeSelection function to show the bottom sheet.
                       timeSelected= showTimeSelection(context, (newSort) {
                         setModalState(() {
-                          if (!isCommunity){selectedSort = 'top $newSort';}
-                          else{selectedSort='top';};
+                         selectedSort = 'top $newSort';
+//print timeSelected
+                          timeSelected.then((value) => print('Time Selected: $value'));
                           print('Selected Sort: $selectedSort');
                           selectedIcon = Icons.arrow_upward_sharp; // Keep the same icon for 'Top'.
                         });
@@ -69,6 +71,9 @@ Future<double?> showSortPostsBottomSheet(BuildContext context, String initialSor
         },
       );
     },
-  );
-  return timeSelected;
+  ).then((_) {
+    completer.complete(timeSelected);
+  });
+
+  return completer.future;
 }

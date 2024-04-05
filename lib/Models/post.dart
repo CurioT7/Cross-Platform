@@ -1,4 +1,7 @@
+
 class Post {
+
+
   final String id;
   final String title;
   final String content;
@@ -63,5 +66,30 @@ class Post {
       link: json['link'],
       isDraft: json['isDraft'],
     );
+  }
+  static List<Post> getPosts(List<dynamic> json) {
+    return json
+        .map((post) => Post(
+      id: post['_id'],
+      title: post['title'],
+      content: post['content'],
+      authorName: post['authorName'],
+      views: post['views'],
+      createdAt: DateTime.parse(post['createdAt']),
+      upvotes: post['upvotes'],
+      downvotes: post['downvotes'],
+      linkedSubreddit: post['linkedSubreddit'],
+      comments: List<String>.from(post['comments']),
+      shares: post['shares'],
+      isNSFW: post['isNSFW'],
+      isSpoiler: post['isSpoiler'],
+      isOC: post['isOC'],
+      isCrosspost: post['isCrosspost'],
+      awards: post['awards'],
+      media: post['media'],
+      link: post['link'],
+      isDraft: post['isDraft'],
+    ))
+        .toList();
   }
 }

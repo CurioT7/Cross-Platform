@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:curio/models/post.dart';
+import 'package:curio/Models/post.dart';
 import 'package:curio/services/postService.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/views/sidebars/customSidebar.dart';

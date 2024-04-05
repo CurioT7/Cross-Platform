@@ -66,6 +66,11 @@ class homeNavigationBar extends StatelessWidget {
             break;
           case 2:
             // Handle tap on 'Create'
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? token = prefs.getString('token');
+            if (token == null) {
+              return;
+            }
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => AddPostScreen(type:'text')),

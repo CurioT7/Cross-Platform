@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:curio/models/post.dart';
+import 'package:curio/Models/post.dart';
 import 'package:share/share.dart';
 
 class PostCard extends StatefulWidget {

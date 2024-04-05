@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:curio/models/post.dart';
-
+import 'package:curio/Models/post.dart';
 class MockApiService {
   Future<http.Response> signIn(String email, String password) async {
     await Future.delayed(Duration(seconds: 1)); // Simulate network delay

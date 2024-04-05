@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+// import C:\Users\yaray\OneDrive\Documents\HEM\Software\Curio_v1\Cross-Platform\lib\Models\post.dart
+import 'package:curio/Models/post.dart';
+
 
 class logicAPI {
   final String _baseUrl = 'http://10.0.2.2:3000';// Replace with your backend URL
@@ -223,39 +226,40 @@ class logicAPI {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchCommunityProfilePosts(String subreddit, String type) async {
+  Future<List<Post>> fetchCommunityProfilePosts(String subreddit, String type) async {
     final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type' ));
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> jsonResponse = json.decode(response.body);
-      List<dynamic> posts = jsonResponse['posts'];
-print("sort by ");
-print(type);
-print("correct");
-      return posts.map((post) {
-        return {
-          '_id': post['_id'],
-          'title': post['title'],
-          'content': post['content'],
-          'authorName': post['authorName'],
-          'views': post['views'],
-          'createdAt': post['createdAt'],
-          'upvotes': post['upvotes'],
-          'downvotes': post['downvotes'],
-          'linkedSubreddit': post['linkedSubreddit'],
-          'comments': post['comments'],
-          'shares': post['shares'],
-          'isNSFW': post['isNSFW'],
-          'isSpoiler': post['isSpoiler'],
-          'isOC': post['isOC'],
-          'isCrosspost': post['isCrosspost'],
-          'awards': post['awards'],
-          'media': post['media'],
-          'link': post['link'],
-          'isDraft': post['isDraft'],
-          '__v': post['__v'],
-        };
-      }).toList();
+      // Map<String, dynamic> jsonResponse = json.decode(response.body);
+      // List<dynamic> postsJson = jsonResponse['posts'];
+      //
+      // return Post.getPosts(postsJson);
+
+      return Post.getPosts((jsonDecode(response.body)['posts']));
+      // return posts.map((post) {
+      //   return {
+      //     '_id': post['_id'],
+      //     'title': post['title'],
+      //     'content': post['content'],
+      //     'authorName': post['authorName'],
+      //     'views': post['views'],
+      //     'createdAt': post['createdAt'],
+      //     'upvotes': post['upvotes'],
+      //     'downvotes': post['downvotes'],
+      //     'linkedSubreddit': post['linkedSubreddit'],
+      //     'comments': post['comments'],
+      //     'shares': post['shares'],
+      //     'isNSFW': post['isNSFW'],
+      //     'isSpoiler': post['isSpoiler'],
+      //     'isOC': post['isOC'],
+      //     'isCrosspost': post['isCrosspost'],
+      //     'awards': post['awards'],
+      //     'media': post['media'],
+      //     'link': post['link'],
+      //     'isDraft': post['isDraft'],
+      //     '__v': post['__v'],
+      //   };
+      // }).toList();
     } else if (response.statusCode == 404) {
       throw Exception('Subreddit not found');
     } else {
@@ -299,42 +303,90 @@ print("correct");
   //     throw Exception('Failed to load posts');
   //   }
   // }
-  Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
-    try {
+  // Future<List<Post>?> fetchTopPosts(String subreddit, String timeinterval) async {
+  //   try{
+  //     print("inside LOGICAPI TIME INTERVAL = ");
+  //     print(timeinterval);
+  //     final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri.encodeComponent(timeinterval)}'));
+  //
+  //     if (response.statusCode == 200) {
+  //       Map<String, dynamic> jsonResponse = json.decode(response.body);
+  //       List<dynamic> posts = jsonResponse['posts'];
+  //
+  //       return posts.map((post) => Post.fromJson(post)).toList();
+  //     }
+  //
+  //     // return {
+  //     //   '_id': post['_id'],
+  //     //   'title': post['title'],
+  //     //   'content': post['content'],
+  //     //   'authorName': post['authorName'],
+  //     //   'views': post['views'],
+  //     //   'createdAt': DateTime.parse(post['createdAt']),
+  //     //   'upvotes': post['upvotes'],
+  //     //   'downvotes': post['downvotes'],
+  //     //   'linkedSubreddit': post['linkedSubreddit'],
+  //     //   'comments': List<String>.from(post['comments']),
+  //     //   'shares': post['shares'],
+  //     //   'isNSFW': post['isNSFW'],
+  //     //   'isSpoiler': post['isSpoiler'],
+  //     //   'isOC': post['isOC'],
+  //     //   'isCrosspost': post['isCrosspost'],
+  //     //   'awards': post['awards'],
+  //     //   'media': post['media'],
+  //     //   'link': post['link'],
+  //     //   'isDraft': post['isDraft'],
+  //     //   '__v': post['__v'],
+  //     // };
+  //     // }).toList();
+  //     else if (response.statusCode == 404) {
+  //       return null;
+  //     } else {
+  //       throw Exception('Failed to load posts');
+  //     }
+  //   } catch (e, s) {
+  //     print('Exception details:\n $e');
+  //     print('Stack trace:\n $s');
+  //     rethrow; // Use rethrow to allow the exception to propagate up the call stack.
+  //   }
+  // }
+
+  Future<List<Post>?> fetchTopPosts(String subreddit, String timeinterval) async {
+    try{
       print("inside LOGICAPI TIME INTERVAL = ");
       print(timeinterval);
       final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri.encodeComponent(timeinterval)}'));
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> jsonResponse = json.decode(response.body);
-        List<dynamic> posts = jsonResponse['post'];
 
-        return posts.map((post) {
-          return {
-            '_id': post['_id'],
-            'title': post['title'],
-            'content': post['content'],
-            'authorName': post['authorName'],
-            'views': post['views'],
-            'createdAt': DateTime.parse(post['createdAt']),
-            'upvotes': post['upvotes'],
-            'downvotes': post['downvotes'],
-            'linkedSubreddit': post['linkedSubreddit'],
-            'comments': List<String>.from(post['comments']),
-            'shares': post['shares'],
-            'isNSFW': post['isNSFW'],
-            'isSpoiler': post['isSpoiler'],
-            'isOC': post['isOC'],
-            'isCrosspost': post['isCrosspost'],
-            'awards': post['awards'],
-            'media': post['media'],
-            'link': post['link'],
-            'isDraft': post['isDraft'],
-            '__v': post['__v'],
-          };
-        }).toList();
-      } else if (response.statusCode == 404) {
-        throw Exception('Subreddit not found');
+      if (response.statusCode == 200) {
+
+        return Post.getPosts((jsonDecode(response.body)['post'])); }
+
+      // return {
+      //   '_id': post['_id'],
+      //   'title': post['title'],
+      //   'content': post['content'],
+      //   'authorName': post['authorName'],
+      //   'views': post['views'],
+      //   'createdAt': DateTime.parse(post['createdAt']),
+      //   'upvotes': post['upvotes'],
+      //   'downvotes': post['downvotes'],
+      //   'linkedSubreddit': post['linkedSubreddit'],
+      //   'comments': List<String>.from(post['comments']),
+      //   'shares': post['shares'],
+      //   'isNSFW': post['isNSFW'],
+      //   'isSpoiler': post['isSpoiler'],
+      //   'isOC': post['isOC'],
+      //   'isCrosspost': post['isCrosspost'],
+      //   'awards': post['awards'],
+      //   'media': post['media'],
+      //   'link': post['link'],
+      //   'isDraft': post['isDraft'],
+      //   '__v': post['__v'],
+      // };
+      // }).toList();
+      else if (response.statusCode == 404) {
+       return null;
       } else {
         throw Exception('Failed to load posts');
       }
@@ -344,4 +396,5 @@ print("correct");
       rethrow; // Use rethrow to allow the exception to propagate up the call stack.
     }
   }
+
 }

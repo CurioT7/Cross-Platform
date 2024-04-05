@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
+//import 'dart:ui' as ui;
 import 'package:curio/Views/community/topAppBar.dart';
 //import logicAPI.dart
 import 'package:curio/services/logicAPI.dart';
 //import postcard
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/widgets/postCard.dart';
-import 'package:curio/models/post.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
+import 'package:curio/Models/post.dart';
 
 //import postcard.dart
-import 'package:curio/widgets/postCard.dart';
+//import 'package:curio/widgets/postCard.dart';
 
 import 'aboutComunity.dart';
 class communityProfile extends StatefulWidget {
@@ -21,10 +21,11 @@ class communityProfile extends StatefulWidget {
 class _CommunityProfileState extends State<communityProfile> {
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Travel voluptas';
+  String communityName = 'Books fuga';
   bool hasJoined = false;
 
-  List<Map<String, dynamic>> posts = [];
+
+  List<Post> posts = [];
   String? privacyMode;
   String? name;
   String? description;
@@ -34,8 +35,8 @@ class _CommunityProfileState extends State<communityProfile> {
 
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
-       newSort= _selectedSort;
-       newIcon= _selectedIcon ;
+      newSort= _selectedSort;
+      newIcon= _selectedIcon ;
     });
   }
 
@@ -63,56 +64,54 @@ class _CommunityProfileState extends State<communityProfile> {
   void fetchPosts(String newSort) async {
     setState(() {
       _selectedSort = newSort;
-      // _selectedIcon = newIcon;
     });
 
     logicAPI api = logicAPI();
     switch (_selectedSort) {
       case 'hot':
-      // Call the API function for 'Hot' sort type
-        List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchCommunityProfilePosts(communityName, 'hot');
+        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'hot');
         setState(() {
-          posts = fetchedPosts;
+          posts = fetchedPosts; print("fetchedposts");
+
           print("fetchedposts");
           print(posts);
         });
         break;
       case 'new':
-        List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchCommunityProfilePosts(communityName, 'new');
+        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'new');
         setState(() {
-          posts = fetchedPosts;
+          posts = fetchedPosts; print("fetchedposts");
           print("fetchedposts");
           print(posts);
         });
         break;
-
       default:
         print("im here");
         var timeInterval = await timeSelection;
 
         print("Time interval");
         print(timeInterval);
-
-        List<Map<String, dynamic>> fetchedPosts = await api
-            .fetchTopPosts(communityName, ((timeInterval! * 24).ceil()).toString());
+if (timeInterval!<1){
+  List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, "now");
+  setState(() {
+    if(fetchedPosts!=null) {
+      posts = fetchedPosts;
+      print(posts);
+    }
+  else{posts=[];
+  }})
+  ;
+  return;
+}
+        List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, (timeInterval! ).toString());
         setState(() {
-          posts = fetchedPosts;
-          print("fetchedposts");
-          print(posts);
-        });
+          if(fetchedPosts!=null) {
+            posts = fetchedPosts;
+            print(posts);
+          }
+          else{posts=[];
+          }});
         break;
-
-    // case 'Random':
-    //   List<Map<String, dynamic>> fetchedPosts = await api
-    //       .fetchCommunityProfilePosts(communityName, 'random');
-    //   setState(() {
-    //     posts = fetchedPosts;
-    //     print("fetchedposts");
-    //     print(posts);
-    //   });
-    //   break;
     }
   }
 
@@ -169,50 +168,50 @@ class _CommunityProfileState extends State<communityProfile> {
   final logicAPI apiLogic = logicAPI();
   Map<String, dynamic>? userDetails;
 
-  Future<Map<String, dynamic>> _fetchUsername() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
-      if (token == null) {
-        throw Exception('Token is null');
-        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
-      }
-      final username = await apiLogic.fetchUsername(token);
-      final data = await apiLogic.extractUsername(username);
-      print('DATA HERE');
-      print(data);
-      return data;
-      await prefs.remove('token');
-    }
-    catch (e) {
-      throw Exception('Error fetching user details: $e');
-    }
-  }
-
-  Future<Map<String, dynamic>> _fetchUserDetails() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
-      print(token);
-      if (token == null) {
-        throw Exception('Token is null');
-        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
-
-      }
-
-      final usernameData = await _fetchUsername();
-      String username = usernameData['username'];
-
-      final userData = await apiLogic.fetchUserData(username);
-      final data = await apiLogic.extractUserDetails(userData);
-
-      print('DATA HERE');
-      print(data);
-      return data;
-    } catch (e) {
-      throw Exception('Error fetching user details: $e');
-    }
-  }
+  // Future<Map<String, dynamic>> _fetchUsername() async {
+  //   try {
+  //     final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('token');
+  //     if (token == null) {
+  //       throw Exception('Token is null');
+  //       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+  //     }
+  //     final username = await apiLogic.fetchUsername(token);
+  //     final data = await apiLogic.extractUsername(username);
+  //     print('DATA HERE');
+  //     print(data);
+  //     return data;
+  //     //await prefs.remove('token');
+  //   }
+  //   catch (e) {
+  //     throw Exception('Error fetching user details: $e');
+  //   }
+  // }
+  //
+  // Future<Map<String, dynamic>> _fetchUserDetails() async {
+  //   try {
+  //     final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('token');
+  //     print(token);
+  //     if (token == null) {
+  //       throw Exception('Token is null');
+  //       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
+  //
+  //     }
+  //
+  //     final usernameData = await _fetchUsername();
+  //     String username = usernameData['username'];
+  //
+  //     final userData = await apiLogic.fetchUserData(username);
+  //     final data = await apiLogic.extractUserDetails(userData);
+  //
+  //     print('DATA HERE');
+  //     print(data);
+  //     return data;
+  //   } catch (e) {
+  //     throw Exception('Error fetching user details: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -308,7 +307,7 @@ class _CommunityProfileState extends State<communityProfile> {
                     .of(context)
                     .size
                     .width *
-                    0.11, // Set the width of the button
+                    0.13, // Set the width of the button
                 height: MediaQuery
                     .of(context)
                     .size
@@ -317,6 +316,7 @@ class _CommunityProfileState extends State<communityProfile> {
 
                 child: TextButton(
                   style: ButtonStyle(
+
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {
@@ -461,7 +461,7 @@ class _CommunityProfileState extends State<communityProfile> {
               ],
             ),
           ),
-         // Divider(thickness: 1.0),
+          // Divider(thickness: 1.0),
           TextButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
@@ -483,8 +483,8 @@ class _CommunityProfileState extends State<communityProfile> {
 
                 Icon(_selectedIcon,  color: Colors.grey,),
                 Text('${_selectedSort.toUpperCase()} POSTS', style: TextStyle(color: Colors.grey),),
-              Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
-            ],
+                Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
+              ],
             ),
 
           ),
@@ -493,27 +493,7 @@ class _CommunityProfileState extends State<communityProfile> {
               controller: _scrollController,
               itemCount: posts.length,
               itemBuilder: (context, index) {
-                Post post = Post(
-                  id: posts[index]['_id'],
-                  title: posts[index]['title'],
-                  content: posts[index]['content'],
-                  authorName: posts[index]['authorName'],
-                  views: posts[index]['views'],
-                  createdAt: posts[index]['createdAt'] is String ? DateTime.parse(posts[index]['createdAt']) : posts[index]['createdAt'],
-                  upvotes: posts[index]['upvotes'],
-                  downvotes: posts[index]['downvotes'],
-                  linkedSubreddit: posts[index]['linkedSubreddit'],
-                  comments: List<String>.from(posts[index]['comments']),
-                  shares: posts[index]['shares'],
-                  isNSFW: posts[index]['isNSFW'],
-                  isSpoiler: posts[index]['isSpoiler'],
-                  isOC: posts[index]['isOC'],
-                  isCrosspost: posts[index]['isCrosspost'],
-                  awards: posts[index]['awards'],
-                  media: posts[index]['media'],
-                  link: posts[index]['link'],
-                  isDraft: posts[index]['isDraft'],
-                );
+                Post post = posts[index];
                 return PostCard(post: post);
               },
             ),

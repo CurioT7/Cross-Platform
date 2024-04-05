@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
 import 'package:curio/widgets/postCard.dart';
-import 'package:curio/models/post.dart';
-
+import 'package:curio/Models/post.dart';
 class AddPostScreen extends StatefulWidget {
   final String type;
   const AddPostScreen({super.key, required this.type});

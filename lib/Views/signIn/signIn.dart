@@ -14,6 +14,7 @@ import 'package:flutter_keychain/flutter_keychain.dart';
 
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -101,13 +102,13 @@ class _SignInWithEmailState extends State<SignInPage> {
                             userCredential.credential?.accessToken;
                         await apiService.signInWithToken(accessToken!);
 
-                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => HomeScreen(),
                         ),
                       );
+                    }
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(
@@ -149,7 +150,7 @@ class _SignInWithEmailState extends State<SignInPage> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  CustomTextField('Email', _emailController),
+                  CustomTextField('UserName Or Email', _emailController),
                   const SizedBox(height: 20),
                   CustomTextField(
                     'Password',
@@ -232,9 +233,11 @@ class LoginButton extends StatelessWidget {
             if (response.statusCode == 200) {
               // If the server returns a 200 OK response, then parse the JSON.
               Map<String, dynamic> data = jsonDecode(response.body);
-              String token = data['token'];
-              // Use the token
-              print('Login successful. Token: $token');
+              print(data);
+              String token = data['accessToken'];
+              // save the token to the shared preferences
+              final SharedPreferences prefs = await SharedPreferences.getInstance();
+              await prefs.setString('token', token);
               Navigator.push(
                 context,
                 MaterialPageRoute(

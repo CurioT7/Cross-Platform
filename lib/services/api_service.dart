@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,14 +54,32 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-  Future<UserCredential?> signup(String email, String password,String username ,BuildContext context) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
-      ),
+  Future<String?> signup(String email, String password,String username ,BuildContext context) async {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
+    //   ),
+    // );
+    String baseUrl = 'http://10.0.2.2:3000';
+    // make a post request to the server api/auth/signup
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/signup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+        'username': username,
+      }),
     );
-    return null;
+    if (response.statusCode == 201) {
+      // store the access token in shared preferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', jsonDecode(response.body)['accessToken']);
+    }
+    return response.body;
   }
   Future<List<Map<String, String>>> communityRules(String communityId) async {
     //TODO: Implement this method to fetch community rules from the API
@@ -288,8 +307,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
-    final String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    final baseUrl = 'http://10.0.2.2:3000';
+    const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
+    const baseUrl = 'http://10.0.2.2:3000';
     final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body
@@ -339,7 +358,10 @@ class GoogleAuthSignInService {
     try {
       // Trigger the Google Sign In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
+      if(googleUser == null) {
+        print("Google Sign In failed");
+        return null;
+      }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth = await googleUser!
           .authentication;

@@ -124,8 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () async {
           try {
             final SharedPreferences prefs = await SharedPreferences.getInstance();
-            var value = prefs.getString('token');
-            print(value);
             await prefs.remove('token');
           } catch (e) {
             print(e);

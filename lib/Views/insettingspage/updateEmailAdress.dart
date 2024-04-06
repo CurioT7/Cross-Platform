@@ -76,6 +76,7 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            UserInfoSubBar(),
             TextField(
               controller: _emailController,
               decoration: InputDecoration(

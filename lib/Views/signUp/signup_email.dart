@@ -87,7 +87,6 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async {
-                      print("Signing in with Google...");
 
                     await GoogleSignIn().signOut();
                       // sign in with google
@@ -97,13 +96,17 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                         String? accessToken =
                             userCredential.credential?.accessToken;
                             await apiService.signInWithToken(accessToken!);
-                      }
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>  CreateUsernamePage(token: userCredential!.credential!.accessToken),
+                          builder: (context) =>  HomeScreen(),
                         ),
                       );
+                    }
+                      else{
+                        // stay on the same page
+
+                      }
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(

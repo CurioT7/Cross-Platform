@@ -39,13 +39,16 @@ class _CustomTextFieldState extends State<CustomTextField> {
             RegExp regex = new RegExp(pattern.toString());
             _isValid = regex.hasMatch(value);
           } else if (widget.labelText == 'Password') {
-            // check that the password is longer than 8 characters and contains a number, a capital letter and a special character
-            _isValid = value.contains(RegExp(r'/^(?=.[A-Za-z])(?=.\d)[A-Za-z\d]{8,}$/'));
+            final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+            _isValid = passwordRegex.hasMatch(value);
             _isValid = value.length >= 8;
           }
           else if (widget.labelText == 'Username') {
             _isValid = value.length >= 3;
             // TODO- check with the backend if the username is available
+          }
+          else {
+            _isValid = true;
           }
           widget.onValidChanged?.call(_isValid!);
         });

@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:curio/models/post.dart';
-
+import 'package:curio/Models/post.dart';
 class ApiService {
   final String baseUrl = 'http://192.168.1.3:3000/api';
 

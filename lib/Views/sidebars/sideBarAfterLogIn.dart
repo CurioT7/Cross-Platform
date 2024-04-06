@@ -4,7 +4,7 @@ import 'package:curio/services/logicAPI.dart';
 import 'package:curio/Views/insettingspage/accountSettings.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:curio/Views/history_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
@@ -339,6 +339,29 @@ class sidebarAfterLogIn extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+              );
+            },
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.only(
+              left: MediaQuery.of(context).size.width * 0.05,
+              bottom: MediaQuery.of(context).size.width * 0.01,
+            ),
+            leading: Icon(
+              Icons.settings_outlined,
+              color: Colors.grey[500],
+              size: MediaQuery.of(context).size.width * 0.05,
+            ),
+            title: const Text(
+              'History',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HistoryScreen()),
               );
             },
           ),

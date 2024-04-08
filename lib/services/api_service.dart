@@ -311,7 +311,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    const baseUrl = 'http://10.0.2.2:3000';
+    const baseUrl = 'http://20.19.89.1';
     final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body

@@ -6,7 +6,7 @@ import 'package:curio/Models/post.dart';
 
 
 class logicAPI {
-  final String _baseUrl = 'http://10.0.2.2:3000';// Replace with your backend URL
+  final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
 
   Future<Map<String, dynamic>> fetchUserData( String username ) async {
     final response = await http.get( Uri.parse('$_baseUrl/user/$username/about'),   headers: <String, String>{

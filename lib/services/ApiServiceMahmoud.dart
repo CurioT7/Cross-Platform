@@ -7,7 +7,58 @@ class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
   final String _baseUrlDataBase = 'http://10.0.2.2:3000'; // Base URL for moch
 
-   Future<Map<String, dynamic>> unblockUser(String token,String usernameToUnblock) async {
+
+
+
+  Future<Map<String, dynamic>> disconnectWithGoogle(String password, String token) async {
+    final String url = '$_baseUrlDataBase/api/google/disconnect';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    final Map<String, dynamic> body = {
+      'password': password,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print("Google account disconnected successfully: ${responseData['message']}");
+        return responseData;
+      } else if (response.statusCode == 400) {
+        final errorResponse = jsonDecode(response.body);
+        print("Invalid password: ${errorResponse['message']}");
+        return errorResponse;
+      } else if (response.statusCode == 404) {
+        final errorResponse = jsonDecode(response.body);
+        print("User not found: ${errorResponse['message']}");
+        return errorResponse;
+      } else if (response.statusCode == 401) {
+        final errorResponse = jsonDecode(response.body);
+        print("Unauthorized: ${errorResponse['message']}");
+        return errorResponse;
+      } else if (response.statusCode == 500) {
+        final errorResponse = jsonDecode(response.body);
+        print("Error disconnecting account: ${errorResponse['message']}");
+        return errorResponse;
+      } else {
+        throw Exception('Failed to disconnect Google account: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception("Failed to disconnect Google account: $e");
+    }
+  }
+
+
+
+  Future<Map<String, dynamic>> unblockUser(String token,String usernameToUnblock) async {
     final String apiUrl = '$_baseUrlDataBase/User/unblock';
     final Map<String, String> headers = {
       'Content-Type': 'application/json',

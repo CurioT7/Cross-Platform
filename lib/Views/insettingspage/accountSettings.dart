@@ -26,6 +26,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Views/insettingspage/confirmPassword.dart';
 
 
 class AccountSettingsPage extends StatefulWidget {
@@ -225,7 +226,10 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               child: Text((_isConnected==false ? "Connect" : "Disconnect"), style: KConnectedAccountsButtonColor),
               onPressed: () {
                 if (_isConnected) {
-
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ConfirmPasswordPage()),
+                  );
                 }
                 else {
                   _signInWithGoogle();

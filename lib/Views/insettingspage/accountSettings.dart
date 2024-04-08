@@ -13,19 +13,52 @@ import 'package:curio/views/insettingspage/connectedAccounts.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/views/insettingspage/updateEmailAdress.dart';
+import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/services/api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:curio/utils/helpers.dart';
+import 'package:curio/utils/reddit_colors.dart';
+import 'package:curio/Views/signIn/signIn.dart';
+import 'package:curio/Views/signUp/userName.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curio/Views/signIn/forgotPassword.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Views/insettingspage/confirmPassword.dart';
+
+
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
 }
 
 class _AccountSettingsPageState extends State<AccountSettingsPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final ApiService apiService = ApiService();
+  final GoogleAuthSignInService googleAuthSignInService =
+  GoogleAuthSignInService();
+  bool validEmail = false;
+  bool _createdPassword = false;
+  bool validPassword = false;
+  final storage = FlutterSecureStorage();
   String _selectedGender = 'Man'; // Initial selected gender
-  String _selectedLocation = 'No location specified';
+  String _selectedLocation = 'Mexico';
   bool _isConnected = false;
   String _username = '';
   String _email = '';
 
   ApiServiceMahmoud _apiService = ApiServiceMahmoud();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -34,11 +67,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   }
 
   void _loadInitialData() async {
-    // You can add other initializations here if needed
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = prefs.getString('token');
     print('the value of the token inside the settings page is  $value');
-    @override
     String? initialGender = prefs.getString('selectedGender');
     if (initialGender != null) {
       setState(() {
@@ -47,6 +78,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
     _fetchUserProfile();
   }
+
   void _fetchUserProfile() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,20 +89,34 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userProfile = await _apiService.getUserProfile(token);
+      Map<String, dynamic> userProfile =
+      await _apiService.getUserProfile(token);
       print(userProfile); // Print the fetched data for debugging
+      // Fetch user preferences
+
+      Map<String, dynamic> userPref = await _apiService.getUserPreferences(token);
+
+      print('$userPref'); // Print the fetched data for debugging
+
 
       setState(() {
-        _selectedGender = userProfile['gender'];
+        _selectedLocation= userPref['locationCustomization'];
+        print('the value of the selected location is $_selectedLocation');
+          print('the value of the connected to google is $_isConnected');
+          _createdPassword = userProfile['createdPassword'];
+        _selectedGender = userPref['gender'];
         _username = userProfile['username'];
         _email = userProfile['email'];
+          _isConnected = userProfile['connectedToGoogle']??false;
+          print('the value of the connected to google is $userProfile[connectedToGoogle]');
+          print(userProfile['connectedToGoogle']);
       });
     } catch (e) {
       print('Failed to fetch user profile: $e');
     }
   }
 
-
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -87,13 +133,24 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ListTile(
             leading: Icon(FontAwesomeIcons.cog, color: KIconColor),
             title: Text('Update email address', style: kTitleHeader),
-            subtitle: Text(_email.isNotEmpty ? _email : 'Loading...', style: kMoreInfoTextStyle),
+            subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
+                style: kMoreInfoTextStyle),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
-            onTap: () {
+            onTap: () {if(_createdPassword)
+            {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => UpdateEmailAdressPage()),
               );
+            }
+            else
+            {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+              );
+            }
+
             },
           ),
           ListTile(
@@ -101,10 +158,19 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             title: Text('Change password', style: kTitleHeader),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
-              Navigator.push(
+              if(_createdPassword){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+                );
+              }
+                   else
+               {
+                Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context)  => ChangePasswordPage()),
-              );
+                MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+            );
+                 }
             },
           ),
           ListTile(
@@ -157,17 +223,16 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             leading: Image.asset('lib/assets/images/google.png', height: 40, width: 40),
             title: Text('Google', style: kTitleHeader),
             trailing: TextButton(
-              child: Text((_isConnected ? "Connect" : "Disconnect"), style: KConnectedAccountsButtonColor),
+              child: Text((_isConnected==false ? "Connect" : "Disconnect"), style: KConnectedAccountsButtonColor),
               onPressed: () {
-                setState(() {
-                  _isConnected = !_isConnected;
-                });
                 if (_isConnected) {
-                  // Navigate to ConnectToGooglePage
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ConnectToGooglePage()),
+                    MaterialPageRoute(builder: (context) => ConfirmPasswordPage()),
                   );
+                }
+                else {
+                  _signInWithGoogle();
                 }
               },
             ),
@@ -205,13 +270,37 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
-
-
               );
             },
           ),
         ],
       ),
     );
+  }
+  void _signInWithGoogle() async {
+    print("Connecting with Google...");
+
+    await GoogleSignIn().signOut();
+    UserCredential? userCredential = await googleAuthSignInService.signInWithGoogle();
+    if (userCredential != null) {
+      String? accessToken = userCredential.credential?.accessToken;
+      print('The access token is $accessToken');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
+
+      try {
+        var response = await _apiService.connectWithGoogle(token!, accessToken!);
+        if (response['success']) {
+          setState(() {
+            _isConnected = true;
+            _showSnackBar(response['message']);
+          });
+        } else {
+          _showSnackBar(response['message']);
+        }
+      } catch (e) {
+        print('Error: $e');
+      }
+    }
   }
 }

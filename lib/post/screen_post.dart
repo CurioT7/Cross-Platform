@@ -105,14 +105,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       link: 'https://example.com/post_$index',
                       isDraft: false,
                     );
-                    PostCard Card = PostCard(post: post);
+                    // PostCard Card = PostCard(post: post);
                     // TODO: SEND THE POST TO THE SERVER
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Card,
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => Card,
+                    //   ),
+                    // );
                   } else {
                     selectedCommunity = await Navigator.push(
                       context,

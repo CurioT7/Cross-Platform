@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  final String _baseUrl = 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://20.19.89.1';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -61,7 +61,7 @@ class ApiService {
     //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
     //   ),
     // );
-    String baseUrl = 'http://10.0.2.2:3000';
+    String baseUrl = 'http://20.19.89.1';
     // make a post request to the server api/auth/signup
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/signup'),
@@ -101,6 +101,9 @@ class ApiService {
     ];
   }
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
+    if (username.isEmpty) {
+      return {'available': false, 'message': 'Username cannot be empty'};
+    }
     final response = await http.get(
       Uri.parse('$_baseUrl/api/auth/username_available/$username'),
       headers: <String, String>{

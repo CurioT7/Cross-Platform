@@ -67,6 +67,7 @@ class _CreateUsernamePageState extends State<CreateUsernamePage> {
                               .isUsernameAvailable(_usernameController.text)
                               .then((isUsernameAvailable) {
                             setState(() {
+                              print(isUsernameAvailable['success']);
                               _isUsernameAvailable =
                                   isUsernameAvailable['success'];
                             });

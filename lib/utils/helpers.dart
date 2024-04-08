@@ -45,6 +45,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           }
           else if (widget.labelText == 'Username') {
             _isValid = value.length >= 3;
+            // _isValid = true;
             // TODO- check with the backend if the username is available
           }
           else {
@@ -57,11 +58,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelText: widget.labelText,
         fillColor: redditGrey,
         filled: true,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(25)),
           borderSide: BorderSide.none, // Set border side to none
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(25)),
           borderSide: BorderSide.none, // Set border side to none
         ),
@@ -72,30 +73,33 @@ class _CustomTextFieldState extends State<CustomTextField> {
         suffixIcon: _isValid == null
             ? null
             : _isValid!
-            ? Icon(Icons.check_circle, color: Colors.green)
-            : Icon(Icons.error, color: Colors.red),
+            ? const Icon(Icons.check_circle, color: Colors.green)
+            : const Icon(Icons.error, color: Colors.red),
       ),
       obscureText: widget.obscureText,
       validator: (value) {
         if (widget.labelText == 'Email') {
           Pattern pattern =
               r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-          RegExp regex = new RegExp(pattern.toString());
-          if (!regex.hasMatch(value!))
+          RegExp regex = RegExp(pattern.toString());
+          if (!regex.hasMatch(value!)) {
             return 'Enter a valid email';
-          else
+          } else {
             return null;
+          }
         } else if (widget.labelText == 'Password') {
-          if (value!.length < 8)
+          if (value!.length < 8) {
             return 'Password must be longer than 8 characters';
-          else
+          } else {
             return null;
+          }
         }
         else if (widget.labelText == 'Username')
-          if (value!.length < 3)
+          if (value!.length < 3) {
             return 'Username must be longer than 3 characters';
-          else
+          } else {
             return null;
+          }
       },
     );
   }

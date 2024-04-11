@@ -28,40 +28,60 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: redditBackgroundWhite,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Padding(padding: const EdgeInsets.all(5.0), // Add some padding to the card
+      child: Card(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            leading: const CircleAvatar(
-              backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
-            ),
-            title: Text(widget.post.title),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('r/${widget.post.linkedSubreddit} • u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'), // Display subreddit name, author name, and creation time in the same line
-                if (widget.post.isNSFW) Icon(Icons.warning), // Display an icon if the post is NSFW
-                if (widget.post.isSpoiler) Icon(Icons.visibility_off), // Display an icon if the post is a spoiler
-                if (widget.post.isOC) Icon(Icons.star), // Display an icon if the post is OC
-                if (widget.post.isCrosspost) Icon(Icons.share), // Display an icon if the post is a crosspost
-                Text(widget.post.content),
-              ],
-            ),
+          Row(
+            children: [
+              const CircleAvatar(
+                backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
+              ),
+              const SizedBox(width: 8.0), // Add some space between the avatar and the text
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('r/${widget.post.linkedSubreddit}', style: const TextStyle(fontSize: 16)), // Big font for subreddit
+                  Row(
+                    children: [
+                      Text('u/${widget.post.authorName}', style: const TextStyle(fontSize: 12)), // Smaller font for author
+                      const Text(' • '),
+                      Text(timeago.format(widget.post.createdAt, clock: DateTime.now(), locale: 'en_short'),style: const TextStyle(fontSize: 12),), // Display time in short format
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
+          Text(widget.post.title, style: const TextStyle(fontSize: 18)), // Bigger font for title
+          Row(
+            children: [
+              if (widget.post.isNSFW) const Icon(Icons.warning), // Display an icon if the post is NSFW
+              if (widget.post.isSpoiler) const Icon(Icons.visibility_off), // Display an icon if the post is a spoiler
+              if (widget.post.isOC) const Icon(Icons.star), // Display an icon if the post is OC
+              if (widget.post.isCrosspost) const Icon(Icons.share), // Display an icon if the post is a crosspost
+            ],
+          ),
+          Text(widget.post.content),
           if (widget.post.media != null) // Assuming media is a URL to the post's image
             Image.network(
               widget.post.media!,
               errorBuilder: (context, error, stackTrace) {
-                return Text('Could not load image.');
+                return const SizedBox.shrink();
               },
             ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(1.0),
             child: Row(
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    // border: Border.all(color: Colors.black), // Add a black border
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -113,14 +133,14 @@ class _PostCardState extends State<PostCard> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.comment), // Add the comments icon
+                        const Icon(Icons.comment), // Add the comments icon
                         Text('${widget.post.comments.length} comments'),
                       ],
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.share),
+                  icon: const Icon(Icons.share),
                   onPressed: () {// Share the post title and content using the Share plugin
                     Share.share('Check out this post: ${widget.post.title}\n${widget.post.content}');
                   },  
@@ -131,6 +151,8 @@ class _PostCardState extends State<PostCard> {
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 }

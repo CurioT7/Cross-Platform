@@ -6,8 +6,9 @@ import 'package:curio/utils/reddit_colors.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
+  final bool isModerator;
 
-  const PostCard({Key? key, required this.post}) : super(key: key);
+  const PostCard({Key? key, required this.post, this.isModerator=false} ) : super(key: key);
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -70,6 +71,76 @@ class _PostCardState extends State<PostCard> {
       print('An error occurred while sharing the post: $e');
     }
   }
+  void _moderatorAction() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.warning_amber_rounded),
+                title: Text('Mark Spoiler'),
+                onTap: () {
+                  // TODO: Implement the logic for marking as spoiler
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.lock),
+                title: Text('Lock Comments'),
+                onTap: () {
+                  // TODO: Implement the logic for locking comments
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.push_pin),
+                title: Text('Sticky Post'),
+                onTap: () {
+                  // TODO: Implement the logic for making post sticky
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.eighteen_up_rating),
+                title: Text('Mark NSFW'),
+                onTap: () {
+                  // TODO: Implement the logic for marking as NSFW
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text('Remove Post'),
+                onTap: () {
+                  // TODO: Implement the logic for removing post
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.check),
+                title: Text('Approve Post'),
+                onTap: () {
+                  // TODO: Implement the logic for approving post
+                },
+              ),
+              Container(
+                width: double.infinity,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                  child: Text('Close', style: TextStyle(color: Colors.white)),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 Widget _buildPostIcons() {
   List<Widget> icons = [];
 
@@ -118,7 +189,7 @@ Widget _buildPostIcons() {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: redditBackgroundWhite,
+      color: Color.fromARGB(255, 255, 255, 255),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -164,11 +235,18 @@ Widget _buildPostIcons() {
                 onPressed: _navigateToComments,
               ),
               Text('${widget.post.comments.length}'),
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: _sharePost,
-              ),
-              Text('${widget.post.shares}'),
+              if (widget.isModerator) 
+                IconButton(
+                  icon: const Icon(Icons.shield),
+                  onPressed: _moderatorAction,
+                )
+              else ...[
+                IconButton(
+                  icon: const Icon(Icons.share),
+                  onPressed: _sharePost,
+                ),
+                Text('${widget.post.shares}'),
+              ],
             ],
           ),
         ],

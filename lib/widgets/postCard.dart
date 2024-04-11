@@ -30,7 +30,15 @@ class _PostCardState extends State<PostCard> {
               backgroundImage: NetworkImage(widget.post.authorName), // Assuming authorName is a URL to the author's avatar
             ),
             title: Text(widget.post.title),
-            subtitle: Text(widget.post.content),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('r/${widget.post.linkedSubreddit}'),
+                Text('u/${widget.post.authorName}'),
+                Text('Awards: ${widget.post.awards}'),
+                Text(widget.post.content),
+              ],
+            ),
           ),
           if (widget.post.media != null) // Assuming media is a URL to the post's image
             Image.network(
@@ -69,9 +77,11 @@ class _PostCardState extends State<PostCard> {
                 ),
                 IconButton(
                   icon: Icon(Icons.comment),
-                  onPressed: () {},
+                  onPressed: () {
+                    // Add functionality to view comments
+                  },
                 ),
-                Spacer(), // Creates flexible space
+                const Spacer(),
                 IconButton(
                   icon: Icon(Icons.share),
                   onPressed: () {

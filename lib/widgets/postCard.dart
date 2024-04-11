@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,8 @@ class _PostCardState extends State<PostCard> {
   late int votes;
   bool upvoted = false;
   bool downvoted = false;
+  bool _isVisible = true;
+  bool _canUnhide = true;
 
   @override
   void initState() {
@@ -26,6 +30,23 @@ class _PostCardState extends State<PostCard> {
     votes = widget.post.upvotes - widget.post.downvotes;
   }
 
+void _toggleVisibility() {
+  if (_isVisible || _canUnhide) {
+    setState(() {
+      _isVisible = !_isVisible;
+    });
+
+    if (!_isVisible) {
+      Timer(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            _canUnhide = false;
+          });
+        }
+      });
+    }
+  }
+}
   void _upvote() {
     setState(() {
       if (!upvoted) {
@@ -206,7 +227,8 @@ void _additionalOptions() {
               leading: const Icon(Icons.visibility_off),
               title: const Text('Hide'),
               onTap: () {
-                // TODO: Implement the logic for hiding the post
+                _toggleVisibility();
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -254,6 +276,21 @@ void _additionalOptions() {
 }
   @override
   Widget build(BuildContext context) {
+    if (!_canUnhide) {
+      return Container();
+    }
+    else if (!_isVisible) {
+      return Card(
+      child: ListTile(
+        leading: Icon(Icons.visibility),
+        title: Text('Post hidden'),
+        trailing: IconButton(
+          icon: Icon(Icons.visibility_off),
+          onPressed: _toggleVisibility,
+        ),
+      ),
+    );
+    }
     return Card(
       color: const Color.fromARGB(255, 255, 255, 255),
       child: Column(

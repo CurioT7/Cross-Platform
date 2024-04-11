@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
+import 'package:flutter/widgets.dart';
 import 'package:share/share.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:curio/utils/reddit_colors.dart';
+
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -13,6 +17,8 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   late int votes;
+  bool upvoted = false; // Track if the user has upvoted
+  bool downvoted = false; // Track if the user has downvoted
 
   @override
   void initState() {
@@ -26,16 +32,18 @@ class _PostCardState extends State<PostCard> {
       child: Column(
         children: [
           ListTile(
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(widget.post.authorName), // Assuming authorName is a URL to the author's avatar
+            leading: const CircleAvatar(
+              backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
             ),
             title: Text(widget.post.title),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('r/${widget.post.linkedSubreddit}'),
-                Text('u/${widget.post.authorName}'),
-                Text('Awards: ${widget.post.awards}'),
+                Text('r/${widget.post.linkedSubreddit} • u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'), // Display subreddit name, author name, and creation time in the same line
+                if (widget.post.isNSFW) Icon(Icons.warning), // Display an icon if the post is NSFW
+                if (widget.post.isSpoiler) Icon(Icons.visibility_off), // Display an icon if the post is a spoiler
+                if (widget.post.isOC) Icon(Icons.star), // Display an icon if the post is OC
+                if (widget.post.isCrosspost) Icon(Icons.share), // Display an icon if the post is a crosspost
                 Text(widget.post.content),
               ],
             ),
@@ -51,44 +59,73 @@ class _PostCardState extends State<PostCard> {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_upward),
-                  onPressed: () {
-                    setState(() {
-                      votes++;
-                    });
-                  },
-                ),
                 Container(
-                  padding: EdgeInsets.all(2.0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50),
-                    color: Colors.grey[200],
+                    // border: Border.all(color: Colors.black), // Add a black border
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text('$votes'),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.arrow_upward, color: upvoted ? redditUpvoteOrange : Colors.grey), // Change the upvote color
+                        onPressed: () {
+                          setState(() {
+                            if (!upvoted) {
+                              votes++;
+                              upvoted = true;
+                              if (downvoted) {
+                                votes++;
+                                downvoted = false;
+                              }
+                            } else {
+                              votes--;
+                              upvoted = false;
+                            }
+                          });
+                        },
+                      ),
+                      Text('$votes', style: TextStyle(color: upvoted ? redditUpvoteOrange : downvoted ? redditDownvoteBlue : Colors.grey)),
+                      IconButton(
+                        icon: Icon(Icons.arrow_downward, color: downvoted ? redditDownvoteBlue : Colors.grey), // Change the downvote color
+                        onPressed: () {
+                          setState(() {
+                            if (!downvoted) {
+                              votes--;
+                              downvoted = true;
+                              if (upvoted) {
+                                votes--;
+                                upvoted = false;
+                              }
+                            } else {
+                              votes++;
+                              downvoted = false;
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.arrow_downward),
-                  onPressed: () {
-                    setState(() {
-                      votes--;
-                    });
-                  },
+                Expanded( // Use Expanded to prevent overflow
+                  child: GestureDetector(
+                    onTap: () {
+                      // Perform your action here
+                    },
+                    child: Row(
+                      children: [
+                        Icon(Icons.comment), // Add the comments icon
+                        Text('${widget.post.comments.length} comments'),
+                      ],
+                    ),
+                  ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.comment),
-                  onPressed: () {
-                    // Add functionality to view comments
-                  },
-                ),
-                Text('${widget.post.comments.length} comments'), // Display the number of comments
-                const Spacer(),
                 IconButton(
                   icon: Icon(Icons.share),
-                  onPressed: () {
-                    Share.share('Check out this post: ${widget.post.link}');
-                  },
+                  onPressed: () {// Share the post title and content using the Share plugin
+                    Share.share('Check out this post: ${widget.post.title}\n${widget.post.content}');
+                  },  
                 ),
+                Text('${widget.post.shares}'),
               ],
             ),
           ),

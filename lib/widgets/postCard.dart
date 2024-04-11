@@ -186,6 +186,69 @@ Widget _buildPostIcons() {
     child: Row(children: icons),
   );
 }
+
+void _additionalOptions() {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.save),
+              title: Text('Save'),
+              onTap: () {
+                // TODO: Implement the logic for saving the post
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.visibility_off),
+              title: Text('Hide'),
+              onTap: () {
+                // TODO: Implement the logic for hiding the post
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.report),
+              title: Text('Report'),
+              onTap: () {
+                // TODO: Implement the logic for reporting the post
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.block),
+              title: Text('Block Account'),
+              onTap: () {
+                // TODO: Implement the logic for blocking the account
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.copy),
+              title: Text('Copy Text'),
+              onTap: () {
+                // TODO: Implement the logic for copying the text
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.share),
+              title: Text('Crosspost to Community'),
+              onTap: () {
+                // TODO: Implement the logic for crossposting to community
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.download),
+              title: Text('Download'),
+              onTap: () {
+                // TODO: Implement the logic for downloading the post
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -199,6 +262,10 @@ Widget _buildPostIcons() {
             ),
             title: Text('r/${widget.post.linkedSubreddit}'),
             subtitle: Text('u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'),
+            trailing: IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: _additionalOptions,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),

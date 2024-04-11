@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
-import 'package:flutter/widgets.dart';
 import 'package:share/share.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
-
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -17,8 +15,8 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   late int votes;
-  bool upvoted = false; // Track if the user has upvoted
-  bool downvoted = false; // Track if the user has downvoted
+  bool upvoted = false;
+  bool downvoted = false;
 
   @override
   void initState() {
@@ -26,133 +24,155 @@ class _PostCardState extends State<PostCard> {
     votes = widget.post.upvotes - widget.post.downvotes;
   }
 
+  void _upvote() {
+    setState(() {
+      if (!upvoted) {
+        votes++;
+        upvoted = true;
+        if (downvoted) {
+          votes++;
+          downvoted = false;
+        }
+      } else {
+        votes--;
+        upvoted = false;
+      }
+    });
+    // TODO: Implement the logic to send the upvote to your backend or state management system
+  }
+
+  void _downvote() {
+    setState(() {
+      if (!downvoted) {
+        votes--;
+        downvoted = true;
+        if (upvoted) {
+          votes--;
+          upvoted = false;
+        }
+      } else {
+        votes++;
+        downvoted = false;
+      }
+    });
+    // TODO: Implement the logic to send the downvote to your backend or state management system
+  }
+
+  void _navigateToComments() {
+    // TODO: Implement navigation logic to comments screen
+  }
+
+  void _sharePost() {
+    try {
+      Share.share('Check out this post on Reddit: ${widget.post.title}');
+    } catch (e) {
+      // Handle the exception
+      print('An error occurred while sharing the post: $e');
+    }
+  }
+Widget _buildPostIcons() {
+  List<Widget> icons = [];
+
+  if (widget.post.isNSFW) {
+    icons.add(const Row(
+      children: [
+        Icon(Icons.eighteen_up_rating, color: Colors.pinkAccent),
+        Text(' NSFW', style: TextStyle(color: Colors.pinkAccent, fontWeight: FontWeight.bold)), 
+             ],
+    ));
+  }
+  if (widget.post.isSpoiler) {
+    icons.add(const Row(
+      children: [
+        Icon(Icons.warning_amber_rounded, color: Colors.black),
+        Text(' SPOLIER',style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+      ],
+    ));
+  }
+  // if (widget.post.isOC) {
+  //   icons.add(Row(
+  //     children: [
+  //       const Icon(Icons.star, color: Colors.yellow),
+  //       const Text(' OC'),
+  //     ],
+  //   ));
+  // }
+  // if (widget.post.isCrosspost) {
+  //   icons.add(Row(
+  //     children: [
+  //       const Icon(Icons.share, color: Colors.blue),
+  //       const Text(' Crosspost'),
+  //     ],
+  //   ));
+  // }
+
+  if (icons.isEmpty) {
+    return Container();
+  }
+
+  return Padding(
+    padding: const EdgeInsets.only(left: 8.0),
+    child: Row(children: icons),
+  );
+}
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: redditBackgroundWhite,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Padding(padding: const EdgeInsets.all(5.0), // Add some padding to the card
-      child: Card(
+    return Card(
+      color: redditBackgroundWhite,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const CircleAvatar(
-                backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
-              ),
-              const SizedBox(width: 8.0), // Add some space between the avatar and the text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('r/${widget.post.linkedSubreddit}', style: const TextStyle(fontSize: 16)), // Big font for subreddit
-                  Row(
-                    children: [
-                      Text('u/${widget.post.authorName}', style: const TextStyle(fontSize: 12)), // Smaller font for author
-                      const Text(' • '),
-                      Text(timeago.format(widget.post.createdAt, clock: DateTime.now(), locale: 'en_short'),style: const TextStyle(fontSize: 12),), // Display time in short format
-                    ],
-                  ),
-                ],
-              ),
-            ],
+          ListTile(
+            leading: const CircleAvatar(
+              backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
+            ),
+            title: Text('r/${widget.post.linkedSubreddit}'),
+            subtitle: Text('u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'),
           ),
-          Text(widget.post.title, style: const TextStyle(fontSize: 18)), // Bigger font for title
-          Row(
-            children: [
-              if (widget.post.isNSFW) const Icon(Icons.warning), // Display an icon if the post is NSFW
-              if (widget.post.isSpoiler) const Icon(Icons.visibility_off), // Display an icon if the post is a spoiler
-              if (widget.post.isOC) const Icon(Icons.star), // Display an icon if the post is OC
-              if (widget.post.isCrosspost) const Icon(Icons.share), // Display an icon if the post is a crosspost
-            ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(widget.post.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
-          Text(widget.post.content),
-          if (widget.post.media != null) // Assuming media is a URL to the post's image
+          _buildPostIcons(),
+          if (widget.post.content.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(widget.post.content),
+            ),
+          if (widget.post.media != null)
             Image.network(
-              widget.post.media!,
-              errorBuilder: (context, error, stackTrace) {
-                return const SizedBox.shrink();
+              widget.post.media,
+              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                // You can return any widget here. For instance, return an empty Container.
+                return Container();
               },
             ),
-          Padding(
-            padding: const EdgeInsets.all(1.0),
-            child: Row(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_upward, color: upvoted ? redditUpvoteOrange : Colors.grey), // Change the upvote color
-                        onPressed: () {
-                          setState(() {
-                            if (!upvoted) {
-                              votes++;
-                              upvoted = true;
-                              if (downvoted) {
-                                votes++;
-                                downvoted = false;
-                              }
-                            } else {
-                              votes--;
-                              upvoted = false;
-                            }
-                          });
-                        },
-                      ),
-                      Text('$votes', style: TextStyle(color: upvoted ? redditUpvoteOrange : downvoted ? redditDownvoteBlue : Colors.grey)),
-                      IconButton(
-                        icon: Icon(Icons.arrow_downward, color: downvoted ? redditDownvoteBlue : Colors.grey), // Change the downvote color
-                        onPressed: () {
-                          setState(() {
-                            if (!downvoted) {
-                              votes--;
-                              downvoted = true;
-                              if (upvoted) {
-                                votes--;
-                                upvoted = false;
-                              }
-                            } else {
-                              votes++;
-                              downvoted = false;
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded( // Use Expanded to prevent overflow
-                  child: GestureDetector(
-                    onTap: () {
-                      // Perform your action here
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.comment), // Add the comments icon
-                        Text('${widget.post.comments.length} comments'),
-                      ],
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: () {// Share the post title and content using the Share plugin
-                    Share.share('Check out this post: ${widget.post.title}\n${widget.post.content}');
-                  },  
-                ),
-                Text('${widget.post.shares}'),
-              ],
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                icon: Icon(const IconData(0xe800, fontFamily: 'MyFlutterApp'), color: upvoted ? redditUpvoteOrange : Colors.grey),
+                onPressed: _upvote,
+              ),
+              Text('$votes', style: TextStyle(color: upvoted ? redditUpvoteOrange : downvoted ? redditDownvoteBlue : Colors.grey)),
+              IconButton(
+                icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'), color: downvoted ? redditDownvoteBlue : Colors.grey),
+                onPressed: _downvote,
+              ),
+              IconButton(
+                icon: const Icon(Icons.comment),
+                onPressed: _navigateToComments,
+              ),
+              Text('${widget.post.comments.length}'),
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: _sharePost,
+              ),
+              Text('${widget.post.shares}'),
+            ],
           ),
         ],
       ),
-    ),
-    ),
     );
   }
 }

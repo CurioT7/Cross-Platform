@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
+import 'package:flutter/services.dart';
 import 'package:share/share.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
@@ -79,43 +80,43 @@ class _PostCardState extends State<PostCard> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                leading: Icon(Icons.warning_amber_rounded),
-                title: Text('Mark Spoiler'),
+                leading: const Icon(Icons.warning_amber_rounded),
+                title: const Text('Mark Spoiler'),
                 onTap: () {
                   // TODO: Implement the logic for marking as spoiler
                 },
               ),
               ListTile(
-                leading: Icon(Icons.lock),
-                title: Text('Lock Comments'),
+                leading: const Icon(Icons.lock),
+                title: const Text('Lock Comments'),
                 onTap: () {
                   // TODO: Implement the logic for locking comments
                 },
               ),
               ListTile(
-                leading: Icon(Icons.push_pin),
-                title: Text('Sticky Post'),
+                leading: const Icon(Icons.push_pin),
+                title: const Text('Sticky Post'),
                 onTap: () {
                   // TODO: Implement the logic for making post sticky
                 },
               ),
               ListTile(
-                leading: Icon(Icons.eighteen_up_rating),
-                title: Text('Mark NSFW'),
+                leading: const Icon(Icons.eighteen_up_rating),
+                title: const Text('Mark NSFW'),
                 onTap: () {
                   // TODO: Implement the logic for marking as NSFW
                 },
               ),
               ListTile(
-                leading: Icon(Icons.delete),
-                title: Text('Remove Post'),
+                leading: const Icon(Icons.delete),
+                title: const Text('Remove Post'),
                 onTap: () {
                   // TODO: Implement the logic for removing post
                 },
               ),
               ListTile(
-                leading: Icon(Icons.check),
-                title: Text('Approve Post'),
+                leading: const Icon(Icons.check),
+                title: const Text('Approve Post'),
                 onTap: () {
                   // TODO: Implement the logic for approving post
                 },
@@ -129,7 +130,7 @@ class _PostCardState extends State<PostCard> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                   ),
-                  child: Text('Close', style: TextStyle(color: Colors.white)),
+                  child: const Text('Close', style: TextStyle(color: Colors.white)),
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -195,50 +196,52 @@ void _additionalOptions() {
         child: Wrap(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.save),
-              title: Text('Save'),
+              leading: const Icon(Icons.save),
+              title: const Text('Save'),
               onTap: () {
                 // TODO: Implement the logic for saving the post
               },
             ),
             ListTile(
-              leading: Icon(Icons.visibility_off),
-              title: Text('Hide'),
+              leading: const Icon(Icons.visibility_off),
+              title: const Text('Hide'),
               onTap: () {
                 // TODO: Implement the logic for hiding the post
               },
             ),
             ListTile(
-              leading: Icon(Icons.report),
-              title: Text('Report'),
+              leading: const Icon(Icons.report),
+              title: const Text('Report'),
               onTap: () {
                 // TODO: Implement the logic for reporting the post
               },
             ),
             ListTile(
-              leading: Icon(Icons.block),
-              title: Text('Block Account'),
+              leading: const Icon(Icons.block),
+              title: const Text('Block Account'),
               onTap: () {
                 // TODO: Implement the logic for blocking the account
               },
             ),
             ListTile(
-              leading: Icon(Icons.copy),
-              title: Text('Copy Text'),
+              leading: const Icon(Icons.copy),
+              title: const Text('Copy Text'),
               onTap: () {
-                // TODO: Implement the logic for copying the text
+                Clipboard.setData(ClipboardData(text: widget.post.content));
+                Navigator.pop(context);
+
               },
             ),
             ListTile(
-              leading: Icon(Icons.share),
-              title: Text('Crosspost to Community'),
+              leading: const Icon(Icons.share),
+              title: const Text('Crosspost to Community'),
               onTap: () {
                 // TODO: Implement the logic for crossposting to community
               },
             ),
             ListTile(
-              leading: Icon(Icons.download),
-              title: Text('Download'),
+              leading: const Icon(Icons.download),
+              title: const Text('Download'),
               onTap: () {
                 // TODO: Implement the logic for downloading the post
               },
@@ -252,7 +255,7 @@ void _additionalOptions() {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Color.fromARGB(255, 255, 255, 255),
+      color: const Color.fromARGB(255, 255, 255, 255),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

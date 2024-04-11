@@ -81,6 +81,7 @@ class _PostCardState extends State<PostCard> {
                     // Add functionality to view comments
                   },
                 ),
+                Text('${widget.post.comments.length} comments'), // Display the number of comments
                 const Spacer(),
                 IconButton(
                   icon: Icon(Icons.share),

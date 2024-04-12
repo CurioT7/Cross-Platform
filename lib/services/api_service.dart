@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
+import 'package:curio/Models/community_model.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
@@ -153,41 +154,103 @@ class ApiService {
 
 
 
-  Future<List<Community>> getCommunities(String token) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/api/subreddit/$token'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+Future<List<Community>> getCommunities(String token) async {
+// TODO: Implement this method to fetch communities from the API
 
-    if (response.statusCode == 200) {
-      return Community.getCommunities(jsonDecode(response.body));
-    } else {
-      // retrun some dummy data
-      return Community.getCommunities([
-        {
-          'name': 'Flutter',
-          'image': Icons.flutter_dash,
-          'followers': 100,
-          'isFollowing': false,
-        },
-        {
-          'name': 'Dart',
-          'image': Icons.code,
-          'followers': 50,
-          'isFollowing': true,
-        },
-        {
-          'name': 'Firebase',
-          'image': Icons.fireplace,
-          'followers': 200,
-          'isFollowing': false,
-        },
-      ]);
-    }
+
+  final response = await http.get(
+    Uri.parse('$_baseUrl/user/testUser2/communities'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    List<dynamic> body = jsonDecode(response.body);
+    return body.map((dynamic item) => Community.fromJson(item)).toList();
+  } else if (response.statusCode == 404) {
+    throw Exception('User not found');
+  } else {
+   // retrun some dummy communites
+    return [
+      Community(
+        id: '1',
+        name: 'Community 1',
+        description: 'This is the description for Community 1',
+        posts: [],
+        isOver18: false,
+        privacyMode: 'public',
+        isNSFW: false,
+        isSpoiler: false,
+        isOC: false,
+        isCrosspost: false,
+        rules: [],
+        category: 'General',
+        language: 'English',
+        allowImages: true,
+        allowVideos: true,
+        allowText: true,
+        allowLink: true,
+        allowPoll: true,
+        allowEmoji: true,
+        allowGif: true,
+        members: [],
+        moderators: [],
+        createdAt: '2021-08-01T00:00:00.000Z',
+      ),
+      Community(
+        id: '2',
+        name: 'Community 2',
+        description: 'This is the description for Community 2',
+        posts: [],
+        isOver18: false,
+        privacyMode: 'public',
+        isNSFW: false,
+        isSpoiler: false,
+        isOC: false,
+        isCrosspost: false,
+        rules: [],
+        category: 'General',
+        language: 'English',
+        allowImages: true,
+        allowVideos: true,
+        allowText: true,
+        allowLink: true,
+        allowPoll: true,
+        allowEmoji: true,
+        allowGif: true,
+        members: [],
+        moderators: [],
+        createdAt: '2021-08-01T00:00:00.000Z',
+      ),
+      Community(
+        id: '3',
+        name: 'Community 3',
+        description: 'This is the description for Community 3',
+        posts: [],
+        isOver18: false,
+        privacyMode: 'public',
+        isNSFW: false,
+        isSpoiler: false,
+        isOC: false,
+        isCrosspost: false,
+        rules: [],
+        category: 'General',
+        language: 'English',
+        allowImages: true,
+        allowVideos: true,
+        allowText: true,
+        allowLink: true,
+        allowPoll: true,
+        allowEmoji: true,
+        allowGif: true,
+        members: [],
+        moderators: [],
+        createdAt: '2021-08-01T00:00:00.000Z',
+      ),
+    ];
   }
-
+}
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
     final response = await http.get(

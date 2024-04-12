@@ -1,15 +1,12 @@
 import 'dart:io';
-
-import 'package:curio/post/community_card.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
-import 'package:curio/widgets/postCard.dart';
-import 'package:curio/models/post.dart';
-
 import '../widgets/community_bar.dart';
 import '../widgets/poll_component.dart';
+import 'package:curio/Models/community_model.dart';
+import 'package:curio/widgets/tags.dart';
 
 class AddPostScreen extends StatefulWidget {
   final String type;
@@ -22,6 +19,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final linkController = TextEditingController();
+  final selectedTags = <String>[];
   bool optionSelected = false; // Add this line
   bool isAttachmentAdded = false; // Add this line
   late Community selectedCommunity;
@@ -41,10 +39,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
   void initState() {
     super.initState();
     selectedCommunity = Community(
-      name: 'Select a community',
-      image: FontAwesomeIcons.arrowDown,
-      followers: 0,
-      isFollowing: false,
+      id: 'Community ID',
+      name: 'Community Name',
+      description: 'Community Description',
+      posts: [],
+      isOver18: false,
+      privacyMode: 'Public',
+      isNSFW: false,
+      isSpoiler: false,
+      isOC: false,
+      isCrosspost: false,
+      rules: [],
+      category: 'Category',
+      language: 'Language',
+      allowImages: true,
+      allowVideos: true,
+      allowText: true,
+      allowLink: true,
+      allowPoll: true,
+      allowEmoji: true,
+      allowGif: true,
+      members: [],
+      moderators: [],
+      createdAt: DateTime.now().toString(),
     );
   }
 
@@ -52,14 +69,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    bool NextScreen() {
-      if (titleController.text.isNotEmpty) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
+    final icons = [
+      Icons.home,
+      Icons.star,
+      Icons.school,
+      Icons.work
+    ]; // Add more icons as needed
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -78,88 +93,56 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                  if (isCommunitySelected) {
-                    int index = 0;
-                    Post post = Post(
-                      id: 'post_$index',
-                      title: 'Post Title $index',
-                      content: 'Post Content $index',
-                      authorName: 'Author $index',
-                      views: index * 10,
-                      createdAt:
-                      DateTime.now().subtract(Duration(days: index)),
-                      upvotes: index * 100,
-                      downvotes: index * 10,
-                      linkedSubreddit: 'subreddit_$index',
-                      comments: List.generate(
-                          index,
-                              (i) =>
-                          'Comment $i'), // Generate some fake comments
-                      shares: index * 5,
-                      isNSFW: false,
-                      isSpoiler: false,
-                      isOC: false,
-                      isCrosspost: false,
-                      awards: index * 3,
-                      media: 'https://via.placeholder.com/150',
-                      link: 'https://example.com/post_$index',
-                      isDraft: false,
-                    );
-                    // PostCard Card = PostCard(post: post);
-                    // TODO: SEND THE POST TO THE SERVER
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => Card,
-                    //   ),
-                    // );
-                  } else {
-                    selectedCommunity = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PostToPage(),
-                      ),
-                    );
-                    setState(() {
-                      isCommunitySelected = true;
-                    });
-                  }
-                  // List<PostCard> posts = List.generate(
-                  //     4,
-                  //     (index) => PostCard(
-                  //       title: titleController.text,
-                  //       content: descriptionController.text,
-                  //       upvotes: 1,
-                  //       comments: 0,
-                  //       downvotes: 0,
-                  //       username: 'username',
-                  //       postTime: 'postTime',
-                  //         ));
-                  //
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => Scaffold(
-                  //       appBar: AppBar(
-                  //         title: const Text('Posts'),
-                  //       ),
-                  //       body: ListView.builder(
-                  //         itemCount: posts.length,
-                  //         itemBuilder: (context, index) {
-                  //           return posts[index];
-                  //         },
-                  //       ),
-                  //     ),
-                  //   ),
-                  // );
-                }
+                        if (isCommunitySelected) {
+                          // TODO: Add the post to the selected community
+                          // call the api to add the post to the selected community
+                        } else {
+                          selectedCommunity = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PostToPage(),
+                            ),
+                          );
+                          setState(() {
+                            isCommunitySelected = true;
+                          });
+                        }
+                        // List<PostCard> posts = List.generate(
+                        //     4,
+                        //     (index) => PostCard(
+                        //       title: titleController.text,
+                        //       content: descriptionController.text,
+                        //       upvotes: 1,
+                        //       comments: 0,
+                        //       downvotes: 0,
+                        //       username: 'username',
+                        //       postTime: 'postTime',
+                        //         ));
+                        //
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => Scaffold(
+                        //       appBar: AppBar(
+                        //         title: const Text('Posts'),
+                        //       ),
+                        //       body: ListView.builder(
+                        //         itemCount: posts.length,
+                        //         itemBuilder: (context, index) {
+                        //           return posts[index];
+                        //         },
+                        //       ),
+                        //     ),
+                        //   ),
+                        // );
+                      }
                     : null,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: value.text.isNotEmpty
                       ? Colors.blue.shade800
                       : Colors
-                      .transparent, // This will give the button a white text color
+                          .transparent, // This will give the button a white text color
                   side: BorderSide(
                     color: value.text.isNotEmpty
                         ? Theme.of(context).primaryColor
@@ -170,7 +153,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 child: // I want make it Post when the selected Community is set and Post whenn the selecetcommunity is not set
-                Text(isCommunitySelected ? 'Post' : 'Next'),
+                    Text(isCommunitySelected ? 'Post' : 'Next'),
               );
             },
           ),
@@ -191,9 +174,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           // Add this line
                           child: CommunityBar(
                               community: selectedCommunity.name,
-                              image: selectedCommunity.image,
                               communityId: selectedCommunity
-                                  .name, // TODO: Change this to the actual community ID
+                                  .id, // TODO: Change this to the actual community ID
                               onTap: () async {
                                 // ignore: unused_local_variable
                                 selectedCommunity = await Navigator.push(
@@ -204,13 +186,47 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 );
                                 setState(() {
                                   isCommunitySelected = true;
-                                  print(selectedCommunity.name);
                                 });
                               }),
                         ),
                       ],
                     ),
                   ),
+                SizedBox(
+                  height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
+                  child: Builder(
+                    builder: (context) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.warning,
+                                    size: 20), // Add this line
+                                ...selectedTags
+                                    .map(
+                                      (tag) => Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          tag,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
@@ -222,6 +238,48 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  height: 0 + (isCommunitySelected ? 50 : 0),
+                  child: Builder(
+                    builder: (context) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (BuildContext context) {
+                                return TagBottomSheet(
+                                  onDismiss: (List<String> selectedTags) {
+                                    // Handle selectedTags list here
+                                    setState(
+                                      () {
+                                        this.selectedTags.clear();
+                                        this.selectedTags.addAll(selectedTags);
+                                      },
+                                    );
+                                  },
+                                  selectedTags: this.selectedTags,
+                                );
+                              },
+                            );
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            backgroundColor: Colors.grey[300], // text color
+                          ),
+                          child: const Text(
+                            'tags(optional)',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 SizedBox(
@@ -308,25 +366,25 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                            setState(() {
-                              attachment = Attachment(
-                                type: 'link',
-                                data: linkController.text,
-                                component:
-                                Container(), // Temporary component
-                              );
-                              attachment!.component = URLComponent(
-                                controller: linkController,
-                                onClear: () {
                                   setState(() {
-                                    attachment = null;
-                                    isAttachmentAdded = false;
+                                    attachment = Attachment(
+                                      type: 'link',
+                                      data: linkController.text,
+                                      component:
+                                          Container(), // Temporary component
+                                    );
+                                    attachment!.component = URLComponent(
+                                      controller: linkController,
+                                      onClear: () {
+                                        setState(() {
+                                          attachment = null;
+                                          isAttachmentAdded = false;
+                                        });
+                                      },
+                                    );
+                                    isAttachmentAdded = true;
                                   });
                                 },
-                              );
-                              isAttachmentAdded = true;
-                            });
-                          },
                         ),
                         if (!keyboardOpen) const Text('Link'),
                       ],
@@ -338,20 +396,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () async {
-                            final ImagePicker picker0 = ImagePicker();
-                            final XFile? image = await picker0.pickImage(
-                                source: ImageSource.gallery);
-                            setState(() {
-                              optionSelected = false;
-                              _pickedImage = image;
-                              attachment = Attachment(
-                                  type: 'image',
-                                  data: image,
-                                  component:
-                                  Image.file(File(image!.path)));
-                              isAttachmentAdded = true;
-                            });
-                          },
+                                  final ImagePicker picker0 = ImagePicker();
+                                  final XFile? image = await picker0.pickImage(
+                                      source: ImageSource.gallery);
+                                  setState(() {
+                                    optionSelected = false;
+                                    _pickedImage = image;
+                                    attachment = Attachment(
+                                        type: 'image',
+                                        data: image,
+                                        component:
+                                            Image.file(File(image!.path)));
+                                    isAttachmentAdded = true;
+                                  });
+                                },
                         ),
                         if (!keyboardOpen) const Text('Image'),
                       ],
@@ -363,11 +421,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                            final ImagePicker picker = ImagePicker();
-                            final XFile? video = picker.pickVideo(
-                                source: ImageSource.gallery) as XFile?;
-                            // Add your action for the video icon here
-                          },
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? video = picker.pickVideo(
+                                      source: ImageSource.gallery) as XFile?;
+                                  // Add your action for the video icon here
+                                },
                         ),
                         if (!keyboardOpen) const Text('Video'),
                       ],
@@ -379,22 +437,22 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                            setState(() {
-                              attachment = Attachment(
-                                type: 'poll',
-                                data: null,
-                                component: PollComponent(
-                                  onClear: () {
-                                    setState(() {
-                                      attachment = null;
-                                      isAttachmentAdded = false;
-                                    });
-                                  },
-                                ),
-                              );
-                              isAttachmentAdded = true;
-                            });
-                          },
+                                  setState(() {
+                                    attachment = Attachment(
+                                      type: 'poll',
+                                      data: null,
+                                      component: PollComponent(
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                      ),
+                                    );
+                                    isAttachmentAdded = true;
+                                  });
+                                },
                         ),
                         if (!keyboardOpen) const Text('Poll'),
                       ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:curio/Models/community_model.dart';
 class PostToPage extends StatefulWidget {
   const PostToPage({Key? key}) : super(key: key);
 

@@ -103,12 +103,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
         _selectedLocation= userPref['locationCustomization'];
         print('the value of the selected location is $_selectedLocation');
           print('the value of the connected to google is $_isConnected');
-          _createdPassword = userProfile['createdPassword'];
-        _selectedGender = userPref['gender'];
+          _createdPassword = userProfile['createdPassword']??false;
+        _selectedGender = userPref['gender']??'N/A';
         _username = userProfile['username'];
         _email = userProfile['email'];
           _isConnected = userProfile['connectedToGoogle']??false;
-          print('the value of the connected to google is $userProfile[connectedToGoogle]');
+
           print(userProfile['connectedToGoogle']);
       });
     } catch (e) {

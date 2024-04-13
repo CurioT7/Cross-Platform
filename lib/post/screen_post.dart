@@ -5,7 +5,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
-import 'package:curio/widgets/postCard.dart';
 import 'package:curio/models/post.dart';
 
 import '../widgets/community_bar.dart';

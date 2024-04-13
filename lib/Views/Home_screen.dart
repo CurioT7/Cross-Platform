@@ -1,4 +1,3 @@
-import 'package:curio/services/mock_api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
@@ -33,7 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _fetchBestPosts(dropdownValue);
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
         _fetchBestPosts(dropdownValue);
       }
     });
@@ -69,15 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: CustomSidebar(),
-      endDrawer: sidebarAfterLogIn(),
+      endDrawer: SidebarAfterLogIn(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
-
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
@@ -95,7 +93,8 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context) => GestureDetector(
               onTap: () => Scaffold.of(context).openEndDrawer(),
               child: const CircleAvatar(
-                backgroundImage: NetworkImage('https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
+                backgroundImage: NetworkImage(
+                    'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
               ),
             ),
           ),
@@ -103,20 +102,24 @@ class _HomeScreenState extends State<HomeScreen> {
         title: DropdownButton<String>(
           value: dropdownValue,
           icon: const Icon(Icons.arrow_drop_down),
-           onChanged: (String? newValue) {
-              setState(() {
-                dropdownValue = newValue!;
-                _isLoading = true;
-              });
-              _fetchBestPosts(newValue!);
-            },
+          onChanged: (String? newValue) {
+            setState(() {
+              dropdownValue = newValue!;
+              _isLoading = true;
+            });
+            _fetchBestPosts(newValue!);
+          },
           items: <String>['Home', 'Popular', 'Discovery']
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
               child: Row(
                 children: [
-                  Icon(value == 'Home' ? Icons.home : value == 'Popular' ? Icons.trending_up : Icons.explore),
+                  Icon(value == 'Home'
+                      ? Icons.home
+                      : value == 'Popular'
+                          ? Icons.trending_up
+                          : Icons.explore),
                   const SizedBox(width: 8),
                   Text(value),
                 ],
@@ -128,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh:() => _fetchBestPosts(dropdownValue),
+              onRefresh: () => _fetchBestPosts(dropdownValue),
               child: ListView.builder(
                 itemCount: _posts.length,
                 itemBuilder: (context, index) {
@@ -139,7 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           try {
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
             await prefs.remove('token');
           } catch (e) {
             print(e);

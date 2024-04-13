@@ -1,18 +1,43 @@
 import 'package:curio/services/ahmed_api.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
+import '../controller/report/report_cubit.dart';
 import 'block_dialog.dart';
-import 'report_bootom_sheet.dart';
+import 'report_user_or_post_bottom_sheet.dart';
 
-class ProfileAppBar extends StatelessWidget {
-  const ProfileAppBar({super.key, this.isUser = false});
+class ProfileAppBar extends StatefulWidget {
+  const ProfileAppBar({
+    super.key,
+    this.isUser = false,
+    this.userDetails,
+    this.userName,
+    this.days,
+  });
 
   final bool isUser;
+  final String? userName;
+  final Map? userDetails;
+  final int? days;
 
+  @override
+  State<ProfileAppBar> createState() => _ProfileAppBarState();
+}
+
+class _ProfileAppBarState extends State<ProfileAppBar> {
+  bool _isFollowing = false;
   void _showReportProfileDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (context) => const ReportBottomSheet(),
+      isScrollControlled: true,
+      clipBehavior: Clip.antiAlias,
+      builder: (context) {
+        return BlocProvider(
+          create: (context) => ReportCubit(),
+          child: const ReportUserOrPostBottomSheet(isUser: true),
+        );
+      },
     );
   }
 
@@ -20,7 +45,7 @@ class ProfileAppBar extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const BlockDialog();
+        return BlockDialog(userName: widget.userName);
       },
     );
   }
@@ -31,8 +56,9 @@ class ProfileAppBar extends StatelessWidget {
       floating: true,
       pinned: true,
       snap: true,
+      backgroundColor: const Color(0xff0077D6),
       leading: IconButton(
-        onPressed: () {},
+        onPressed: () => Navigator.pop(context),
         icon: const Icon(
           Icons.arrow_back,
           color: Colors.white,
@@ -54,7 +80,7 @@ class ProfileAppBar extends StatelessWidget {
           ),
         ),
         Visibility(
-          visible: isUser,
+          visible: widget.isUser,
           child: PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'report') {
@@ -87,121 +113,163 @@ class ProfileAppBar extends StatelessWidget {
           ),
         ),
       ],
-      expandedHeight: isUser
-          ? MediaQuery.sizeOf(context).height * 0.35
+      expandedHeight: widget.isUser
+          ? MediaQuery.sizeOf(context).height * 0.39
           : MediaQuery.sizeOf(context).height * 0.5,
-      flexibleSpace: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff0077D6),
-              Colors.black,
-            ],
+      flexibleSpace: FlexibleSpaceBar(
+        background: Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xff0077D6),
+                Colors.black,
+              ],
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const CircleAvatar(
-              radius: 50.0,
-              backgroundImage: AssetImage('lib/assets/images/avatar.jpeg'),
-            ),
-            const SizedBox(height: 12.0),
-            Visibility(
-              visible: !isUser,
-              replacement: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      ApiService().followUser('');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                        side: const BorderSide(
-                          width: 1.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    child: const Text('Follow'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(8.0),
-                      shape: const CircleBorder(
-                        // borderRadius: BorderRadius.circular(50.0),
-                        side: BorderSide(
-                          width: 1.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.message,
-                      size: 20.0,
-                    ),
-                  ),
-                ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              CircleAvatar(
+                radius: 50.0,
+                backgroundImage: widget.userDetails == null
+                    ? const AssetImage('lib/assets/images/avatar.jpeg')
+                    : NetworkImage(widget.userDetails!['profilePicture'])
+                        as ImageProvider,
               ),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                    side: const BorderSide(
-                      width: 1.0,
-                      color: Colors.white,
+              const SizedBox(height: 12.0),
+              Visibility(
+                visible: !widget.isUser,
+                replacement: Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        if (!_isFollowing) {
+                          await ApiService().followUser(widget.userName!).then(
+                            (value) {
+                              setState(() {
+                                _isFollowing = true;
+                              });
+                              Fluttertoast.showToast(
+                                msg: 'Following ${widget.userName}',
+                                backgroundColor: Colors.green,
+                                textColor: Colors.white,
+                                gravity: ToastGravity.BOTTOM,
+                              );
+                            },
+                          ).catchError((error) {
+                            setState(() {
+                              _isFollowing = false;
+                            });
+                          });
+                        } else {
+                          await ApiService()
+                              .unfollowUser(widget.userName!)
+                              .then((value) {
+                            setState(() {
+                              _isFollowing = false;
+                            });
+                            Fluttertoast.showToast(
+                              msg:
+                                  'You are no longer following ${widget.userName}',
+                              backgroundColor: Colors.black54,
+                              textColor: Colors.white,
+                              gravity: ToastGravity.BOTTOM,
+                            );
+                          }).catchError((error) {
+                            setState(() {
+                              _isFollowing = true;
+                            });
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                          side: const BorderSide(
+                            width: 1.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      child: Text(_isFollowing ? 'Following' : 'Follow'),
                     ),
-                  ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.all(8.0),
+                        shape: const CircleBorder(
+                          // borderRadius: BorderRadius.circular(50.0),
+                          side: BorderSide(
+                            width: 1.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.message,
+                        size: 20.0,
+                      ),
+                    ),
+                  ],
                 ),
-                child: const Text('Edit'),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      side: const BorderSide(
+                        width: 1.0,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  child: const Text('Edit'),
+                ),
               ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Middle_Mall8968',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const Text(
-              'u/Middle_Mall8968 - 1 karma - Mar 26, 2024',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            if (!isUser) ...[
-              const Text(
-                '0 Gold',
-                style: TextStyle(
+              const SizedBox(height: 10.0),
+              Text(
+                widget.userName ?? 'Middle_Mall8968',
+                style: const TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 20.0),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey.shade900,
-                  foregroundColor: Colors.white,
+              Text(
+                'u/${widget.userName} - ${widget.userDetails?['postKarma'] ?? 0} karma - ${widget.days ?? 1} days',
+                style: const TextStyle(
+                  color: Colors.white,
                 ),
-                child: const Text('+ Add social link'),
               ),
+              if (!widget.isUser) ...[
+                const Text(
+                  '0 Gold',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade900,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('+ Add social link'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

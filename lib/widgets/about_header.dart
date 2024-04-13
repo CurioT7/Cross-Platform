@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 class AboutHeader extends StatelessWidget {
   const AboutHeader({
     super.key,
+    required this.postKarmaNumber,
+    required this.commentKarmaNumber,
   });
+
+  final String postKarmaNumber;
+  final String commentKarmaNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -11,33 +16,33 @@ class AboutHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '230',
-                style: TextStyle(
+                postKarmaNumber,
+                style: const TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 'Post Karma',
               ),
             ],
           ),
           SizedBox(width: MediaQuery.sizeOf(context).width * 0.3),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '1,007',
-                style: TextStyle(
+                commentKarmaNumber,
+                style: const TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 'Comment Karma',
               ),
             ],

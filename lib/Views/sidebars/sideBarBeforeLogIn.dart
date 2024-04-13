@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'sideBarAfterLogIn.dart';
 import 'package:curio/Views/signUp/signup_email.dart';
+
 class sideBarBeforeLogin extends StatelessWidget {
+  const sideBarBeforeLogin({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -43,7 +46,7 @@ class sideBarBeforeLogin extends StatelessWidget {
               ],
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
             contentPadding: EdgeInsets.only(
               left: MediaQuery.of(context).size.width * 0.05,
@@ -61,11 +64,14 @@ class sideBarBeforeLogin extends StatelessWidget {
                 fontSize: MediaQuery.of(context).size.width * 0.045,
               ),
             ),
-            onTap: () => {Navigator.pop(context),
+            onTap: () => {
+              Navigator.pop(context),
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignUpWithEmail()),
-              )},
+                MaterialPageRoute(
+                    builder: (context) => const SignUpWithEmail()),
+              )
+            },
           ),
           ListTile(
             contentPadding: EdgeInsets.only(
@@ -77,7 +83,7 @@ class sideBarBeforeLogin extends StatelessWidget {
               color: Colors.black,
               size: MediaQuery.of(context).size.width * 0.05,
             ),
-            title: Text(
+            title: const Text(
               'Settings',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -87,7 +93,7 @@ class sideBarBeforeLogin extends StatelessWidget {
               Navigator.pop(context),
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => sidebarAfterLogIn()),
+                MaterialPageRoute(builder: (context) => SidebarAfterLogIn()),
               )
             },
           ),

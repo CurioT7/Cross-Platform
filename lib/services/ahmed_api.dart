@@ -1,12 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/account_info.dart';
 
 class ApiService {
-  final String _baseUrl =
-      'http://20.19.89.1'; // Base URL
+  final String _baseUrl = 'http://20.19.89.1'; // Base URL
 
   Future<Map<String, dynamic>> getUserOverview() async {
     const String endpoint =
@@ -119,11 +119,11 @@ class ApiService {
   }
 
   Future<AccountInfo> getAccountInfo() async {
-    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String baseUrl = 'http://20.19.89.1/api/';
     const String endpoint = 'settings/v1/me/prefs';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjBhYTMxNDg2NWIzOGM1YjdhMTYzNjEiLCJpYXQiOjE3MTE5NzY3MTksImV4cCI6MTcxMjA2MzExOX0.bTxxgNjfowVkRg2cRJaNMR-ITisqMm6V1V2yuIp_ZKA";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NjE5MDgzY2UyNjI5ZDdmNjY5YWNjM2EiLCJpYXQiOjE3MTI5NjA1OTcsImV4cCI6MTcxMzA0Njk5N30.BnYis_eh62deVbU--jhLzW7QPrCSkB6r9oc3KePnccY";
 
     final url = Uri.parse('$baseUrl$endpoint');
 
@@ -148,8 +148,8 @@ class ApiService {
     }
   }
 
-  Future<AccountInfo> followUser(String userName) async {
-    const String baseUrl = 'http://10.0.2.2:3000/api/';
+  Future followUser(String userName) async {
+    const String baseUrl = 'http://20.19.89.1/api/';
     const String endpoint = 'me/friends';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
@@ -158,6 +158,7 @@ class ApiService {
     final url = Uri.parse('$baseUrl$endpoint');
 
     try {
+      log(userName);
       final response = await http.post(
         url,
         headers: {
@@ -165,22 +166,16 @@ class ApiService {
         },
         body: jsonEncode({"friendUsername": userName}),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        // Handle 404 error specifically
-        throw Exception('User submitted posts not found: ${response.body}');
-      } else {
-        throw Exception(
-            'Failed to fetch user submitted posts: ${response.statusCode}');
-      }
+
+      log(response.body);
+      return jsonDecode(response.body);
     } catch (e) {
       throw Exception('Failed to fetch user submitted posts: $e');
     }
   }
 
-  Future<AccountInfo> unfollowUser(String userName) async {
-    const String baseUrl = 'http://10.0.2.2:3000/api/';
+  Future unfollowUser(String userName) async {
+    const String baseUrl = 'http://20.19.89.1/api/';
     const String endpoint = 'me/friends';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
@@ -189,29 +184,23 @@ class ApiService {
     final url = Uri.parse('$baseUrl$endpoint');
 
     try {
-      final response = await http.post(
+      log(userName);
+      final response = await http.patch(
         url,
         headers: {
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({"friendUsername": userName}),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        // Handle 404 error specifically
-        throw Exception('User submitted posts not found: ${response.body}');
-      } else {
-        throw Exception(
-            'Failed to fetch user submitted posts: ${response.statusCode}');
-      }
+      log(response.body);
+      return jsonDecode(response.body);
     } catch (e) {
       throw Exception('Failed to fetch user submitted posts: $e');
     }
   }
 
-  Future<AccountInfo> blockUser(String userName) async {
-    const String baseUrl = 'http://10.0.2.2:3000/api/';
+  Future blockUser(String userName) async {
+    const String baseUrl = 'http://20.19.89.1/api/';
     const String endpoint = 'User/block';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
@@ -227,22 +216,15 @@ class ApiService {
         },
         body: jsonEncode({"usernameToBlock": userName}),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        // Handle 404 error specifically
-        throw Exception('User submitted posts not found: ${response.body}');
-      } else {
-        throw Exception(
-            'Failed to fetch user submitted posts: ${response.statusCode}');
-      }
+      log(response.body);
+      return jsonDecode(response.body);
     } catch (e) {
       throw Exception('Failed to fetch user submitted posts: $e');
     }
   }
 
   Future<AccountInfo> unblockUser(String userName) async {
-    const String baseUrl = 'http://10.0.2.2:3000/api/';
+    const String baseUrl = 'http://20.19.89.1/api/';
     const String endpoint = 'User/unblock';
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token') ??
@@ -258,15 +240,8 @@ class ApiService {
         },
         body: jsonEncode({"usernameToBlock": userName}),
       );
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        // Handle 404 error specifically
-        throw Exception('User submitted posts not found: ${response.body}');
-      } else {
-        throw Exception(
-            'Failed to fetch user submitted posts: ${response.statusCode}');
-      }
+      log(response.body);
+      return jsonDecode(response.body);
     } catch (e) {
       throw Exception('Failed to fetch user submitted posts: $e');
     }

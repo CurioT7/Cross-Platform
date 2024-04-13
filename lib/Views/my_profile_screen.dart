@@ -7,9 +7,18 @@ import '../widgets/profile_app_bar.dart';
 import '../widgets/profile_posts_tab.dart';
 
 class MyProfileScreen extends StatefulWidget {
-  const MyProfileScreen({super.key, this.isUser = false});
+  const MyProfileScreen({
+    super.key,
+    this.isUser = false,
+    this.userName,
+    this.userDetails,
+    this.days,
+  });
 
   final bool isUser;
+  final String? userName;
+  final Map? userDetails;
+  final int? days;
 
   @override
   State<MyProfileScreen> createState() => _MyProfileScreenState();
@@ -17,6 +26,7 @@ class MyProfileScreen extends StatefulWidget {
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
   static const List<String> _sections = ['Posts', 'Comments', 'About'];
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -26,12 +36,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           builder: (context, state) {
             if (state is GetAccountInfoLoadingState) {
               return const Center(child: CircularProgressIndicator());
-            } else if (state is! GetAccountInfoSuccessState) {
+            } else if (state is GetAccountInfoErrorState) {
               return DefaultTabController(
                 length: _sections.length,
                 child: CustomScrollView(
                   slivers: [
-                    ProfileAppBar(isUser: widget.isUser),
+                    ProfileAppBar(
+                      isUser: widget.isUser,
+                      userDetails: widget.userDetails,
+                      userName: widget.userName,
+                      days: widget.days,
+                    ),
                     SliverToBoxAdapter(
                       child: TabBar(
                         tabs: _sections.map(
@@ -43,14 +58,19 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         ).toList(),
                       ),
                     ),
-                    const SliverFillRemaining(
+                    SliverFillRemaining(
                       child: TabBarView(
                         children: [
-                          ProfilePostsTab(),
-                          Center(
+                          const ProfilePostsTab(),
+                          const Center(
                             child: Text('Tab 2'),
                           ),
-                          AboutSection(),
+                          AboutSection(
+                            postKarmaNumber:
+                                widget.userDetails?['postKarma'] ?? '0',
+                            commentKarmaNumber:
+                                widget.userDetails?['commentKarma'] ?? '0',
+                          ),
                         ],
                       ),
                     ),

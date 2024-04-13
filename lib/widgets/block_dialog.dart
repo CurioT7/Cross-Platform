@@ -1,10 +1,14 @@
 import 'package:curio/services/ahmed_api.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class BlockDialog extends StatelessWidget {
   const BlockDialog({
     super.key,
+    this.userName,
   });
+
+  final String? userName;
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +41,24 @@ class BlockDialog extends StatelessWidget {
             surfaceTintColor: MaterialStatePropertyAll(Colors.transparent),
             foregroundColor: MaterialStatePropertyAll(Colors.white),
           ),
-          onPressed: () {
-            ApiService().blockUser('');
-            Navigator.of(context).pop();
+          onPressed: () async {
+            await ApiService().blockUser(userName!).then((value) {
+              Navigator.of(context).pop();
+              Fluttertoast.showToast(
+                msg: '$userName Blocked Successfully',
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
+                gravity: ToastGravity.BOTTOM,
+              );
+            }).catchError((error) {
+              Navigator.of(context).pop();
+              Fluttertoast.showToast(
+                msg: error.toString(),
+                backgroundColor: Colors.black54,
+                textColor: Colors.white,
+                gravity: ToastGravity.BOTTOM,
+              );
+            });
           },
           child: const Text('Block account'),
         ),

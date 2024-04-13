@@ -11,7 +11,8 @@ import 'package:curio/views/insettingspage/genderPopUp.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/views/insettingspage/connectedAccounts.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/views/insettingspage/updateEmailAdress.dart';
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
@@ -35,6 +36,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   void _loadInitialData() async {
     // You can add other initializations here if needed
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = prefs.getString('token');
+    print('the value of the token inside the settings page is  $value');
+    @override
     String? initialGender = prefs.getString('selectedGender');
     if (initialGender != null) {
       setState(() {
@@ -43,27 +47,30 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
     _fetchUserProfile();
   }
-
   void _fetchUserProfile() async {
     try {
-      // Fetch user profile data
-      Map<String, dynamic> userProfile = await _apiService.getUserProfile();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+
+      Map<String, dynamic> userProfile = await _apiService.getUserProfile(token);
       print(userProfile); // Print the fetched data for debugging
+
       setState(() {
         _selectedGender = userProfile['gender'];
         _username = userProfile['username'];
         _email = userProfile['email'];
-        print(_selectedGender);
-        print(_username);
-        print(_email);
-
       });
     } catch (e) {
       print('Failed to fetch user profile: $e');
     }
   }
 
-  @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,

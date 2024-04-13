@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
-  final String _baseUrlDataBase = 'http://10.0.2.2:3000'; // Base URL for moch
+  final String _baseUrlDataBase = 'http://20.19.89.1'; // Base URL for moch
 
   Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
-    final String url = '$_baseUrlMoch/api/auth/change_email';
+    final String url = '$_baseUrlDataBase/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
@@ -17,25 +18,92 @@ class ApiServiceMahmoud {
     };
 
     try {
-      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
-      final responseData = jsonDecode(response.body);
+      final response = await http.patch(  // Changed from post to patch
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
 
-      if (response.statusCode == 200) {
-        return {'success': true, 'message': responseData['message']};
+      // Check the response header before decoding
+      if (response.headers['content-type']?.contains('application/json') ?? false) {
+        final responseData = jsonDecode(response.body);
+
+        // Existing logic for handling different status codes
+        if (response.statusCode == 200) {
+          print('the message from the backend is ${responseData['message']}');
+          return {'success': true, 'message': responseData['message']};
+        } else {
+          // If response status code is not 200, we are assuming the body is still JSON
+          print('the message from the backend is ${responseData['message']}');
+          return {'success': false, 'message': responseData['message']};
+
+        }
       } else {
-        return {'success': false, 'message': responseData['message']};
+        // If the response is not JSON, log it and return an error message
+        print('Response is not JSON. Here is the body: ${response.body}');
+        return {'success': false, 'message': 'Received non-JSON response'};
       }
     } catch (e) {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
 
-  Future<Map<String, dynamic>> getUserProfile() async {
-    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+
+  Future<Map<String, dynamic>> changePassword(String oldPassword, String newPassword, String token) async {
+    final String url = '$_baseUrlDataBase/api/auth/change_password';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('old password sent to api $oldPassword');
+    print('new password sent to api $newPassword');
+    final Map<String, dynamic> body = {
+      'oldPassword': oldPassword,
+      'password': newPassword,
+    };
 
     try {
-      final response = await http.get(url);
+      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final responseData = jsonDecode(response.body);
+        print('the response i recived is ')  ;
+        print(responseData['message']);
+      if (response.statusCode == 200) {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': true, 'message': responseData['message']};
+
+
+      } else if (response.statusCode == 400) {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 401) {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 404) {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': false, 'message': responseData['message']};
+      } else if (response.statusCode == 500) {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': false, 'message': responseData['message']};
+      } else {
+        print('the message from the backend is ${responseData['message']}');
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserProfile(String token) async {
+    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the request header
+        },
+      );
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -50,6 +118,7 @@ class ApiServiceMahmoud {
       throw Exception('Failed to fetch user profile: $e');
     }
   }
+
 
   Future<Map<String, dynamic>> getUserPreferences(String username) async {
     final String endpoint = '/api/settings/v1/me/prefs'; // Endpoint for fetching user preferences

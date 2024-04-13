@@ -1,7 +1,7 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:curio/Views/sidebars/inLeftSideBarAll.dart';
+import 'package:curio/Views/sidebars/LeftSideBarAll.dart';
 class CustomSidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,7 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  final String _baseUrl = 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://20.19.89.1';
 
   Future<http.Response> signIn(String username, String password) async {
     final response = await http.post(
@@ -53,16 +54,56 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-Future<UserCredential?> signup(String email, String password,String username ,BuildContext context) async {
-    Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
-  ),
-);
-    return null;
-}
+  Future<String?> signup(String email, String password,String username ,BuildContext context) async {
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
+    //   ),
+    // );
+    String baseUrl = 'http://20.19.89.1';
+    // make a post request to the server api/auth/signup
+    final response = await http.post(
+      Uri.parse('$baseUrl/api/auth/signup'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+        'password': password,
+        'username': username,
+      }),
+    );
+    if (response.statusCode == 201) {
+      // store the access token in shared preferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', jsonDecode(response.body)['accessToken']);
+    }
+    return response.body;
+  }
+  Future<List<Map<String, String>>> communityRules(String communityId) async {
+    //TODO: Implement this method to fetch community rules from the API
+    // Mock API call
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Mock response
+    return [
+      {'header': 'Rule 1', 'body': 'This is the body for Rule 1'},
+      {'header': 'Rule 2', 'body': 'This is the body for Rule 2'},
+      {'header': 'Rule 3', 'body': 'This is the body for Rule 3'},
+      {'header': 'Rule 4', 'body': 'This is the body for Rule 4'},
+      {'header': 'Rule 5', 'body': 'This is the body for Rule 5'},
+      {'header': 'Rule 6', 'body': 'This is the body for Rule 6'},
+      {'header': 'Rule 7', 'body': 'This is the body for Rule 7'},
+      {'header': 'Rule 8', 'body': 'This is the body for Rule 8'},
+      {'header': 'Rule 9', 'body': 'This is the body for Rule 9'},
+      {'header': 'Rule 10', 'body': 'This is the body for Rule 10'},
+    ];
+  }
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
+    if (username.isEmpty) {
+      return {'available': false, 'message': 'Username cannot be empty'};
+    }
     final response = await http.get(
       Uri.parse('$_baseUrl/api/auth/username_available/$username'),
       headers: <String, String>{
@@ -269,8 +310,8 @@ Future<UserCredential?> signup(String email, String password,String username ,Bu
   }
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
-    final String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    final baseUrl = 'http://10.0.2.2:3000';
+    const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
+    const baseUrl = 'http://20.19.89.1';
     final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body
@@ -320,7 +361,10 @@ class GoogleAuthSignInService {
     try {
       // Trigger the Google Sign In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
+      if(googleUser == null) {
+        print("Google Sign In failed");
+        return null;
+      }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth = await googleUser!
           .authentication;

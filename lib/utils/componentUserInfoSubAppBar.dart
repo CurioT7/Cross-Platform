@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserInfoSubBar extends StatelessWidget {
   const UserInfoSubBar({
@@ -9,7 +10,7 @@ class UserInfoSubBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: ApiServiceMahmoud().getUserProfile(),
+      future: _getUserProfile(),
       builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Show loading indicator while fetching data
@@ -43,5 +44,14 @@ class UserInfoSubBar extends StatelessWidget {
         }
       },
     );
+  }
+
+  Future<Map<String, dynamic>> _getUserProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token not found');
+    }
+    return ApiServiceMahmoud().getUserProfile(token);
   }
 }

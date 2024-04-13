@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:curio/post/screen_post.dart';
 import 'package:curio/Views/community/profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 class homeNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -39,19 +41,36 @@ class homeNavigationBar extends StatelessWidget {
         fontFamily: 'IBM Plex Sans Light',
         fontSize: MediaQuery.of(context).size.width * 0.03,
       ),
-      onTap: (index) {
+      onTap: (index) async {
         switch (index) {
           case 0:
             // Handle tap on 'Home'
             break;
           case 1:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>communityProfile()),
-            );
+            try {
+              final SharedPreferences prefs = await SharedPreferences.getInstance();
+              String? token = prefs.getString('token');
+              if (token == null) {
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>communityProfile()),
+              );
+            }
+            catch (e) {
+              throw Exception('Error fetching user details: $e');
+            }
+
+
             break;
           case 2:
             // Handle tap on 'Create'
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? token = prefs.getString('token');
+            if (token == null) {
+              return;
+            }
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => AddPostScreen(type:'text')),

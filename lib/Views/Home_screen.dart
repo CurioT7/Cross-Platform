@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
 import 'package:curio/Views/homeNavbar.dart';
@@ -5,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:curio/models/post.dart';
+import 'package:curio/Models/post.dart';
 import 'package:curio/services/postService.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/views/sidebars/customSidebar.dart';
@@ -18,8 +19,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final FlutterSecureStorage storage = FlutterSecureStorage();
-  // final MockApiService _apiService = MockApiService(); // Use the mock API service
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
+  //final MockApiService _apiService = MockApiService(); // Use the mock API service
   final ApiService _apiService = ApiService(); // Use the real API service
   final ScrollController _scrollController = ScrollController();
   List<Post> _posts = [];
@@ -29,10 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchBestPosts();
+    _fetchBestPosts(dropdownValue);
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        _fetchBestPosts();
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _fetchBestPosts(dropdownValue);
       }
     });
   }
@@ -43,16 +45,27 @@ class _HomeScreenState extends State<HomeScreen> {
     return action;
   }
 
-  Future<void> _fetchBestPosts() async {
+  Future<void> _fetchBestPosts(String category) async {
     try {
-      List<Post> posts = await _apiService.getBestPosts();
+      List<Post> posts;
+      if (category == 'Home') {
+        posts = await _apiService.getBestPosts();
+      } else if (category == 'Popular') {
+        posts = await _apiService.getPopularPosts();
+      } else if (category == 'Discovery') {
+        posts = await _apiService.getDiscoveryPosts();
+      } else {
+        posts = [];
+      }
       setState(() {
-        _posts.addAll(posts);
+        _posts = posts;
         _isLoading = false;
       });
     } catch (e) {
       // Handle the exception
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -60,19 +73,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: CustomSidebar(),
-      endDrawer: sidebarAfterLogIn(),
+      endDrawer: SidebarAfterLogIn(),
       bottomNavigationBar: homeNavigationBar(),
       appBar: AppBar(
-
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu),
+            icon: const Icon(Icons.menu),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search),
+            icon: const Icon(Icons.search),
             onPressed: () {
               // Implement your search functionality here
             },
@@ -80,19 +92,22 @@ class _HomeScreenState extends State<HomeScreen> {
           Builder(
             builder: (context) => GestureDetector(
               onTap: () => Scaffold.of(context).openEndDrawer(),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=13'),
+              child: const CircleAvatar(
+                backgroundImage: NetworkImage(
+                    'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),
               ),
             ),
           ),
         ],
         title: DropdownButton<String>(
           value: dropdownValue,
-          icon: Icon(Icons.arrow_drop_down),
+          icon: const Icon(Icons.arrow_drop_down),
           onChanged: (String? newValue) {
             setState(() {
               dropdownValue = newValue!;
+              _isLoading = true;
             });
+            _fetchBestPosts(newValue!);
           },
           items: <String>['Home', 'Popular', 'Discovery']
               .map<DropdownMenuItem<String>>((String value) {
@@ -100,8 +115,12 @@ class _HomeScreenState extends State<HomeScreen> {
               value: value,
               child: Row(
                 children: [
-                  Icon(value == 'Home' ? Icons.home : value == 'Popular' ? Icons.trending_up : Icons.explore),
-                  SizedBox(width: 8),
+                  Icon(value == 'Home'
+                      ? Icons.home
+                      : value == 'Popular'
+                          ? Icons.trending_up
+                          : Icons.explore),
+                  const SizedBox(width: 8),
                   Text(value),
                 ],
               ),
@@ -110,9 +129,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
-              onRefresh: _fetchBestPosts,
+              onRefresh: () => _fetchBestPosts(dropdownValue),
               child: ListView.builder(
                 itemCount: _posts.length,
                 itemBuilder: (context, index) {
@@ -123,9 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           try {
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-            var value = prefs.getString('token');
-            print(value);
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
             await prefs.remove('token');
           } catch (e) {
             print(e);
@@ -133,11 +151,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SignInPage(),
+              builder: (context) => const SignInPage(),
             ),
           );
         },
-        child: Icon(Icons.logout),
+        child: const Icon(Icons.logout),
       ),
     );
   }

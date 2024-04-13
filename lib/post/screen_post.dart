@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:curio/services/api_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/community_bar.dart';
 import '../widgets/poll_component.dart';
 import 'package:curio/Models/community_model.dart';
@@ -94,8 +96,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                         if (isCommunitySelected) {
-                          // TODO: Add the post to the selected community
-                          // call the api to add the post to the selected community
+                          Map<String,dynamic> post = {
+                            'title': titleController.text,
+                            'content': descriptionController.text,
+                            'isNSFW': selectedTags.contains('NSFW'),
+                            'isSpoiler': selectedTags.contains('Spoiler'),
+                            'isOC': selectedTags.contains('isOC'),
+                            'subreddit': selectedCommunity.name,
+                            'destination': 'subreddit',
+                            'media': attachment?.data,
+                          };
+                          final SharedPreferences prefs = await SharedPreferences.getInstance();
+                          final String token = prefs.getString('token')!;
+                          final response = await ApiService().submitPost(post, token);
+                          if (response['success'] == true) {
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(response['message']),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
                         } else {
                           selectedCommunity = await Navigator.push(
                             context,
@@ -107,34 +130,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             isCommunitySelected = true;
                           });
                         }
-                        // List<PostCard> posts = List.generate(
-                        //     4,
-                        //     (index) => PostCard(
-                        //       title: titleController.text,
-                        //       content: descriptionController.text,
-                        //       upvotes: 1,
-                        //       comments: 0,
-                        //       downvotes: 0,
-                        //       username: 'username',
-                        //       postTime: 'postTime',
-                        //         ));
-                        //
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => Scaffold(
-                        //       appBar: AppBar(
-                        //         title: const Text('Posts'),
-                        //       ),
-                        //       body: ListView.builder(
-                        //         itemCount: posts.length,
-                        //         itemBuilder: (context, index) {
-                        //           return posts[index];
-                        //         },
-                        //       ),
-                        //     ),
-                        //   ),
-                        // );
+
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -175,7 +171,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           child: CommunityBar(
                               community: selectedCommunity.name,
                               communityId: selectedCommunity
-                                  .id, // TODO: Change this to the actual community ID
+                                  .id,
                               onTap: () async {
                                 // ignore: unused_local_variable
                                 selectedCommunity = await Navigator.push(

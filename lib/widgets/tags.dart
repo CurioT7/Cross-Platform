@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class TagBottomSheet extends StatefulWidget {
@@ -45,7 +44,7 @@ class _TagBottomSheetState extends State<TagBottomSheet> {
           TagBar(
             icon: FontAwesomeIcons.triangleExclamation,
             tagName: 'Spoiler',
-            info: 'This is a spoiler tag',
+            info: 'Spoiler Alert',
             value: selectedTags.contains('Spoiler'),
             onChanged: (bool value) {
               if (value) {
@@ -58,7 +57,7 @@ class _TagBottomSheetState extends State<TagBottomSheet> {
           TagBar(
             icon: FontAwesomeIcons.circleExclamation,
             tagName: 'NSFW',
-            info: 'This is an NSFW tag',
+            info: 'Not Safe For Work',
             value: selectedTags.contains('NSFW'),
             onChanged: (bool value) {
               if (value) {
@@ -69,15 +68,15 @@ class _TagBottomSheetState extends State<TagBottomSheet> {
             },
           ),
           TagBar(
-            icon: FontAwesomeIcons.exclamation,
-            tagName: 'Flair',
-            info: 'This is a flair tag',
-            value: selectedTags.contains('Flair'),
+            icon: FontAwesomeIcons.circleExclamation,
+            tagName: 'isOC',
+            info: 'Original Content',
+            value: selectedTags.contains('isOC'),
             onChanged: (bool value) {
               if (value) {
-                selectedTags.add('Flair');
+                selectedTags.add('isOC');
               } else {
-                selectedTags.remove('Flair');
+                selectedTags.remove('isOC');
               }
             },
           ),

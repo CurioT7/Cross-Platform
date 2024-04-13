@@ -28,7 +28,7 @@ Future<void> fetchCommunities() async {
   String token = sharedPrefs.getString('token')!;
   // get the communities from the API
   print('Fetching communities from user token: $token');
-  communities = ApiService().getCommunities(token);
+  communities = ApiService().getCommunities(token,context);
   if (communities != null) {
     communityList = await communities!;
     displayedCommunities = communityList.sublist(0, itemCount);

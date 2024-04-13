@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/community_model.dart';
+import 'ApiServiceMahmoud.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
@@ -153,102 +154,57 @@ class ApiService {
   }
 
 
+Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
+  print("submitting post");
+  print(post);
+  final response = await http.post(
+    Uri.parse('$_baseUrl/api/submit'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(post),
+  );
 
-Future<List<Community>> getCommunities(String token) async {
-// TODO: Implement this method to fetch communities from the API
+  if (response.statusCode == 201) {
+    return jsonDecode(response.body);
+  } else {
+    print('Server responded with status code ${response.statusCode}');
+    print('Response body: ${response.body}');
+    throw Exception('Failed to submit post');
+  }
+}
 
-
+Future<List<Community>> getCommunities(String token, BuildContext context) async {
+  Map<String, dynamic> userProfile = await ApiServiceMahmoud().getUserProfile(token);
+  final userName = userProfile['usernames'];
   final response = await http.get(
-    Uri.parse('$_baseUrl/user/testUser2/communities'),
+    Uri.parse('$_baseUrl/user/$userName/communities'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
   );
-
+  String errorMessage;
   if (response.statusCode == 200) {
     List<dynamic> body = jsonDecode(response.body);
     return body.map((dynamic item) => Community.fromJson(item)).toList();
-  } else if (response.statusCode == 404) {
-    throw Exception('User not found');
   } else {
-   // retrun some dummy communites
-    return [
-      Community(
-        id: '1',
-        name: 'Community 1',
-        description: 'This is the description for Community 1',
-        posts: [],
-        isOver18: false,
-        privacyMode: 'public',
-        isNSFW: false,
-        isSpoiler: false,
-        isOC: false,
-        isCrosspost: false,
-        rules: [],
-        category: 'General',
-        language: 'English',
-        allowImages: true,
-        allowVideos: true,
-        allowText: true,
-        allowLink: true,
-        allowPoll: true,
-        allowEmoji: true,
-        allowGif: true,
-        members: [],
-        moderators: [],
-        createdAt: '2021-08-01T00:00:00.000Z',
+
+    if (response.statusCode == 404) {
+      errorMessage = 'User not found';
+    } else {
+      errorMessage = 'No communities found you have to create/join at least one';
+    }
+
+    // Show snackbar with error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        duration: const Duration(seconds: 2),
       ),
-      Community(
-        id: '2',
-        name: 'Community 2',
-        description: 'This is the description for Community 2',
-        posts: [],
-        isOver18: false,
-        privacyMode: 'public',
-        isNSFW: false,
-        isSpoiler: false,
-        isOC: false,
-        isCrosspost: false,
-        rules: [],
-        category: 'General',
-        language: 'English',
-        allowImages: true,
-        allowVideos: true,
-        allowText: true,
-        allowLink: true,
-        allowPoll: true,
-        allowEmoji: true,
-        allowGif: true,
-        members: [],
-        moderators: [],
-        createdAt: '2021-08-01T00:00:00.000Z',
-      ),
-      Community(
-        id: '3',
-        name: 'Community 3',
-        description: 'This is the description for Community 3',
-        posts: [],
-        isOver18: false,
-        privacyMode: 'public',
-        isNSFW: false,
-        isSpoiler: false,
-        isOC: false,
-        isCrosspost: false,
-        rules: [],
-        category: 'General',
-        language: 'English',
-        allowImages: true,
-        allowVideos: true,
-        allowText: true,
-        allowLink: true,
-        allowPoll: true,
-        allowEmoji: true,
-        allowGif: true,
-        members: [],
-        moderators: [],
-        createdAt: '2021-08-01T00:00:00.000Z',
-      ),
-    ];
+    );
+
+    throw Exception(errorMessage);
   }
 }
 

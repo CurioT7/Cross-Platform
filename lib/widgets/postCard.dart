@@ -351,7 +351,7 @@ void _additionalOptions() {
               Text('${widget.post.comments.length}'),
               if (widget.isModerator) 
                 IconButton(
-                  icon: const Icon(Icons.shield),
+                  icon: const Icon(Icons.shield_outlined),
                   onPressed: _moderatorAction,
                 )
               else ...[

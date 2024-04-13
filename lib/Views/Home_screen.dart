@@ -1,3 +1,4 @@
+import 'package:curio/services/mock_api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
@@ -20,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  // final MockApiService _apiService = MockApiService(); // Use the mock API service
+  //final MockApiService _apiService = MockApiService(); // Use the mock API service
   final ApiService _apiService = ApiService(); // Use the real API service
   final ScrollController _scrollController = ScrollController();
   List<Post> _posts = [];

@@ -7,15 +7,17 @@ import 'package:share/share.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
 
+
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
 
   const PostCard({Key? key, required this.post, this.isModerator=false} ) : super(key: key);
 
-  @override
-  _PostCardState createState() => _PostCardState();
+@override
+_PostCardState createState() => _PostCardState();
 }
+
 
 class _PostCardState extends State<PostCard> {
   late int votes;
@@ -182,22 +184,22 @@ Widget _buildPostIcons() {
       ],
     ));
   }
-  // if (widget.post.isOC) {
-  //   icons.add(Row(
-  //     children: [
-  //       const Icon(Icons.star, color: Colors.yellow),
-  //       const Text(' OC'),
-  //     ],
-  //   ));
-  // }
-  // if (widget.post.isCrosspost) {
-  //   icons.add(Row(
-  //     children: [
-  //       const Icon(Icons.share, color: Colors.blue),
-  //       const Text(' Crosspost'),
-  //     ],
-  //   ));
-  // }
+  if (widget.post.isOC) {
+    icons.add(const Row(
+      children: [
+        Icon(Icons.star, color: Colors.yellow),
+        Text(' OC', style: TextStyle(color: Colors.yellow, fontWeight: FontWeight.bold)),
+      ],
+    ));
+  }
+  if (widget.post.isCrosspost) {
+    icons.add(const Row(
+      children: [
+        Icon(Icons.share, color: Colors.blue),
+        Text(' Crosspost', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+      ],
+    ));
+  }
 
   if (icons.isEmpty) {
     return Container();
@@ -249,7 +251,7 @@ void _additionalOptions() {
               leading: const Icon(Icons.copy),
               title: const Text('Copy Text'),
               onTap: () {
-                Clipboard.setData(ClipboardData(text: widget.post.content));
+                Clipboard.setData(ClipboardData(text: widget.post.content?? ""));
                 Navigator.pop(context);
 
               },
@@ -282,10 +284,10 @@ void _additionalOptions() {
     else if (!_isVisible) {
       return Card(
       child: ListTile(
-        leading: Icon(Icons.visibility),
-        title: Text('Post hidden'),
+        leading: const Icon(Icons.visibility),
+        title: const Text('Post hidden'),
         trailing: IconButton(
-          icon: Icon(Icons.visibility_off),
+          icon: const Icon(Icons.visibility_off),
           onPressed: _toggleVisibility,
         ),
       ),
@@ -309,22 +311,27 @@ void _additionalOptions() {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(widget.post.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(widget.post.title ?? '', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
           _buildPostIcons(),
-          if (widget.post.content.isNotEmpty)
+          // For the content field
+            if (widget.post.content != null && widget.post.content!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(widget.post.content),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(widget.post.content!),
             ),
-          if (widget.post.media != null)
+
+
+          // For the media field
+          if (widget.post.media != null && widget.post.media!.isNotEmpty)
             Image.network(
-              widget.post.media,
+              widget.post.media!,
               errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                // You can return any widget here. For instance, return an empty Container.
-                return Container();
+                return Container(); // Return an empty container if the image fails to load
               },
             ),
+          
+        
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

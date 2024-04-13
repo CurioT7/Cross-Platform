@@ -6,8 +6,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ForgotPasswordPage extends StatelessWidget {
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final ApiService apiService = ApiService();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,17 +31,29 @@ class ForgotPasswordPage extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () async{
-                // Implement help button logic
-                var response= await apiService.ForgotPassword(_emailController.text);
-                if(response['success'] == true) {
-                  // Implement success logic
-                  print('Success');
+              onPressed: () async {
+                var response = await apiService.resetPassword(_usernameController.text, _emailController.text);
+                if (response['success'] == true) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Success'),
+                        content: Text('Please check your email to continue the password reset process.'),
+                        actions: [
+                          TextButton(
+                            child: Text('OK'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 } else {
-                  // Implement failure logic
                   print('Failure');
                 }
-
               },
               child: const Text('Help', style: TextStyle(color: redditGrey)),
             ),
@@ -52,32 +66,41 @@ class ForgotPasswordPage extends StatelessWidget {
           SizedBox(height: MediaQuery.of(context).padding.top), // Add spacing to sit under the AppBar
           const Text('Reset Your Password', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          const Text('Enter your email address or username and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
+          const Text('Enter your username and email address and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
+          const SizedBox(height: 20),
+          CustomTextField('Username', _usernameController),
           const SizedBox(height: 20),
           CustomTextField('Email', _emailController),
           const SizedBox(height: 20),
           Container(
-            height: 50, 
-            width: double.infinity, 
+            height: 50,
+            width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: redditOrange,
               ),
               onPressed: () async {
-                final response = await http.post(
-                  Uri.parse('http://localhost:3000/api/auth/reset_password/{token}'), // Replace {token} with the actual token
-                  headers: <String, String>{
-                    'Content-Type': 'application/json; charset=UTF-8',
-                  },
-                  body: jsonEncode(<String, String>{
-                    'password': _emailController.text,
-                  }),
-                );
-
-                if (response.statusCode == 200) {
-                  print('Password reset successful');
+                final response = await apiService.resetPassword(_usernameController.text, _emailController.text);
+                if (response['success'] == true) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Success'),
+                        content: Text('Please check your email to continue the password reset process.'),
+                        actions: [
+                          TextButton(
+                            child: Text('OK'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 } else {
-                  print('Failed to reset password: ${response.body}');
+                  print('Failed to reset password: ${response['message']}');
                 }
               },
               child: const Text('Reset Password', style: TextStyle(color: Colors.white)),

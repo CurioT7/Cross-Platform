@@ -225,7 +225,7 @@ class LoginButton extends StatelessWidget {
 
             print('Sign in...');
             ApiService apiService = ApiService();
-            print('Email: ${emailController.text}');
+            print('Username or Email: ${emailController.text}');
             print('Password: ${passwordController.text}');
 
             final http.Response response = await apiService.signIn(

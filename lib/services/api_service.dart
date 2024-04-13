@@ -12,14 +12,14 @@ import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
   final String _baseUrl = 'http://20.19.89.1';
 
-  Future<http.Response> signIn(String username, String password) async {
+  Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/login'),
+      Uri.parse('$_baseUrl/api/auth/app/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'username': username,
+        'usernameOrEmail': usernameOrEmail,
         'password': password,
       }),
     );
@@ -133,21 +133,26 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> ForgotPassword(String email) async {
+  Future<Map<String, dynamic>> resetPassword(String username, String email) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/forgot_password'),
+      Uri.parse('$_baseUrl/api/auth/reset_password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
+        'username': username,
         'email': email,
       }),
     );
-
+  
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('User not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal server error');
     } else {
-      throw Exception('Failed to send reset password link');
+      throw Exception('Failed to reset password');
     }
   }
 

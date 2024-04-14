@@ -222,44 +222,44 @@ class LoginButton extends StatelessWidget {
           minWidth: double.infinity,
           height: 60,
           onPressed: () async {
-
             print('Sign in...');
             ApiService apiService = ApiService();
             print('Username or Email: ${emailController.text}');
             print('Password: ${passwordController.text}');
-
-            final http.Response response = await apiService.signIn(
-                emailController.text, passwordController.text);
-            if (response.statusCode == 200) {
-              // If the server returns a 200 OK response, then parse the JSON.
-              Map<String, dynamic> data = jsonDecode(response.body);
-              print(data);
-              String token = data['accessToken'];
-              // save the token to the shared preferences
-              final SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.setString('token', token);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                ),
+          
+            try {
+              final http.Response response = await apiService.signIn(
+                  emailController.text, passwordController.text);
+              if (response.statusCode == 200) {
+                // If the server returns a 200 OK response, then parse the JSON.
+                Map<String, dynamic> data = jsonDecode(response.body);
+                print(data);
+                String token = data['accessToken'];
+                // save the token to the shared preferences
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.setString('token', token);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              } else if (response.statusCode == 404) {
+                // If the server returns a 404 response, the username or password was incorrect.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Invalid credentials')),
+                );
+              } else {
+                // If the server returns a response with a status code other than 200 or 404, throw an exception.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Failed to login')),
+                );
+              }
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('An error occurred: $e')),
               );
-            } else if (response.statusCode == 404) {
-              // If the server returns a 404 response, the username or password was incorrect.
-              throw Exception('Invalid credentials');
-            } else {
-              // If the server returns a response with a status code other than 200 or 404, throw an exception.
-              throw Exception('Failed to login');
             }
-
-            // -DEBUG:
-            print('Signup successful');
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(),
-              ),
-            );
           },
           color: redditOrange,
           elevation: 0,

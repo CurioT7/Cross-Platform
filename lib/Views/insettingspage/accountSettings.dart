@@ -27,6 +27,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:curio/Views/insettingspage/confirmPassword.dart';
+import 'package:curio/Views/community/chooseCommunity.dart';
 
 
 class AccountSettingsPage extends StatefulWidget {
@@ -69,6 +70,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   void _loadInitialData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = prefs.getString('token');
+
     print('the value of the token inside the settings page is  $value');
     String? initialGender = prefs.getString('selectedGender');
     if (initialGender != null) {
@@ -137,7 +139,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
                 style: kMoreInfoTextStyle),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
-            onTap: () {if(!_createdPassword)
+            onTap: () {if(_createdPassword)
             {
               Navigator.push(
                 context,

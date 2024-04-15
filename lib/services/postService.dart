@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
   //final String baseUrl = 'http://20.19.89.1/api';
-  final String baseUrl= 'http://192.168.1.7/api';
+  final String baseUrl= 'http://192.168.1.13:3000/api';
 
     Future<List<Post>> getBestPosts() async {
     try {
@@ -36,12 +36,12 @@ class ApiService {
   }
 
   Future<List<Post>> getDiscoveryPosts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/discovery'));
+   try {
+      final response = await http.get(Uri.parse('$baseUrl/best'));
       if (response.statusCode == 200) {
         Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody['success']) {
-          List<dynamic> postsJson = responseBody['DiscoveryPosts'];
+          List<dynamic> postsJson = responseBody['SortedPosts'];
           return postsJson.map((json) => Post.fromJson(json)).toList();
         } else {
           throw Exception('Failed to load posts');
@@ -74,6 +74,29 @@ class ApiService {
       throw e;
     }
   }
+Future<void> castVote(String itemID, int direction, String token) async {
+  final String url = '$baseUrl/vote';
+  final Map<String, String> headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  };
+  final Map<String, dynamic> body = {
+    'itemID': itemID,
+    'itemName': 'post',
+    'direction': direction,
+  };
+
+  final response = await http.post(
+    Uri.parse(url),
+    headers: headers,
+    body: jsonEncode(body),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to cast vote: ${response.body}');
+  }
 }
+}
+
 
 

@@ -1,14 +1,16 @@
 import 'dart:async';
 
 import 'package:curio/Views/my_profile_screen.dart';
+import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';
@@ -28,11 +30,19 @@ class _PostCardState extends State<PostCard> {
   bool downvoted = false;
   bool _isVisible = true;
   bool _canUnhide = true;
+  SharedPreferences? prefs; 
+  String voteStatus = 'neutral';
 
   @override
   void initState() {
     super.initState();
     votes = widget.post.upvotes - widget.post.downvotes;
+    SharedPreferences.getInstance().then((value) {
+    prefs = value;
+    setState(() {
+      voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+    });
+  });
   }
 
   void _toggleVisibility() {
@@ -53,7 +63,10 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  void _upvote() {
+  Future<void> _upvote() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+  
     setState(() {
       if (!upvoted) {
         votes++;
@@ -67,10 +80,18 @@ class _PostCardState extends State<PostCard> {
         upvoted = false;
       }
     });
-    // TODO: Implement the logic to send the upvote to your backend or state management system
+  
+    // Save vote status to SharedPreferences
+    prefs.setString(widget.post.id, upvoted ? 'upvoted' : 'neutral');
+  
+    int direction = upvoted ? 1 : 0;
+    ApiService().castVote(widget.post.id, direction,token);
   }
-
-  void _downvote() {
+  
+  Future<void> _downvote() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+  
     setState(() {
       if (!downvoted) {
         votes--;
@@ -84,7 +105,12 @@ class _PostCardState extends State<PostCard> {
         downvoted = false;
       }
     });
-    // TODO: Implement the logic to send the downvote to your backend or state management system
+  
+    // Save vote status to SharedPreferences
+    prefs.setString(widget.post.id, downvoted ? 'downvoted' : 'neutral');
+  
+    int direction = downvoted ? -1 : 0;
+    ApiService().castVote(widget.post.id, direction,token);
   }
 
   void _navigateToComments() {

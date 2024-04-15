@@ -11,7 +11,7 @@ import 'package:curio/utils/reddit_colors.dart';
 
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
-
+import 'package:curio/comment/viewPostComments.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
@@ -88,7 +88,12 @@ class _PostCardState extends State<PostCard> {
   }
 
   void _navigateToComments() {
-    // TODO: Implement navigation logic to comments screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewPostComments(post: widget.post),
+      ),
+    );
   }
 
   void _sharePost() {
@@ -370,18 +375,39 @@ class _PostCardState extends State<PostCard> {
               onPressed: _additionalOptions,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(widget.post.title ?? '',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewPostComments(post: widget.post),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                widget.post.title ?? '',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
           _buildPostIcons(),
           // For the content field
           if (widget.post.content != null && widget.post.content!.isNotEmpty)
-            Padding(
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewPostComments(post: widget.post),
+                  ),
+                );
+              },
+              child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(widget.post.content!),
+            )
             ),
 
           // For the media field

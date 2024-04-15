@@ -4,12 +4,15 @@ import 'package:intl/intl.dart';
 // import C:\Users\yaray\OneDrive\Documents\HEM\Software\Curio_v1\Cross-Platform\lib\Models\post.dart
 import 'package:curio/Models/post.dart';
 
+import 'package:curio/Models/comment.dart';
 
 class logicAPI {
-  final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
+  //final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
+  final String _baseUrl = 'http://192.168.1.7';
 
-  Future<Map<String, dynamic>> fetchUserData( String username ) async {
-    final response = await http.get( Uri.parse('$_baseUrl/user/$username/about'),   headers: <String, String>{
+  Future<Map<String, dynamic>> fetchUserData(String username) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/user/$username/about'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },);
 
@@ -34,13 +37,14 @@ class logicAPI {
     };
   }
 
-  Future<Map<String, dynamic>> fetchUsername( String token ) async {
-    print (token);
+  Future<Map<String, dynamic>> fetchUsername(String token) async {
+    print(token);
     //to delete
     // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 //print parameter token
     print(token);
-    final response = await http.get( Uri.parse('$_baseUrl/api/settings/v1/me'),   headers: <String, String>{
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/settings/v1/me'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     },);
@@ -56,23 +60,26 @@ class logicAPI {
       throw Exception('Unexpected error occurred');
     }
   }
+
   Map<String, dynamic> extractUsername(Map<String, dynamic> userData) {
     return {
       'username': userData['username'],
 
     };
   }
+
   Future<int> daysSinceCakeDay(Map<String, dynamic> userDetails) async {
     final String cakeDay = userDetails['cakeDay']; // Assuming the cakeDay is in the format "Mar 2, 2024"
     final DateFormat formatter = DateFormat('MMM d, yyyy');
     final DateTime cakeDayDate = formatter.parse(cakeDay);
     final DateTime currentDate = DateTime.now();
 
-    final int daysDifference = currentDate.difference(cakeDayDate).inDays;
+    final int daysDifference = currentDate
+        .difference(cakeDayDate)
+        .inDays;
     print("date hereeeeeeeeeeeeee");
-    print( daysDifference);
+    print(daysDifference);
     return daysDifference;
-
   }
 
   // Future<Map<String, dynamic>>  createCommunity( String communityName, String typeCommunity, bool isOver18, String token) async {
@@ -99,7 +106,8 @@ class logicAPI {
   //     throw Exception('Unexpected error occurred');
   //   }
   // }
-  Future<Map<String, dynamic>> createCommunity(String communityName, bool isOver18, String typeCommunity, String token) async {
+  Future<Map<String, dynamic>> createCommunity(String communityName,
+      bool isOver18, String typeCommunity, String token) async {
     try {
       //  token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
@@ -138,7 +146,8 @@ class logicAPI {
   }
 
   //Community profile page functions
-  Future<Map<String, dynamic>> joinCommunity(String token, String communityName) async {
+  Future<Map<String, dynamic>> joinCommunity(String token,
+      String communityName) async {
     // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
     print("inside join community inside logicapi");
 
@@ -167,7 +176,8 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> leaveCommunity(String token, String communityName) async {
+  Future<Map<String, dynamic>> leaveCommunity(String token,
+      String communityName) async {
     // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
     final response = await http.post(
@@ -197,7 +207,6 @@ class logicAPI {
   }
 
   Future<Map<String, dynamic>> fetchCommunityData(String communityName) async {
-
     final response = await http.get(
       Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}'),
       headers: <String, String>{
@@ -226,46 +235,20 @@ class logicAPI {
     }
   }
 
-  Future<List<Post>> fetchCommunityProfilePosts(String subreddit, String type) async {
-    final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type' ));
+  Future<List<Post>> fetchCommunityProfilePosts(String subreddit,
+      String type) async {
+    final response = await http.get(
+        Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type'));
 
     if (response.statusCode == 200) {
-      // Map<String, dynamic> jsonResponse = json.decode(response.body);
-      // List<dynamic> postsJson = jsonResponse['posts'];
-      //
-      // return Post.getPosts(postsJson);
-
       return Post.getPosts((jsonDecode(response.body)['posts']));
-      // return posts.map((post) {
-      //   return {
-      //     '_id': post['_id'],
-      //     'title': post['title'],
-      //     'content': post['content'],
-      //     'authorName': post['authorName'],
-      //     'views': post['views'],
-      //     'createdAt': post['createdAt'],
-      //     'upvotes': post['upvotes'],
-      //     'downvotes': post['downvotes'],
-      //     'linkedSubreddit': post['linkedSubreddit'],
-      //     'comments': post['comments'],
-      //     'shares': post['shares'],
-      //     'isNSFW': post['isNSFW'],
-      //     'isSpoiler': post['isSpoiler'],
-      //     'isOC': post['isOC'],
-      //     'isCrosspost': post['isCrosspost'],
-      //     'awards': post['awards'],
-      //     'media': post['media'],
-      //     'link': post['link'],
-      //     'isDraft': post['isDraft'],
-      //     '__v': post['__v'],
-      //   };
-      // }).toList();
     } else if (response.statusCode == 404) {
       throw Exception('Subreddit not found');
     } else {
       throw Exception('Failed to load posts');
     }
   }
+
   // Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
   //   final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/$timeinterval'));
   //
@@ -351,42 +334,22 @@ class logicAPI {
   //   }
   // }
 
-  Future<List<Post>?> fetchTopPosts(String subreddit, String timeinterval) async {
-    try{
+  Future<List<Post>?> fetchTopPosts(String subreddit,
+      String timeinterval) async {
+    try {
       print("inside LOGICAPI TIME INTERVAL = ");
       print(timeinterval);
-      final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri.encodeComponent(timeinterval)}'));
+      final response = await http.get(Uri.parse(
+          '$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri
+              .encodeComponent(timeinterval)}'));
 
 
       if (response.statusCode == 200) {
+        return Post.getPosts((jsonDecode(response.body)['post']));
+      }
 
-        return Post.getPosts((jsonDecode(response.body)['post'])); }
-
-      // return {
-      //   '_id': post['_id'],
-      //   'title': post['title'],
-      //   'content': post['content'],
-      //   'authorName': post['authorName'],
-      //   'views': post['views'],
-      //   'createdAt': DateTime.parse(post['createdAt']),
-      //   'upvotes': post['upvotes'],
-      //   'downvotes': post['downvotes'],
-      //   'linkedSubreddit': post['linkedSubreddit'],
-      //   'comments': List<String>.from(post['comments']),
-      //   'shares': post['shares'],
-      //   'isNSFW': post['isNSFW'],
-      //   'isSpoiler': post['isSpoiler'],
-      //   'isOC': post['isOC'],
-      //   'isCrosspost': post['isCrosspost'],
-      //   'awards': post['awards'],
-      //   'media': post['media'],
-      //   'link': post['link'],
-      //   'isDraft': post['isDraft'],
-      //   '__v': post['__v'],
-      // };
-      // }).toList();
       else if (response.statusCode == 404) {
-       return null;
+        return null;
       } else {
         throw Exception('Failed to load posts');
       }
@@ -397,4 +360,137 @@ class logicAPI {
     }
   }
 
+  //Comments part
+
+  Future<List<Comment>> fetchPostComments(String postId) async {
+    print("Post ID iNSIDE LOGICAPI");
+    print(postId);
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/comments/$postId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      if (responseBody['success']) {
+        List<dynamic> commentsJson = responseBody['comments'];
+        print('success: code 200 comments');
+        return Comment.getComments(commentsJson);
+      } else {
+        throw Exception('Failed to load comments');
+      }
+    } else if (response.statusCode == 404) {
+      print('failure: code 404 comments');
+      throw Exception('Post not found');
+    } else if (response.statusCode == 500) {
+      print('failure: code 500 comments');
+
+      throw Exception('Internal Server Error');
+    } else {
+      // print detailed error
+      print('failure: comments');
+
+      throw Exception(
+          'Failed to load comments with status code: ${response.statusCode}');
+    }
+  }
+
+
+  Future<void> postComment(String postId, String content, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/api/comments'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, String>{
+          'postId': postId,
+          'content': content,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        print("comment successfully created");
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        print('Error 404: Not Found. Failed to post comment.');
+        throw Exception('Error 404: Not Found. Failed to post comment.');
+      } else if (response.statusCode == 500) {
+        print('Error 500: Internal Server Error. Failed to post comment.');
+        throw Exception(
+            'Error 500: Internal Server Error. Failed to post comment.');
+      } else {
+        throw Exception('Failed to post comment with status code: ${response
+            .statusCode}. Error: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Error posting comment: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> updateComment(String commentId, String content, String token) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$_baseUrl/api/updatecomments'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, String>{
+          'commentId': commentId,
+          'content': content,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("Comment successfully updated");
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        print('Error 404: Not Found. Failed to update comment.');
+        throw Exception('Error 404: Not Found. Failed to update comment.');
+      } else if (response.statusCode == 500) {
+        print('Error 500: Internal Server Error. Failed to update comment.');
+        throw Exception('Error 500: Internal Server Error. Failed to update comment.');
+      } else {
+        throw Exception('Failed to update comment with status code: ${response.statusCode}. Error: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Error updating comment: $e');
+    }
+  }
+  Future<Map<String, dynamic>> deleteComment(String commentId, String token) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/api/deletecomments/$commentId'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(<String, String>{
+          'commentId': commentId,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("Comment successfully deleted");
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        print('Error 404: Not Found. Failed to delete comment.');
+        throw Exception('Error 404: Not Found. Failed to delete comment.');
+      } else if (response.statusCode == 500) {
+        print('Error 500: Internal Server Error. Failed to delete comment.');
+        throw Exception('Error 500: Internal Server Error. Failed to delete comment.');
+      } else {
+        throw Exception('Failed to delete comment with status code: ${response.statusCode}. Error: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception: $e');
+      throw Exception('Error deleting comment: $e');
+    }
+  }
 }

@@ -10,7 +10,10 @@ class CommunityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onTap(),
+      onTap: () => onTap(
+
+
+      ),
       child: Row(
         children: [
           Icon(

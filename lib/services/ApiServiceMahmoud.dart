@@ -6,7 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
   final String _baseUrl =  'http://20.19.89.1'; // Base URL for moch
-  final String _baseUrlDataBase =  'http://10.0.2.2:3000';
+  //final String _baseUrlDataBase =  'http://10.0.2.2:3000';
+  final String _baseUrlDataBase= 'http://192.168.1.7';
 
   Future<Map<String, dynamic>> getUserProfile(String token) async {
     final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile

@@ -7,10 +7,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
+import 'package:curio/Models/community_model.dart';
+import 'logicAPI.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  final String _baseUrl = 'http://20.19.89.1';
+  final String _baseUrl = 'http://20.19.89.1'; // Base URL
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -157,42 +159,64 @@ class ApiService {
   }
 
 
+Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
+  print("submitting post");
+  print(jsonEncode(post));
+  // TODO: change base url to the local as lonng as the server is not up
+  final response = await http.post(
+    Uri.parse('$_baseUrl/api/submit'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(post),
+  );
 
-  Future<List<Community>> getCommunities(String token) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/api/subreddit/$token'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+  if (response.statusCode == 201) {
+    return jsonDecode(response.body);
+  } else {
+    print('Server responded with status code ${response.statusCode}');
+    print('Response body: ${response.body}');
+    throw Exception('Failed to submit post');
+  }
+}
+
+Future<List<Community>> getCommunities(String token, BuildContext context) async {
+  final logicAPI apiLogic = logicAPI();
+  Map<String, dynamic> userProfile = await apiLogic.fetchUsername(token);
+  final userName = apiLogic.extractUsername(userProfile);
+  final name = userName['username'];
+  print("User name: $name");
+  final response = await http.get(
+    Uri.parse('$_baseUrl/user/$name/communities'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
+  String errorMessage;
+  if (response.statusCode == 200) {
+    final communities = jsonDecode(response.body)['communities'];
+    final body = communities as List;
+    return body.map((dynamic item) => Community.fromJson(item)).toList();
+  } else {
+
+    if (response.statusCode == 404) {
+      errorMessage = 'User not found';
+    } else {
+      errorMessage = 'No communities found you have to create/join at least one';
+    }
+
+    // Show snackbar with error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        duration: const Duration(seconds: 2),
+      ),
     );
 
-    if (response.statusCode == 200) {
-      return Community.getCommunities(jsonDecode(response.body));
-    } else {
-      // retrun some dummy data
-      return Community.getCommunities([
-        {
-          'name': 'Flutter',
-          'image': Icons.flutter_dash,
-          'followers': 100,
-          'isFollowing': false,
-        },
-        {
-          'name': 'Dart',
-          'image': Icons.code,
-          'followers': 50,
-          'isFollowing': true,
-        },
-        {
-          'name': 'Firebase',
-          'image': Icons.fireplace,
-          'followers': 200,
-          'isFollowing': false,
-        },
-      ]);
-    }
+    throw Exception(errorMessage);
   }
-
+}
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
     final response = await http.get(

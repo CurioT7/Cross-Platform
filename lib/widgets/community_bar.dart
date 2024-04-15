@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'rules_page.dart';
 
+final icons = [Icons.home, Icons.star, Icons.school, Icons.work]; // Add more icons as needed
 
 class CommunityBar extends StatelessWidget {
   final String? community;
-  final IconData? image;
+  final IconData? icon;
   final VoidCallback onTap;
   final String communityId;
 
   const CommunityBar({
-    super.key,
+    Key? key,
     required this.community,
     required this.onTap,
     required this.communityId,
-    this.image,
-  });
+    this.icon,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final iconData = icon ?? icons[Random().nextInt(icons.length)];
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -31,7 +35,7 @@ class CommunityBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(image),
+                Icon(iconData),
                 const SizedBox(width: 8),
                 Text(community ?? 'Select a community'),
               ],

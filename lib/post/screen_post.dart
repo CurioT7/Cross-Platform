@@ -95,7 +95,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                        if (isCommunitySelected) {
+                        if (isCommunitySelected & descriptionController.text.isNotEmpty) {
                           Map<String,dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
@@ -103,9 +103,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             'isSpoiler': selectedTags.contains('Spoiler'),
                             'isOC': selectedTags.contains('isOC'),
                             'subreddit': selectedCommunity.name,
-                            'destination': 'subreddit',
-                            'media': attachment?.data,
+                            'destination': "subreddit",
                           };
+                          //check if the attachment has been added
+                          if (attachment != null) {
+                            post['media'] = attachment!.data;
+                          }
+
                           final SharedPreferences prefs = await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
                           final response = await ApiService().submitPost(post, token);

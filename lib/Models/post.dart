@@ -1,7 +1,7 @@
 class Post {
-  final String? id;
-  final String? title;
-  final String? content;
+  final String id;
+  final String title;
+  final String content;
   final String? authorName;
   final int views;
   final DateTime createdAt;
@@ -43,7 +43,7 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['_id'] as String?,
+      id: json['_id'] as String,
       title: json['title'] as String? ?? 'Untitled',
       content: json['content'] as String? ?? '',
       authorName: json['authorName'] ?? 'Unknown',

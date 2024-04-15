@@ -21,7 +21,7 @@ class communityProfile extends StatefulWidget {
 class _CommunityProfileState extends State<communityProfile> {
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Books fuga';
+  String communityName = 'Music aut';
   bool hasJoined = false;
 
 
@@ -315,8 +315,9 @@ if (timeInterval!<1){
                     0.07, // Set the height of the button
 
                 child: TextButton(
-                  style: ButtonStyle(
 
+                  style: ButtonStyle(
+padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 5.0)),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {
@@ -398,13 +399,15 @@ if (timeInterval!<1){
 
                   },
                   child: Text(
+
                     hasJoined ? 'Joined' : 'Join',
                     // Change the text based on whether the user has joined or not
                     style: TextStyle(
+
                       fontSize: MediaQuery
                           .of(context)
                           .size
-                          .width * 0.025,
+                          .width * 0.022,
                       color: hasJoined ? Colors.grey : Colors.white,
                       // Change the text color based on whether the user has joined or not
                       fontWeight: FontWeight.bold,

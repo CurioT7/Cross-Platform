@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-class PostCard extends StatefulWidget {
+
+
+class PostCard2 extends StatefulWidget {
+  final String id;
   final String title;
   final String content;
   final String? username;
@@ -7,8 +10,9 @@ class PostCard extends StatefulWidget {
   final String? userImage;
   final String? postImage;
 
-  const PostCard({
+  const PostCard2({
     super.key,
+    required this.id,
     required this.title,
     required this.content,
     this.username,
@@ -21,7 +25,7 @@ class PostCard extends StatefulWidget {
   _PostCardState createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends State<PostCard2> {
   int upvotes = 0;
   int downvotes = 0;
   int comments = 0;
@@ -34,8 +38,8 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
+    return GestureDetector(
+    child: Card( child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,6 +152,8 @@ class _PostCardState extends State<PostCard> {
           ],
         ),
       ),
+    ),
+
     );
   }
 }

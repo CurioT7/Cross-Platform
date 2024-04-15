@@ -5,8 +5,62 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
-  final String _baseUrlDataBase =  'http://20.19.89.1'; // Base URL for moch
+  final String _baseUrl =  'http://20.19.89.1'; // Base URL for moch
+  //final String _baseUrlDataBase =  'http://10.0.2.2:3000';
+  final String _baseUrlDataBase= 'http://192.168.1.7';
 
+  Future<Map<String, dynamic>> getUserProfile(String token) async {
+    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token', // Include the token in the request header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        throw Exception('User not found');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal Server Error: ${response.statusCode}');
+      } else {
+        throw Exception('Failed to fetch user profile: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user profile: $e');
+    }
+  }
+
+
+  Future<Map<String, dynamic>> getUserCommunities(String token, String username) async {
+    print('i am sending the api');
+    print(username);
+    final String endpoint = '/user/$username/communities'; // Endpoint for fetching user profile
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+      );
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized: ${response.body}');
+      } else {
+        throw Exception('Failed to fetch user communities: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user communities: $e');
+    }
+
+  }
 
 
 
@@ -322,31 +376,6 @@ class ApiServiceMahmoud {
     }
   }
 
-  Future<Map<String, dynamic>> getUserProfile(String token) async {
-    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token', // Include the token in the request header
-        },
-      );
-
-      if (response.statusCode == 200) {
-        return jsonDecode(response.body);
-      } else if (response.statusCode == 404) {
-        throw Exception('User not found');
-      } else if (response.statusCode == 500) {
-        throw Exception('Internal Server Error: ${response.statusCode}');
-      } else {
-        throw Exception('Failed to fetch user profile: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to fetch user profile: $e');
-    }
-  }
 
 
   Future<Map<String, dynamic>> getUserPreferences(String token) async {

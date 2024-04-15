@@ -16,7 +16,10 @@ class CommunityCard extends StatelessWidget {
     final icon = icons[Random().nextInt(icons.length)];
 
     return GestureDetector(
-      onTap: () => onTap(),
+      onTap: () => onTap(
+
+
+      ),
       child: Row(
         children: [
           Icon(

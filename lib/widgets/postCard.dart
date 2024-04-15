@@ -10,7 +10,6 @@ import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';

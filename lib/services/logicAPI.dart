@@ -110,7 +110,7 @@ class logicAPI {
       bool isOver18, String typeCommunity, String token) async {
     try {
       //  token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
-
+      print("Tokens: $token");
       final response = await http.post(
         Uri.parse('$_baseUrl/api/createSubreddit'),
         headers: <String, String>{

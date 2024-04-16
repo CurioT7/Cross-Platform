@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:curio/Models/community_model.dart';
+
+final icons = [Icons.home, Icons.star, Icons.school, Icons.work, Icons.alarm, Icons.account_balance];
 
 class CommunityCard extends StatelessWidget {
   final Community community;
   final Function onTap;
 
-  const CommunityCard(
-      {super.key, required this.community, required this.onTap});
+  CommunityCard(
+      {Key? key, required this.community, required this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final icon = icons[Random().nextInt(icons.length)];
+
     return GestureDetector(
       onTap: () => onTap(
 
@@ -17,7 +23,7 @@ class CommunityCard extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            community.image,
+            icon,
             size: 40,
             color: Colors.black,
           ),
@@ -33,7 +39,7 @@ class CommunityCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${community.followersCount} ${community.followersText} • ${community.isFollowingText}',
+                '${community.members.length} members',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w300,
@@ -44,35 +50,5 @@ class CommunityCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class Community {
-  // some dummy data
-  final String name;
-  final IconData image;
-  final int followers;
-  bool isFollowing;
-  // constructor
-  Community({
-    required this.name,
-    required this.image,
-    required this.followers,
-    required this.isFollowing,
-  });
-  // get info
-  String get followersCount => followers.toString();
-  String get followersText => followers == 1 ? 'Follower' : 'Followers';
-  String get isFollowingText => isFollowing ? 'Following' : 'Follow';
-
-  static List<Community> getCommunities(List<dynamic> json) {
-    return json
-        .map((community) => Community(
-              name: community['name'],
-              image: community['image'],
-              followers: community['followers'],
-              isFollowing: community['isFollowing'],
-            ))
-        .toList();
   }
 }

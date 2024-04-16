@@ -15,6 +15,8 @@ class ShareToSubredditPage extends StatefulWidget {
 }
 
 class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
+  late Map<String, dynamic> subredditInfo = {};
+  List<String> rules = [];
   TextEditingController titleController = TextEditingController();
   late Post samplePost;
   late String _selectedNewSubreddit; // Declare _selectedNewSubreddit here
@@ -23,7 +25,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
   void initState() {
     super.initState();
     _selectedNewSubreddit = widget.selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
-    // Initialize the samplePost and titleController here
+    fetchSubredditInfo(_selectedNewSubreddit);
     samplePost = Post.fromJson({
       "_id": "65fba6e0aab809eceb312466",
       "title": "this is the post title.",
@@ -48,6 +50,23 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
     });
     titleController.text = samplePost.title ?? '';
   }
+
+  Future<void> fetchSubredditInfo(String subredditName) async {
+    try {
+      // Fetch subreddit information using ApiServiceMahmoud
+      final apiService = ApiServiceMahmoud();
+      final data = await apiService.getSubredditInfo(subredditName);
+      setState(() {
+        subredditInfo = data['subreddit'];
+        rules = List<String>.from(subredditInfo['rules']);
+        print(rules);
+        print(subredditInfo);
+      });
+    } catch (e) {
+      print('Error fetching subreddit information: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +127,61 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
                   },
                   child: Icon(Icons.arrow_drop_down),
                 ),
+                  Spacer(),
+
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            AppBar(
+                              centerTitle: true,
+                              title: Text(
+                                'Community Rules',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              automaticallyImplyLeading: false,
+
+                            ),
+                            Text(
+
+                              'Rules are different for each community.Reviewing the rules can help you be more successful when posting or commenting in this community.',
+                              textAlign: TextAlign.center,
+                            ),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: rules.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return ListTile(
+                                  title: Text(rules[index]),
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    color: Colors.white,
+                    child: Text(
+                      'rules',
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                ),
+
+
               ],
             ),
           ),

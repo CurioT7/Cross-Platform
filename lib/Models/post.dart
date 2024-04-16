@@ -10,14 +10,16 @@ class Post {
   final String? linkedSubreddit;
   final List<dynamic> comments;
   final int shares;
-  final bool isNSFW;
-  final bool isSpoiler;
+  late  bool isNSFW;
+  late  bool isSpoiler;
   final bool isOC;
   final bool isCrosspost;
   final int awards;
   final String? media;
   final String? link;
   final bool isDraft;
+  bool isLocked = false;
+  bool isSaved = false;
 
   Post({
     required this.id,

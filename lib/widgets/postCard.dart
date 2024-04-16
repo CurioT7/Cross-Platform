@@ -43,7 +43,11 @@ class _PostCardState extends State<PostCard> {
     });
   });
   }
-
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
   void _toggleVisibility() {
     if (_isVisible || _canUnhide) {
       setState(() {
@@ -137,32 +141,56 @@ class _PostCardState extends State<PostCard> {
         return Container(
           child: Wrap(
             children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.warning_amber_rounded),
-                title: const Text('Mark Spoiler'),
-                onTap: () {
-                  // TODO: Implement the logic for marking as spoiler
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.lock),
-                title: const Text('Lock Comments'),
-                onTap: () {
-                  // TODO: Implement the logic for locking comments
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.push_pin),
-                title: const Text('Sticky Post'),
-                onTap: () {
-                  // TODO: Implement the logic for making post sticky
-                },
-              ),
+             ListTile(
+              leading: const Icon(Icons.warning_amber_rounded),
+              title: Text(widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
+              onTap: () async {
+                String token = await getToken();
+                if (widget.post.isSpoiler) {
+                  await ApiService().unspoilPost(widget.post.id, token);
+                } else {
+                  await ApiService().spoilPost(widget.post.id, token);
+                }
+                setState(() {
+                  widget.post.isSpoiler = !widget.post.isSpoiler;
+                });
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock),
+              title: Text(widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
+              onTap: () async {
+                String token = await getToken();
+                if (widget.post.isLocked) {
+                  await ApiService().unlockPost(widget.post.id, token);
+                } else {
+                  await ApiService().lockPost(widget.post.id, token);
+                }
+                setState(() {
+                  widget.post.isLocked = !widget.post.isLocked;
+                });
+              },
+            ),
+              // ListTile(
+              //   leading: const Icon(Icons.push_pin),
+              //   title: const Text('Sticky Post'),
+              //   onTap: () {
+              //     // TODO: Implement the logic for making post sticky
+              //   },
+              // ),
               ListTile(
                 leading: const Icon(Icons.eighteen_up_rating),
-                title: const Text('Mark NSFW'),
-                onTap: () {
-                  // TODO: Implement the logic for marking as NSFW
+                title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
+                onTap: () async {
+                  String token = await getToken();
+                  if (widget.post.isNSFW) {
+                    await ApiService().unmarkAsNsfw(widget.post.id, token);
+                  } else {
+                    await ApiService().markAsNsfw(widget.post.id, token);
+                  }
+                  setState(() {
+                    widget.post.isNSFW = !widget.post.isNSFW;
+                  });
                 },
               ),
               ListTile(
@@ -282,9 +310,17 @@ class _PostCardState extends State<PostCard> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.save),
-              title: const Text('Save'),
-              onTap: () {
-                // TODO: Implement the logic for saving the post
+              title: Text(widget.post.isSaved ? 'Unsave' : 'Save'),
+              onTap: () async {
+                String token = await getToken();
+                if (widget.post.isSaved) {
+                  await ApiService().unsavePost(widget.post.id, token);
+                } else {
+                  await ApiService().savePost(widget.post.id,  token);
+                }
+                setState(() {
+                  widget.post.isSaved = !widget.post.isSaved;
+                });
               },
             ),
             ListTile(
@@ -472,7 +508,7 @@ class _PostCardState extends State<PostCard> {
               Text('${widget.post.comments.length}'),
               if (widget.isModerator)
                 IconButton(
-                  icon: const Icon(Icons.shield),
+                  icon: const Icon(Icons.shield_outlined),
                   onPressed: _moderatorAction,
                 )
               else ...[

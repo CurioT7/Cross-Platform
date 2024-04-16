@@ -7,8 +7,8 @@ import 'package:curio/Models/post.dart';
 import 'package:curio/Models/comment.dart';
 
 class logicAPI {
-  //final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
-  final String _baseUrl = 'http://192.168.1.7';
+  final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
+  // final String _baseUrl = 'http://192.168.1.7';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(

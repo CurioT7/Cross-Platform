@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
-import 'package:curio/Views/share/shareToSubreddit.dart';
 
-class ChooseCommunityPage extends StatefulWidget {
-  // final Function(String) callback;
-  //
-  // ChooseCommunityPage({required this.callback});
-
+class ChooseCommunityPage2 extends StatefulWidget {
   @override
-  _ChooseCommunityPageState createState() => _ChooseCommunityPageState();
+  _ChooseCommunityPage2State createState() => _ChooseCommunityPage2State();
 }
 
-class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
+class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
   String _username = '';
   String _email = '';
   final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
@@ -69,6 +64,7 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
       ),
       body: ListView(
         children: [
+
           Container(
             color: Colors.grey[300],
             child: Padding(
@@ -112,13 +108,7 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
                   ),
                   title: Text(community['name']),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ShareToSubredditPage(selectedNewSubreddit: community['name'],),
-                      ),
-                    );
-
+                    Navigator.pop(context, community['name']);
                   },
                 );
               },

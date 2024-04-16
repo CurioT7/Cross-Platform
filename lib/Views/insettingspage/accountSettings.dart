@@ -28,7 +28,8 @@ import 'package:curio/Views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:curio/Views/insettingspage/confirmPassword.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
-
+import 'package:curio/Views/share/shareToProfile.dart';
+import 'package:curio/Views/share/shareToSubreddit.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -254,7 +255,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => BlockedAccountsPage()),
+                MaterialPageRoute(builder: (context) => ChooseCommunityPage()),
               );
             },
           ),
@@ -272,7 +273,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
+                MaterialPageRoute(builder: (context) => ShareToProfilePage()),
               );
             },
           ),

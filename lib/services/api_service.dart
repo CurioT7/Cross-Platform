@@ -10,8 +10,8 @@ import 'package:flutter/material.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
- // final String _baseUrl = 'http://20.19.89.1';
-  final String _baseUrl= 'http://192.168.1.7';
+ final String _baseUrl = 'http://20.19.89.1';
+  // final String _baseUrl= 'http://192.168.1.7';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -62,8 +62,8 @@ class ApiService {
     //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
     //   ),
     // );
-   // String baseUrl = 'http://20.19.89.1';
-    final String baseUrl= 'http://192.168.1.7';
+        String baseUrl = 'http://20.19.89.1';
+    // final String baseUrl= 'http://192.168.1.7';
 
     // make a post request to the server api/auth/signup
     final response = await http.post(
@@ -319,8 +319,8 @@ class ApiService {
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    //const baseUrl = 'http://20.19.89.1';
-    final String baseUrl= 'http://192.168.1.7';
+    const baseUrl = 'http://20.19.89.1';
+    // final String baseUrl= 'http://192.168.1.7';
 
     final url = Uri.parse('$baseUrl$endpoint');
 

@@ -1,58 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:curio/services/ApiServiceMahmoud.dart'; // This is assumed to contain the Post class
-import 'package:curio/Models/post.dart'; // Import the Post model
+import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Models/post.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
+import 'package:curio/Views/community/chooseCommunity2.dart';
 
-class ShareToProfilePage extends StatefulWidget {
+class ShareToSubredditPage extends StatefulWidget {
+  final String selectedNewSubreddit;
+
+  ShareToSubredditPage({required this.selectedNewSubreddit});
+
   @override
-  _ShareToProfilePageState createState() => _ShareToProfilePageState();
+  _ShareToSubredditPageState createState() => _ShareToSubredditPageState();
 }
 
-class _ShareToProfilePageState extends State<ShareToProfilePage> {
-  String newComunity = '';
+class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
+  TextEditingController titleController = TextEditingController();
+  late Post samplePost;
+  late String _selectedNewSubreddit; // Declare _selectedNewSubreddit here
 
-  void updateData(String newData) {
-    setState(() {
-      newComunity = newData;
+  @override
+  void initState() {
+    super.initState();
+    _selectedNewSubreddit = widget.selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
+    // Initialize the samplePost and titleController here
+    samplePost = Post.fromJson({
+      "_id": "65fba6e0aab809eceb312466",
+      "title": "this is the post title.",
+      "content": "post conntecnt.",
+      "authorName": "Cecile56",
+      "views": 14611,
+      "createdAt": "2024-03-16T03:23:13.002Z",
+      "upvotes": 58542,
+      "downvotes": 11880,
+      "linkedSubreddit": "65fba6dbaab809eceb3123ee",
+      "comments": [],
+      "shares": 91827,
+      "isNSFW": true,
+      "isSpoiler": false,
+      "isOC": true,
+      "isCrosspost": true,
+      "awards": 96140,
+      "media": "https://nayeli.name",
+      "link": "https://brandon.biz",
+      "isDraft": true,
+      "__v": 0
     });
+    titleController.text = samplePost.title ?? '';
   }
-
-  // Instantiate the Post object using the sample data
-  final Post samplePost = Post.fromJson({
-    "_id": "65fba6e0aab809eceb312466",
-    "title": "this is the post title.",
-    "content": "post conntecnt.",
-    "authorName": "Cecile56",
-    "views": 14611,
-    "createdAt": "2024-03-16T03:23:13.002Z",
-    "upvotes": 58542,
-    "downvotes": 11880,
-    "linkedSubreddit": "65fba6dbaab809eceb3123ee",
-    "comments": [],
-    "shares": 91827,
-    "isNSFW": true,
-    "isSpoiler": false,
-    "isOC": true,
-    "isCrosspost": true,
-    "awards": 96140,
-    "media": "https://nayeli.name",
-    "link": "https://brandon.biz",
-    "isDraft": true,
-    "__v": 0
-  });
 
   @override
   Widget build(BuildContext context) {
-    // Extract the necessary data for display
     String nameofcommunity = samplePost.linkedSubreddit ?? 'Unknown Community';
     String authorName = samplePost.authorName ?? 'Anonymous';
     String createdAt = samplePost.createdAt.toString();
     String mediaUrl = samplePost.media ?? '';
-    String NewSubreddit = 'My profile'; // Initial text
-    // Controller for the TextField
-    TextEditingController titleController =
-    TextEditingController(text: samplePost.title);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,8 +63,8 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
         actions: [
           GestureDetector(
             onTap: () {
-              // Handle the onTap event here
-              // You can add your functionality to post something
+              print('Post');
+              print('this is the share to subreddit page');
             },
             child: Container(
               padding: EdgeInsets.all(10.0),
@@ -92,15 +94,17 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
                   child: Image.asset('lib/assets/images/Curio.png'),
                   radius: 30,
                 ),
-
                 SizedBox(width: 10),
-                Text('My profile'),
+                Text(_selectedNewSubreddit.isEmpty ? 'my profile' : 'r/$_selectedNewSubreddit'),
                 GestureDetector(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    final newSubreddit = await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ChooseCommunityPage()),
+                      MaterialPageRoute(builder: (context) => ChooseCommunityPage2()),
                     );
+                    setState(() {
+                      _selectedNewSubreddit = newSubreddit;
+                    });
                   },
                   child: Icon(Icons.arrow_drop_down),
                 ),
@@ -110,7 +114,7 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: titleController, // Set the controller
+              controller: titleController,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
               ),

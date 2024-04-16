@@ -373,6 +373,13 @@ Future<String> getToken() async {
               },
             ),
             ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Share to profile'),
+              onTap: () {
+                //todo: implement the logic for sharing to profile
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.download),
               title: const Text('Download'),
               onTap: () {

@@ -45,33 +45,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          ExpansionTile(
-            title: const Text('Recently Visited'),
-            children: <Widget>[
-              ListTile(
-                title: const Text('Subreddit 1'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    // Implement your delete functionality here
-                  },
-                ),
-              ),
-              ListTile(
-                title: const Text('Subreddit 2'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    // Implement your delete functionality here
-                  },
-                ),
-              ),
-              ListTile(
-                title: const Text('See All'),
-                onTap: () {},
-              ),
-            ],
-          ),
+          const SizedBox(height: 50),
           if (favoriteCommunities.isNotEmpty)
             ExpansionTile(
               title: const Text('Favorites'),
@@ -107,7 +81,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
                               MaterialPageRoute(builder: (context) => createCommunity()),
                             );
                           },
-                          child: ListTile(
+                          child: const ListTile(
                             leading: Icon(Icons.add),
                             title: Text('Create a Community'),
                           ),

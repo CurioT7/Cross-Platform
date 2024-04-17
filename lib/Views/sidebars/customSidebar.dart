@@ -1,11 +1,11 @@
-import 'package:curio/Views/community/createCommunity.dart';
 import 'package:flutter/material.dart';
+import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/Views/sidebars/LeftSideBarAll.dart';
-import 'package:curio/services/api_service.dart'; 
+import 'package:curio/services/api_service.dart';
 import 'package:curio/Models/community_model.dart';
-import 'package:shared_preferences/shared_preferences.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
- class CustomSidebar extends StatefulWidget {
+class CustomSidebar extends StatefulWidget {
   @override
   _CustomSidebarState createState() => _CustomSidebarState();
 }
@@ -21,22 +21,31 @@ class _CustomSidebarState extends State<CustomSidebar> {
     return communities ?? [];
   }
 
-  void toggleFavorite(Community community, bool isFavorite) {
-  setState(() {
-    if (isFavorite) {
-      favoriteCommunities.add(community);
-    } else {
-      favoriteCommunities.remove(community);
-    }
-  });
-}
+ void toggleFavorite(Community community, bool isFavorite) {
+    setState(() {
+      if (isFavorite) {
+        if (!favoriteCommunities.any((x) => x.id == community.id)) {
+          favoriteCommunities.add(community);
+          print('Added to favorites: ${community.name}');
+        }
+      } else {
+        int index = favoriteCommunities.indexWhere((x) => x.id == community.id);
+        if (index != -1) {
+          favoriteCommunities.removeAt(index);
+          print('Removed from favorites: ${community.name}');
+        }
+      }
+    });
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-                    ExpansionTile(
+          ExpansionTile(
             title: const Text('Recently Visited'),
             children: <Widget>[
               ListTile(
@@ -59,27 +68,24 @@ class _CustomSidebarState extends State<CustomSidebar> {
               ),
               ListTile(
                 title: const Text('See All'),
-                onTap: () {
-
-
-                },
+                onTap: () {},
               ),
             ],
-                      ),
-              if (favoriteCommunities.isNotEmpty)
-                        ExpansionTile(
-                          title: const Text('Favorites'),
-                          children: favoriteCommunities.map((community) {
-                            return ListTile(
-                              title: Text('r/${community.name}'),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.star),
-                                onPressed: () => toggleFavorite(community, false),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-
+          ),
+          if (favoriteCommunities.isNotEmpty)
+            ExpansionTile(
+              title: const Text('Favorites'),
+              children: favoriteCommunities.map((community) {
+                return ListTile(
+                  title: Text('r/${community.name}'),
+                  trailing: FavoriteButton(
+                    community: community,
+                    isFavorite: favoriteCommunities.contains(community),
+                    toggleFavorite: toggleFavorite,
+                  ),
+                );
+              }).toList(),
+            ),
           const Divider(),
           FutureBuilder<List<Community>>(
             future: fetchCommunities(context),
@@ -91,33 +97,33 @@ class _CustomSidebarState extends State<CustomSidebar> {
                   );
                 } else {
                   return ExpansionTile(
-                    title: const Text('Your Communities'),
-                    children: <Widget>[
-                      ListTile(
-                        leading: IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () => {
-                            Navigator.pop(context),
+                      title: const Text('Your Communities'),
+                      children: <Widget>[
+                        InkWell(
+                          onTap: () {
+                            Navigator.pop(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => createCommunity()),
-                            )
+                            );
                           },
+                          child: ListTile(
+                            leading: Icon(Icons.add),
+                            title: Text('Create a Community'),
+                          ),
                         ),
-                        title: const Text('Create a Community'),
-                      ),
-                      ...snapshot.data!.map((community) {
-                        return ListTile(
-                          title: Text('r/${community.name}'),
-                          trailing: FavoriteButton(
-              community: community,
-              isFavorite: favoriteCommunities.contains(community),
-              toggleFavorite: toggleFavorite,
-            ),
-                        );
-                      }).toList(),
-                    ],
-                  );
+                        ...snapshot.data!.map((community) {
+                          return ListTile(
+                            title: Text('r/${community.name}'),
+                            trailing: FavoriteButton(
+                              community: community,
+                              isFavorite: favoriteCommunities.contains(community),
+                              toggleFavorite: toggleFavorite,
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    );
                 }
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -141,7 +147,8 @@ class _CustomSidebarState extends State<CustomSidebar> {
     );
   }
 }
- class FavoriteButton extends StatelessWidget {
+
+class FavoriteButton extends StatelessWidget {
   final Community community;
   final bool isFavorite;
   final Function(Community, bool) toggleFavorite;

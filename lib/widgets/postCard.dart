@@ -317,12 +317,25 @@ Future<String> getToken() async {
                 String token = await getToken();
                 if (widget.post.isSaved) {
                   await ApiService().unsavePost(widget.post.id, token);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('You have unsaved this post.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 } else {
-                  await ApiService().savePost(widget.post.id,  token);
+                  await ApiService().savePost(widget.post.id, token);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('You have saved this post.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
                 }
                 setState(() {
                   widget.post.isSaved = !widget.post.isSaved;
                 });
+                Navigator.pop(context); // Close the options menu
               },
             ),
             ListTile(
@@ -392,13 +405,6 @@ Future<String> getToken() async {
                   context,
                   MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
                 );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.download),
-              title: const Text('Download'),
-              onTap: () {
-                // TODO: Implement the logic for downloading the post
               },
             ),
           ],

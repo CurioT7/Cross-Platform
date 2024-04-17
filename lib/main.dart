@@ -1,3 +1,4 @@
+import 'package:curio/Views/signUp/signup_email.dart';
 import 'package:flutter/material.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         ),
-        home: HomePageBeforeSignIn(),
+        home: const SignUpWithEmail(),
       ),
     );
   }

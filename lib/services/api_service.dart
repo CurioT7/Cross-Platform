@@ -12,7 +12,7 @@ import 'logicAPI.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  final String _baseUrl = 'http://192.168.1.106:3000'; // Base URL
+  final String _baseUrl = 'http://192.168.1.13:3000'; // Base URL
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(

@@ -18,8 +18,9 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
+  final bool isMyPost;
 
-  const PostCard({super.key, required this.post, this.isModerator = false});
+  const PostCard({super.key, required this.post, this.isModerator = false,  this.isMyPost=false});
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -307,6 +308,7 @@ Future<String> getToken() async {
   void _additionalOptions() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Wrap(
           children: <Widget>[
@@ -383,7 +385,7 @@ Future<String> getToken() async {
             ListTile(
               leading: const Icon(Icons.share),
               title: const Text('Crosspost to Community'),
-
+  
               onTap: () {
                 print('this is the crosspost to community page' );
                 print('widget.post.id' + widget.post.id);
@@ -396,17 +398,54 @@ Future<String> getToken() async {
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Share to profile'),
-
+  
               onTap: () {
                 print('this is the share to profile page' );
                 print('widget.post.id' + widget.post.id);
-
+  
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
                 );
               },
             ),
+            if (widget.isMyPost) ...[ // Check if it's the user's post
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  // Code to edit post goes here...
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('Delete'),
+                onTap: () async {
+                  try {
+                    var postId = widget.post.id; // Replace with your post id
+                    var token = 'your_token'; // Replace with your token
+                    var response = await ApiService().deletePost(postId, token);
+
+                    if (response['success']) {
+                      // Show a success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(response['message'])),
+                      );
+                    } else {
+                      // Show an error message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to delete post')),
+                      );
+                    }
+                  } catch (e) {
+                    // Show an error message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to delete post')),
+                    );
+                  }
+                },
+              ),
+            ],
           ],
         );
       },

@@ -2,7 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
-  final String baseUrl = 'http://192.168.1.13:3000/api';
+  final String baseUrl = 'http://20.19.89.1/api';
   // final String baseUrl= 'http://192.168.1.7/api';
 
     Future<List<Post>> getBestPosts() async {
@@ -298,4 +298,22 @@ Future<bool> markAsNsfw(String postId, String token) async {
       throw Exception('Failed to unmark post as NSFW');
     }
   }
+  Future<Map<String, dynamic>> deletePost(String postId, String token) async {
+  final response = await http.delete(
+    Uri.parse('$baseUrl/deletepost/$postId'),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    print('Server responded with status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    throw Exception('Failed to delete post');
+  }
+
+}
 }

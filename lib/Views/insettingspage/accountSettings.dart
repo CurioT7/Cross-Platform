@@ -255,7 +255,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ChooseCommunityPage()),
+                MaterialPageRoute(builder: (context) => BlockedAccountsPage()),
               );
             },
           ),
@@ -273,7 +273,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ShareToProfilePage()),
+                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
               );
             },
           ),

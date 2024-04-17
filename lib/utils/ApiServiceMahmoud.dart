@@ -50,6 +50,7 @@ class ApiServiceMahmoud {
     }
   }
 
+
   Future<Map<String, dynamic>> getUserPreferences(String username) async {
     final String endpoint = '/api/settings/v1/me/prefs'; // Endpoint for fetching user preferences
     final url = Uri.parse('$_baseUrl$endpoint');

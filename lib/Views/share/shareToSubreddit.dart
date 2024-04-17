@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:curio/Models/post.dart';
@@ -7,8 +9,9 @@ import 'package:curio/Views/community/chooseCommunity2.dart';
 
 class ShareToSubredditPage extends StatefulWidget {
   final String selectedNewSubreddit;
+  final String oldPostId;
 
-  ShareToSubredditPage({required this.selectedNewSubreddit});
+  ShareToSubredditPage({required this.selectedNewSubreddit, required this.oldPostId});
 
   @override
   _ShareToSubredditPageState createState() => _ShareToSubredditPageState();
@@ -20,6 +23,8 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
   TextEditingController titleController = TextEditingController();
   late Post samplePost;
   late String _selectedNewSubreddit; // Declare _selectedNewSubreddit here
+  bool isNSFW = false;
+  bool isSpoiler = false;
 
   @override
   void initState() {
@@ -67,6 +72,35 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
     }
   }
 
+  Future<void> sharePost(String title, String postId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      // If token is available, make the post request
+      print('Token: $token');
+      print('Title: $title');
+      print('Post ID: $postId');
+      Map<String, dynamic> response = await ApiServiceMahmoud().sharePostToSubreddit(token, title, postId, _selectedNewSubreddit, isNSFW, isSpoiler);
+      print(response);
+      // Show snackbar based on the response
+      if (response['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +118,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
             onTap: () {
               print('Post');
               print('this is the share to subreddit page');
+              sharePost(titleController.text, widget.oldPostId);
             },
             child: Container(
               padding: EdgeInsets.all(10.0),
@@ -127,8 +162,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
                   },
                   child: Icon(Icons.arrow_drop_down),
                 ),
-                  Spacer(),
-
+                Spacer(),
                 GestureDetector(
                   onTap: () {
                     showModalBottomSheet(
@@ -144,10 +178,8 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               automaticallyImplyLeading: false,
-
                             ),
                             Text(
-
                               'Rules are different for each community.Reviewing the rules can help you be more successful when posting or commenting in this community.',
                               textAlign: TextAlign.center,
                             ),
@@ -174,14 +206,11 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
                         fontFamily: 'Roboto',
                         fontWeight: FontWeight.bold,
                         color: Colors.blue,
-
                         fontSize: 16.0,
                       ),
                     ),
                   ),
                 ),
-
-
               ],
             ),
           ),
@@ -200,6 +229,51 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
             title: Text(samplePost.title ?? 'No Title'),
           ),
           Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.pressed) || isNSFW)
+                        return Colors.grey; // the color when button is pressed or isNSFW is true
+                      return Colors.blue; // default color
+                    },
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    isNSFW = !isNSFW;
+                  });
+                },
+                child: Text(
+                  'NSFW',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+              ElevatedButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.pressed) || isSpoiler)
+                        return Colors.grey; // the color when button is pressed or isSpoiler is true
+                      return Colors.blue; // default color
+                    },
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    isSpoiler = !isSpoiler;
+                  });
+                },
+                child: Text(
+                  'Spoiler',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,6 +9,111 @@ class ApiServiceMahmoud {
   final String _baseUrl =  'http://20.19.89.1'; // Base URL for moch
   final String _baseUrlDataBase =  'http://10.0.2.2:3000';
   // final String _baseUrlDataBase= 'http://192.168.1.7';
+
+
+  Future<Map<String, dynamic>> sharePostToProfile(String token, String title, String postId) async {
+    final String url = '$_baseUrlDataBase/api/share';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('the headers are $headers ');
+    print('the url is $url');
+
+    // Construct the request body
+    final Map<String, dynamic> requestBody = {
+      'title': title,
+      'postId': postId,
+    };
+    print('the request body is ');
+    print(requestBody);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        // Return success response
+        return {'success': true, 'message': 'Post shared successfully'};
+      } else if (response.statusCode == 401) {
+        // Unauthorized error
+        return {'success': false, 'message': 'Unauthorized'};
+      } else if (response.statusCode == 404) {
+        // Not Found error
+        return {'success': false, 'message': 'User not found | Post not found | Subreddit not found'};
+      } else if (response.statusCode == 500) {
+        // Internal Server Error
+        return {'success': false, 'message': 'Internal server error'};
+      } else if (response.statusCode == 400) {
+        // Bad Request error
+        return {'success': false, 'message': 'Invalid destination'};
+      } else {
+        // Handle other status codes
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      // Handle network errors
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> sharePostToSubreddit(String token, String title, String postId,String destination,bool isNSFW,bool isSpoiler) async {
+    final String url = '$_baseUrlDataBase/api/share';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('the headers are $headers ');
+    print('the url is $url');
+
+    // Construct the request body
+    final Map<String, dynamic> requestBody = {
+      'title': title,
+      'postId': postId,
+      'destination': destination,
+      "isNSFW":isNSFW,
+      "isSpoiler":isSpoiler
+    };
+    print('the request body is ');
+        print(requestBody);
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        // Return success response
+        return {'success': true, 'message': 'Post shared successfully'};
+      } else if (response.statusCode == 401) {
+        // Unauthorized error
+        return {'success': false, 'message': 'Unauthorized'};
+      } else if (response.statusCode == 404) {
+        // Not Found error
+        return {'success': false, 'message': 'User not found | Post not found | Subreddit not found'};
+      } else if (response.statusCode == 500) {
+        // Internal Server Error
+        return {'success': false, 'message': 'Internal server error'};
+      } else if (response.statusCode == 400) {
+        // Bad Request error
+        return {'success': false, 'message': 'Invalid destination'};
+      } else {
+        // Handle other status codes
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      // Handle network errors
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+
 
   Future<Map<String, dynamic>> getUserProfile(String token) async {
     final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
@@ -62,6 +168,51 @@ class ApiServiceMahmoud {
 
   }
 
+
+  Future<Map<String, dynamic>> getInfo(String token, String objectID, String objectType) async {
+    final String endpoint = '/api/info';
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    // Construct the query parameters directly in the URL
+    final uri = Uri(
+      scheme: url.scheme,
+      host: url.host,
+      port: url.port,
+      path: url.path,
+      queryParameters: {
+        'objectID': objectID,
+        'objectType': objectType,
+      },
+    );
+
+    try {
+      final response = await http.get(
+        uri,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        throw Exception('Subreddit not found');
+      } else if (response.statusCode == 400) {
+        throw Exception('Bad request: ${response.body}');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal server error');
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized');
+      } else {
+        throw Exception('Failed to get info: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to get info: $e');
+    }
+  }
 
 
   Future<Map<String, dynamic>> disconnectWithGoogle(String password, String token) async {
@@ -211,6 +362,7 @@ class ApiServiceMahmoud {
       throw Exception("Failed to update location: $e");
     }
   }
+
   Future<Map<String, dynamic>> updateGender(String token, String gender) async {
     final String url = '$_baseUrlDataBase/api/settings/v1/me/prefs';
     print('api called from the api page');

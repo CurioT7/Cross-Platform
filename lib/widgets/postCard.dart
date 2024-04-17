@@ -13,6 +13,8 @@ import 'package:curio/utils/reddit_colors.dart';
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';
+import 'package:curio/Views/share/shareToProfile.dart';
+import 'package:curio/Views/community/chooseCommunity.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
@@ -368,15 +370,28 @@ Future<String> getToken() async {
             ListTile(
               leading: const Icon(Icons.share),
               title: const Text('Crosspost to Community'),
+
               onTap: () {
-                // TODO: Implement the logic for crossposting to community
+                print('this is the crosspost to community page' );
+                print('widget.post.id' + widget.post.id);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChooseCommunityPage(oldPostId: widget.post.id)),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Share to profile'),
+
               onTap: () {
-                //todo: implement the logic for sharing to profile
+                print('this is the share to profile page' );
+                print('widget.post.id' + widget.post.id);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
+                );
               },
             ),
             ListTile(

@@ -5,10 +5,9 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 
 class ChooseCommunityPage extends StatefulWidget {
-  // final Function(String) callback;
-  //
-  // ChooseCommunityPage({required this.callback});
+    final String oldPostId;
 
+    ChooseCommunityPage({required this.oldPostId});
   @override
   _ChooseCommunityPageState createState() => _ChooseCommunityPageState();
 }
@@ -115,7 +114,7 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ShareToSubredditPage(selectedNewSubreddit: community['name'],),
+                        builder: (context) => ShareToSubredditPage(selectedNewSubreddit: community['name'],oldPostId: widget.oldPostId),
                       ),
                     );
 

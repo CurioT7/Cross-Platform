@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:curio/services/ApiServiceMahmoud.dart'; // This is assumed to contain the Post class
+import 'package:curio/services/ApiServiceMahmoud.dart'; // Import ApiServiceMahmoud.dart
 import 'package:curio/Models/post.dart'; // Import the Post model
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
 
 class ShareToProfilePage extends StatefulWidget {
+  final String oldPostId;
+
+  ShareToProfilePage({required this.oldPostId});
+
   @override
   _ShareToProfilePageState createState() => _ShareToProfilePageState();
 }
@@ -42,6 +46,45 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
     "__v": 0
   });
 
+  // Function to make a post and await response
+  Future<void> sharePost(String title, String postId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      // If token is available, make the post request
+      print('Token: $token');
+      print('Title: $title');
+      print('Post ID: $postId');
+      Map<String, dynamic> response = await ApiServiceMahmoud().sharePostToProfile(token, title, postId);
+      print(response);
+      // Show snackbar based on the response
+      if (response['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      // If token is not available, show an error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Token not found. Please login again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Extract the necessary data for display
@@ -61,8 +104,8 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
         actions: [
           GestureDetector(
             onTap: () {
-              // Handle the onTap event here
-              // You can add your functionality to post something
+              // Call the function to share post to profile
+              sharePost(titleController.text, widget.oldPostId);  // Pass the title and old post ID
             },
             child: Container(
               padding: EdgeInsets.all(10.0),
@@ -92,14 +135,13 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
                   child: Image.asset('lib/assets/images/Curio.png'),
                   radius: 30,
                 ),
-
                 SizedBox(width: 10),
                 Text('My profile'),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => ChooseCommunityPage()),
+                      MaterialPageRoute(builder: (context) => ChooseCommunityPage(oldPostId: widget.oldPostId)),
                     );
                   },
                   child: Icon(Icons.arrow_drop_down),
@@ -111,6 +153,11 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: titleController, // Set the controller
+              onChanged: (newValue) {
+
+                 titleController.text = newValue;
+
+              },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
               ),

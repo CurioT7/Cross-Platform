@@ -36,36 +36,30 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
       appBar: AppBar(
         backgroundColor: redditBackgroundWhite,
         elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
-        ),
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: Stack(
           children: [
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'lib/assets/images/Curio.png',
-                    fit: BoxFit.contain,
-                    height: 60,
-                  ),
-                ],
+            Align(
+              alignment: Alignment.center,
+              child: Image.asset(
+                'lib/assets/images/Curio.png',
+                fit: BoxFit.contain,
+                height: 60,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                // navigate to sign in page
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SignInPage(),
-                  ),
-                );
-              },
-              child: const Text('Login ', style: TextStyle(color: redditGrey)),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  // navigate to sign in page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SignInPage(),
+                    ),
+                  );
+                },
+                child: const Text('Login ', style: TextStyle(color: redditGrey)),
+              ),
             ),
           ],
         ),

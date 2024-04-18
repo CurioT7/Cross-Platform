@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:curio/services/ApiServiceMahmoud.dart'; // Import ApiServiceMahmoud.dart
-import 'package:curio/Models/post.dart'; // Import the Post model
+import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Models/post.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:curio/Views/community/chooseCommunity.dart';
 
 class ShareToProfilePage extends StatefulWidget {
@@ -14,14 +16,6 @@ class ShareToProfilePage extends StatefulWidget {
 }
 
 class _ShareToProfilePageState extends State<ShareToProfilePage> {
-  String newComunity = '';
-
-  void updateData(String newData) {
-    setState(() {
-      newComunity = newData;
-    });
-  }
-
   // Instantiate the Post object using the sample data
   final Post samplePost = Post.fromJson({
     "_id": "65fba6e0aab809eceb312466",
@@ -46,7 +40,6 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
     "__v": 0
   });
 
-  // Function to make a post and await response
   Future<void> sharePost(String title, String postId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -74,19 +67,36 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
           ),
         );
       }
+    }
+  }
+
+
+  // Function to fetch post info
+  Future<void> fetchPostInfo(String postId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        // Call the getInfo function to get post info
+        Map<String, dynamic> postInfo = await ApiServiceMahmoud().getInfo(token, postId, 'post');
+        // Print post info
+        print('Post Info: $postInfo');
+      } catch (e) {
+        // Handle errors
+        print('Error fetching post info: $e');
+      }
     } else {
-      // If token is not available, show an error snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Token not found. Please login again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // Handle case when token is not available
+      print('Token not found. Please login again.');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Call fetchPostInfo function to get post details
+    fetchPostInfo(widget.oldPostId);
+
     // Extract the necessary data for display
     String nameofcommunity = samplePost.linkedSubreddit ?? 'Unknown Community';
     String authorName = samplePost.authorName ?? 'Anonymous';
@@ -105,7 +115,7 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
           GestureDetector(
             onTap: () {
               // Call the function to share post to profile
-              sharePost(titleController.text, widget.oldPostId);  // Pass the title and old post ID
+               sharePost(titleController.text, widget.oldPostId);  // Pass the title and old post ID
             },
             child: Container(
               padding: EdgeInsets.all(10.0),
@@ -154,9 +164,7 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
             child: TextField(
               controller: titleController, // Set the controller
               onChanged: (newValue) {
-
-                 titleController.text = newValue;
-
+                titleController.text = newValue;
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),

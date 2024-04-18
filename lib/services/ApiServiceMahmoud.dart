@@ -36,9 +36,9 @@ class ApiServiceMahmoud {
       );
 
       // Check the response status code
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         // Return success response
-        return {'success': true, 'message': 'Post shared successfully'};
+        return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
         // Unauthorized error
         return {'success': false, 'message': 'Unauthorized'};
@@ -61,7 +61,7 @@ class ApiServiceMahmoud {
     }
   }
 
-  Future<Map<String, dynamic>> sharePostToSubreddit(String token, String title, String postId,String destination,bool isNSFW,bool isSpoiler) async {
+  Future<Map<String, dynamic>> sharePostToSubreddit(String token, String title, String postId,String Subreddit,bool isNSFW,bool isSpoiler) async {
     final String url = '$_baseUrlDataBase/api/share';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -74,7 +74,7 @@ class ApiServiceMahmoud {
     final Map<String, dynamic> requestBody = {
       'title': title,
       'postId': postId,
-      'destination': destination,
+      'Subreddit': Subreddit,
       "isNSFW":isNSFW,
       "isSpoiler":isSpoiler
     };
@@ -86,11 +86,11 @@ class ApiServiceMahmoud {
         headers: headers,
         body: jsonEncode(requestBody),
       );
-
+        print(response.statusCode)  ;
       // Check the response status code
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         // Return success response
-        return {'success': true, 'message': 'Post shared successfully'};
+        return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
         // Unauthorized error
         return {'success': false, 'message': 'Unauthorized'};
@@ -171,24 +171,21 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getInfo(String token, String objectID, String objectType) async {
     final String endpoint = '/api/info';
-    final url = Uri.parse('$_baseUrl$endpoint');
+
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     };
 
+    final params = {
+      'objectID': objectID,
+      'objectType': objectType,
+    };
+
     // Construct the query parameters directly in the URL
-    final uri = Uri(
-      scheme: url.scheme,
-      host: url.host,
-      port: url.port,
-      path: url.path,
-      queryParameters: {
-        'objectID': objectID,
-        'objectType': objectType,
-      },
-    );
+    final uri = url.replace(queryParameters: params);
 
     try {
       final response = await http.get(
@@ -196,6 +193,8 @@ class ApiServiceMahmoud {
         headers: headers,
       );
 
+          print('the response is ${response.body}');
+          print('the status code is ${response.statusCode}');
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 404) {

@@ -139,7 +139,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> resetPassword(String username, String email) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/reset_password'),
+      Uri.parse('$_baseUrl/api/auth/password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },

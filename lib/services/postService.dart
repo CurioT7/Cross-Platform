@@ -223,39 +223,43 @@ Future<bool> lockPost(String postId, String token) async {
     }
   }
 
-//   Future<bool> hidePost(String postId, String token) async {
-//     final response = await http.post(
-//       Uri.parse('$baseUrl/hide'),
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': 'Bearer $token',
-//       },
-//       body: jsonEncode({'postId': postId}),
-//     );
+  Future<bool> hidePost(String postId, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/hide'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'postId': postId}),
+    );
 
-//     if (response.statusCode == 200) {
-//       return true;
-//     } else {
-//       throw Exception('Failed to hide post');
-//     }
-//   }
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Server responded with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to hide post');
+    }
+  }
   
-//   Future<bool> unhidePost(String postId, String token) async {
-//     final response = await http.post(
-//       Uri.parse('$baseUrl/unhide'),
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Authorization': 'Bearer $token',
-//       },
-//       body: jsonEncode({'postId': postId}),
-//     );
+  Future<bool> unhidePost(String postId, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/unhide'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'postId': postId}),
+    );
 
-//     if (response.statusCode == 200) {
-//       return true;
-//     } else {
-//       throw Exception('Failed to unhide post');
-//     }
-//   }
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Server responded with status code: ${response.statusCode}'); 
+      print('Response body: ${response.body}');
+      throw Exception('Failed to unhide post');
+    }
+  }
 Future<bool> markAsNsfw(String postId, String token) async {
   final response = await http.post(
     Uri.parse('$baseUrl/marknsfw'),

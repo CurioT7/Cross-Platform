@@ -51,20 +51,34 @@ Future<String> getToken() async {
   String token = prefs.getString('token')!;
   return token;
 }
-  void _toggleVisibility() {
+  void _toggleVisibility() async {
     if (_isVisible || _canUnhide) {
-      setState(() {
-        _isVisible = !_isVisible;
-      });
-
-      if (!_isVisible) {
-        Timer(const Duration(seconds: 5), () {
-          if (mounted) {
-            setState(() {
-              _canUnhide = false;
-            });
-          }
-        });
+      String token = await getToken();
+      if (_isVisible) {
+        bool hideResult = await ApiService().hidePost(widget.post.id, token);
+        if (hideResult) {
+          setState(() {
+            _isVisible = !_isVisible;
+          });
+          Timer(const Duration(seconds: 5), () {
+            if (mounted) {
+              setState(() {
+                _canUnhide = false;
+              });
+            }
+          });
+        } else {
+          print('Failed to hide post');
+        }
+      } else {
+        bool unhideResult = await ApiService().unhidePost(widget.post.id, token);
+        if (unhideResult) {
+          setState(() {
+            _isVisible = !_isVisible;
+          });
+        } else {
+          print('Failed to unhide post');
+        }
       }
     }
   }

@@ -12,6 +12,20 @@ class CustomSidebar extends StatefulWidget {
 
 class _CustomSidebarState extends State<CustomSidebar> {
   List<Community> favoriteCommunities = [];
+  List<Community> communities = [];
+  bool isLoading = true;
+
+
+   @override
+  void initState() {
+    super.initState();
+    fetchCommunities(context).then((value) {
+      setState(() {
+        communities = value;
+        isLoading = false;
+      });
+    });
+  }
 
   Future<List<Community>> fetchCommunities(BuildContext context) async {
     final sharedPrefs = await SharedPreferences.getInstance();
@@ -39,88 +53,78 @@ class _CustomSidebarState extends State<CustomSidebar> {
   }
   
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          const SizedBox(height: 50),
-          if (favoriteCommunities.isNotEmpty)
-            ExpansionTile(
-              title: const Text('Favorites'),
-              children: favoriteCommunities.map((community) {
-                return ListTile(
-                  title: Text('r/${community.name}'),
-                  trailing: FavoriteButton(
-                    community: community,
-                    isFavorite: favoriteCommunities.contains(community),
-                    toggleFavorite: toggleFavorite,
-                  ),
-                );
-              }).toList(),
-            ),
-          const Divider(),
-          FutureBuilder<List<Community>>(
-            future: fetchCommunities(context),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data!.isEmpty) {
-                  return const ListTile(
-                    title: Text('Join communities to see them here'),
+    @override
+    Widget build(BuildContext context) {
+      return Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const SizedBox(height: 50),
+            if (favoriteCommunities.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Favorites'),
+                children: favoriteCommunities.map((community) {
+                  return ListTile(
+                    title: Text('r/${community.name}'),
+                    trailing: FavoriteButton(
+                      community: community,
+                      isFavorite: favoriteCommunities.contains(community),
+                      toggleFavorite: toggleFavorite,
+                    ),
                   );
-                } else {
-                  return ExpansionTile(
-                      title: const Text('Your Communities'),
-                      children: <Widget>[
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => createCommunity()),
-                            );
-                          },
-                          child: const ListTile(
-                            leading: Icon(Icons.add),
-                            title: Text('Create a Community'),
-                          ),
-                        ),
-                        ...snapshot.data!.map((community) {
-                          return ListTile(
-                            title: Text('r/${community.name}'),
-                            trailing: FavoriteButton(
-                              community: community,
-                              isFavorite: favoriteCommunities.contains(community),
-                              toggleFavorite: toggleFavorite,
-                            ),
-                          );
-                        }).toList(),
-                      ],
+                }).toList(),
+              ),
+            const Divider(),
+            if (isLoading) 
+              const CircularProgressIndicator(),
+            if (!isLoading && communities.isEmpty) 
+              const ListTile(
+                title: Text('Join communities to see them here'),
+              ),
+            if (!isLoading && communities.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Your Communities'),
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => createCommunity()),
+                      );
+                    },
+                    child: const ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text('Create a Community'),
+                    ),
+                  ),
+                  ...communities.map((community) {
+                    return ListTile(
+                      title: Text('r/${community.name}'),
+                      trailing: FavoriteButton(
+                        community: community,
+                        isFavorite: favoriteCommunities.contains(community),
+                        toggleFavorite: toggleFavorite,
+                      ),
                     );
-                }
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return const CircularProgressIndicator();
-              }
-            },
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('All'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AllPage()),
-              );
-            },
-          ),
-        ],
-      ),
-    );
+                  }).toList(),
+                ],
+              ),
+            const Divider(),
+            ListTile(
+              title: const Text('All'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AllPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
-}
 
 class FavoriteButton extends StatelessWidget {
   final Community community;

@@ -151,10 +151,13 @@ Future<String> getToken() async {
     }
   }
 void _launchURL(String url) async {
-  if (await canLaunch(url)) {
+  try {
     await launch(url);
-  } else {
-    throw 'Could not launch $url';
+  } catch (e) {
+    // Show an error message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to open link')),
+    );
   }
 }
   void _moderatorAction() {
@@ -262,7 +265,7 @@ void _launchURL(String url) async {
           children: [
             Icon(Icons.eighteen_up_rating, color: Colors.pinkAccent),
             Text(
-              ' NSFW',
+              ' NSFW ',
               style: TextStyle(
                 color: Colors.pinkAccent,
                 fontWeight: FontWeight.bold,
@@ -277,7 +280,7 @@ void _launchURL(String url) async {
         children: [
           Icon(Icons.warning_amber_rounded, color: Colors.black),
           Text(
-            ' SPOLIER',
+            ' SPOLIER ',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -291,7 +294,7 @@ void _launchURL(String url) async {
         children: [
           Icon(Icons.star, color: Colors.yellow),
           Text(
-            ' OC',
+            ' OC ',
             style: TextStyle(
               color: Colors.yellow,
               fontWeight: FontWeight.bold,
@@ -305,7 +308,7 @@ void _launchURL(String url) async {
         children: [
           Icon(Icons.share, color: Colors.blue),
           Text(
-            ' Crosspost',
+            ' Crosspost ',
             style: TextStyle(
               color: Colors.blue,
               fontWeight: FontWeight.bold,
@@ -515,14 +518,14 @@ void _launchURL(String url) async {
             ),
             title: Text(
               'r/${widget.post.linkedSubreddit}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Text(
               'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
               style: const TextStyle(color: Colors.grey),
             ),
             trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert, color: Colors.grey),
               onPressed: _additionalOptions,
             ),
           ),
@@ -537,9 +540,20 @@ void _launchURL(String url) async {
             },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                widget.post.title ?? '',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.post.title ?? '',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                  ),
+                  if (widget.post.link != null && widget.post.link!.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.link, color: Colors.blue),
+                      onPressed: () => _launchURL(widget.post.link!),
+                    ),
+                ],
               ),
             ),
           ),
@@ -556,33 +570,17 @@ void _launchURL(String url) async {
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(widget.post.content!),
+                child: Text(widget.post.content!, style: const TextStyle(color: Colors.black)),
               ),
             ),
           if (widget.post.media != null && widget.post.media!.isNotEmpty)
-            Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Image.network(
-                  widget.post.media!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                    return Container();
-                  },
-                ),
-              ),
-            ),
-          if (widget.post.link != null && widget.post.link!.isNotEmpty)
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  _launchURL(widget.post.link!);
-                },
-                child: Text(
-                  widget.post.link!,
-                  style: const TextStyle(color: Colors.blue),
-                ),
-              ),
+            Image.network(
+              widget.post.media!,
+              fit: BoxFit.cover,
+              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                // Return an empty Container when image fails to load
+                return Container();
+              },
             ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -607,21 +605,21 @@ void _launchURL(String url) async {
                   onPressed: _downvote,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.comment),
+                  icon: const Icon(Icons.comment, color: Colors.grey),
                   onPressed: _navigateToComments,
                 ),
-                Text('${widget.post.comments.length}'),
+                Text('${widget.post.comments.length}', style: const TextStyle(color: Colors.grey)),
                 if (widget.isModerator)
                   IconButton(
-                    icon: const Icon(Icons.shield_outlined),
+                    icon: const Icon(Icons.shield_outlined, color: Colors.grey),
                     onPressed: _moderatorAction,
                   )
                 else ...[
                   IconButton(
-                    icon: const Icon(Icons.share),
+                    icon: const Icon(Icons.share, color: Colors.grey),
                     onPressed: _sharePost,
                   ),
-                  Text('${widget.post.shares}'),
+                  Text('${widget.post.shares}', style: const TextStyle(color: Colors.grey)),
                 ],
               ],
             ),
@@ -629,5 +627,5 @@ void _launchURL(String url) async {
         ],
       ),
     );
+      }
     }
-}

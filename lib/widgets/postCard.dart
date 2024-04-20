@@ -548,6 +548,8 @@ void _launchURL(String url) async {
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
+                  if (widget.post.isLocked)
+                    const Icon(Icons.lock, color: Color(0xFFD4AF37)),
                   if (widget.post.link != null && widget.post.link!.isNotEmpty)
                     IconButton(
                       icon: const Icon(Icons.link, color: Colors.blue),

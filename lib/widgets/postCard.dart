@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:curio/Views/my_profile_screen.dart';
 import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +150,13 @@ Future<String> getToken() async {
       print('An error occurred while sharing the post: $e');
     }
   }
-
+void _launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
   void _moderatorAction() {
     showModalBottomSheet(
       context: context,
@@ -448,13 +454,13 @@ Future<String> getToken() async {
                     } else {
                       // Show an error message
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to delete post')),
+                        const SnackBar(content: Text('Failed to delete post')),
                       );
                     }
                   } catch (e) {
                     // Show an error message
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to delete post')),
+                      const SnackBar(content: Text('Failed to delete post')),
                     );
                   }
                 },
@@ -484,10 +490,12 @@ Future<String> getToken() async {
     }
     return Card(
       color: const Color.fromARGB(255, 255, 255, 255),
+      margin: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            contentPadding: const EdgeInsets.all(8.0),
             onTap: () {
               Navigator.push(
                 context,
@@ -496,10 +504,6 @@ Future<String> getToken() async {
                     isUser: true,
                     userName: widget.post.authorName,
                     days: widget.post.createdAt.day,
-                    // userDetails: {
-                    //   'profilePicture': widget.post.media,
-                    //   'postKarma': widget.post.awards.toString(),
-                    // },
                   ),
                 ),
               );
@@ -509,9 +513,14 @@ Future<String> getToken() async {
                 'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png',
               ),
             ),
-            title: Text('r/${widget.post.linkedSubreddit}'),
+            title: Text(
+              'r/${widget.post.linkedSubreddit}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: Text(
-                'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'),
+              'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
             trailing: IconButton(
               icon: const Icon(Icons.more_vert),
               onPressed: _additionalOptions,
@@ -535,7 +544,6 @@ Future<String> getToken() async {
             ),
           ),
           _buildPostIcons(),
-          // For the content field
           if (widget.post.content != null && widget.post.content!.isNotEmpty)
             GestureDetector(
               onTap: () {
@@ -547,62 +555,79 @@ Future<String> getToken() async {
                 );
               },
               child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(widget.post.content!),
-            )
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(widget.post.content!),
+              ),
             ),
-
-          // For the media field
           if (widget.post.media != null && widget.post.media!.isNotEmpty)
-            Image.network(
-              widget.post.media!,
-              errorBuilder: (BuildContext context, Object exception,
-                  StackTrace? stackTrace) {
-                return Container(); // Return an empty container if the image fails to load
-              },
-            ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: Icon(const IconData(0xe800, fontFamily: 'MyFlutterApp'),
-                    color: upvoted ? redditUpvoteOrange : Colors.grey),
-                onPressed: _upvote,
-              ),
-              Text('$votes',
-                  style: TextStyle(
-                      color: upvoted
-                          ? redditUpvoteOrange
-                          : downvoted
-                              ? redditDownvoteBlue
-                              : Colors.grey)),
-              IconButton(
-                icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
-                    color: downvoted ? redditDownvoteBlue : Colors.grey),
-                onPressed: _downvote,
-              ),
-              IconButton(
-                icon: const Icon(Icons.comment),
-                onPressed: _navigateToComments,
-              ),
-              Text('${widget.post.comments.length}'),
-              if (widget.isModerator)
-                IconButton(
-                  icon: const Icon(Icons.shield_outlined),
-                  onPressed: _moderatorAction,
-                )
-              else ...[
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: _sharePost,
+            Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Image.network(
+                  widget.post.media!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                    return Container();
+                  },
                 ),
-                Text('${widget.post.shares}'),
+              ),
+            ),
+          if (widget.post.link != null && widget.post.link!.isNotEmpty)
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  _launchURL(widget.post.link!);
+                },
+                child: Text(
+                  widget.post.link!,
+                  style: const TextStyle(color: Colors.blue),
+                ),
+              ),
+            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                IconButton(
+                  icon: Icon(const IconData(0xe800, fontFamily: 'MyFlutterApp'),
+                      color: upvoted ? redditUpvoteOrange : Colors.grey),
+                  onPressed: _upvote,
+                ),
+                Text('$votes',
+                    style: TextStyle(
+                        color: upvoted
+                            ? redditUpvoteOrange
+                            : downvoted
+                                ? redditDownvoteBlue
+                                : Colors.grey)),
+                IconButton(
+                  icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
+                      color: downvoted ? redditDownvoteBlue : Colors.grey),
+                  onPressed: _downvote,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment),
+                  onPressed: _navigateToComments,
+                ),
+                Text('${widget.post.comments.length}'),
+                if (widget.isModerator)
+                  IconButton(
+                    icon: const Icon(Icons.shield_outlined),
+                    onPressed: _moderatorAction,
+                  )
+                else ...[
+                  IconButton(
+                    icon: const Icon(Icons.share),
+                    onPressed: _sharePost,
+                  ),
+                  Text('${widget.post.shares}'),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),
     );
-  }
+    }
 }

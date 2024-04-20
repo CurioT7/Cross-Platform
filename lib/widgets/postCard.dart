@@ -576,13 +576,16 @@ void _launchURL(String url) async {
               ),
             ),
           if (widget.post.media != null && widget.post.media!.isNotEmpty)
-            Image.network(
-              widget.post.media!,
-              fit: BoxFit.cover,
-              errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
-                // Return an empty Container when image fails to load
-                return Container();
-              },
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Image.network(
+                widget.post.media!,
+                fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                  // Return an empty Container when image fails to load
+                  return Container();
+                },
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -628,6 +631,6 @@ void _launchURL(String url) async {
           ),
         ],
       ),
-    );
-      }
-    }
+  );
+  }
+}

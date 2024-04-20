@@ -44,7 +44,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HistoryCubit(),
@@ -52,8 +52,38 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          cardColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+          ),
+          textTheme: TextTheme(
+            bodyText1: TextStyle(color: Colors.black),
+            bodyText2: TextStyle(color: Colors.black),
+          ),
+          colorScheme: ColorScheme.light(
+            primary: Colors.white,
+            onPrimary: Colors.black,
+            secondary: Colors.deepOrange,
+            onSecondary: Colors.black,
+            surface: Colors.white,
+            onSurface: Colors.black,
+            background: Colors.white,
+            onBackground: Colors.black,
+            error: Colors.red,
+            onError: Colors.white,
+            brightness: Brightness.light,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+            ),
+          ),
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            color: Colors.deepOrange,
+          ),
         ),
         home: const SignUpWithEmail(),
       ),

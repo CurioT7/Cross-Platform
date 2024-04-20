@@ -74,6 +74,30 @@ class ApiService {
       throw e;
     }
   }
+  
+  Future<List<Post>> getTrendingPosts() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/trendingSearches'));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          List<dynamic> postsJson = responseBody['posts'];
+          return postsJson.map((json) => Post.fromJson(json)).toList();
+        } else {
+          throw Exception('Failed to load posts');
+        }
+      } else if (response.statusCode == 404) {
+        throw Exception('No Trendings Today');
+      } else if (response.statusCode == 500) {
+        throw Exception('Error retrieving search results');
+      } else {
+        throw Exception('Failed to load posts with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+      throw e;
+    }
+  }
 Future<void> castVote(String itemID, int direction, String token) async {
   final String url = '$baseUrl/vote';
   final Map<String, String> headers = {
@@ -320,4 +344,6 @@ Future<bool> markAsNsfw(String postId, String token) async {
   }
 
 }
+
+
 }

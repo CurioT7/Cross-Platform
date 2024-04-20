@@ -54,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
         posts = await _apiService.getPopularPosts();
       } else if (category == 'Discovery') {
         posts = await _apiService.getDiscoveryPosts();
+      } else if (category == 'Trending') {
+        posts = await _apiService.getTrendingPosts();
       } else {
         posts = [];
       }
@@ -109,23 +111,25 @@ class _HomeScreenState extends State<HomeScreen> {
             });
             _fetchBestPosts(newValue!);
           },
-          items: <String>['Home', 'Popular', 'Discovery']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  Icon(value == 'Home'
-                      ? Icons.home
-                      : value == 'Popular'
-                          ? Icons.trending_up
-                          : Icons.explore),
-                  const SizedBox(width: 8),
-                  Text(value),
-                ],
-              ),
-            );
-          }).toList(),
+          items: <String>['Home', 'Popular', 'Discovery', 'Trending']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Row(
+                  children: [
+                    Icon(value == 'Home'
+                        ? Icons.home
+                        : value == 'Popular'
+                            ? Icons.stars_rounded
+                            : value == 'Discovery'
+                                ? Icons.explore
+                                : Icons.trending_up), 
+                    const SizedBox(width: 8),
+                    Text(value),
+                  ],
+                ),
+              );
+            }).toList(),
         ),
       ),
       body: _isLoading

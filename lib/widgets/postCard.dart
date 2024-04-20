@@ -175,14 +175,19 @@ void _launchURL(String url) async {
               title: Text(widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
               onTap: () async {
                 String token = await getToken();
+                String message;
                 if (widget.post.isSpoiler) {
                   await ApiService().unspoilPost(widget.post.id, token);
+                  message = 'Post has been unmarked as spoiler';
                 } else {
                   await ApiService().spoilPost(widget.post.id, token);
+                  message = 'Post has been marked as spoiler';
                 }
                 setState(() {
                   widget.post.isSpoiler = !widget.post.isSpoiler;
                 });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
               },
             ),
             ListTile(
@@ -190,38 +195,41 @@ void _launchURL(String url) async {
               title: Text(widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
               onTap: () async {
                 String token = await getToken();
+                String message;
                 if (widget.post.isLocked) {
                   await ApiService().unlockPost(widget.post.id, token);
+                  message = 'Comments have been unlocked';
                 } else {
                   await ApiService().lockPost(widget.post.id, token);
+                  message = 'Comments have been locked';
                 }
                 setState(() {
                   widget.post.isLocked = !widget.post.isLocked;
                 });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
               },
             ),
-              // ListTile(
-              //   leading: const Icon(Icons.push_pin),
-              //   title: const Text('Sticky Post'),
-              //   onTap: () {
-              //     // TODO: Implement the logic for making post sticky
-              //   },
-              // ),
-              ListTile(
-                leading: const Icon(Icons.eighteen_up_rating),
-                title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
-                onTap: () async {
-                  String token = await getToken();
-                  if (widget.post.isNSFW) {
-                    await ApiService().unmarkAsNsfw(widget.post.id, token);
-                  } else {
-                    await ApiService().markAsNsfw(widget.post.id, token);
-                  }
-                  setState(() {
-                    widget.post.isNSFW = !widget.post.isNSFW;
-                  });
-                },
-              ),
+            ListTile(
+              leading: const Icon(Icons.eighteen_up_rating),
+              title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
+              onTap: () async {
+                String token = await getToken();
+                String message;
+                if (widget.post.isNSFW) {
+                  await ApiService().unmarkAsNsfw(widget.post.id, token);
+                  message = 'Post has been unmarked as NSFW';
+                } else {
+                  await ApiService().markAsNsfw(widget.post.id, token);
+                  message = 'Post has been marked as NSFW';
+                }
+                setState(() {
+                  widget.post.isNSFW = !widget.post.isNSFW;
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+              },
+            ),
               ListTile(
                 leading: const Icon(Icons.delete),
                 title: const Text('Remove Post'),

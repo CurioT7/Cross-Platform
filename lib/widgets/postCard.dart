@@ -15,6 +15,7 @@ import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
+import 'join_button.dart';
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
@@ -34,6 +35,8 @@ class _PostCardState extends State<PostCard> {
   bool _canUnhide = true;
   SharedPreferences? prefs; 
   String voteStatus = 'neutral';
+  
+  bool isInSubreddit =true;
 
   @override
   void initState() {
@@ -524,9 +527,15 @@ void _launchURL(String url) async {
               'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
               style: const TextStyle(color: Colors.grey),
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.grey),
-              onPressed: _additionalOptions,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min, // set to minimum to prevent overflow
+              children: [
+                JoinButton(),
+                IconButton(
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onPressed: _additionalOptions,
+                ),
+              ],
             ),
           ),
           GestureDetector(

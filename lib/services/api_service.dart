@@ -193,11 +193,15 @@ Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token,
   print("submitting post");
   print(jsonEncode(post));
 
+
+
+
   var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
   request.fields.addAll(post.map((key, value) => MapEntry(key, value.toString())));
 
   if (imageFile != null) {
+  print("image file: ${imageFile.path}");
     request.files.add(await http.MultipartFile.fromPath(
       'media', // consider 'media' as the key for the image file in your server
       imageFile.path,
@@ -215,6 +219,7 @@ Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token,
     final respStr = await response.stream.bytesToString();
     return jsonDecode(respStr);
   } else {
+    print("response body: ${await response.stream.bytesToString()}");
     return {'success': false, 'message': 'Failed to submit post'};
   }
 }

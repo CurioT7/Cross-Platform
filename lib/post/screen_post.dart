@@ -10,10 +10,11 @@ import 'package:curio/Models/community_model.dart';
 import 'package:curio/widgets/tags.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 Future<void> uploadImage(XFile imageFile) async {
-  var request = http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
+  var request =
+      http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
 
   request.files.add(await http.MultipartFile.fromPath(
     'image', // consider 'image' as the key for the image file in your server
@@ -28,6 +29,7 @@ Future<void> uploadImage(XFile imageFile) async {
     print("Image upload failed");
   }
 }
+
 class AddPostScreen extends StatefulWidget {
   final String type;
   const AddPostScreen({super.key, required this.type});
@@ -89,7 +91,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0; // Add more icons as needed
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom >
+        0; // Add more icons as needed
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -109,7 +112,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                         if (isCommunitySelected) {
-                          Map<String,dynamic> post = {
+                          Map<String, dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
                             'isNSFW': selectedTags.contains('NSFW'),
@@ -124,9 +127,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             post['media'] = attachment!.data;
                           }
 
-                          final SharedPreferences prefs = await SharedPreferences.getInstance();
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
-                          final response = await ApiService().submitPost(post, token, _pickedImage ?? (_pickedVideo));
+                          final response = await ApiService().submitPost(
+                              post, token, _pickedImage ?? (_pickedVideo));
                           if (response['success'] == true) {
                             Navigator.pop(context);
                           } else {
@@ -148,7 +153,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             isCommunitySelected = true;
                           });
                         }
-
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -188,8 +192,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           // Add this line
                           child: CommunityBar(
                               community: selectedCommunity.name,
-                              communityId: selectedCommunity
-                                  .id,
+                              communityId: selectedCommunity.id,
                               onTap: () async {
                                 // ignore: unused_local_variable
                                 selectedCommunity = await Navigator.push(
@@ -297,10 +300,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 0 +
-                      (attachment != null
-                          ? 50
-                          : 0),
+                  height: 0 + (attachment != null ? 50 : 0),
                   child: Visibility(
                     visible: attachment != null && !optionSelected,
                     child: Builder(
@@ -427,33 +427,30 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           icon: const Icon(FontAwesomeIcons.video),
                           onPressed: isAttachmentAdded
                               ? null
-                              : () {
+                              : () async {
                                   final ImagePicker picker = ImagePicker();
-                                  final XFile? video = picker.pickVideo(
-                                      source: ImageSource.gallery) as XFile?;
-                                  setState(() {
-                                    optionSelected = false;
-                                    attachment = Attachment(
+                                  final XFile? video = await picker.pickVideo(
+                                      source: ImageSource.gallery);
+                                  if (video != null) {
+                                    setState(() {
+                                      _pickedVideo = video;
+                                      attachment = Attachment(
                                         type: 'video',
                                         data: video,
-                                        component:
-                                            Image.file(File(video!.path)));
-                                    attachment!.component = VideoComponent(
-                                      video: video,
-                                      onClear: () {
-                                        setState(() {
-                                          attachment = null;
-                                          isAttachmentAdded = false;
-                                        });
-                                      },
-                                    );
-
-                                    isAttachmentAdded = true;
-                                  });
-
-
+                                        component: VideoComponent(
+                                          video: video,
+                                          onClear: () {
+                                            setState(() {
+                                              attachment = null;
+                                              isAttachmentAdded = false;
+                                            });
+                                          },
+                                        ),
+                                      );
+                                      isAttachmentAdded = true;
+                                    });
                                   }
-                                  // Add your action for the video icon her
+                                },
                         ),
                         if (!keyboardOpen) const Text('Video'),
                       ],
@@ -530,7 +527,6 @@ class ImageComponent extends StatelessWidget {
   }
 }
 
-
 class VideoComponent extends StatelessWidget {
   final XFile video;
   final VoidCallback onClear;
@@ -539,9 +535,12 @@ class VideoComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final VideoPlayerController controller =
+        VideoPlayerController.file(File(video.path));
+    controller.initialize();
     return Stack(
       children: [
-        Image.file(File(video.path)),
+        VideoPlayer(controller),
         Positioned(
           top: 0,
           right: 0,

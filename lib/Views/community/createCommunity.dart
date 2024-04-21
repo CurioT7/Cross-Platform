@@ -5,6 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../post/screen_post.dart';
+
 
 class createCommunity extends StatefulWidget {
   @override
@@ -262,6 +264,13 @@ class _createCommunityState extends State<createCommunity> {
                             duration: Duration(seconds: 2),
                           ),
                         );
+                        Future.delayed(Duration(seconds: 1), () {
+                          //TODO open create new post
+                         // Navigator.push(
+                           // context,
+                           // MaterialPageRoute(builder: (context) => AddPostScreen()), // replace NewPage with the actual page you want to navigate to
+                         // );
+                        });
                       });
                     }).catchError((error) {
                       setState(() {

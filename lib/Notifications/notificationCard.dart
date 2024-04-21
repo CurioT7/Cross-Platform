@@ -41,7 +41,9 @@ class _NotificationCardState extends State<NotificationCard> {
                     ),
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(widget.notification.message),
+                      child:
+                      //Text(widget.notification.message),
+                      Text("notification message"),
                     ),
                   ],
                 ),

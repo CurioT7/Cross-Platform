@@ -10,6 +10,9 @@ import 'package:http/http.dart' as http;
 
 import '../my_profile_screen.dart';
 
+class CustomIcons {
+  static const IconData bookmarks_outlined = IconData(0xeee5, fontFamily: 'MaterialIcons');
+}
 class SidebarAfterLogIn extends StatelessWidget {
   //String username = "Maximillian12";
   final logicAPI apiLogic = logicAPI();
@@ -345,6 +348,31 @@ class SidebarAfterLogIn extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
+                MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+              );
+            },
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.only(
+              left: MediaQuery.of(context).size.width * 0.05,
+              bottom: MediaQuery.of(context).size.width * 0.01,
+            ),
+            leading: Icon(
+              CustomIcons.bookmarks_outlined,
+
+              color: Colors.grey[500],
+              size: MediaQuery.of(context).size.width * 0.05,
+            ),
+            title: const Text(
+              'Saved',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                //TODO REROUTE TO SAVED POSTS/COMMENTS PAGE
                 MaterialPageRoute(builder: (context) => AccountSettingsPage()),
               );
             },

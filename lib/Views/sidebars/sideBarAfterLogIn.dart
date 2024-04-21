@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/history_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:curio/Views/saved_posts_comments/main_view.dart';
 
 import '../my_profile_screen.dart';
 
@@ -373,7 +374,7 @@ class SidebarAfterLogIn extends StatelessWidget {
               Navigator.push(
                 context,
                 //TODO REROUTE TO SAVED POSTS/COMMENTS PAGE
-                MaterialPageRoute(builder: (context) => AccountSettingsPage()),
+                MaterialPageRoute(builder: (context) => const PostsCommentsExample()),
               );
             },
           ),

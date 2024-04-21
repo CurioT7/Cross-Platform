@@ -15,7 +15,7 @@ import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  //final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  // final String _baseUrl = 'http://20.19.89.1'; // Base URL
   final String _baseUrl= 'http://192.168.1.7';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {

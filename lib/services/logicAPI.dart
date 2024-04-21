@@ -495,6 +495,31 @@ class logicAPI {
       throw Exception('Error deleting comment: $e');
     }
   }
+
+  //getpostbyid
+
+   Future<Post> fetchPostByID(String objectID, String token) async {
+     try {
+       print(objectID);
+       final response = await http.get(
+         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+         headers:<String, String> {
+           'Content-Type': 'application/json; charset=UTF-8',
+           'Authorization': 'Bearer $token',
+         },
+       );
+
+       if (response.statusCode == 200) {
+         return Post.fromJson((jsonDecode(response.body)['item']));
+       } else {
+         print('Response body: ${response.body}');
+
+         throw Exception('Failed to load info with status code: ${response.statusCode}');
+       }
+     } catch (e) {
+       throw Exception('Failed to load info. Error: $e');
+     }
+   }
 //Notifications
 
   Future<List<NotificationModel>>  getAllNotifications(String token) async {

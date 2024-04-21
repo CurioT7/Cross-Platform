@@ -7,16 +7,33 @@ import 'package:curio/services/logicAPI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class newComment extends StatefulWidget {
-  final Post post;
-  newComment({ required this.post});
+  final String postID;
+  newComment({ required this.postID});
   @override
   _newCommentState createState() => _newCommentState();
 }
 
 class _newCommentState extends State<newComment> {
+  Future<Post>? _postFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPost();
+  }
+
+  void _fetchPost() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token is null');
+    }
+    _postFuture = logicAPI().fetchPostByID(widget.postID, token);
+  }
+
   final linkController = TextEditingController();
-  bool optionSelected = false; // Add this line
-  bool isAttachmentAdded = false; // Add this line
+  bool optionSelected = false;
+  bool isAttachmentAdded = false;
   bool isCommunitySelected = false;
   Attachment? attachment;
   XFile? _pickedImage;
@@ -24,107 +41,116 @@ class _newCommentState extends State<newComment> {
   final TextEditingController _urlController = TextEditingController();
   bool _isAttachmentAdded = false;
   String _attachmentType = '';
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Comment', style: TextStyle(fontSize: 18,)),
-      ),
-
-      body: Column(
-        children: <Widget>[
-
-          Divider(color: Colors.grey[300]),
-          Padding(
-            padding: EdgeInsets.only(left: 15.0),
-            child:
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FutureBuilder<Post>(
+      future: _postFuture,
+      builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show a loading spinner while waiting
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
+        } else {
+          Post post = snapshot.data!;
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Add Comment', style: TextStyle(fontSize: 18,)),
+            ),
+            body: Column(
               children: <Widget>[
-                Text(
-                  widget.post.title, // Access the post title from the widget
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Divider(color: Colors.grey[300]),
+                Padding(
+                  padding: EdgeInsets.only(left: 15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        post.title, // Access the post title from the fetched post
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.expand_more),
+                        onPressed: () => _showBottomSheet(context, post), // Pass the fetched post to _showBottomSheet
+                      ),
+                    ],
+                  ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.expand_more),
-                  onPressed: () => _showBottomSheet(context),
+                Divider(color: Colors.grey[300]),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 15.0,),
+                    child: TextField(
+                      controller: _commentController,
+                      decoration: InputDecoration(
+                        hintText: 'Your comment',
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-
-          Divider(color: Colors.grey[300]),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 15.0,),
-              child: TextField(
-                controller: _commentController,
-                decoration: InputDecoration(
-                  hintText: 'Your comment',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(FontAwesomeIcons.link),
-              onPressed: isAttachmentAdded
-                  ? null
-                  : () {
-                setState(() {
-                  attachment = Attachment(
-                    type: 'link',
-                    data: linkController.text,
-                    component:
-                    Container(), // Temporary component
-                  );
-                  attachment!.component = URLComponent(
-                    controller: linkController,
-                    onClear: () {
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  IconButton(
+                    icon: const Icon(FontAwesomeIcons.link),
+                    onPressed: isAttachmentAdded
+                        ? null
+                        : () {
                       setState(() {
-                        attachment = null;
-                        isAttachmentAdded = false;
+                        attachment = Attachment(
+                          type: 'link',
+                          data: linkController.text,
+                          component:
+                          Container(), // Temporary component
+                        );
+                        attachment!.component = URLComponent(
+                          controller: linkController,
+                          onClear: () {
+                            setState(() {
+                              attachment = null;
+                              isAttachmentAdded = false;
+                            });
+                          },
+                        );
+                        isAttachmentAdded = true;
                       });
                     },
-                  );
-                  isAttachmentAdded = true;
-                });
-              },
+                  ),
+                  IconButton(
+                    icon: const Icon(FontAwesomeIcons.image),
+                    onPressed: isAttachmentAdded
+                        ? null
+                        : () async {
+                      final ImagePicker picker0 = ImagePicker();
+                      final XFile? image = await picker0.pickImage(
+                          source: ImageSource.gallery);
+                      setState(() {
+                        optionSelected = false;
+                        _pickedImage = image;
+                        attachment = Attachment(
+                            type: 'image',
+                            data: image,
+                            component:
+                            Image.file(File(image!.path)));
+                        isAttachmentAdded = true;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-            IconButton(
-              icon: const Icon(FontAwesomeIcons.image),
-              onPressed: isAttachmentAdded
-                  ? null
-                  : () async {
-                final ImagePicker picker0 = ImagePicker();
-                final XFile? image = await picker0.pickImage(
-                    source: ImageSource.gallery);
-                setState(() {
-                  optionSelected = false;
-                  _pickedImage = image;
-                  attachment = Attachment(
-                      type: 'image',
-                      data: image,
-                      component:
-                      Image.file(File(image!.path)));
-                  isAttachmentAdded = true;
-                });
-              },
+            floatingActionButton: FloatingActionButton(
+              onPressed: _submitComment,
+              child: Icon(Icons.send),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _submitComment,
-        child: Icon(Icons.send),
-      ),
+          );
+        }
+      },
     );
   }
 
@@ -174,24 +200,20 @@ class _newCommentState extends State<newComment> {
         if (token == null) {
           throw Exception('Token is null');
         }
-        api.postComment(widget.post.id, _commentController.text, token);
+        api.postComment(widget.postID, _commentController.text, token);
         Navigator.of(context).pop();
-
-
       }
       catch(e){
         print(e);
       }
-
     }
   }
 
-  void _showBottomSheet(BuildContext context) {
+  void _showBottomSheet(BuildContext context, Post post) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
-          //height: MediaQuery.of(context).size.height * 0.4,
           child: Padding(
             padding: EdgeInsets.all(8.0),
             child: Column(
@@ -206,13 +228,12 @@ class _newCommentState extends State<newComment> {
                   ),
                 ),
                 SizedBox(height: 10), // Add some space
-
                 Container(
                   height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
                   child: SingleChildScrollView(
                     child: Text(
-                      widget.post.content,
+                      post.content, // Access the post content from the fetched post
                       style: TextStyle(fontSize: 12),
                     ),
                   ),
@@ -224,8 +245,8 @@ class _newCommentState extends State<newComment> {
       },
     );
   }
-
 }
+
 class Attachment {
   final String type;
   final dynamic data;

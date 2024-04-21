@@ -9,7 +9,7 @@ import 'package:curio/services/logicAPI.dart';
 class CommentCard extends StatefulWidget {
 
 
-  final Post post;
+  final String postID;
   final String id;
   final String content;
   final String authorUsername;
@@ -23,7 +23,7 @@ final String? userImage;
 
    CommentCard({
     Key? key,
-     required this.post,
+     required this.postID,
     required this.id,
     required this.content,
     required this.authorUsername,
@@ -168,7 +168,7 @@ class _CommentCardState extends State<CommentCard> {
                               onPressed: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => editComment(post: widget.post, commentId: widget.id)),
+                                  MaterialPageRoute(builder: (context) => editComment(postID: widget.postID, commentId: widget.id)),
                                 );
                               },
                               icon: Icon(
@@ -290,9 +290,9 @@ class _CommentCardState extends State<CommentCard> {
                                 print(e);
                               }
 
-                              api.fetchPostComments(widget.post.id);Navigator.of(context).push(
+                              api.fetchPostComments(widget.postID);Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => ViewPostComments(post: widget.post),
+                                  builder: (context) => ViewPostComments(postID: widget.postID),
                                 ),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(

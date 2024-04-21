@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -190,25 +191,33 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
   }
 }
 
-Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
+Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token, XFile? imageFile) async {
   print("submitting post");
   print(jsonEncode(post));
-  // TODO: change base url to the local as lonng as the server is not up
-  final response = await http.post(
-    Uri.parse('$_baseUrl/api/submit'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode(post),
-  );
+
+  var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+
+  request.fields.addAll(post.map((key, value) => MapEntry(key, value.toString())));
+
+  if (imageFile != null) {
+    request.files.add(await http.MultipartFile.fromPath(
+      'media', // consider 'media' as the key for the image file in your server
+      imageFile.path,
+    ));
+  }
+
+  request.headers.addAll(<String, String>{
+    'Authorization': 'Bearer $token',
+  });
+
+  var response = await request.send();
 
   if (response.statusCode == 201) {
-    return jsonDecode(response.body);
+    print("Post submitted");
+    final respStr = await response.stream.bytesToString();
+    return jsonDecode(respStr);
   } else {
-    print('Server responded with status code ${response.statusCode}');
-    print('Response body: ${response.body}');
-    throw Exception('Failed to submit post');
+    return {'success': false, 'message': 'Failed to submit post'};
   }
 }
 

@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: CustomSidebar(),
       endDrawer: SidebarAfterLogIn(),
-      bottomNavigationBar: homeNavigationBar(),
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(

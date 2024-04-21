@@ -498,7 +498,7 @@ class logicAPI {
 //Notifications
 
   Future<List<NotificationModel>>  getAllNotifications(String token) async {
-    final url = Uri.parse('$_baseUrl//api/notifications/history');
+    final url = Uri.parse('https://06c69672-9ed6-4824-bcd9-080a95856a20.mock.pstmn.io/api/notifications/history');
 
     try {
       final response = await http.get(

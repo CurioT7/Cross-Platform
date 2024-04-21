@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/community_bar.dart';
-import '../widgets/poll_component.dart';
 import 'package:curio/Models/community_model.dart';
 import 'package:curio/widgets/tags.dart';
 
@@ -95,7 +94,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                        if (isCommunitySelected & descriptionController.text.isNotEmpty) {
+                        if (isCommunitySelected) {
                           Map<String,dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
@@ -107,7 +106,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           };
                           //check if the attachment has been added
                           if (attachment != null) {
+                            // print the attachment type
                             post['media'] = attachment!.data;
+
+                            print(attachment!.type);
+                            print(attachment!.data);
+
                           }
 
                           final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -284,7 +288,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 ),
                 SizedBox(
                   height: 0 +
-                      (attachment != null && attachment?.type != 'poll'
+                      (attachment != null
                           ? 50
                           : 0),
                   child: Visibility(
@@ -316,22 +320,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             ),
                             maxLines: null,
                           ),
-                          if (attachment?.type == 'poll' && attachment != null)
-                            SizedBox(
-                              height: 200, // Set the height to 200
-                              child: Visibility(
-                                visible: attachment != null && !optionSelected,
-                                child: Builder(
-                                  builder: (context) {
-                                    return Row(
-                                      children: [
-                                        Expanded(child: attachment!.component),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -407,6 +395,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                         data: image,
                                         component:
                                             Image.file(File(image!.path)));
+                                    attachment!.component = ImageComponent(
+                                      image: image,
+                                      onClear: () {
+                                        setState(() {
+                                          attachment = null;
+                                          isAttachmentAdded = false;
+                                        });
+                                      },
+                                    );
                                     isAttachmentAdded = true;
                                   });
                                 },
@@ -424,37 +421,31 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                   final ImagePicker picker = ImagePicker();
                                   final XFile? video = picker.pickVideo(
                                       source: ImageSource.gallery) as XFile?;
-                                  // Add your action for the video icon here
-                                },
-                        ),
-                        if (!keyboardOpen) const Text('Video'),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        IconButton(
-                          icon: const Icon(FontAwesomeIcons.chartBar),
-                          onPressed: isAttachmentAdded
-                              ? null
-                              : () {
                                   setState(() {
+                                    optionSelected = false;
                                     attachment = Attachment(
-                                      type: 'poll',
-                                      data: null,
-                                      component: PollComponent(
-                                        onClear: () {
-                                          setState(() {
-                                            attachment = null;
-                                            isAttachmentAdded = false;
-                                          });
-                                        },
-                                      ),
+                                        type: 'video',
+                                        data: video,
+                                        component:
+                                            Image.file(File(video!.path)));
+                                    attachment!.component = VideoComponent(
+                                      video: video,
+                                      onClear: () {
+                                        setState(() {
+                                          attachment = null;
+                                          isAttachmentAdded = false;
+                                        });
+                                      },
                                     );
+
                                     isAttachmentAdded = true;
                                   });
-                                },
+
+
+                                  }
+                                  // Add your action for the video icon her
                         ),
-                        if (!keyboardOpen) const Text('Poll'),
+                        if (!keyboardOpen) const Text('Video'),
                       ],
                     ),
                   ],
@@ -501,6 +492,55 @@ class URLComponent extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class ImageComponent extends StatelessWidget {
+  final XFile image;
+  final VoidCallback onClear;
+
+  const ImageComponent({super.key, required this.image, required this.onClear});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Image.file(File(image.path)),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: onClear,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+
+class VideoComponent extends StatelessWidget {
+  final XFile video;
+  final VoidCallback onClear;
+
+  const VideoComponent({super.key, required this.video, required this.onClear});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Image.file(File(video.path)),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.clear),
+            onPressed: onClear,
+          ),
+        ),
+      ],
     );
   }
 }

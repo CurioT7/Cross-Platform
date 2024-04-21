@@ -14,7 +14,7 @@ import 'package:curio/Models/post.dart';
 
 import 'aboutComunity.dart';
 class communityProfile extends StatefulWidget {
-  final String  ;
+  final String communityName ;
 
   const communityProfile({Key? key, required this.communityName}) : super(key: key);
 

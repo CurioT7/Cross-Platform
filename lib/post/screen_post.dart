@@ -8,7 +8,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/community_bar.dart';
 import 'package:curio/Models/community_model.dart';
 import 'package:curio/widgets/tags.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
+Future<void> uploadImage(XFile imageFile) async {
+  var request = http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
+
+  request.files.add(await http.MultipartFile.fromPath(
+    'image', // consider 'image' as the key for the image file in your server
+    imageFile.path,
+  ));
+
+  var response = await request.send();
+
+  if (response.statusCode == 200) {
+    print("Image uploaded");
+  } else {
+    print("Image upload failed");
+  }
+}
 class AddPostScreen extends StatefulWidget {
   final String type;
   const AddPostScreen({super.key, required this.type});
@@ -27,6 +46,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   bool isCommunitySelected = false;
   Attachment? attachment;
   XFile? _pickedImage;
+  XFile? _pickedVideo;
 
   @override
   void dispose() {
@@ -69,13 +89,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final icons = [
-      Icons.home,
-      Icons.star,
-      Icons.school,
-      Icons.work
-    ]; // Add more icons as needed
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0; // Add more icons as needed
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -105,18 +119,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             'destination': "subreddit",
                           };
                           //check if the attachment has been added
-                          if (attachment != null) {
+                          if (attachment != null && attachment!.type == 'url') {
                             // print the attachment type
                             post['media'] = attachment!.data;
-
-                            print(attachment!.type);
-                            print(attachment!.data);
-
                           }
 
                           final SharedPreferences prefs = await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
-                          final response = await ApiService().submitPost(post, token);
+                          final response = await ApiService().submitPost(post, token, _pickedImage ?? (_pickedVideo));
                           if (response['success'] == true) {
                             Navigator.pop(context);
                           } else {

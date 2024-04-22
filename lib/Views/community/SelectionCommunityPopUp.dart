@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 
 class CommunitySearchPage extends SearchDelegate<String> {
+  final Function(String) onCommunitySelected;
+
+  CommunitySearchPage({required this.onCommunitySelected});
+
   final ApiServiceMahmoud apiService = ApiServiceMahmoud();
   List<String> communities = [];
   List<String> recentCommunities = [];
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    // Actions for search bar
     return [
       IconButton(
         onPressed: () {
@@ -21,7 +24,6 @@ class CommunitySearchPage extends SearchDelegate<String> {
 
   @override
   Widget buildLeading(BuildContext context) {
-    // Leading icon on the left of the search bar
     return IconButton(
       onPressed: () {
         close(context, '');
@@ -32,13 +34,13 @@ class CommunitySearchPage extends SearchDelegate<String> {
 
   @override
   Widget buildResults(BuildContext context) {
-    // Show results based on the search query
     return ListView.builder(
       itemCount: communities.length,
       itemBuilder: (context, index) {
         return ListTile(
           title: Text(communities[index]),
           onTap: () {
+            onCommunitySelected(communities[index]);
             close(context, communities[index]);
           },
         );
@@ -48,7 +50,6 @@ class CommunitySearchPage extends SearchDelegate<String> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // Show suggestions as the user types in the search bar
     return ListView.builder(
       itemCount: recentCommunities.length,
       itemBuilder: (context, index) {
@@ -62,10 +63,10 @@ class CommunitySearchPage extends SearchDelegate<String> {
       },
     );
   }
+
   void searchCommunities(String query) async {
     try {
       final response = await apiService.searchCommunities(query);
-
 
       if (response.containsKey('success') && response['success'] == true) {
         List<dynamic> communityData = response['subreddits'];
@@ -78,5 +79,4 @@ class CommunitySearchPage extends SearchDelegate<String> {
       communities = [];
     }
   }
-
 }

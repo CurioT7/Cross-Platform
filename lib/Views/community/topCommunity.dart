@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:curio/services/logicAPI.dart'; // Import the necessary file for apiLogic
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:curio/services/logicAPI.dart'; // Import the necessary file for apiLogic
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
 import 'package:curio/Models/post.dart';
 import 'package:curio/Views/community/topAppBar.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:curio/Views/community/SelectionCommunityPopUp.dart';
+
 
 class TopCommunitiesPage extends StatefulWidget {
   @override
@@ -100,7 +99,16 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
           IconButton(
             icon: Icon(Icons.search),
             onPressed: () {
-               showSearch(context: context, delegate: CommunitySearchPage());
+              showSearch(
+                context: context,
+                delegate: CommunitySearchPage(
+                  onCommunitySelected: (community) {
+                    // Handle selected community here
+                    print('Selected community: $community');
+                    // Add your logic to handle the selected community
+                  },
+                ),
+              );
             },
           ),
         ],
@@ -110,8 +118,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
         child: _topCommunities == null
             ? CircularProgressIndicator()
             : ListView.builder(
-                itemCount: _topCommunities!['communities'].length,
-                 itemBuilder: (context, index) {
+          itemCount: _topCommunities!['communities'].length,
+          itemBuilder: (context, index) {
             final community = _topCommunities!['communities'][index];
             final communityMembers = community['members'];
             final communityMembersCount = communityMembers.toString();
@@ -170,7 +178,7 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
 
                   if (communityStates[communityName] ?? false) {
                     try {
-                       await apiLogic.leaveCommunity(token, communityName);
+                      await apiLogic.leaveCommunity(token, communityName);
                       setState(() {
                         showLeaveCommunityDialog(context, communityName);
                       });

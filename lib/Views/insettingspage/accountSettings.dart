@@ -145,7 +145,9 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => UpdateEmailAdressPage()),
-              );
+              ).then((_) {
+                _fetchUserProfile();
+              });
             }
             else
             {

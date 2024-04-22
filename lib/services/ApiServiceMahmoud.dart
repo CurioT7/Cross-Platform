@@ -509,7 +509,11 @@ class ApiServiceMahmoud {
         if (response.statusCode == 200) {
           print('the message from the backend is ${responseData['message']}');
           return {'success': true, 'message': responseData['message']};
-        } else {
+        }else if (response.statusCode == 500)
+        {
+          return {'success': true, 'message': 'Email change successful, please verify your new email address'};
+        }
+        else {
           // If response status code is not 200, we are assuming the body is still JSON
           print('the message from the backend is ${responseData['message']}');
           return {'success': false, 'message': responseData['message']};

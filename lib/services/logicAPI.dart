@@ -14,7 +14,7 @@ class logicAPI {
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/user/$username/about'), headers: <String, String>{
+      Uri.parse('$_baseUrl/api/user/$username/about'), headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },);
 
@@ -498,14 +498,14 @@ class logicAPI {
 
   //getpostbyid
 
-   Future<Post> fetchPostByID(String objectID, String token) async {
+   Future<Post> fetchPostByID(String objectID) async {
      try {
        print(objectID);
        final response = await http.get(
          Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
          headers:<String, String> {
            'Content-Type': 'application/json; charset=UTF-8',
-           'Authorization': 'Bearer $token',
+
          },
        );
 
@@ -523,7 +523,7 @@ class logicAPI {
 //Notifications
 
   Future<List<NotificationModel>>  getAllNotifications(String token) async {
-    final url = Uri.parse('https://06c69672-9ed6-4824-bcd9-080a95856a20.mock.pstmn.io/api/notifications/history');
+    final url = Uri.parse('$_baseUrl/api/notifications/history');
 
     try {
       final response = await http.get(
@@ -535,6 +535,7 @@ class logicAPI {
       );
 
       if (response.statusCode == 200) {
+        print('success 200 notifications');
         Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody['success']) {
           List<dynamic> notificationsJson = responseBody['notifications'];
@@ -550,6 +551,22 @@ class logicAPI {
       }
     } catch (e) {
       throw Exception('Failed to fetch notifications: $e');
+    }
+  }
+  Future<List<NotificationModel>> getReadNotifications(String token) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/notifications/read'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      List notificationsJson = data['readNotifications'];
+      return NotificationModel.getNotifications(notificationsJson);
+    } else {
+      throw Exception('Failed to load notifications');
     }
   }
 }

@@ -54,14 +54,18 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
         ],
         bottom: TabBar(
           controller: _tabController,
+          unselectedLabelColor: Colors.grey,
+          labelColor: Colors.grey[800],
           tabs: [
             Tab(text: 'Notifications'),
             Tab(text: 'Messages'),
+
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
+
         children: [
           // Replace with your Notifications and Messages pages
           Expanded(

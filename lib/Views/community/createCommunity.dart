@@ -266,10 +266,10 @@ class _createCommunityState extends State<createCommunity> {
                         );
                         Future.delayed(Duration(seconds: 1), () {
                           //TODO open create new post
-                         // Navigator.push(
-                           // context,
-                           // MaterialPageRoute(builder: (context) => AddPostScreen()), // replace NewPage with the actual page you want to navigate to
-                         // );
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(builder: (context) => AddPostScreen(type:'text')), // replace NewPage with the actual page you want to navigate to
+                         );
                         });
                       });
                     }).catchError((error) {

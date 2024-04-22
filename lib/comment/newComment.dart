@@ -23,12 +23,8 @@ class _newCommentState extends State<newComment> {
   }
 
   void _fetchPost() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token == null) {
-      throw Exception('Token is null');
-    }
-    _postFuture = logicAPI().fetchPostByID(widget.postID, token);
+
+    _postFuture = logicAPI().fetchPostByID(widget.postID);
   }
 
   final linkController = TextEditingController();

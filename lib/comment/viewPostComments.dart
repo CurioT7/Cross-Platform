@@ -39,12 +39,8 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
       Container(
       child: FutureBuilder<Post>(
           future: () async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token == null) {
-    throw Exception('Token is null');
-    }
-    return logicAPI().fetchPostByID(widget.postID, token);
+
+    return logicAPI().fetchPostByID(widget.postID);
     }(),
     builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {

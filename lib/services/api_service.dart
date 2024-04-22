@@ -233,7 +233,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
   final name = userName['username'];
   print("User name: $name");
   final response = await http.get(
-    Uri.parse('$_baseUrl/user/$name/communities'),
+    Uri.parse('$_baseUrl/api/user/$name/communities'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -296,7 +296,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
   }
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
-    final String endpoint = '/user/$username/about'; // Endpoint for fetching user about info
+    final String endpoint = '/api/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {

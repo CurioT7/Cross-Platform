@@ -3,6 +3,7 @@ import 'package:curio/post/screen_post.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/topCommunity.dart';
+import 'package:curio/services/apiServiceMahmoud.dart';
 
 class HomeNavigationBar extends StatefulWidget {
   @override
@@ -10,8 +11,47 @@ class HomeNavigationBar extends StatefulWidget {
 }
 
 class _HomeNavigationBarState extends State<HomeNavigationBar> {
+  String? notficationsMessage;
   int _selectedIndex = 0;
-  String notificationCount = '3'; // Notification count
+  String notificationCount = '0'; // Notification count
+  void showSnackbar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+
+  void getUnreadNotifications() async {
+    final apiService = ApiServiceMahmoud();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+      final notifications = await apiService.getUnreadNotifications(token);
+      setState(() {
+
+        if(notifications['message'] == null) {
+          notificationCount = notifications['unreadCount'];
+        }else{
+          notficationsMessage=notifications['message'];
+          notificationCount = '0';
+        }
+
+      });
+      print(notifications);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+ @override
+  void initState() {
+    super.initState();
+  getUnreadNotifications();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +124,12 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
           // Handle tap on 'Chat'
             break;
           case 4:
-          // Handle tap on 'Inbox'
+            getUnreadNotifications();
+            if(notficationsMessage == null) {
+
+              showSnackbar(context, 'There are no unread notifications');
+
+            }
             break;
         }
       },
@@ -101,33 +146,37 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.topRight,
-      children: <Widget>[
-        Icon(
-          Icons.notifications_outlined,
-          size: 36.0,
-        ),
-        Container(
-          padding: EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            borderRadius: BorderRadius.circular(9),
-          ),
-          constraints: BoxConstraints(
-            minWidth: 18,
-            minHeight: 18,
-          ),
-          child: Text(
-            notificationCount,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
+   if(notificationCount == '0'){
+     return Icon(Icons.notifications_none_outlined);
+  }else{
+     return Stack(
+       alignment: Alignment.topRight,
+       children: <Widget>[
+         Icon(
+           Icons.notifications_outlined,
+           size: 36.0,
+         ),
+         Container(
+           padding: EdgeInsets.all(4),
+           decoration: BoxDecoration(
+             color: Colors.orange,
+             borderRadius: BorderRadius.circular(9),
+           ),
+           constraints: BoxConstraints(
+             minWidth: 18,
+             minHeight: 18,
+           ),
+           child: Text(
+             notificationCount,
+             style: TextStyle(
+               color: Colors.white,
+               fontSize: 12,
+             ),
+             textAlign: TextAlign.center,
+           ),
+         ),
+       ],
+     );
+   }
+   }
 }

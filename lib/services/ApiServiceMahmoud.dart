@@ -11,6 +11,59 @@ class ApiServiceMahmoud {
   // final String _baseUrlDataBase= 'http://192.168.1.7';
 
 
+  Future<Map<String, dynamic>> getUnreadNotifications(String token) async {
+    final String endpoint = '/api/notifications/unread';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Include the token in the request header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal Server Error');
+      } else {
+        throw Exception('Failed to fetch unread notifications: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch unread notifications: $e');
+    }
+  }
+
+
+
+
+
+
+  Future<Map<String, dynamic>> searchCommunities(String query) async {
+    final String endpoint = '/api/searchCommunities/$query';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        throw Exception('No communities found for the given query');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal Server Error: ${response.statusCode}');
+      } else {
+        throw Exception('Failed to search communities: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to search communities: $e');
+    }
+  }
+
+
   Future<Map<String, dynamic>> sharePostToProfile(String token, String title, String postId) async {
     final String url = '$_baseUrlDataBase/api/share';
     final Map<String, String> headers = {

@@ -9,7 +9,7 @@ import 'package:curio/utils/componentSelectionPopUPPage.dart';
 import 'package:curio/Models/post.dart';
 import 'package:curio/Views/community/topAppBar.dart';
 import 'package:curio/Views/community/profile.dart';
-
+import 'package:curio/Views/community/SelectionCommunityPopUp.dart';
 
 class TopCommunitiesPage extends StatefulWidget {
   @override
@@ -95,7 +95,16 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Top Communities'),
+        title: Text('Communities'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+               showSearch(context: context, delegate: CommunitySearchPage());
+            },
+          ),
+        ],
+
       ),
       body: Center(
         child: _topCommunities == null
@@ -115,11 +124,10 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                   MaterialPageRoute(
                     builder: (context) => communityProfile(communityName: communityName,),
                   ),
-                ).then((_) {
-                  // This code will execute when the NextPage is popped and the user returns to this page
-                  _fetchUserProfile();
-                });
+                ).then((_) => _fetchUserProfile());
               },
+
+
               leading: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Image.asset('lib/assets/images/Curio.png'),

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:curio/Models/post.dart';
 
 import 'package:curio/Models/comment.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Notifications/notificationModel.dart';
 
@@ -30,7 +31,9 @@ class logicAPI {
     }
   }
 
-  Map<String, dynamic> extractUserDetails(Map<String, dynamic> userData) {
+  Future<Map<String, dynamic>> extractUserDetails(Map<String, dynamic> userData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('karma', userData['postKarma']+ userData['commentKarma']);
     return {
       'postKarma': userData['postKarma'],
       'commentKarma': userData['commentKarma'],
@@ -79,6 +82,9 @@ class logicAPI {
     final int daysDifference = currentDate
         .difference(cakeDayDate)
         .inDays;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('cakeday', daysDifference);
+
     print("date hereeeeeeeeeeeeee");
     print(daysDifference);
     return daysDifference;
@@ -109,7 +115,7 @@ class logicAPI {
   //   }
   // }
   Future<Map<String, dynamic>> createCommunity(String communityName,
-      bool isOver18, String typeCommunity, String token) async {
+      bool isOver18, String typeCommunity, String token, String description) async {
     try {
       //  token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
       print("Tokens: $token");
@@ -121,7 +127,7 @@ class logicAPI {
         },
         body: jsonEncode(<String, dynamic>{
           'name': communityName,
-          'description': 'none',
+          'description': description,
           'over18': isOver18,
           'privacyMode': typeCommunity.toLowerCase(),
         }),
@@ -250,7 +256,33 @@ class logicAPI {
       throw Exception('Failed to load posts');
     }
   }
+   Future<List<String>> fetchJoinedCommunityNames(String username, String token, String communityName) async {
+     final response = await http.get(
+       Uri.parse('$_baseUrl/api/user/$username/communities'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+     );
 
+     if (response.statusCode == 200) {
+       Map<String, dynamic> responseBody = json.decode(response.body);
+       if (responseBody['success']) {
+         List<dynamic> communitiesJson = responseBody['communities'];
+         bool isJoined =communitiesJson.map((community) => community['name'] as String).toList().contains(communityName);
+
+         final SharedPreferences prefs = await SharedPreferences.getInstance();
+         await prefs.setBool('isJoinedSubreddit', isJoined);
+
+
+         return communitiesJson.map((community) => community['name'] as String).toList();
+       } else {
+         throw Exception('Failed to load communities');
+       }
+     } else {
+       throw Exception('Failed to load communities with status code: ${response.statusCode}');
+     }
+   }
   // Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
   //   final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/$timeinterval'));
   //

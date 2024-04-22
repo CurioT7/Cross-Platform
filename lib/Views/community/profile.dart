@@ -18,11 +18,39 @@ class communityProfile extends StatefulWidget {
   _CommunityProfileState createState() => _CommunityProfileState();
 }
 
+
+
 class _CommunityProfileState extends State<communityProfile> {
+
+  bool hasJoined = false;
+
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Technologysunt';
-  bool hasJoined = false;
+  String communityName = 'CommunityDescription';
+  bool? isJoined = false;
+
+  Future<void> fetchPreferencesIsJoined() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    isJoined = prefs.getBool('isJoinedSubreddit');
+    // You can now use isJoined
+  }
+  Future<bool> _fetchJoinState() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      if (token == null) {
+        throw Exception('Token is null');
+      }
+      final username = await apiLogic.fetchUsername(token);
+      final data = apiLogic.extractUsername(username);
+      List<String> joinedCommunities = await logicAPI().fetchJoinedCommunityNames(data as String, token, communityName);
+      return joinedCommunities.contains(communityName);
+
+
+    } catch (e) {
+      throw Exception('Error fetching user details: $e');
+    }
+  }
 
 
   List<Post> posts = [];
@@ -122,6 +150,11 @@ if (timeInterval!<1){
     super.initState();
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
+    _fetchJoinState();
+    fetchPreferencesIsJoined();
+    //TODO FETCH COMMUNITY JOIN STATE
+      //hasJoined = _fetchJoinState() ;
+
     fetchPosts('hot');
     //fetchPosts();
     // WidgetsBinding.instance?.addPostFrameCallback((_) {
@@ -248,7 +281,7 @@ if (timeInterval!<1){
                           fontSize: MediaQuery
                               .of(context)
                               .size
-                              .width * 0.045,
+                              .width * 0.034,
                           fontWeight: FontWeight.bold)),
                   Row(
                     children: [
@@ -267,30 +300,8 @@ if (timeInterval!<1){
                           .size
                           .width * 0.02),
                       //draw green filled icon circle
-                      Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.02,
-                        height: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.02,
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      Text(' 2,654 online',
-                          style: TextStyle(
-                              fontSize:
-                              MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.03,
-                              color: Colors.grey[500],
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'IBM_Plex_Sans_Light')),
+
+
                     ],
                   ),
                 ],
@@ -301,7 +312,7 @@ if (timeInterval!<1){
               SizedBox(width: MediaQuery
                   .of(context)
                   .size
-                  .width * 0.23),
+                  .width * 0.15),
               SizedBox(
                 width: MediaQuery
                     .of(context)
@@ -317,7 +328,7 @@ if (timeInterval!<1){
                 child: TextButton(
 
                   style: ButtonStyle(
-padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 5.0)),
+padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.0, left: 8.0)),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {
@@ -427,17 +438,17 @@ padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 5.
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '$description',
-                  style: TextStyle(
-                      fontSize: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.03,
+                Padding(
+                  padding: EdgeInsets.only(right: 7.0), // Adjust the value as needed
+                  child: Text(
+                    '$description',
+                    maxLines: null, // Allows the text to wrap onto unlimited lines
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
                       fontFamily: "IBM_Plex_Sans_Light",
-
-                      color: Colors.black),
-
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
                 GestureDetector(
                   onTap: () {

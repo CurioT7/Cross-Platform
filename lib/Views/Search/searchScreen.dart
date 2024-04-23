@@ -35,13 +35,22 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       print('Search query: $query');
       final List<MiniPost> results = await _searchService.searchPost(query); // Changed function name to searchPost
       print('Posts: $results');
-  
-      // Assign results to searchResults
-      setState(() {
-        searchResults = results;
-      });
+
+      if (results.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No posts found for the given query')),
+        );
+      } else {
+        // Assign results to searchResults
+        setState(() {
+          searchResults = results;
+        });
+      }
     } catch (e) {
       print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No posts found for the given query')),
+      );
     }
   }
   

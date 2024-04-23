@@ -1,3 +1,4 @@
+import 'package:curio/Views/Search/searchScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
@@ -88,7 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Implement your search functionality here
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SearchScreen()),
+              );
             },
           ),
           Builder(

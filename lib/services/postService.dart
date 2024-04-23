@@ -2,8 +2,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
-  final String baseUrl = 'http://20.19.89.1/api';
-  // final String baseUrl= 'http://192.168.1.7/api';
+  // final String baseUrl = 'http://20.19.89.1/api';
+   final String baseUrl= 'http://192.168.1.13:3000/api';
 
     Future<List<Post>> getBestPosts() async {
     try {
@@ -25,7 +25,28 @@ class ApiService {
     }
   }
 
+  Future<Post> fetchPostByID(String objectID) async {
+     try {
+       print(objectID);
+       final response = await http.get(
+         Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
+         headers:<String, String> {
+           'Content-Type': 'application/json; charset=UTF-8',
 
+         },
+       );
+
+       if (response.statusCode == 200) {
+         return Post.fromJson((jsonDecode(response.body)['item']));
+       } else {
+         print('Response body: ${response.body}');
+
+         throw Exception('Failed to load info with status code: ${response.statusCode}');
+       }
+     } catch (e) {
+       throw Exception('Failed to load info. Error: $e');
+     }
+   }
   Future<Post> getRandomPost(String subreddit) async {
     final response = await http.get(Uri.parse('$baseUrl/r/$subreddit/random'));
     if (response.statusCode == 200) {

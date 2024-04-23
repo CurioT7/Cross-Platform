@@ -68,6 +68,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         ),
         bottom: TabBar(
           controller: _tabController,
+          labelColor: Colors.black, // Set the color of the selected tab
+          labelStyle: TextStyle(fontWeight: FontWeight.bold), // Set the text style of the selected tab
+          unselectedLabelColor: Colors.grey, // Set the color of the unselected tabs
+          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal), // Set the text style of the unselected tabs
+          isScrollable: true,
           tabs: [
             Tab(text: 'Posts'),
             Tab(text: 'Communities'),
@@ -80,35 +85,13 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       body: TabBarView(
         controller: _tabController,
         children: [
-          Column(
-            children: [
-              DropdownButton<String>(
-                value: dropdownValue,
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(() {
-                      dropdownValue = newValue;
-                      // Implement your sorting logic here
-                    });
-                  }
-                },
-                items: <String>['Hot', 'New', 'Top', 'Comment Count']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              Expanded(
-                    child: ListView.builder(
-                    itemCount: searchResults.length,
-                    itemBuilder: (context, index) {
-                      return MiniPostCard(miniPost: searchResults[index]);
-                    },
-                  )
-              ),
-            ],
+          Expanded(
+            child: ListView.builder(
+              itemCount: searchResults.length,
+              itemBuilder: (context, index) {
+                return MiniPostCard(miniPost: searchResults[index]);
+              },
+            ),
           ),
           // Replace these with your actual widgets for displaying the search results
           Container(child: Center(child: Text('Communities'))),

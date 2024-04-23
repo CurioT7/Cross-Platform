@@ -140,7 +140,7 @@ Future<String> getToken() async {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewPostComments(post: widget.post),
+        builder: (context) => ViewPostComments(postID: widget.post.id),
       ),
     );
   }
@@ -551,7 +551,7 @@ void _launchURL(String url) async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewPostComments(post: widget.post),
+                  builder: (context) => ViewPostComments(postID: widget.post.id),
                 ),
               );
             },
@@ -583,7 +583,7 @@ void _launchURL(String url) async {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewPostComments(post: widget.post),
+                    builder: (context) => ViewPostComments(postID: widget.post.id),
                   ),
                 );
               },

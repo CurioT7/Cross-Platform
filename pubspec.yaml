@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.0.7
   share: ^2.0.4
   timeago: ^3.1.0
+  video_editor: ^3.0.0
 
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 
@@ -59,6 +60,8 @@ dependencies:
   flutter_bloc: ^8.1.5
   fluttertoast: ^8.2.4
   network_image_mock: ^2.1.1
+  video_player: ^2.8.6
+
 
 
 dev_dependencies:

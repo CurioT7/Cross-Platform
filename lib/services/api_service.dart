@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +15,7 @@ import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  //final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  // final String _baseUrl = 'http://20.19.89.1'; // Base URL
   final String _baseUrl= 'http://192.168.1.7';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
@@ -190,25 +191,38 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
   }
 }
 
-Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
+Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token, XFile? imageFile) async {
   print("submitting post");
   print(jsonEncode(post));
-  // TODO: change base url to the local as lonng as the server is not up
-  final response = await http.post(
-    Uri.parse('$_baseUrl/api/submit'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode(post),
-  );
+
+
+
+
+  var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+
+  request.fields.addAll(post.map((key, value) => MapEntry(key, value.toString())));
+
+  if (imageFile != null) {
+  print("image file: ${imageFile.path}");
+    request.files.add(await http.MultipartFile.fromPath(
+      'media', // consider 'media' as the key for the image file in your server
+      imageFile.path,
+    ));
+  }
+
+  request.headers.addAll(<String, String>{
+    'Authorization': 'Bearer $token',
+  });
+
+  var response = await request.send();
 
   if (response.statusCode == 201) {
-    return jsonDecode(response.body);
+    print("Post submitted");
+    final respStr = await response.stream.bytesToString();
+    return jsonDecode(respStr);
   } else {
-    print('Server responded with status code ${response.statusCode}');
-    print('Response body: ${response.body}');
-    throw Exception('Failed to submit post');
+    print("response body: ${await response.stream.bytesToString()}");
+    return {'success': false, 'message': 'Failed to submit post'};
   }
 }
 
@@ -219,7 +233,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
   final name = userName['username'];
   print("User name: $name");
   final response = await http.get(
-    Uri.parse('$_baseUrl/user/$name/communities'),
+    Uri.parse('$_baseUrl/api/user/$name/communities'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -282,7 +296,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
   }
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
-    final String endpoint = '/user/$username/about'; // Endpoint for fetching user about info
+    final String endpoint = '/api/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {

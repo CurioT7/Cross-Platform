@@ -22,19 +22,20 @@ class communityProfile extends StatefulWidget {
 
 class _CommunityProfileState extends State<communityProfile> {
 
-  bool hasJoined = false;
+  // bool hasJoined = false;
 
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'CommunityDescription';
-  bool? isJoined = false;
+  String communityName = 'Art eum';
+  bool? isJoined = null;
 
+  bool isJoinedChanged= false;
   Future<void> fetchPreferencesIsJoined() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     isJoined = prefs.getBool('isJoinedSubreddit');
     // You can now use isJoined
   }
-  Future<bool> _fetchJoinState() async {
+  void _fetchJoinState() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -43,8 +44,10 @@ class _CommunityProfileState extends State<communityProfile> {
       }
       final username = await apiLogic.fetchUsername(token);
       final data = apiLogic.extractUsername(username);
-      List<String> joinedCommunities = await logicAPI().fetchJoinedCommunityNames(data as String, token, communityName);
-      return joinedCommunities.contains(communityName);
+
+      String extractedUsername = data['username'];
+       logicAPI().fetchJoinedCommunityNames(extractedUsername, token, communityName);
+    //  return joinedCommunities.contains(communityName);
 
 
     } catch (e) {
@@ -119,18 +122,18 @@ class _CommunityProfileState extends State<communityProfile> {
 
         print("Time interval");
         print(timeInterval);
-if (timeInterval!<1){
-  List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, "now");
-  setState(() {
-    if(fetchedPosts!=null) {
-      posts = fetchedPosts;
-      print(posts);
-    }
-  else{posts=[];
-  }})
-  ;
-  return;
-}
+        if (timeInterval!<1){
+          List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, "now");
+          setState(() {
+            if(fetchedPosts!=null) {
+              posts = fetchedPosts;
+              print(posts);
+            }
+            else{posts=[];
+            }})
+          ;
+          return;
+        }
         List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, (timeInterval! ).toString());
         setState(() {
           if(fetchedPosts!=null) {
@@ -150,10 +153,12 @@ if (timeInterval!<1){
     super.initState();
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
-    _fetchJoinState();
-    fetchPreferencesIsJoined();
+     isJoined = null;
+  _initializeState();
+
+
     //TODO FETCH COMMUNITY JOIN STATE
-      //hasJoined = _fetchJoinState() ;
+    //hasJoined = _fetchJoinState() ;
 
     fetchPosts('hot');
     //fetchPosts();
@@ -162,7 +167,16 @@ if (timeInterval!<1){
     // });
   }
 
+  void _initializeState() async {
+   if ( isJoinedChanged==true || isJoined==null){
 
+    _fetchJoinState();
+    await fetchPreferencesIsJoined();
+    print('Is Joined: $isJoined');
+
+    setState(() {});
+
+  }}
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
   //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
@@ -326,25 +340,24 @@ if (timeInterval!<1){
                     0.07, // Set the height of the button
 
                 child: TextButton(
-
                   style: ButtonStyle(
-padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.0, left: 8.0)),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.0, left: 8.0)),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
-                        if (hasJoined) {
-                          return Colors
-                              .white; // Set the button color to white if the user has joined
+
+  _initializeState();
+
+                        if (isJoined == true) {
+                          return Colors.white; // Set the button color to white if the user has joined
                         } else {
-                          return Colors.blue
-                              .shade900; // Otherwise, set it to dark blue
+                          return Colors.blue.shade900; // Otherwise, set it to dark blue
                         }
                       },
                     ),
                     side: MaterialStateProperty.resolveWith<BorderSide>(
                           (Set<MaterialState> states) {
-                        if (hasJoined) {
-                          return BorderSide(color: Colors
-                              .grey); // Set the border color to dark grey if the user has joined
+                        if (isJoined == true) {
+                          return BorderSide(color: Colors.grey); // Set the border color to dark grey if the user has joined
                         } else {
                           return BorderSide.none; // Otherwise, no border
                         }
@@ -353,32 +366,38 @@ padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.
                   ),
                   onPressed: () async {
                     try {
-                      final SharedPreferences prefs = await SharedPreferences
-                          .getInstance();
+                      final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token == null) {
                         throw Exception('Token is null');
-                        // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
                       }
-                      if (hasJoined) {
+                         _initializeState();
+
+                      if (isJoined!) {
                         try {
-                          _fetchCommunityData();
-                          await apiLogic.leaveCommunity(token, communityName);
+                          //await apiLogic.leaveCommunity(token, communityName);
+                         // isJoined = false;
                           setState(() {
                             showLeaveCommunityDialog(context, communityName);
+_fetchCommunityData();
+
+
+
                           });
                         } catch (e) {
                           print('Error leaving community: $e');
-                          //TODO:  handle the error, show a message to the user
-                          // show popup showLeaveCommunityDialog
-
                         }
                       } else {
                         try {
                           await apiLogic.joinCommunity(token, communityName);
+                          isJoinedChanged=true;
+                          //isJoined = true;
+
+                            _initializeState();
+_fetchCommunityData();
                           setState(() {
-                            hasJoined = true;
-                            _fetchCommunityData();
+
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 backgroundColor: Colors.transparent,
@@ -388,38 +407,30 @@ padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(30.0),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
+                                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                   child: Text(
                                       'You have succesfully joined the community: $communityName',
-                                      style: TextStyle(color: Colors.white)),
+                                      style: TextStyle(color: Colors.white)
+                                  ),
                                 ),
                               ),
-
                             );
                           });
+
                         } catch (e) {
                           print('Error joining community: $e');
-                          //TODO:  handle the error, show a message to the user
                         }
                       }
                     } catch (e) {
                       print('Error in SharedPreferences: $e');
-                      //TODO:  handle the error, show a message to the user
                     }
-
                   },
                   child: Text(
-
-                    hasJoined ? 'Joined' : 'Join',
+                    isJoined == true ? 'Joined' : 'Join',
                     // Change the text based on whether the user has joined or not
                     style: TextStyle(
-
-                      fontSize: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.022,
-                      color: hasJoined ? Colors.grey : Colors.white,
+                      fontSize: MediaQuery.of(context).size.width * 0.022,
+                      color: isJoined == true ? Colors.grey : Colors.white,
                       // Change the text color based on whether the user has joined or not
                       fontWeight: FontWeight.bold,
                     ),
@@ -587,10 +598,21 @@ padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.
                             ),
                             child: Text(
                                 'Leave', style: TextStyle(color: Colors.white)),
-                            onPressed: () {
+                            onPressed: () async {
+                              final SharedPreferences prefs = await SharedPreferences.getInstance();
+                              String? token = prefs.getString('token');
+                              if (token == null) {
+                                throw Exception('Token is null');
+                              }
+                              await apiLogic.leaveCommunity(token, communityName);
+
+
+                              isJoinedChanged=true;
+
                               Navigator.of(context).pop();
-                              hasJoined = false;
+                             // isJoined = false;
                               _fetchCommunityData();
+                              _initializeState();
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     backgroundColor: Colors.transparent,

@@ -6,9 +6,11 @@ import 'package:curio/Models/post.dart';
 
 import 'package:curio/Models/comment.dart';
 
+import '../Notifications/notificationModel.dart';
+
 class logicAPI {
-  final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
-  // final String _baseUrl = 'http://192.168.1.7';
+ // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
+   final String _baseUrl = 'http://192.168.1.7';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
@@ -491,6 +493,38 @@ class logicAPI {
     } catch (e) {
       print('Exception: $e');
       throw Exception('Error deleting comment: $e');
+    }
+  }
+//Notifications
+
+  Future<List<NotificationModel>>  getAllNotifications(String token) async {
+    final url = Uri.parse('$_baseUrl//api/notifications/history');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          List<dynamic> notificationsJson = responseBody['notifications'];
+          print('success: code 200 notifications');
+          return NotificationModel.getNotifications(notificationsJson);
+        } else {
+          throw Exception('Failed to load notifications');
+        }
+      } else {
+        throw Exception(
+            'Failed to load notifications with status code: ${response
+                .statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch notifications: $e');
     }
   }
 }

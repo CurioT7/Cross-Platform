@@ -25,10 +25,57 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
   late String _selectedNewSubreddit; // Declare _selectedNewSubreddit here
   bool isNSFW = false;
   bool isSpoiler = false;
+  String postId = '';
+  String postTitle = '';
+  String postContent = '';
+  String authorName = '';
+  String createdAt = '';
+  String mediaUrl = '';
+
+
+
+  Future<void> fetchPostInfo(String postId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        // Call the getInfo function to get post info
+        Map<String, dynamic> postInfo =
+        await ApiServiceMahmoud().getInfo(token, postId, 'post');
+        // Update state with post information
+        setState(() {
+          postId = postInfo['item']['_id'] ?? '';
+          print('Post ID: $postId ');
+          postTitle = postInfo['item']['title'] ?? '';
+          print('Post Title: $postTitle');
+
+          postContent = postInfo['item']['content'] ?? '';
+          print('Post Content: $postContent');
+
+          authorName = postInfo['item']['authorName'] ?? '';
+          print('Author Name: $authorName');
+
+          createdAt = postInfo['item']['createdAt'] ?? '';
+          print('Created At: $createdAt');
+          mediaUrl = postInfo['item']['media'] ?? '';
+
+        });
+      } catch (e) {
+        // Handle errors
+        print('Error fetching post info: $e');
+      }
+    } else {
+      // Handle case when token is not available
+      print('Token not found. Please login again.');
+    }
+  }
+
 
   @override
   void initState() {
     super.initState();
+    fetchPostInfo(widget.oldPostId);
     _selectedNewSubreddit = widget.selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
     fetchSubredditInfo(_selectedNewSubreddit);
     samplePost = Post.fromJson({
@@ -53,7 +100,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
       "isDraft": true,
       "__v": 0
     });
-    titleController.text = samplePost.title ?? '';
+
   }
 
   Future<void> fetchSubredditInfo(String subredditName) async {
@@ -64,6 +111,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
       setState(() {
         subredditInfo = data['subreddit'];
         rules = List<String>.from(subredditInfo['rules']);
+
         print(rules);
         print(subredditInfo);
       });
@@ -105,9 +153,6 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
   @override
   Widget build(BuildContext context) {
     String nameofcommunity = samplePost.linkedSubreddit ?? 'Unknown Community';
-    String authorName = samplePost.authorName ?? 'Anonymous';
-    String createdAt = samplePost.createdAt.toString();
-    String mediaUrl = samplePost.media ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -217,7 +262,10 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: titleController,
+              controller: TextEditingController(text: postTitle),
+              onChanged: (newValue) {
+                postTitle = newValue;
+              },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
               ),
@@ -225,8 +273,8 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
           ),
           Divider(),
           ListTile(
-            subtitle: Text('r/$nameofcommunity. u/$authorName. $createdAt'),
-            title: Text(samplePost.title ?? 'No Title'),
+            subtitle: Text('r/${subredditInfo['name']}. u/$authorName. $createdAt'),
+            title: Text(postTitle ?? 'No Title'),
           ),
           Divider(),
           Row(

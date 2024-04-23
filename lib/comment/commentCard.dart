@@ -23,7 +23,7 @@ final String? userImage;
 
    CommentCard({
     Key? key,
-    required this.post,
+     required this.post,
     required this.id,
     required this.content,
     required this.authorUsername,

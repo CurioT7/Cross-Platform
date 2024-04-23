@@ -170,31 +170,21 @@ class ApiServiceMahmoud {
 
 
   Future<Map<String, dynamic>> getInfo(String token, String objectID, String objectType) async {
-    final String endpoint = '/api/info';
+    final String endpoint = '/api/info?objectID=$objectID&objectType=$objectType'; // Endpoint for fetching post information
 
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
-    final Map<String, String> headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    };
-
-    final params = {
-      'objectID': objectID,
-      'objectType': objectType,
-    };
-
-    // Construct the query parameters directly in the URL
-    final uri = url.replace(queryParameters: params);
-
     try {
       final response = await http.get(
-        uri,
-        headers: headers,
+        url, // Just pass the Uri object directly here
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
-          print('the response is ${response.body}');
-          print('the status code is ${response.statusCode}');
+      print('the response is ${response.body}');
+      print('the status code is ${response.statusCode}');
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
@@ -212,7 +202,6 @@ class ApiServiceMahmoud {
       throw Exception('Failed to get info: $e');
     }
   }
-
 
   Future<Map<String, dynamic>> disconnectWithGoogle(String password, String token) async {
     final String url = '$_baseUrlDataBase/api/google/disconnect';

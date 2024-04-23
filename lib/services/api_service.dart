@@ -9,10 +9,13 @@ import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/community_model.dart';
 import 'logicAPI.dart';
+import 'package:curio/Models/post.dart';
+import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
-  final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  //final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  final String _baseUrl= 'http://192.168.1.7';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -64,7 +67,8 @@ class ApiService {
     //   ),
     // );
    // String baseUrl = 'http://20.19.89.1';
-    final String baseUrl= 'http://192.168.1.13:3000';
+    //final String baseUrl= 'http://192.168.1.13:3000';
+    final String baseUrl= 'http://192.168.1.7';
 
     // make a post request to the server api/auth/signup
     final response = await http.post(
@@ -159,7 +163,32 @@ class ApiService {
       throw Exception('Failed to reset password');
     }
   }
-
+Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
+  final response = await http.get(
+    Uri.parse('$_baseUrl/api/saved_categories'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  if (response.statusCode == 200) {
+    Map<String, dynamic> body = jsonDecode(response.body);
+    if(body.isEmpty){
+      print("Empty body");
+      return {'savedPosts': [], 'savedComments': []};
+    }
+    if(body['savedPosts'] == null || body['savedComments'] == null){
+      print("Empty body2");
+      return {'savedPosts': [], 'savedComments': []};
+    }
+    List<Post> savedPosts = (body['savedPosts'] as List).map((i) => Post.fromJson(i)).toList();
+    List<Comment> savedComments = (body['savedComments'] as List).map((i) => Comment.fromJson(i)).toList();
+    return {'savedPosts': savedPosts, 'savedComments': savedComments};
+  }
+  else{
+    throw Exception('Failed to fetch saved posts and comments');
+  }
+}
 
 Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
   print("submitting post");
@@ -342,8 +371,9 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    const baseUrl = 'http://20.19.89.1';
-    // final String baseUrl= 'http://192.168.1.7';
+    //const baseUrl = 'http://20.19.89.1';
+
+     final String baseUrl= 'http://192.168.1.7';
 
     final url = Uri.parse('$baseUrl$endpoint');
 

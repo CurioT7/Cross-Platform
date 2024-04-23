@@ -11,6 +11,59 @@ class ApiServiceMahmoud {
   // final String _baseUrlDataBase= 'http://192.168.1.7';
 
 
+  Future<Map<String, dynamic>> getUnreadNotifications(String token) async {
+    final String endpoint = '/api/notifications/unread';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Include the token in the request header
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal Server Error');
+      } else {
+        throw Exception('Failed to fetch unread notifications: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch unread notifications: $e');
+    }
+  }
+
+
+
+
+
+
+  Future<Map<String, dynamic>> searchCommunities(String query) async {
+    final String endpoint = '/api/searchCommunities/$query';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 404) {
+        throw Exception('No communities found for the given query');
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal Server Error: ${response.statusCode}');
+      } else {
+        throw Exception('Failed to search communities: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to search communities: $e');
+    }
+  }
+
+
   Future<Map<String, dynamic>> sharePostToProfile(String token, String title, String postId) async {
     final String url = '$_baseUrlDataBase/api/share';
     final Map<String, String> headers = {
@@ -41,7 +94,7 @@ class ApiServiceMahmoud {
         return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
         // Unauthorized error
-        return {'success': false, 'message': 'Unauthorized'};
+        return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
         // Not Found error
         return {'success': false, 'message': 'User not found | Post not found | Subreddit not found'};
@@ -93,7 +146,7 @@ class ApiServiceMahmoud {
         return jsonDecode(response.body);
       } else if (response.statusCode == 401) {
         // Unauthorized error
-        return {'success': false, 'message': 'Unauthorized'};
+        return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
         // Not Found error
         return {'success': false, 'message': 'User not found | Post not found | Subreddit not found'};
@@ -145,7 +198,7 @@ class ApiServiceMahmoud {
   Future<Map<String, dynamic>> getUserCommunities(String token, String username) async {
     print('i am sending the api');
     print(username);
-    final String endpoint = '/user/$username/communities'; // Endpoint for fetching user profile
+    final String endpoint = '/api/user/$username/communities'; // Endpoint for fetching user profile
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
@@ -170,31 +223,21 @@ class ApiServiceMahmoud {
 
 
   Future<Map<String, dynamic>> getInfo(String token, String objectID, String objectType) async {
-    final String endpoint = '/api/info';
+    final String endpoint = '/api/info?objectID=$objectID&objectType=$objectType'; // Endpoint for fetching post information
 
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
-    final Map<String, String> headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    };
-
-    final params = {
-      'objectID': objectID,
-      'objectType': objectType,
-    };
-
-    // Construct the query parameters directly in the URL
-    final uri = url.replace(queryParameters: params);
-
     try {
       final response = await http.get(
-        uri,
-        headers: headers,
+        url, // Just pass the Uri object directly here
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
       );
 
-          print('the response is ${response.body}');
-          print('the status code is ${response.statusCode}');
+      print('the response is ${response.body}');
+      print('the status code is ${response.statusCode}');
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
@@ -212,7 +255,6 @@ class ApiServiceMahmoud {
       throw Exception('Failed to get info: $e');
     }
   }
-
 
   Future<Map<String, dynamic>> disconnectWithGoogle(String password, String token) async {
     final String url = '$_baseUrlDataBase/api/google/disconnect';
@@ -461,12 +503,17 @@ class ApiServiceMahmoud {
       // Check the response header before decoding
       if (response.headers['content-type']?.contains('application/json') ?? false) {
         final responseData = jsonDecode(response.body);
-
+          print('the response i recived is $responseData' );
+          print('the status code is ${response.statusCode}  ');
         // Existing logic for handling different status codes
         if (response.statusCode == 200) {
           print('the message from the backend is ${responseData['message']}');
           return {'success': true, 'message': responseData['message']};
-        } else {
+        }else if (response.statusCode == 500)
+        {
+          return {'success': true, 'message': 'Email change successful, please verify your new email address'};
+        }
+        else {
           // If response status code is not 200, we are assuming the body is still JSON
           print('the message from the backend is ${responseData['message']}');
           return {'success': false, 'message': responseData['message']};
@@ -479,6 +526,29 @@ class ApiServiceMahmoud {
       }
     } catch (e) {
       return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> getTopCommunities() async {
+    final String url = '$_baseUrlDataBase/api/best/communities';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 500) {
+        throw Exception('Internal server error');
+      } else {
+        throw Exception('Failed to fetch top communities: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch top communities: $e');
     }
   }
 

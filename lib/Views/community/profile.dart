@@ -14,6 +14,10 @@ import 'package:curio/Models/post.dart';
 
 import 'aboutComunity.dart';
 class communityProfile extends StatefulWidget {
+  final String communityName ;
+
+  const communityProfile({Key? key, required this.communityName}) : super(key: key);
+
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
@@ -21,7 +25,7 @@ class communityProfile extends StatefulWidget {
 class _CommunityProfileState extends State<communityProfile> {
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Music aut';
+ late String communityName;
   bool hasJoined = false;
 
 
@@ -120,6 +124,7 @@ if (timeInterval!<1){
   @override
   void initState() {
     super.initState();
+    communityName = widget.communityName;
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
     fetchPosts('hot');
@@ -317,7 +322,7 @@ if (timeInterval!<1){
                 child: TextButton(
 
                   style: ButtonStyle(
-padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 5.0)),
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 5.0)),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
                         if (hasJoined) {

@@ -137,7 +137,7 @@ class _AboutComunityPageState extends State<AboutComunityPage> {
           : Center(
         child: CircularProgressIndicator(),
       ),
-      bottomNavigationBar: homeNavigationBar(),
+      bottomNavigationBar: HomeNavigationBar(),
     );
   }
 }

@@ -528,6 +528,107 @@ class logicAPI {
     }
   }
 
+  //voteComment
+
+   Future<void> voteComment(String commentId, int direction, String token) async {
+     final response = await http.post(
+       Uri.parse('$_baseUrl/api/vote'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+       body: jsonEncode(<String, dynamic>{
+         'itemID': commentId,
+         'itemName': 'comment',
+         'direction': direction,
+       }),
+     );
+     Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+     if (response.statusCode == 200) {
+       if (responseBody['success']) {
+         print(responseBody['message']);
+       } else {
+         throw Exception('Unexpected error: ${responseBody['message']}');
+       }
+     } else if (response.statusCode == 404) {
+       throw Exception(responseBody['message']);
+     } else if (response.statusCode == 400) {
+       throw Exception(responseBody['message']);
+     } else if (response.statusCode == 500) {
+       throw Exception(responseBody['message']);
+     } else if (response.statusCode == 401) {
+       throw Exception(responseBody['message']);
+     } else {
+       throw Exception('Failed to vote on comment. Status code: ${response.statusCode}');
+     }
+   }
+  //save comment
+   void saveComment(String commentId, String token) async {
+    print("inside save comment");
+     final response = await http.post(
+       Uri.parse('$_baseUrl/api/save'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+       body: jsonEncode(<String, dynamic>{
+         'category': 'comment',
+         'id': commentId,
+       }),
+     );
+
+    if (response.statusCode == 200) {
+      print("Comment saved successfully");
+    } else if (response.statusCode == 400) {
+      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+    } else if (response.statusCode == 403) {
+      throw Exception('Forbidden: The client does not have access rights to the content.');
+    } else if (response.statusCode == 404) {
+      throw Exception('Not Found: The server can not find the requested resource.');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
+
+    } else {
+      throw Exception('Failed to save comment. Status code: ${response.statusCode}');
+      }
+   }
+
+   //unsave comment
+
+   void unsaveComment(String commentId, String token) async {
+     print("inside unsave comment");
+
+     final response = await http.post(
+       Uri.parse('$_baseUrl/api/unsave'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+       body: jsonEncode(<String, dynamic>{
+         'id': commentId,
+       }),
+     );
+
+     if (response.statusCode == 200) {
+       print("Comment unsaved successfully");
+     } else if (response.statusCode == 400) {
+       throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+     } else if (response.statusCode == 401) {
+       throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+     } else if (response.statusCode == 403) {
+       throw Exception('Forbidden: The client does not have access rights to the content.');
+     } else if (response.statusCode == 404) {
+       throw Exception('Not Found: The server can not find the requested resource.');
+     } else if (response.statusCode == 500) {
+       throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
+
+     } else {
+       throw Exception('Failed to unsave comment. Status code: ${response.statusCode}');
+     }
+   }
   //getpostbyid
 
    Future<Post> fetchPostByID(String objectID) async {
@@ -543,6 +644,30 @@ class logicAPI {
 
        if (response.statusCode == 200) {
          return Post.fromJson((jsonDecode(response.body)['item']));
+       } else {
+         print('Response body: ${response.body}');
+
+         throw Exception('Failed to load info with status code: ${response.statusCode}');
+       }
+     } catch (e) {
+       throw Exception('Failed to load info. Error: $e');
+     }
+   }
+
+   //getCommentbyid
+   Future<Comment> fetchCommentByID(String objectID) async {
+     try {
+       print(objectID);
+       final response = await http.get(
+         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=comment'),
+         headers:<String, String> {
+           'Content-Type': 'application/json; charset=UTF-8',
+
+         },
+       );
+
+       if (response.statusCode == 200) {
+         return Comment.fromJson((jsonDecode(response.body)['item']));
        } else {
          print('Response body: ${response.body}');
 

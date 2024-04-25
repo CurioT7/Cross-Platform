@@ -44,7 +44,7 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
     }(),
     builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {
-    return CircularProgressIndicator(); // Show a loading spinner while waiting
+    return Container(); // Show a loading spinner while waiting
     } else if (snapshot.hasError) {
     return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
     } else {
@@ -85,7 +85,7 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return Container();
                 }
               },
             ),

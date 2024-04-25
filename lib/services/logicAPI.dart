@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 // import C:\Users\yaray\OneDrive\Documents\HEM\Software\Curio_v1\Cross-Platform\lib\Models\post.dart
@@ -256,31 +257,40 @@ class logicAPI {
       throw Exception('Failed to load posts');
     }
   }
-   Future<List<String>> fetchJoinedCommunityNames(String username, String token, String communityName) async {
-     final response = await http.get(
-       Uri.parse('$_baseUrl/api/user/$username/communities'),
-       headers: <String, String>{
-         'Content-Type': 'application/json; charset=UTF-8',
-         'Authorization': 'Bearer $token',
-       },
-     );
+   void fetchJoinedCommunityNames(String username, String token, String name) async {
+     try {
+       final response = await http.get(
+         Uri.parse('$_baseUrl/api/user/$username/communities'),
+         headers: <String, String>{
+           'Content-Type': 'application/json; charset=UTF-8',
+           'Authorization': 'Bearer $token',
+         },
+       );
+       if (response.statusCode == 200) {
+         Map<String, dynamic> responseBody = json.decode(response.body);
+         if (responseBody['success']) {
+           List<dynamic> communitiesJson = responseBody['communities'];
 
-     if (response.statusCode == 200) {
-       Map<String, dynamic> responseBody = json.decode(response.body);
-       if (responseBody['success']) {
-         List<dynamic> communitiesJson = responseBody['communities'];
-         bool isJoined =communitiesJson.map((community) => community['name'] as String).toList().contains(communityName);
+           for (var community in communitiesJson) {
+             String communityName = community['name'];
+             bool isJoined = name == communityName;
 
-         final SharedPreferences prefs = await SharedPreferences.getInstance();
-         await prefs.setBool('isJoinedSubreddit', isJoined);
-
-
-         return communitiesJson.map((community) => community['name'] as String).toList();
+             final SharedPreferences prefs = await SharedPreferences.getInstance();
+             if (isJoined) {
+               await prefs.setBool('isJoinedSubreddit', true);
+               return;
+             }
+             await prefs.setBool('isJoinedSubreddit', false);
+           }
+         } else {
+           throw Exception('Failed to load communities');
+         }
        } else {
-         throw Exception('Failed to load communities');
+         throw Exception('Failed to load communities with status code: ${response.statusCode}');
        }
-     } else {
-       throw Exception('Failed to load communities with status code: ${response.statusCode}');
+     } catch (e) {
+       print('Error: $e');
+       throw e;
      }
    }
   // Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {

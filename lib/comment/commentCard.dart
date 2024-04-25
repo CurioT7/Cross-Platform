@@ -127,7 +127,7 @@ class _CommentCardState extends State<CommentCard> {
                     child: Icon(Icons.arrow_upward, color: upvotePressed ? Colors.red : Colors.black),
                   ),
                   onPressed: () async {
-                    if (upvotePressed == false) {
+                    if (upvotePressed == false && downvotePressed==false) {
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token != null) {
@@ -140,7 +140,7 @@ class _CommentCardState extends State<CommentCard> {
                       } else {
                         throw Exception('Token is null');
                       }
-                    } else {
+                    } else if (upvotePressed == true && downvotePressed==false) {
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token != null) {
@@ -148,6 +148,21 @@ class _CommentCardState extends State<CommentCard> {
                         setState(() {
                           upvotes = upvotes - 1;
                           upvotePressed = false;
+                          downvotePressed = false;
+                        });
+                      } else {
+                        throw Exception('Token is null');
+                      }
+                    }
+                    else if (upvotePressed == false && downvotePressed==true) {
+                      final SharedPreferences prefs = await SharedPreferences.getInstance();
+                      String? token = prefs.getString('token');
+                      if (token != null) {
+                        await logicAPI().voteComment(widget.id, 0, token);
+                        await logicAPI().voteComment(widget.id, 1, token);
+                        setState(() {
+                          upvotes = upvotes + 2;
+                          upvotePressed = true;
                           downvotePressed = false;
                         });
                       } else {
@@ -165,7 +180,7 @@ class _CommentCardState extends State<CommentCard> {
                     child: Icon(Icons.arrow_downward, color: downvotePressed ? Colors.red : Colors.black),
                   ),
                   onPressed: () async {
-                    if (downvotePressed == false) {
+                    if (downvotePressed == false && upvotePressed==false) {
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token != null) {
@@ -176,7 +191,7 @@ class _CommentCardState extends State<CommentCard> {
                           upvotePressed = false;
                         });
                       }
-                    } else {
+                    } else if (downvotePressed == true && upvotePressed==false){
                       final SharedPreferences prefs = await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token != null) {
@@ -188,81 +203,81 @@ class _CommentCardState extends State<CommentCard> {
                         });
                       }
                     }
+                    else if (downvotePressed == false && upvotePressed==true){
+                      final SharedPreferences prefs = await SharedPreferences.getInstance();
+                      String? token = prefs.getString('token');
+                      if (token != null) {
+                        await logicAPI().voteComment(widget.id, 0, token);
+                        await logicAPI().voteComment(widget.id, -1, token);
+
+                        setState(() {
+                          downvotes = downvotes + 2;
+                          downvotePressed = true;
+                          upvotePressed = false;
+                        });
+                      }
+                    }
                   },
                 ),
                 FutureBuilder<Map<String, dynamic>>(
                   future: _fetchUsername(),
                   builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(); // Show loading indicator while waiting for _fetchUsername to complete
+                      return Container();
                     } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}'); // Show error message if _fetchUsername fails
+                      return Text('Error: ${snapshot.error}');
                     } else {
                       username = snapshot.data!['username'];
-                     // Extract the username from the snapshot data
+                      List<Widget> children = [];
                       if (username == widget.authorUsername) {
-                        return Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => editComment(postID: widget.postID, commentId: widget.id)),
-                                );
-                              },
-                              icon: Icon(
-                                Icons.more_vert,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                showDeleteCommentDialog(context,); // Replace 'communityName' with the actual community name
-                              },
-                              icon: Icon(
-                                Icons.delete,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () async {
-                                if (savePressed == false) {
-                                  setState(()  {
-    savePressed = true;
-    });
-                                    final SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    String? token = prefs.getString('token');
-                                    if (token != null) {
-                                      logicAPI().saveComment(widget.id, token); // Replace 'communityName' with the actual community name
-                                    } else {
-                                      throw Exception('Token is null');
-                                    }
-
-                                }
-                                else{
-
-                                  setState(() {
-                                    savePressed = false;
-                                  });
-                                  final SharedPreferences prefs = await SharedPreferences.getInstance();
-                                  String? token = prefs.getString('token');
-                                  if (token != null) {
-                                    logicAPI().unsaveComment(widget.id, token); // Replace 'communityName' with the actual community name
-                                  } else {
-                                    throw Exception('Token is null');
-                                  }
-                                }
-                              },
-                              icon: Icon(
-                                savePressed ? Icons.bookmark : Icons.bookmark_border,
-
-
-                              ),
-                            ),
-
-                           ],
-                        );
-                      } else {
-                        return Container(); // Return an empty container if the username doesn't match
+                        children.addAll([
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => editComment(postID: widget.postID, commentId: widget.id)),
+                              );
+                            },
+                            icon: Icon(Icons.more_vert),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              showDeleteCommentDialog(context,);
+                            },
+                            icon: Icon(Icons.delete),
+                          ),
+                        ]);
                       }
+                      children.add(IconButton(
+                        onPressed: () async {
+                          if (savePressed == false) {
+                            setState(()  {
+                              savePressed = true;
+                            });
+                            final SharedPreferences prefs = await SharedPreferences.getInstance();
+                            String? token = prefs.getString('token');
+                            if (token != null) {
+                              logicAPI().saveComment(widget.id, token);
+                            } else {
+                              throw Exception('Token is null');
+                            }
+                          }
+                          else{
+                            setState(() {
+                              savePressed = false;
+                            });
+                            final SharedPreferences prefs = await SharedPreferences.getInstance();
+                            String? token = prefs.getString('token');
+                            if (token != null) {
+                              logicAPI().unsaveComment(widget.id, token);
+                            } else {
+                              throw Exception('Token is null');
+                            }
+                          }
+                        },
+                        icon: Icon(savePressed ? Icons.bookmark : Icons.bookmark_border),
+                      ));
+                      return Row(children: children);
                     }
                   },
                 )

@@ -2,8 +2,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
-  //final String baseUrl = 'http://20.19.89.1/api';
-   final String baseUrl= 'http://192.168.1.7/api';
+  // final String baseUrl = 'http://20.19.89.1/api';
+   final String baseUrl= 'http://192.168.1.13:3000/api';
+
 
     Future<List<Post>> getBestPosts() async {
     try {
@@ -25,7 +26,28 @@ class ApiService {
     }
   }
 
+  Future<Post> fetchPostByID(String objectID) async {
+     try {
+       print(objectID);
+       final response = await http.get(
+         Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
+         headers:<String, String> {
+           'Content-Type': 'application/json; charset=UTF-8',
 
+         },
+       );
+
+       if (response.statusCode == 200) {
+         return Post.fromJson((jsonDecode(response.body)['item']));
+       } else {
+         print('Response body: ${response.body}');
+
+         throw Exception('Failed to load info with status code: ${response.statusCode}');
+       }
+     } catch (e) {
+       throw Exception('Failed to load info. Error: $e');
+     }
+   }
   Future<Post> getRandomPost(String subreddit) async {
     final response = await http.get(Uri.parse('$baseUrl/r/$subreddit/random'));
     if (response.statusCode == 200) {
@@ -66,6 +88,30 @@ class ApiService {
         } else {
           throw Exception('Failed to load posts');
         }
+      } else {
+        throw Exception('Failed to load posts with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+      throw e;
+    }
+  }
+  
+  Future<List<Post>> getTrendingPosts() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/trendingSearches'));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          List<dynamic> postsJson = responseBody['posts'];
+          return postsJson.map((json) => Post.fromJson(json)).toList();
+        } else {
+          throw Exception('Failed to load posts');
+        }
+      } else if (response.statusCode == 404) {
+        throw Exception('No Trendings Today');
+      } else if (response.statusCode == 500) {
+        throw Exception('Error retrieving search results');
       } else {
         throw Exception('Failed to load posts with status code: ${response.statusCode}');
       }
@@ -320,4 +366,6 @@ Future<bool> markAsNsfw(String postId, String token) async {
   }
 
 }
+
+
 }

@@ -14,6 +14,10 @@ import 'package:curio/Models/post.dart';
 
 import 'aboutComunity.dart';
 class communityProfile extends StatefulWidget {
+  final String communityName ;
+
+  const communityProfile({Key? key, required this.communityName}) : super(key: key);
+
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
@@ -54,6 +58,7 @@ class _CommunityProfileState extends State<communityProfile> {
       throw Exception('Error fetching user details: $e');
     }
   }
+
 
 
   List<Post> posts = [];
@@ -151,6 +156,7 @@ class _CommunityProfileState extends State<communityProfile> {
   @override
   void initState() {
     super.initState();
+    communityName = widget.communityName;
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
     isJoined = null;
@@ -342,6 +348,7 @@ class _CommunityProfileState extends State<communityProfile> {
                 child: TextButton(
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.0, left: 8.0)),
+
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
                           (Set<MaterialState> states) {
 

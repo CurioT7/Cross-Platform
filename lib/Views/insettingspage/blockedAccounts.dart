@@ -9,27 +9,73 @@ class BlockedAccountsPage extends StatefulWidget {
 }
 
 class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
-  final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
-  List<String> blockedAccounts = [
-    "mahmoud 1",
-    // Add more blocked accounts here...
-  ];
+List<dynamic> blockedAccounts = [];
 
-  List<String> allAccounts = [
-    "mahmoud1",
-    "Arianna.Gutkowski53",
-    'Weldon_Weissnat74',
-    'Mayra.Rau',
-    // Add all user accounts here...
-  ];
-
-  List<String> filteredAccounts = [];
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
-    filteredAccounts = blockedAccounts;
+    _loadInitialData(); // Load initial data when the widget initializes
+
+      print('blocked accounts are $blockedAccounts');
+
   }
+
+  void _loadInitialData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var value = prefs.getString('token');
+
+    print('the value of the token inside the settings page is  $value');
+
+
+    _fetchUserProfile();
+  }
+
+  void _fetchUserProfile() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+
+      Map<String, dynamic> userProfile =
+      await _apiService.getUserProfile(token);
+      print(userProfile); // Print the fetched data for debugging
+      // Fetch user preferences
+
+      Map<String, dynamic> userPref = await _apiService.getUserPreferences(token);
+      blockedAccounts= userPref['viewBlockedPeople'];
+      print('blocked accounts are $blockedAccounts');
+      print('$userPref'); // Print the fetched data for debugging
+
+
+      setState(() {
+        blockedAccounts= userPref['viewBlockedPeople'];
+
+
+      });
+    } catch (e) {
+      print('Failed to fetch user profile: $e');
+    }
+  }
+
+  final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
+
+
+
+  List<dynamic> filteredAccounts = [];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,10 +98,10 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredAccounts.length,
+              itemCount: blockedAccounts.length,
               itemBuilder: (context, index) {
-                String account = filteredAccounts[index];
-                bool isBlocked = blockedAccounts.contains(account);
+                String account = blockedAccounts[index]['blockedUsername'];
+
 
                 return ListTile(
                   leading: CircleAvatar(
@@ -65,13 +111,11 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
                   title: Text(account),
                   trailing: ElevatedButton(
                     onPressed: () {
-                      if (isBlocked) {
-                        _unblockAccount(account);
-                      } else {
-                        _blockAccount(account);
-                      }
+                      //_blockAccount(account);
+                      _unblockAccount(account);
+                      _loadInitialData();
                     },
-                    child: Text(isBlocked ? 'Unblock' : 'Block'),
+                    child: Text('unblock'),
                     style: ElevatedButton.styleFrom(
                       //primary: isBlocked ? Colors.blue : Colors.red,
                       //onPrimary: Colors.white,
@@ -89,20 +133,25 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
   void _filterAccounts(String query) {
     if (query.isEmpty) {
       setState(() {
-        filteredAccounts = blockedAccounts;
+        blockedAccounts = blockedAccounts;
       });
     } else {
       setState(() {
-        filteredAccounts = allAccounts
-            .where((account) => account.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+
       });
     }
   }
 
   void _blockAccount(String account) async {
     try {
-      final response = await _apiService.blockUser(account);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+
+      final response = await _apiService.blockUser(token,account);
       if (response['message'] == 'User successfully blocked') {
         setState(() {
           blockedAccounts.add(account);
@@ -175,11 +224,13 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
 
       if (token != null) {
         final response = await _apiService.unblockUser(token, account);
-        if (response['message'] == 'User successfully unblocked') {
+        if (response['message'] == 'User successfully unblocked')
+        {
           setState(() {
             blockedAccounts.remove(account);
             _filterAccounts('');
             printBlockedAccounts();
+
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

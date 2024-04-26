@@ -13,7 +13,7 @@ class HomeNavigationBar extends StatefulWidget {
 class _HomeNavigationBarState extends State<HomeNavigationBar> {
   String? notficationsMessage;
   int _selectedIndex = 0;
-  String notificationCount = '0'; // Notification count
+  int notificationCount = 0; // Notification count
   void showSnackbar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -31,14 +31,13 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
         throw Exception('Token not found');
       }
       final notifications = await apiService.getUnreadNotifications(token);
+      print(notifications);
       setState(() {
 
-        if(notifications['message'] == null) {
-          notificationCount = notifications['unreadCount'];
-        }else{
-          notficationsMessage=notifications['message'];
-          notificationCount = '0';
-        }
+
+        notificationCount = notifications['unreadCount'];
+
+
 
       });
       print(notifications);
@@ -66,7 +65,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
         BottomNavigationBarItem(icon: Icon(Icons.textsms_outlined), label: 'Chat'),
         BottomNavigationBarItem(
           icon: NotificationIcon(
-            notificationCount: notificationCount,
+            notificationCount: notificationCount.toString(),
           ),
           label: 'Inbox',
         ),
@@ -125,7 +124,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
             break;
           case 4:
             getUnreadNotifications();
-            if(notficationsMessage == null) {
+            if(notificationCount == 0) {
 
               showSnackbar(context, 'There are no unread notifications');
 

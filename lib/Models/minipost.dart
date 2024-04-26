@@ -21,11 +21,9 @@ class MiniPost {
     return MiniPost(
       id: json['_id'] is String ? json['_id'] : '',
       authorName: json['authorName'] is String ? json['authorName'] : '',
-      subredditName:
-          json['linkedSubreddit'] is String ? json['linkedSubreddit'] : '',
-      createdAt: json['createdAt'] is String
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+
+      subredditName: json['linkedSubreddit'] is String ? json['linkedSubreddit'] : '',
+      createdAt: json['createdAt'] is String ? DateTime.parse(json['createdAt']) : DateTime.now(),
       title: json['title'] is String ? json['title'] : '',
       upvotes: json['upvotes'] is int ? json['upvotes'] : 0,
       comments: json['comments'] is List ? json['comments'].length : 0,

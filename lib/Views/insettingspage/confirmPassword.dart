@@ -30,8 +30,7 @@ class _ConfirmPasswordPageState extends State<ConfirmPasswordPage> {
 
     // Call the disconnectWithGoogle method from ApiServiceMahmoud
     try {
-      final Map<String, dynamic> result =
-          await ApiServiceMahmoud().disconnectWithGoogle(password, token);
+      final Map<String, dynamic> result = await ApiServiceMahmoud().disconnectWithGoogle(password, token);
 
       if (result['success']) {
         _showSnackBar('Google account disconnected successfully');

@@ -95,9 +95,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                        if (isCommunitySelected &
-                            descriptionController.text.isNotEmpty) {
-                          Map<String, dynamic> post = {
+
+                        if (isCommunitySelected) {
+                          Map<String,dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
                             'isNSFW': selectedTags.contains('NSFW'),
@@ -111,11 +111,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             post['media'] = attachment!.data;
                           }
 
-                          final SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
+
+                          final SharedPreferences prefs = await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
-                          final response =
-                              await ApiService().submitPost(post, token);
+                          final response = await ApiService().submitPost(post, token);
                           if (response['success'] == true) {
                             Navigator.pop(context);
                           } else {

@@ -132,6 +132,7 @@ class _CommunityProfileState extends State<communityProfile> {
   void initState() {
     super.initState();
     communityName = widget.communityName;
+    communityName = widget.communityName;
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
     fetchPosts('hot');
@@ -288,6 +289,7 @@ class _CommunityProfileState extends State<communityProfile> {
                     0.07, // Set the height of the button
 
                 child: TextButton(
+
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                         EdgeInsets.only(right: 5.0)),
@@ -370,6 +372,7 @@ class _CommunityProfileState extends State<communityProfile> {
                     }
                   },
                   child: Text(
+
                     hasJoined ? 'Joined' : 'Join',
                     // Change the text based on whether the user has joined or not
                     style: TextStyle(

@@ -9,6 +9,7 @@ import 'package:curio/comment/newComment.dart';
 import 'package:curio/widgets/postCard.dart';
 
 class ViewPostComments extends StatefulWidget {
+
   final Post post;
 
   ViewPostComments({required this.post});
@@ -17,37 +18,37 @@ class ViewPostComments extends StatefulWidget {
 }
 
 class _ViewPostCommentsState extends State<ViewPostComments> {
+
+
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     logicAPI().fetchPostComments(widget.post.id);
-  }
 
-  @override
+  }@override
   Widget build(BuildContext context) {
     print('Post: ${widget.post.title}');
     print('Post: ${widget.post.content}');
-    String postTitle = widget.post.title;
-    String postcontent = widget.post.content;
+String postTitle = widget.post.title;
+String postcontent = widget.post.content;
+
 
     return Scaffold(
       //set color of page to ligth grey
       backgroundColor: Colors.grey[200],
-      appBar: topAppBar(context),
+
+    appBar: topAppBar(context),
       body: Column(
         children: <Widget>[
           Container(
-            child: PostCard(
-              post: widget.post,
-            ),
-          ), // Wrap the PostCard widget with an Expanded widget
+            child: PostCard(post: widget.post,),
+          ),// Wrap the PostCard widget with an Expanded widget
           Expanded(
             child: FutureBuilder<List<Comment>>(
               future: logicAPI().fetchPostComments(widget.post.id),
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Comment>> snapshot) {
+              builder: (BuildContext context, AsyncSnapshot<List<Comment>> snapshot) {
                 if (snapshot.hasData) {
                   List<Comment> comments = snapshot.data!;
                   return ListView.builder(
@@ -84,13 +85,13 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
               children: <Widget>[
                 Expanded(
                   child: GestureDetector(
+
                     child: TextField(
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  newComment(post: widget.post)),
+
+                          MaterialPageRoute(builder: (context) => newComment(post:widget.post)),
                         );
                       },
                       decoration: InputDecoration(
@@ -117,3 +118,4 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
     );
   }
 }
+

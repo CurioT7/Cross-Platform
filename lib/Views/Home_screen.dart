@@ -1,3 +1,4 @@
+import 'package:curio/Views/Search/searchScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
@@ -56,6 +57,8 @@ class _HomeScreenState extends State<HomeScreen> {
         posts = await _apiService.getPopularPosts();
       } else if (category == 'Discovery') {
         posts = await _apiService.getDiscoveryPosts();
+      } else if (category == 'Trending') {
+        posts = await _apiService.getTrendingPosts();
       } else {
         posts = [];
       }
@@ -77,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
       drawer: CustomSidebar(),
       endDrawer: SidebarAfterLogIn(),
       bottomNavigationBar: const HomeNavigationBar(),
+
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -91,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SearchScreen()),
+
               );
             },
           ),
@@ -114,23 +119,25 @@ class _HomeScreenState extends State<HomeScreen> {
             });
             _fetchBestPosts(newValue!);
           },
-          items: <String>['Home', 'Popular', 'Discovery']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Row(
-                children: [
-                  Icon(value == 'Home'
-                      ? Icons.home
-                      : value == 'Popular'
-                          ? Icons.trending_up
-                          : Icons.explore),
-                  const SizedBox(width: 8),
-                  Text(value),
-                ],
-              ),
-            );
-          }).toList(),
+          items: <String>['Home', 'Popular', 'Discovery', 'Trending']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Row(
+                  children: [
+                    Icon(value == 'Home'
+                        ? Icons.home
+                        : value == 'Popular'
+                            ? Icons.stars_rounded
+                            : value == 'Discovery'
+                                ? Icons.explore
+                                : Icons.trending_up), 
+                    const SizedBox(width: 8),
+                    Text(value),
+                  ],
+                ),
+              );
+            }).toList(),
         ),
       ),
       body: _isLoading

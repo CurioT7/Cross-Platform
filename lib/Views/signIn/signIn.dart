@@ -224,7 +224,7 @@ class LoginButton extends StatelessWidget {
             ApiService apiService = ApiService();
             print('Username or Email: ${emailController.text}');
             print('Password: ${passwordController.text}');
-
+          
             try {
               final http.Response response = await apiService.signIn(
                   emailController.text, passwordController.text);
@@ -234,8 +234,7 @@ class LoginButton extends StatelessWidget {
                 print(data);
                 String token = data['accessToken'];
                 // save the token to the shared preferences
-                final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
                 await prefs.setString('token', token);
                 Navigator.push(
                   context,

@@ -31,6 +31,24 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 
+import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/services/api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:curio/utils/helpers.dart';
+import 'package:curio/utils/reddit_colors.dart';
+import 'package:curio/Views/signIn/signIn.dart';
+import 'package:curio/Views/signUp/userName.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curio/Views/signIn/forgotPassword.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Views/insettingspage/confirmPassword.dart';
+import 'package:curio/Views/community/chooseCommunity.dart';
+import 'package:curio/Views/share/shareToProfile.dart';
+import 'package:curio/Views/share/shareToSubreddit.dart';
+
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
@@ -49,11 +67,19 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final storage = FlutterSecureStorage();
   String _selectedGender = 'Man'; // Initial selected gender
   String _selectedLocation = 'Mexico';
+  String _selectedLocation = 'Mexico';
   bool _isConnected = false;
   String _username = '';
   String _email = '';
 
   ApiServiceMahmoud _apiService = ApiServiceMahmoud();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -72,6 +98,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = prefs.getString('token');
 
+
     print('the value of the token inside the settings page is  $value');
     String? initialGender = prefs.getString('selectedGender');
     if (initialGender != null) {
@@ -81,6 +108,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
     _fetchUserProfile();
   }
+
 
   void _fetchUserProfile() async {
     try {
@@ -121,6 +149,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -137,6 +166,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
           ListTile(
             leading: Icon(FontAwesomeIcons.cog, color: KIconColor),
             title: Text('Update email address', style: kTitleHeader),
+            subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
+                style: kMoreInfoTextStyle),
             subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
                 style: kMoreInfoTextStyle),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),

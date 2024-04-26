@@ -15,7 +15,8 @@ class _CustomSidebarState extends State<CustomSidebar> {
   List<Community> communities = [];
   bool isLoading = true;
 
-  @override
+
+   @override
   void initState() {
     super.initState();
     fetchCommunities(context).then((value) {
@@ -34,7 +35,7 @@ class _CustomSidebarState extends State<CustomSidebar> {
     return communities ?? [];
   }
 
-  void toggleFavorite(Community community, bool isFavorite) {
+ void toggleFavorite(Community community, bool isFavorite) {
     setState(() {
       if (isFavorite) {
         if (!favoriteCommunities.any((x) => x.id == community.id)) {
@@ -50,53 +51,19 @@ class _CustomSidebarState extends State<CustomSidebar> {
       }
     });
   }
+  
 
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          const SizedBox(height: 50),
-          if (favoriteCommunities.isNotEmpty)
-            ExpansionTile(
-              title: const Text('Favorites'),
-              children: favoriteCommunities.map((community) {
-                return ListTile(
-                  title: Text('r/${community.name}'),
-                  trailing: FavoriteButton(
-                    community: community,
-                    isFavorite: favoriteCommunities.contains(community),
-                    toggleFavorite: toggleFavorite,
-                  ),
-                );
-              }).toList(),
-            ),
-          const Divider(),
-          if (isLoading) const CircularProgressIndicator(),
-          if (!isLoading && communities.isEmpty)
-            const ListTile(
-              title: Text('Join communities to see them here'),
-            ),
-          if (!isLoading && communities.isNotEmpty)
-            ExpansionTile(
-              title: const Text('Your Communities'),
-              children: <Widget>[
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => createCommunity()),
-                    );
-                  },
-                  child: const ListTile(
-                    leading: Icon(Icons.add),
-                    title: Text('Create a Community'),
-                  ),
-                ),
-                ...communities.map((community) {
+    @override
+    Widget build(BuildContext context) {
+      return Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const SizedBox(height: 50),
+            if (favoriteCommunities.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Favorites'),
+                children: favoriteCommunities.map((community) {
                   return ListTile(
                     title: Text('r/${community.name}'),
                     trailing: FavoriteButton(
@@ -106,23 +73,58 @@ class _CustomSidebarState extends State<CustomSidebar> {
                     ),
                   );
                 }).toList(),
-              ],
+              ),
+            const Divider(),
+            if (isLoading) 
+              const CircularProgressIndicator(),
+            if (!isLoading && communities.isEmpty) 
+              const ListTile(
+                title: Text('Join communities to see them here'),
+              ),
+            if (!isLoading && communities.isNotEmpty)
+              ExpansionTile(
+                title: const Text('Your Communities'),
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => createCommunity()),
+                      );
+                    },
+                    child: const ListTile(
+                      leading: Icon(Icons.add),
+                      title: Text('Create a Community'),
+                    ),
+                  ),
+                  ...communities.map((community) {
+                    return ListTile(
+                      title: Text('r/${community.name}'),
+                      trailing: FavoriteButton(
+                        community: community,
+                        isFavorite: favoriteCommunities.contains(community),
+                        toggleFavorite: toggleFavorite,
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
+            const Divider(),
+            ListTile(
+              title: const Text('All'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AllPage()),
+                );
+              },
             ),
-          const Divider(),
-          ListTile(
-            title: const Text('All'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AllPage()),
-              );
-            },
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
-}
 
 class FavoriteButton extends StatelessWidget {
   final Community community;

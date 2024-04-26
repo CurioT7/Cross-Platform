@@ -4,6 +4,7 @@ import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart ';
+import 'package:shared_preferences/shared_preferences.dart ';
 
 class UpdateEmailAdressPage extends StatefulWidget {
   @override
@@ -77,6 +78,7 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            UserInfoSubBar(),
             UserInfoSubBar(),
             TextField(
               controller: _emailController,

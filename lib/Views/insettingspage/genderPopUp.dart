@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 
-void showGenderBottomSheet(
-    BuildContext context, Function(String) updateGender) async {
+void showGenderBottomSheet(BuildContext context, Function(String) updateGender) async {
   // Initialize SharedPreferences instance
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -113,3 +112,4 @@ Future<void> _handleGenderUpdate(BuildContext context, String gender) async {
     );
   }
 }
+

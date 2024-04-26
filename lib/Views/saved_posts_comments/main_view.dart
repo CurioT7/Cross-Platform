@@ -1,3 +1,4 @@
+import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/homeNavbar.dart';
 import 'package:curio/services/api_service.dart';
@@ -20,7 +21,7 @@ class PostsCommentsExample extends StatelessWidget {
 }
 
 class TabBarExample extends StatefulWidget {
-  const TabBarExample({Key? key}) : super(key: key);
+  const TabBarExample({super.key});
 
   @override
   _TabBarExampleState createState() => _TabBarExampleState();
@@ -101,14 +102,22 @@ class _TabBarExampleState extends State<TabBarExample> {
                 return TabBarView(
                   children: <Widget>[
                     ListView.builder(
-                      itemCount: snapshot.data!['savedPosts'].length,
+                      itemCount: snapshot.data!['savedComments'].length,
                       itemBuilder: (context, index) {
                         return
-                            // retunr a the authorUsername of the comment
-                            ListTile(
-                          title: Text(snapshot
-                              .data!['savedPosts'][index].authorUsername),
-                        );
+                          CommentCard(
+                            postID: snapshot.data!['savedComments'][index].linkedPost,
+                            id: snapshot.data!['savedComments'][index]._id,
+                              content: snapshot.data!['savedComments'][index].content,
+                              authorUsername: snapshot.data!['savedComments'][index].authorName,
+                              createdAt: snapshot.data!['savedComments'][index].createdAt,
+                              upvotes: snapshot.data!['savedComments'][index].upvotes,
+                              downvotes: snapshot.data!['savedComments'][index].downvotes,
+                              linkedPost: snapshot.data!['savedComments'][index].linkedPost,
+                              linkedSubreddit: snapshot.data!['savedComments'][index].linkedSubreddit,
+                              awards: snapshot.data!['savedComments'][index].awards,
+                              userImage: "lib/assets/images/example.jpg",
+                          );
                       },
                     ),
                     const Center(

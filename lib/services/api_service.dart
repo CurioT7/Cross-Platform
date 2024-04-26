@@ -16,7 +16,7 @@ import 'package:curio/Models/comment.dart';
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl= 'http://192.168.1.7';
+  final String _baseUrl= 'http://10.0.0.2:3000';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -69,11 +69,10 @@ class ApiService {
     // );
    // String baseUrl = 'http://20.19.89.1';
     //final String baseUrl= 'http://192.168.1.13:3000';
-    final String baseUrl= 'http://192.168.1.7';
 
     // make a post request to the server api/auth/signup
     final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/signup'),
+      Uri.parse('$_baseUrl/api/auth/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -175,11 +174,9 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
   if (response.statusCode == 200) {
     Map<String, dynamic> body = jsonDecode(response.body);
     if(body.isEmpty){
-      print("Empty body");
       return {'savedPosts': [], 'savedComments': []};
     }
     if(body['savedPosts'] == null || body['savedComments'] == null){
-      print("Empty body2");
       return {'savedPosts': [], 'savedComments': []};
     }
     List<Post> savedPosts = (body['savedPosts'] as List).map((i) => Post.fromJson(i)).toList();
@@ -387,9 +384,9 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
     const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
     //const baseUrl = 'http://20.19.89.1';
 
-     final String baseUrl= 'http://192.168.1.7';
+     // final String baseUrl= 'http://192.168.1.7';
 
-    final url = Uri.parse('$baseUrl$endpoint');
+    final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
     final Map<String, dynamic> requestBody = {

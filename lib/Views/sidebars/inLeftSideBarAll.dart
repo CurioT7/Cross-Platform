@@ -1,15 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:curio/utils/componentSelectionPopUPPage.dart';
-import 'package:curio/widgets/postCard.dart';
-import 'package:curio/models/post.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:flutter/material.dart';
+
+import '../../models/post.dart';
+import '../../utils/componentSelectionPopUPPage.dart';
+import '../../widgets/postCard.dart';
+
 class AllPage extends StatefulWidget {
   const AllPage({Key? key}) : super(key: key);
 
   @override
   State<AllPage> createState() => _AllPageState();
 }
-  Future<double?> timeSelected=Future.value(0.0);
+
+Future<double?> timeSelected = Future.value(0.0);
 
 class _AllPageState extends State<AllPage> {
   String _selectedSort = 'hot';
@@ -36,7 +39,7 @@ class _AllPageState extends State<AllPage> {
       Map<String, dynamic> response;
       switch (sortCriteria) {
         case 'hot':
-            response = await ApiServiceMahmoud().getHotPosts();
+          response = await ApiServiceMahmoud().getHotPosts();
           print('fetching hot posts');
           break;
         case 'new':
@@ -81,7 +84,9 @@ class _AllPageState extends State<AllPage> {
           break;
       }
       setState(() {
-        _posts = (response['posts'] as List<dynamic>).map((postJson) => Post.fromJson(postJson)).toList();
+        _posts = (response['posts'] as List<dynamic>)
+            .map((postJson) => Post.fromJson(postJson))
+            .toList();
         _isLoading = false;
       });
       print(response['posts']); // Print fetched posts
@@ -101,7 +106,8 @@ class _AllPageState extends State<AllPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+        title: const Text('All',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
       ),
       body: Column(
         children: [
@@ -111,12 +117,19 @@ class _AllPageState extends State<AllPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    timeSelected= showSortPostsBottomSheet(context, _selectedSort, _selectedIcon, _updateSortAndIcon, _fetchPosts);
+                    timeSelected = showSortPostsBottomSheet(
+                        context,
+                        _selectedSort,
+                        _selectedIcon,
+                        _updateSortAndIcon,
+                        _fetchPosts);
                   },
                   child: Row(
                     children: [
                       Icon(_selectedIcon),
-                      Text(_selectedSort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      Text(_selectedSort,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
                       Icon(Icons.keyboard_arrow_down_outlined),
                     ],
                   ),

@@ -1,7 +1,7 @@
 class Post {
-  final String? id;
-  final String? title;
-  final String? content;
+  final String id;
+  final String title;
+  final String content;
   final String? authorName;
   final int views;
   final DateTime createdAt;
@@ -10,14 +10,16 @@ class Post {
   final String? linkedSubreddit;
   final List<dynamic> comments;
   final int shares;
-  final bool isNSFW;
-  final bool isSpoiler;
+  late bool isNSFW;
+  late bool isSpoiler;
   final bool isOC;
   final bool isCrosspost;
   final int awards;
   final String? media;
   final String? link;
   final bool isDraft;
+  bool isLocked = false;
+  bool isSaved = false;
 
   Post({
     required this.id,
@@ -43,7 +45,7 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
-      id: json['_id'] as String?,
+      id: json['_id'] as String,
       title: json['title'] as String? ?? 'Untitled',
       content: json['content'] as String? ?? '',
       authorName: json['authorName'] ?? 'Unknown',

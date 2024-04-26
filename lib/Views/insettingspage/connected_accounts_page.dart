@@ -36,7 +36,8 @@ class _ConnectedAccountsPageState extends State<ConnectedAccountsPage> {
               onChanged: (value) {
                 setState(() {
                   _isNewPasswordValid = value.length >= 8;
-                  _arePasswordsMatching = value == _confirmNewPasswordController.text;
+                  _arePasswordsMatching =
+                      value == _confirmNewPasswordController.text;
                 });
               },
             ),
@@ -103,7 +104,8 @@ class _ConnectedAccountsPageState extends State<ConnectedAccountsPage> {
             child: Container(
               height: 40,
               alignment: Alignment.center,
-              child: Text('Passwords should be at least 8 characters and match.'),
+              child:
+                  Text('Passwords should be at least 8 characters and match.'),
             ),
           ),
         ),

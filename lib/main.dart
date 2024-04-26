@@ -1,3 +1,4 @@
+import 'package:curio/Views/signUp/signup_email.dart';
 import 'package:flutter/material.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
@@ -51,10 +52,40 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          primaryColor: Colors.white,
+          scaffoldBackgroundColor: Colors.white,
+          cardColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black),
+          ),
+          colorScheme: const ColorScheme.light(
+            primary: Colors.white,
+            onPrimary: Colors.black,
+            secondary: Colors.deepOrange,
+            onSecondary: Colors.black,
+            surface: Colors.white,
+            onSurface: Colors.black,
+            background: Colors.white,
+            onBackground: Colors.black,
+            error: Colors.red,
+            onError: Colors.white,
+            brightness: Brightness.light,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+            ),
+          ),
+          progressIndicatorTheme: const ProgressIndicatorThemeData(
+            color: Colors.deepOrange,
+          ),
         ),
-        home: HomePageBeforeSignIn(),
+        home: const SignUpWithEmail(),
       ),
     );
   }
@@ -69,7 +100,7 @@ class HomePageBeforeSignIn extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const sideBarBeforeLogin(),
-      bottomNavigationBar: homeNavigationBar(),
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         title: const Text('Side menu'),
         actions: [

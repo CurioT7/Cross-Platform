@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BlockedAccountsPage extends StatefulWidget {
   @override
@@ -8,15 +9,17 @@ class BlockedAccountsPage extends StatefulWidget {
 }
 
 class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
+  final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
   List<String> blockedAccounts = [
     "mahmoud 1",
     // Add more blocked accounts here...
   ];
 
   List<String> allAccounts = [
-    "mahmoud 1",
-    "User 2",
-    "User 3",
+    "mahmoud1",
+    "Arianna.Gutkowski53",
+    'Weldon_Weissnat74',
+    'Mayra.Rau',
     // Add all user accounts here...
   ];
 
@@ -70,9 +73,9 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
                     },
                     child: Text(isBlocked ? 'Unblock' : 'Block'),
                     style: ElevatedButton.styleFrom(
-                      //primary: isBlocked ? Colors.blue : Colors.red,
-                      //onPrimary: Colors.white,
-                    ),
+                        //primary: isBlocked ? Colors.blue : Colors.red,
+                        //onPrimary: Colors.white,
+                        ),
                   ),
                 );
               },
@@ -91,68 +94,158 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
     } else {
       setState(() {
         filteredAccounts = allAccounts
-            .where((account) => account.toLowerCase().contains(query.toLowerCase()))
+            .where((account) =>
+                account.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }
   }
 
-  void _blockAccount(String account) {
-    setState(() {
-      blockedAccounts.add(account);
-      // Optionally filter the accounts again to reflect changes
-      _filterAccounts('');
-      printBlockedAccounts();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating, // Set behavior to floating to allow padding
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
-        ),
-        backgroundColor: Colors.green,
-        content: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20), // Add margin to the left and right
-          child: Container(
-            height: 40, // Adjust the height as needed
-            alignment: Alignment.center, // Center the text horizontally
-            child: Text(' User has been blocked.'),
+  void _blockAccount(String account) async {
+    try {
+      final response = await _apiService.blockUser(account);
+      if (response['message'] == 'User successfully blocked') {
+        setState(() {
+          blockedAccounts.add(account);
+          _filterAccounts('');
+          printBlockedAccounts();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            backgroundColor: Colors.green,
+            content: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                height: 40,
+                alignment: Alignment.center,
+                child: Text('User has been blocked.'),
+              ),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(40),
+            ),
+            backgroundColor: Colors.red,
+            content: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                height: 40,
+                alignment: Alignment.center,
+                child: Text('Failed to block user: ${response['message']}'),
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
+          backgroundColor: Colors.red,
+          content: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              height: 40,
+              alignment: Alignment.center,
+              child: Text('Failed to block user: $e'),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
+  void _unblockAccount(String account) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var token = prefs.getString('token');
 
-  void _unblockAccount(String account) {
-    setState(() {
-      blockedAccounts.remove(account);
-      // Optionally filter the accounts again to reflect changes
-      _filterAccounts('');
-      printBlockedAccounts();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating, // Set behavior to floating to allow padding
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
-        ),
-        backgroundColor: Colors.green,
-        content: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20), // Add margin to the left and right
-          child: Container(
-            height: 40, // Adjust the height as needed
-            alignment: Alignment.center, // Center the text horizontally
-            child: Text(' User has been unblocked.'),
+      if (token != null) {
+        final response = await _apiService.unblockUser(token, account);
+        if (response['message'] == 'User successfully unblocked') {
+          setState(() {
+            blockedAccounts.remove(account);
+            _filterAccounts('');
+            printBlockedAccounts();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+              backgroundColor: Colors.green,
+              content: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 40,
+                  alignment: Alignment.center,
+                  child: Text('User has been unblocked.'),
+                ),
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40),
+              ),
+              backgroundColor: Colors.red,
+              content: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  height: 40,
+                  alignment: Alignment.center,
+                  child: Text('Failed to unblock user: ${response['message']}'),
+                ),
+              ),
+            ),
+          );
+        }
+      } else {
+        // Handle case where token is null
+        print('Token is null');
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
+          backgroundColor: Colors.red,
+          content: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              height: 40,
+              alignment: Alignment.center,
+              child: Text('Failed to unblock user: $e'),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   void printBlockedAccounts() {
-    print("Blocked Accounts: $blockedAccounts");
+    print('Blocked Accounts: $blockedAccounts');
   }
 }

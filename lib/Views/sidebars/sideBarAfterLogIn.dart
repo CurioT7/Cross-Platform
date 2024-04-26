@@ -231,7 +231,7 @@ class SidebarAfterLogIn extends StatelessWidget {
                                       return Text(
                                           'Error calculating days since cake day: ${snapshot.error}');
                                     } else {
-                                       days = snapshot.data!;
+                                      days = snapshot.data!;
                                       return Text('${days}d',
                                           style: TextStyle(
                                             fontFamily: 'IBM Plex Sans Light',
@@ -296,7 +296,7 @@ class SidebarAfterLogIn extends StatelessWidget {
                   builder: (context) => MyProfileScreen(
                     userName: username,
                     userDetails: userDetails,
-                    days:days,
+                    days: days,
                   ),
                 ),
               )

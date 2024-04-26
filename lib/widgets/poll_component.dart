@@ -63,7 +63,7 @@ class _PollComponentState extends State<PollComponent> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.grey),
+                          MaterialStateProperty.all<Color>(Colors.grey),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
@@ -108,7 +108,7 @@ class _PollComponentState extends State<PollComponent> {
                       text: TextSpan(
                         text: 'Poll will end in ',
                         style:
-                        const TextStyle(fontSize: 12, color: Colors.black),
+                            const TextStyle(fontSize: 12, color: Colors.black),
                         children: <TextSpan>[
                           TextSpan(
                             text: selectedOption,
@@ -153,7 +153,7 @@ class _PollComponentState extends State<PollComponent> {
                             hintText: 'Option ${index + 1}',
                             border: const OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(20)),
+                                  BorderRadius.all(Radius.circular(20)),
                               borderSide: BorderSide.none,
                             ),
                           ),

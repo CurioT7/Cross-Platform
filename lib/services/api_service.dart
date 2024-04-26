@@ -7,27 +7,30 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
+import 'package:curio/Models/community_model.dart';
+import 'logicAPI.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
-class ApiService {
-  final String _baseUrl = 'http://20.19.89.1';
 
-  Future<http.Response> signIn(String username, String password) async {
+class ApiService {
+  final String _baseUrl = 'http://20.19.89.1'; // Base URL
+
+  Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/login'),
+      Uri.parse('$_baseUrl/api/auth/app/login'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
-        'username': username,
+        'usernameOrEmail': usernameOrEmail,
         'password': password,
       }),
     );
     return response;
   }
 
-  Future<Map<String, dynamic>> changeEmail(String newEmail, String password,
-      String token) async {
+  Future<Map<String, dynamic>> changeEmail(
+      String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -39,13 +42,14 @@ class ApiService {
     };
 
     try {
-      final response = await http.patch(
-          Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final response = await http.patch(Uri.parse(url),
+          headers: headers, body: jsonEncode(body));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         // Edit the success message here
-        String editedMessage = "Your email has been successfully changed to $newEmail. Please verify your new email address.";
+        String editedMessage =
+            "Your email has been successfully changed to $newEmail. Please verify your new email address.";
         return {'success': true, 'message': editedMessage};
       } else {
         return {'success': false, 'message': responseData['message']};
@@ -54,14 +58,18 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-  Future<String?> signup(String email, String password,String username ,BuildContext context) async {
+
+  Future<String?> signup(String email, String password, String username,
+      BuildContext context) async {
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(
     //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
     //   ),
     // );
-    String baseUrl = 'http://20.19.89.1';
+    // String baseUrl = 'http://20.19.89.1';
+    final String baseUrl = 'http://192.168.1.13:3000';
+
     // make a post request to the server api/auth/signup
     final response = await http.post(
       Uri.parse('$baseUrl/api/auth/signup'),
@@ -81,6 +89,7 @@ class ApiService {
     }
     return response.body;
   }
+
   Future<List<Map<String, String>>> communityRules(String communityId) async {
     //TODO: Implement this method to fetch community rules from the API
     // Mock API call
@@ -100,6 +109,7 @@ class ApiService {
       {'header': 'Rule 10', 'body': 'This is the body for Rule 10'},
     ];
   }
+
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     if (username.isEmpty) {
       return {'available': false, 'message': 'Username cannot be empty'};
@@ -133,61 +143,90 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> ForgotPassword(String email) async {
+  Future<Map<String, dynamic>> resetPassword(
+      String username, String email) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/auth/forgot_password'),
+      Uri.parse('$_baseUrl/api/auth/password'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(<String, String>{
+        'username': username,
         'email': email,
       }),
     );
 
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('User not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal server error');
     } else {
-      throw Exception('Failed to send reset password link');
+      throw Exception('Failed to reset password');
     }
   }
 
+  Future<Map<String, dynamic>> submitPost(
+      Map<String, dynamic> post, String token) async {
+    print("submitting post");
+    print(jsonEncode(post));
+    // TODO: change base url to the local as lonng as the server is not up
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/submit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(post),
+    );
 
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      print('Server responded with status code ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to submit post');
+    }
+  }
 
-  Future<List<Community>> getCommunities(String token) async {
+  Future<List<Community>> getCommunities(
+      String token, BuildContext context) async {
+    final logicAPI apiLogic = logicAPI();
+    Map<String, dynamic> userProfile = await apiLogic.fetchUsername(token);
+    final userName = apiLogic.extractUsername(userProfile);
+    final name = userName['username'];
+    print("User name: $name");
     final response = await http.get(
-      Uri.parse('$_baseUrl/api/subreddit/$token'),
+      Uri.parse('$_baseUrl/user/$name/communities'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
+    String errorMessage;
     if (response.statusCode == 200) {
-      return Community.getCommunities(jsonDecode(response.body));
+      final communities = jsonDecode(response.body)['communities'];
+      final body = communities as List;
+      return body.map((dynamic item) => Community.fromJson(item)).toList();
     } else {
-      // retrun some dummy data
-      return Community.getCommunities([
-        {
-          'name': 'Flutter',
-          'image': Icons.flutter_dash,
-          'followers': 100,
-          'isFollowing': false,
-        },
-        {
-          'name': 'Dart',
-          'image': Icons.code,
-          'followers': 50,
-          'isFollowing': true,
-        },
-        {
-          'name': 'Firebase',
-          'image': Icons.fireplace,
-          'followers': 200,
-          'isFollowing': false,
-        },
-      ]);
+      if (response.statusCode == 404) {
+        errorMessage = 'User not found';
+      } else {
+        errorMessage =
+            'No communities found you have to create/join at least one';
+      }
+
+      // Show snackbar with error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      throw Exception(errorMessage);
     }
   }
-
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
     final response = await http.get(
@@ -222,7 +261,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
-    final String endpoint = '/user/$username/about'; // Endpoint for fetching user about info
+    final String endpoint =
+        '/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -242,9 +282,10 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId,
-      String subredditId) async {
-    final String endpoint = '/api/friend'; // Endpoint for creating user-subreddit relationship
+  Future<Map<String, dynamic>> createUserSubredditRelationship(
+      String userId, String subredditId) async {
+    final String endpoint =
+        '/api/friend'; // Endpoint for creating user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -268,17 +309,17 @@ class ApiService {
             'Failed to create user-subreddit relationship: ${response.body}');
       } else {
         throw Exception(
-            'Failed to create user-subreddit relationship: ${response
-                .statusCode}');
+            'Failed to create user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to create user-subreddit relationship: $e');
     }
   }
 
-  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId,
-      String subredditId) async {
-    final String endpoint = '/api/unfriend'; // Endpoint for removing user-subreddit relationship
+  Future<Map<String, dynamic>> removeUserSubredditRelationship(
+      String userId, String subredditId) async {
+    final String endpoint =
+        '/api/unfriend'; // Endpoint for removing user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -301,8 +342,7 @@ class ApiService {
         throw Exception('Subreddit not found: ${response.body}');
       } else {
         throw Exception(
-            'Failed to remove user-subreddit relationship: ${response
-                .statusCode}');
+            'Failed to remove user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to remove user-subreddit relationship: $e');
@@ -310,8 +350,11 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
-    const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
+    const String endpoint =
+        '/api/auth/google/'; // Endpoint for signing in with token
     const baseUrl = 'http://20.19.89.1';
+    // final String baseUrl= 'http://192.168.1.7';
+
     final url = Uri.parse('$baseUrl$endpoint');
 
     // Define the request body
@@ -356,18 +399,17 @@ class MockGoogleAuthApi {
 }
 
 class GoogleAuthSignInService {
-
   Future<UserCredential?> signInWithGoogle() async {
     try {
       // Trigger the Google Sign In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if(googleUser == null) {
+      if (googleUser == null) {
         print("Google Sign In failed");
         return null;
       }
       // Obtain the GoogleSignInAuthentication object
-      final GoogleSignInAuthentication googleAuth = await googleUser!
-          .authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -378,10 +420,10 @@ class GoogleAuthSignInService {
       // Once signed in, return the UserCredential
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-          googleCredential);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(googleCredential);
       return userCredential;
-    }catch (e) {
+    } catch (e) {
       print(e.toString());
     }
     return null;

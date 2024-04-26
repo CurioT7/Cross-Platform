@@ -1,22 +1,31 @@
 import 'dart:async';
-
+import 'package:url_launcher/url_launcher.dart';
 import 'package:curio/Views/my_profile_screen.dart';
+import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/post.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
-
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
+import 'package:curio/comment/viewPostComments.dart';
+import 'package:curio/Views/share/shareToProfile.dart';
+import 'package:curio/Views/community/chooseCommunity.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
+  final bool isMyPost;
 
-  const PostCard({super.key, required this.post, this.isModerator = false});
+  const PostCard(
+      {super.key,
+      required this.post,
+      this.isModerator = false,
+      this.isMyPost = false});
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -28,32 +37,64 @@ class _PostCardState extends State<PostCard> {
   bool downvoted = false;
   bool _isVisible = true;
   bool _canUnhide = true;
+  SharedPreferences? prefs;
+  String voteStatus = 'neutral';
 
   @override
   void initState() {
     super.initState();
     votes = widget.post.upvotes - widget.post.downvotes;
+    SharedPreferences.getInstance().then((value) {
+      prefs = value;
+      setState(() {
+        voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      });
+    });
   }
 
-  void _toggleVisibility() {
-    if (_isVisible || _canUnhide) {
-      setState(() {
-        _isVisible = !_isVisible;
-      });
+  Future<String> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+    return token;
+  }
 
-      if (!_isVisible) {
-        Timer(const Duration(seconds: 5), () {
-          if (mounted) {
-            setState(() {
-              _canUnhide = false;
-            });
-          }
-        });
+  void _toggleVisibility() async {
+    if (_isVisible || _canUnhide) {
+      String token = await getToken();
+      if (_isVisible) {
+        bool hideResult = await ApiService().hidePost(widget.post.id, token);
+        if (hideResult) {
+          setState(() {
+            _isVisible = !_isVisible;
+          });
+          Timer(const Duration(seconds: 5), () {
+            if (mounted) {
+              setState(() {
+                _canUnhide = false;
+              });
+            }
+          });
+        } else {
+          print('Failed to hide post');
+        }
+      } else {
+        bool unhideResult =
+            await ApiService().unhidePost(widget.post.id, token);
+        if (unhideResult) {
+          setState(() {
+            _isVisible = !_isVisible;
+          });
+        } else {
+          print('Failed to unhide post');
+        }
       }
     }
   }
 
-  void _upvote() {
+  Future<void> _upvote() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+
     setState(() {
       if (!upvoted) {
         votes++;
@@ -67,10 +108,18 @@ class _PostCardState extends State<PostCard> {
         upvoted = false;
       }
     });
-    // TODO: Implement the logic to send the upvote to your backend or state management system
+
+    // Save vote status to SharedPreferences
+    prefs.setString(widget.post.id, upvoted ? 'upvoted' : 'neutral');
+
+    int direction = upvoted ? 1 : 0;
+    ApiService().castVote(widget.post.id, direction, token);
   }
 
-  void _downvote() {
+  Future<void> _downvote() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+
     setState(() {
       if (!downvoted) {
         votes--;
@@ -84,11 +133,21 @@ class _PostCardState extends State<PostCard> {
         downvoted = false;
       }
     });
-    // TODO: Implement the logic to send the downvote to your backend or state management system
+
+    // Save vote status to SharedPreferences
+    prefs.setString(widget.post.id, downvoted ? 'downvoted' : 'neutral');
+
+    int direction = downvoted ? -1 : 0;
+    ApiService().castVote(widget.post.id, direction, token);
   }
 
   void _navigateToComments() {
-    // TODO: Implement navigation logic to comments screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewPostComments(post: widget.post),
+      ),
+    );
   }
 
   void _sharePost() {
@@ -97,6 +156,17 @@ class _PostCardState extends State<PostCard> {
     } catch (e) {
       // Handle the exception
       print('An error occurred while sharing the post: $e');
+    }
+  }
+
+  void _launchURL(String url) async {
+    try {
+      await launch(url);
+    } catch (e) {
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to open link')),
+      );
     }
   }
 
@@ -109,30 +179,56 @@ class _PostCardState extends State<PostCard> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.warning_amber_rounded),
-                title: const Text('Mark Spoiler'),
-                onTap: () {
-                  // TODO: Implement the logic for marking as spoiler
+                title: Text(
+                    widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
+                onTap: () async {
+                  String token = await getToken();
+                  if (widget.post.isSpoiler) {
+                    await ApiService().unspoilPost(widget.post.id, token);
+                  } else {
+                    await ApiService().spoilPost(widget.post.id, token);
+                  }
+                  setState(() {
+                    widget.post.isSpoiler = !widget.post.isSpoiler;
+                  });
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.lock),
-                title: const Text('Lock Comments'),
-                onTap: () {
-                  // TODO: Implement the logic for locking comments
+                title: Text(
+                    widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
+                onTap: () async {
+                  String token = await getToken();
+                  if (widget.post.isLocked) {
+                    await ApiService().unlockPost(widget.post.id, token);
+                  } else {
+                    await ApiService().lockPost(widget.post.id, token);
+                  }
+                  setState(() {
+                    widget.post.isLocked = !widget.post.isLocked;
+                  });
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.push_pin),
-                title: const Text('Sticky Post'),
-                onTap: () {
-                  // TODO: Implement the logic for making post sticky
-                },
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.push_pin),
+              //   title: const Text('Sticky Post'),
+              //   onTap: () {
+              //     // TODO: Implement the logic for making post sticky
+              //   },
+              // ),
               ListTile(
                 leading: const Icon(Icons.eighteen_up_rating),
-                title: const Text('Mark NSFW'),
-                onTap: () {
-                  // TODO: Implement the logic for marking as NSFW
+                title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
+                onTap: () async {
+                  String token = await getToken();
+                  if (widget.post.isNSFW) {
+                    await ApiService().unmarkAsNsfw(widget.post.id, token);
+                  } else {
+                    await ApiService().markAsNsfw(widget.post.id, token);
+                  }
+                  setState(() {
+                    widget.post.isNSFW = !widget.post.isNSFW;
+                  });
                 },
               ),
               ListTile(
@@ -181,7 +277,7 @@ class _PostCardState extends State<PostCard> {
           children: [
             Icon(Icons.eighteen_up_rating, color: Colors.pinkAccent),
             Text(
-              ' NSFW',
+              ' NSFW ',
               style: TextStyle(
                 color: Colors.pinkAccent,
                 fontWeight: FontWeight.bold,
@@ -196,7 +292,7 @@ class _PostCardState extends State<PostCard> {
         children: [
           Icon(Icons.warning_amber_rounded, color: Colors.black),
           Text(
-            ' SPOLIER',
+            ' SPOLIER ',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -210,7 +306,7 @@ class _PostCardState extends State<PostCard> {
         children: [
           Icon(Icons.star, color: Colors.yellow),
           Text(
-            ' OC',
+            ' OC ',
             style: TextStyle(
               color: Colors.yellow,
               fontWeight: FontWeight.bold,
@@ -224,7 +320,7 @@ class _PostCardState extends State<PostCard> {
         children: [
           Icon(Icons.share, color: Colors.blue),
           Text(
-            ' Crosspost',
+            ' Crosspost ',
             style: TextStyle(
               color: Colors.blue,
               fontWeight: FontWeight.bold,
@@ -247,14 +343,36 @@ class _PostCardState extends State<PostCard> {
   void _additionalOptions() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return Wrap(
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.save),
-              title: const Text('Save'),
-              onTap: () {
-                // TODO: Implement the logic for saving the post
+              title: Text(widget.post.isSaved ? 'Unsave' : 'Save'),
+              onTap: () async {
+                String token = await getToken();
+                if (widget.post.isSaved) {
+                  await ApiService().unsavePost(widget.post.id, token);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('You have unsaved this post.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                } else {
+                  await ApiService().savePost(widget.post.id, token);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('You have saved this post.'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+                setState(() {
+                  widget.post.isSaved = !widget.post.isSaved;
+                });
+                Navigator.pop(context); // Close the options menu
               },
             ),
             ListTile(
@@ -303,16 +421,70 @@ class _PostCardState extends State<PostCard> {
               leading: const Icon(Icons.share),
               title: const Text('Crosspost to Community'),
               onTap: () {
-                // TODO: Implement the logic for crossposting to community
+                print('this is the crosspost to community page');
+                print('widget.post.id' + widget.post.id);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ChooseCommunityPage(oldPostId: widget.post.id)),
+                );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.download),
-              title: const Text('Download'),
+              leading: const Icon(Icons.person),
+              title: const Text('Share to profile'),
               onTap: () {
-                // TODO: Implement the logic for downloading the post
+                print('this is the share to profile page');
+                print('widget.post.id' + widget.post.id);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ShareToProfilePage(
+                            oldPostId: widget.post.id,
+                          )),
+                );
               },
             ),
+            if (widget.isMyPost) ...[
+              // Check if it's the user's post
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  // Code to edit post goes here...
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete),
+                title: const Text('Delete'),
+                onTap: () async {
+                  try {
+                    var postId = widget.post.id; // Replace with your post id
+                    var token = 'your_token'; // Replace with your token
+                    var response = await ApiService().deletePost(postId, token);
+
+                    if (response['success']) {
+                      // Show a success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(response['message'])),
+                      );
+                    } else {
+                      // Show an error message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Failed to delete post')),
+                      );
+                    }
+                  } catch (e) {
+                    // Show an error message
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to delete post')),
+                    );
+                  }
+                },
+              ),
+            ],
           ],
         );
       },
@@ -337,10 +509,12 @@ class _PostCardState extends State<PostCard> {
     }
     return Card(
       color: const Color.fromARGB(255, 255, 255, 255),
+      margin: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            contentPadding: const EdgeInsets.all(8.0),
             onTap: () {
               Navigator.push(
                 context,
@@ -349,10 +523,6 @@ class _PostCardState extends State<PostCard> {
                     isUser: true,
                     userName: widget.post.authorName,
                     days: widget.post.createdAt.day,
-                    // userDetails: {
-                    //   'profilePicture': widget.post.media,
-                    //   'postKarma': widget.post.awards.toString(),
-                    // },
                   ),
                 ),
               );
@@ -362,76 +532,126 @@ class _PostCardState extends State<PostCard> {
                 'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png',
               ),
             ),
-            title: Text('r/${widget.post.linkedSubreddit}'),
+            title: Text(
+              'r/${widget.post.linkedSubreddit}',
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black),
+            ),
             subtitle: Text(
-                'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}'),
+              'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
             trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert, color: Colors.grey),
               onPressed: _additionalOptions,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(widget.post.title ?? '',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewPostComments(post: widget.post),
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.post.title ?? '',
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                  ),
+                  if (widget.post.isLocked)
+                    const Icon(Icons.lock, color: Color(0xFFD4AF37)),
+                  if (widget.post.link != null && widget.post.link!.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.link, color: Colors.blue),
+                      onPressed: () => _launchURL(widget.post.link!),
+                    ),
+                ],
+              ),
+            ),
           ),
           _buildPostIcons(),
-          // For the content field
           if (widget.post.content != null && widget.post.content!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Text(widget.post.content!),
-            ),
-
-          // For the media field
-          if (widget.post.media != null && widget.post.media!.isNotEmpty)
-            Image.network(
-              widget.post.media!,
-              errorBuilder: (BuildContext context, Object exception,
-                  StackTrace? stackTrace) {
-                return Container(); // Return an empty container if the image fails to load
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewPostComments(post: widget.post),
+                  ),
+                );
               },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(widget.post.content!,
+                    style: const TextStyle(color: Colors.black)),
+              ),
             ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IconButton(
-                icon: Icon(const IconData(0xe800, fontFamily: 'MyFlutterApp'),
-                    color: upvoted ? redditUpvoteOrange : Colors.grey),
-                onPressed: _upvote,
+          if (widget.post.media != null && widget.post.media!.isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Image.network(
+                widget.post.media!,
+                fit: BoxFit.cover,
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
+                  // Return an empty Container when image fails to load
+                  return Container();
+                },
               ),
-              Text('$votes',
-                  style: TextStyle(
-                      color: upvoted
-                          ? redditUpvoteOrange
-                          : downvoted
-                              ? redditDownvoteBlue
-                              : Colors.grey)),
-              IconButton(
-                icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
-                    color: downvoted ? redditDownvoteBlue : Colors.grey),
-                onPressed: _downvote,
-              ),
-              IconButton(
-                icon: const Icon(Icons.comment),
-                onPressed: _navigateToComments,
-              ),
-              Text('${widget.post.comments.length}'),
-              if (widget.isModerator)
+            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
                 IconButton(
-                  icon: const Icon(Icons.shield),
-                  onPressed: _moderatorAction,
-                )
-              else ...[
-                IconButton(
-                  icon: const Icon(Icons.share),
-                  onPressed: _sharePost,
+                  icon: Icon(const IconData(0xe800, fontFamily: 'MyFlutterApp'),
+                      color: upvoted ? redditUpvoteOrange : Colors.grey),
+                  onPressed: _upvote,
                 ),
-                Text('${widget.post.shares}'),
+                Text('$votes',
+                    style: TextStyle(
+                        color: upvoted
+                            ? redditUpvoteOrange
+                            : downvoted
+                                ? redditDownvoteBlue
+                                : Colors.grey)),
+                IconButton(
+                  icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
+                      color: downvoted ? redditDownvoteBlue : Colors.grey),
+                  onPressed: _downvote,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.comment, color: Colors.grey),
+                  onPressed: _navigateToComments,
+                ),
+                Text('${widget.post.comments.length}',
+                    style: const TextStyle(color: Colors.grey)),
+                if (widget.isModerator)
+                  IconButton(
+                    icon: const Icon(Icons.shield_outlined, color: Colors.grey),
+                    onPressed: _moderatorAction,
+                  )
+                else ...[
+                  IconButton(
+                    icon: const Icon(Icons.share, color: Colors.grey),
+                    onPressed: _sharePost,
+                  ),
+                  Text('${widget.post.shares}',
+                      style: const TextStyle(color: Colors.grey)),
+                ],
               ],
-            ],
+            ),
           ),
         ],
       ),

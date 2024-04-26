@@ -1,83 +1,147 @@
-//import 'dart:html';
-
 import 'package:flutter/material.dart';
+import 'package:curio/Views/community/createCommunity.dart';
 import 'package:curio/Views/sidebars/LeftSideBarAll.dart';
-class CustomSidebar extends StatelessWidget {
+import 'package:curio/services/api_service.dart';
+import 'package:curio/Models/community_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class CustomSidebar extends StatefulWidget {
+  @override
+  _CustomSidebarState createState() => _CustomSidebarState();
+}
+
+class _CustomSidebarState extends State<CustomSidebar> {
+  List<Community> favoriteCommunities = [];
+  List<Community> communities = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCommunities(context).then((value) {
+      setState(() {
+        communities = value;
+        isLoading = false;
+      });
+    });
+  }
+
+  Future<List<Community>> fetchCommunities(BuildContext context) async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    String token = sharedPrefs.getString('token')!;
+    print('Fetching communities from user token: $token');
+    final communities = await ApiService().getCommunities(token, context);
+    return communities ?? [];
+  }
+
+  void toggleFavorite(Community community, bool isFavorite) {
+    setState(() {
+      if (isFavorite) {
+        if (!favoriteCommunities.any((x) => x.id == community.id)) {
+          favoriteCommunities.add(community);
+          print('Added to favorites: ${community.name}');
+        }
+      } else {
+        int index = favoriteCommunities.indexWhere((x) => x.id == community.id);
+        if (index != -1) {
+          favoriteCommunities.removeAt(index);
+          print('Removed from favorites: ${community.name}');
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          ExpansionTile(
-            title: Text('Recently Visited'),
-            children: <Widget>[
-              ListTile(
-                title: Text('Subreddit 1'),
-                trailing: IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    // Implement your delete functionality here
+          const SizedBox(height: 50),
+          if (favoriteCommunities.isNotEmpty)
+            ExpansionTile(
+              title: const Text('Favorites'),
+              children: favoriteCommunities.map((community) {
+                return ListTile(
+                  title: Text('r/${community.name}'),
+                  trailing: FavoriteButton(
+                    community: community,
+                    isFavorite: favoriteCommunities.contains(community),
+                    toggleFavorite: toggleFavorite,
+                  ),
+                );
+              }).toList(),
+            ),
+          const Divider(),
+          if (isLoading) const CircularProgressIndicator(),
+          if (!isLoading && communities.isEmpty)
+            const ListTile(
+              title: Text('Join communities to see them here'),
+            ),
+          if (!isLoading && communities.isNotEmpty)
+            ExpansionTile(
+              title: const Text('Your Communities'),
+              children: <Widget>[
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => createCommunity()),
+                    );
                   },
+                  child: const ListTile(
+                    leading: Icon(Icons.add),
+                    title: Text('Create a Community'),
+                  ),
                 ),
-              ),
-              ListTile(
-                title: Text('Subreddit 2'),
-                trailing: IconButton(
-                  icon: Icon(Icons.clear),
-                  onPressed: () {
-                    // Implement your delete functionality here
-                  },
-                ),
-              ),
-              ListTile(
-                title: Text('See All'),
-                onTap: () {
-
-
-                },
-              ),
-            ],
-          ),
-          Divider(),
-          ExpansionTile(
-            title: Text('Your Communities'),
-            children: <Widget>[
-              ListTile(
-                title: Text('Community 1'),
-                trailing: IconButton(
-                  icon: Icon(Icons.star_border),
-                  onPressed: () {
-                    // Implement your favorite functionality here
-                  },
-                ),
-              ),
-              ListTile(
-                title: Text('Community 2'),
-                trailing: IconButton(
-                  icon: Icon(Icons.star_border),
-                  onPressed: () {
-                    // Implement your favorite functionality here
-                  },
-                ),
-              ),
-            ],
-          ),
-          Divider(),
+                ...communities.map((community) {
+                  return ListTile(
+                    title: Text('r/${community.name}'),
+                    trailing: FavoriteButton(
+                      community: community,
+                      isFavorite: favoriteCommunities.contains(community),
+                      toggleFavorite: toggleFavorite,
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          const Divider(),
           ListTile(
-            title: Text('All'),
+            title: const Text('All'),
             onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AllPage()),
+                MaterialPageRoute(builder: (context) => const AllPage()),
               );
             },
           ),
         ],
       ),
+    );
+  }
+}
+
+class FavoriteButton extends StatelessWidget {
+  final Community community;
+  final bool isFavorite;
+  final Function(Community, bool) toggleFavorite;
+
+  FavoriteButton({
+    required this.community,
+    required this.isFavorite,
+    required this.toggleFavorite,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(isFavorite ? Icons.star : Icons.star_border),
+      onPressed: () {
+        toggleFavorite(community, !isFavorite);
+      },
     );
   }
 }

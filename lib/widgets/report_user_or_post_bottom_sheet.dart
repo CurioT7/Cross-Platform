@@ -104,7 +104,6 @@ class ReportUserOrPostBottomSheet extends StatelessWidget {
                           reportCubit.reportProfile(userName ?? '');
                         }
                       }
-                      Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 50.0),

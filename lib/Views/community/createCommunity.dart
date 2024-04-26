@@ -5,24 +5,18 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class createCommunity extends StatefulWidget {
   @override
   _createCommunityState createState() => _createCommunityState();
-
-
-
 }
 
 class _createCommunityState extends State<createCommunity> {
-  String? token ;
+  String? token;
 
   @override
   void initState() {
     super.initState();
-
   }
-
 
   String? errorMessage;
   bool isSwitched = false;
@@ -47,7 +41,7 @@ class _createCommunityState extends State<createCommunity> {
           ),
           bottom: PreferredSize(
             preferredSize:
-            Size.fromHeight(MediaQuery.of(context).size.width * 0.002),
+                Size.fromHeight(MediaQuery.of(context).size.width * 0.002),
             child: Container(
               decoration: BoxDecoration(
                 boxShadow: [
@@ -55,7 +49,8 @@ class _createCommunityState extends State<createCommunity> {
                     color: Colors.grey,
                     blurRadius: MediaQuery.of(context).size.width * 0.002,
                     spreadRadius: MediaQuery.of(context).size.width * 0.004,
-                    offset: Offset(0, MediaQuery.of(context).size.width * 0.008),
+                    offset:
+                        Offset(0, MediaQuery.of(context).size.width * 0.008),
                   ),
                 ],
               ),
@@ -141,7 +136,7 @@ class _createCommunityState extends State<createCommunity> {
                         if (isMatch == false ||
                             _textEditingController.text.length < 3) {
                           errorMessage =
-                          'Community names must be between 3-21 characters and'
+                              'Community names must be between 3-21 characters and'
                               ' can only contain letters, numbers, or underscores.';
                         }
                       });
@@ -165,7 +160,7 @@ class _createCommunityState extends State<createCommunity> {
               GestureDetector(
                 onTap: () async {
                   Map<String, String>? result =
-                  await _displayTypeCommunityBottomSheet(context);
+                      await _displayTypeCommunityBottomSheet(context);
 
                   if (result != null) {
                     setState(() {
@@ -228,59 +223,57 @@ class _createCommunityState extends State<createCommunity> {
                   ),
                 ],
               ),
-
               SizedBox(
                 height: MediaQuery.of(context).size.width * 0.04,
               ),
-              Center( child:
-              ElevatedButton(
-
+              Center(
+                  child: ElevatedButton(
                 onPressed: isButtonEnabled
                     ? () async {
-                  setState(() {
-                    // Set loading state if needed
-                  });
-                  try {
-                    final SharedPreferences prefs = await SharedPreferences.getInstance();
-                    token = prefs.getString('token');
-                    print(token);
-                    // await prefs.remove('token');
-                  }
-                  catch(e){
-                    print(e);
-                  }
-                  if (token != null) {
-                    apiLogic
-                        .createCommunity(_textEditingController.text,
-                        isSwitched, listTileTitle, token!)
-                        .then((_) {
-                      setState(() {
-                        // Show a SnackBar with a success message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Community created successfully'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      });
-                    }).catchError((error) {
-                      setState(() {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Error creating community: $error'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                        print('Error creating community: $error');
-                      });
-                    });
-                  }
-                  else{
-                    print('Token is null');
-                  }
-                }
+                        setState(() {
+                          // Set loading state if needed
+                        });
+                        try {
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          token = prefs.getString('token');
+                          print(token);
+                          // await prefs.remove('token');
+                        } catch (e) {
+                          print(e);
+                        }
+                        if (token != null) {
+                          apiLogic
+                              .createCommunity(_textEditingController.text,
+                                  isSwitched, listTileTitle, token!)
+                              .then((_) {
+                            setState(() {
+                              // Show a SnackBar with a success message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Community created successfully'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            });
+                          }).catchError((error) {
+                            setState(() {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('Error creating community: $error'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              print('Error creating community: $error');
+                            });
+                          });
+                        } else {
+                          print('Token is null');
+                        }
+                      }
                     : null,
-
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
@@ -306,9 +299,8 @@ class _createCommunityState extends State<createCommunity> {
                       MediaQuery.of(context).size.width * 0.12, // Height
                     ),
                   ),
-
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
+                    (Set<MaterialState> states) {
                       if (states.contains(MaterialState.disabled)) {
                         return Colors.grey.shade200;
                       }
@@ -316,8 +308,7 @@ class _createCommunityState extends State<createCommunity> {
                     },
                   ),
                 ),
-              )
-              )
+              ))
             ],
           ),
         ));
@@ -348,12 +339,12 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                 ),
                 Center(
                     child: Text(
-                      'Community type',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: MediaQuery.of(context).size.width * 0.045,
-                      ),
-                    )),
+                  'Community type',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: MediaQuery.of(context).size.width * 0.045,
+                  ),
+                )),
                 ListTile(
                   contentPadding: EdgeInsets.only(
                     left: MediaQuery.of(context).size.width * 0.05,
@@ -382,7 +373,7 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                     Navigator.pop(context, {
                       'title': 'Public',
                       'subtitle':
-                      'Anyone can view, post, and comment to this community'
+                          'Anyone can view, post, and comment to this community'
                     })
                   },
                 ),
@@ -411,12 +402,12 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                       ),
                     ),
                     onTap: () => {
-                      Navigator.pop(context, {
-                        'title': 'Restricted',
-                        'subtitle':
-                        'Anyone can view this community, but only approved users can post'
-                      })
-                    }),
+                          Navigator.pop(context, {
+                            'title': 'Restricted',
+                            'subtitle':
+                                'Anyone can view this community, but only approved users can post'
+                          })
+                        }),
                 ListTile(
                     contentPadding: EdgeInsets.only(
                       left: MediaQuery.of(context).size.width * 0.05,
@@ -442,15 +433,15 @@ Future<Map<String, String>?> _displayTypeCommunityBottomSheet(
                       ),
                     ),
                     onTap: () => {
-                      Navigator.pop(
-                        context,
-                        {
-                          'title': 'Private',
-                          'subtitle':
-                          'Only approved users can view and submit to this community'
-                        },
-                      )
-                    }),
+                          Navigator.pop(
+                            context,
+                            {
+                              'title': 'Private',
+                              'subtitle':
+                                  'Only approved users can view and submit to this community'
+                            },
+                          )
+                        }),
               ],
             ),
           ));

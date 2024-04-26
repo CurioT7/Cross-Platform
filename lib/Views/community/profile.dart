@@ -13,7 +13,13 @@ import 'package:curio/Models/post.dart';
 //import 'package:curio/widgets/postCard.dart';
 
 import 'aboutComunity.dart';
+
 class communityProfile extends StatefulWidget {
+  final String communityName;
+
+  const communityProfile({Key? key, required this.communityName})
+      : super(key: key);
+
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
@@ -21,9 +27,8 @@ class communityProfile extends StatefulWidget {
 class _CommunityProfileState extends State<communityProfile> {
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Books fuga';
+  late String communityName;
   bool hasJoined = false;
-
 
   List<Post> posts = [];
   String? privacyMode;
@@ -35,16 +40,16 @@ class _CommunityProfileState extends State<communityProfile> {
 
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
-      newSort= _selectedSort;
-      newIcon= _selectedIcon ;
+      newSort = _selectedSort;
+      newIcon = _selectedIcon;
     });
   }
 
   void _fetchCommunityData() async {
     print('Fetching community data');
     logicAPI api = logicAPI();
-    Map<String, dynamic> communityData = await api.fetchCommunityData(
-        communityName);
+    Map<String, dynamic> communityData =
+        await api.fetchCommunityData(communityName);
     setState(() {
       privacyMode = communityData['privacyMode'];
       name = communityData['name'];
@@ -57,7 +62,6 @@ class _CommunityProfileState extends State<communityProfile> {
     });
   }
 
-
   String _selectedSort = 'Hot';
   IconData _selectedIcon = Icons.whatshot; // Default icon
 
@@ -69,18 +73,22 @@ class _CommunityProfileState extends State<communityProfile> {
     logicAPI api = logicAPI();
     switch (_selectedSort) {
       case 'hot':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'hot');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(communityName, 'hot');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
 
           print("fetchedposts");
           print(posts);
         });
         break;
       case 'new':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'new');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(communityName, 'new');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
           print("fetchedposts");
           print(posts);
         });
@@ -91,26 +99,29 @@ class _CommunityProfileState extends State<communityProfile> {
 
         print("Time interval");
         print(timeInterval);
-if (timeInterval!<1){
-  List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, "now");
-  setState(() {
-    if(fetchedPosts!=null) {
-      posts = fetchedPosts;
-      print(posts);
-    }
-  else{posts=[];
-  }})
-  ;
-  return;
-}
-        List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, (timeInterval! ).toString());
+        if (timeInterval! < 1) {
+          List<Post>? fetchedPosts =
+              await api.fetchTopPosts(communityName, "now");
+          setState(() {
+            if (fetchedPosts != null) {
+              posts = fetchedPosts;
+              print(posts);
+            } else {
+              posts = [];
+            }
+          });
+          return;
+        }
+        List<Post>? fetchedPosts =
+            await api.fetchTopPosts(communityName, (timeInterval!).toString());
         setState(() {
-          if(fetchedPosts!=null) {
+          if (fetchedPosts != null) {
             posts = fetchedPosts;
             print(posts);
+          } else {
+            posts = [];
           }
-          else{posts=[];
-          }});
+        });
         break;
     }
   }
@@ -120,6 +131,7 @@ if (timeInterval!<1){
   @override
   void initState() {
     super.initState();
+    communityName = widget.communityName;
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
     fetchPosts('hot');
@@ -128,7 +140,6 @@ if (timeInterval!<1){
     //   showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);
     // });
   }
-
 
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
@@ -143,7 +154,6 @@ if (timeInterval!<1){
   //   });
   // }
 
-
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
@@ -153,10 +163,8 @@ if (timeInterval!<1){
 
   _scrollListener() {
     double scrollPosition = _scrollController.position.pixels;
-    double limit = MediaQuery
-        .of(context)
-        .size
-        .width * 0.3; // Set your limit here
+    double limit =
+        MediaQuery.of(context).size.width * 0.3; // Set your limit here
 
     if (scrollPosition > limit) {
       blurValue.value = 3.0; // Set a high blur value
@@ -223,59 +231,36 @@ if (timeInterval!<1){
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.04),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.04),
               CircleAvatar(
-                radius: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.05,
+                radius: MediaQuery.of(context).size.width * 0.05,
 
                 //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                backgroundImage: AssetImage('assets/images/example.jpg'),),
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.03),
+                backgroundImage: AssetImage('assets/images/example.jpg'),
+              ),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.03),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('r/$name',
                       style: TextStyle(
-                          fontSize: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.045,
+                          fontSize: MediaQuery.of(context).size.width * 0.045,
                           fontWeight: FontWeight.bold)),
                   Row(
                     children: [
                       Text('$membersCount members',
                           style: TextStyle(
                               fontSize:
-                              MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.03,
+                                  MediaQuery.of(context).size.width * 0.03,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.bold,
                               fontFamily: 'IBM_Plex_Sans_Light')),
-                      SizedBox(width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.02),
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
                       //draw green filled icon circle
                       Container(
-                        width: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.02,
-                        height: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.02,
+                        width: MediaQuery.of(context).size.width * 0.02,
+                        height: MediaQuery.of(context).size.width * 0.02,
                         decoration: BoxDecoration(
                           color: Colors.green,
                           shape: BoxShape.circle,
@@ -284,10 +269,7 @@ if (timeInterval!<1){
                       Text(' 2,654 online',
                           style: TextStyle(
                               fontSize:
-                              MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.03,
+                                  MediaQuery.of(context).size.width * 0.03,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.bold,
                               fontFamily: 'IBM_Plex_Sans_Light')),
@@ -298,41 +280,34 @@ if (timeInterval!<1){
 
               //choose height and width of button
 
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.23),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.23),
               SizedBox(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
+                width: MediaQuery.of(context).size.width *
                     0.13, // Set the width of the button
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
+                height: MediaQuery.of(context).size.width *
                     0.07, // Set the height of the button
 
                 child: TextButton(
                   style: ButtonStyle(
-
+                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                        EdgeInsets.only(right: 5.0)),
                     backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
+                      (Set<MaterialState> states) {
                         if (hasJoined) {
                           return Colors
                               .white; // Set the button color to white if the user has joined
                         } else {
-                          return Colors.blue
-                              .shade900; // Otherwise, set it to dark blue
+                          return Colors
+                              .blue.shade900; // Otherwise, set it to dark blue
                         }
                       },
                     ),
                     side: MaterialStateProperty.resolveWith<BorderSide>(
-                          (Set<MaterialState> states) {
+                      (Set<MaterialState> states) {
                         if (hasJoined) {
-                          return BorderSide(color: Colors
-                              .grey); // Set the border color to dark grey if the user has joined
+                          return BorderSide(
+                              color: Colors
+                                  .grey); // Set the border color to dark grey if the user has joined
                         } else {
                           return BorderSide.none; // Otherwise, no border
                         }
@@ -341,8 +316,8 @@ if (timeInterval!<1){
                   ),
                   onPressed: () async {
                     try {
-                      final SharedPreferences prefs = await SharedPreferences
-                          .getInstance();
+                      final SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
                       String? token = prefs.getString('token');
                       if (token == null) {
                         throw Exception('Token is null');
@@ -359,7 +334,6 @@ if (timeInterval!<1){
                           print('Error leaving community: $e');
                           //TODO:  handle the error, show a message to the user
                           // show popup showLeaveCommunityDialog
-
                         }
                       } else {
                         try {
@@ -383,7 +357,6 @@ if (timeInterval!<1){
                                       style: TextStyle(color: Colors.white)),
                                 ),
                               ),
-
                             );
                           });
                         } catch (e) {
@@ -395,16 +368,12 @@ if (timeInterval!<1){
                       print('Error in SharedPreferences: $e');
                       //TODO:  handle the error, show a message to the user
                     }
-
                   },
                   child: Text(
                     hasJoined ? 'Joined' : 'Join',
                     // Change the text based on whether the user has joined or not
                     style: TextStyle(
-                      fontSize: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.025,
+                      fontSize: MediaQuery.of(context).size.width * 0.022,
                       color: hasJoined ? Colors.grey : Colors.white,
                       // Change the text color based on whether the user has joined or not
                       fontWeight: FontWeight.bold,
@@ -414,10 +383,7 @@ if (timeInterval!<1){
               ),
             ],
           ),
-          SizedBox(height: MediaQuery
-              .of(context)
-              .size
-              .width * 0.02),
+          SizedBox(height: MediaQuery.of(context).size.width * 0.02),
           Padding(
             padding: EdgeInsets.only(
                 left: 20.0), // Adjust the padding value as needed
@@ -427,35 +393,28 @@ if (timeInterval!<1){
                 Text(
                   '$description',
                   style: TextStyle(
-                      fontSize: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.03,
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
                       fontFamily: "IBM_Plex_Sans_Light",
-
                       color: Colors.black),
-
                 ),
                 GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>
-                          AboutComunityPage(
-                              subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
+                      MaterialPageRoute(
+                          builder: (context) => AboutComunityPage(
+                              subredditName:
+                                  communityName)), // Replace SecondPage() with the actual page you want to navigate to
                     );
                   },
                   child: Text(
                     "See more",
                     style: TextStyle(
                         color: Colors.blue[900],
-                        fontSize: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.03,
-                        fontWeight: FontWeight
-                            .bold // Set the color to dark blue
-                    ),
+                        fontSize: MediaQuery.of(context).size.width * 0.03,
+                        fontWeight:
+                            FontWeight.bold // Set the color to dark blue
+                        ),
                   ),
                 )
               ],
@@ -465,28 +424,31 @@ if (timeInterval!<1){
           TextButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
-              shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-
+              shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
             ),
             onPressed: () {
-              timeSelection = showSortPostsBottomSheet(
-                  context, _selectedSort, Icons.whatshot, _updateSortAndIcon,
-                  fetchPosts, true);
+              timeSelection = showSortPostsBottomSheet(context, _selectedSort,
+                  Icons.whatshot, _updateSortAndIcon, fetchPosts, true);
               print('Time Selection');
               print(timeSelection);
             },
-
             child: Row(
               children: [
-
-
-
-                Icon(_selectedIcon,  color: Colors.grey,),
-                Text('${_selectedSort.toUpperCase()} POSTS', style: TextStyle(color: Colors.grey),),
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
+                Icon(
+                  _selectedIcon,
+                  color: Colors.grey,
+                ),
+                Text(
+                  '${_selectedSort.toUpperCase()} POSTS',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey,
+                ),
               ],
             ),
-
           ),
           Expanded(
             child: ListView.builder(
@@ -512,14 +474,8 @@ if (timeInterval!<1){
             borderRadius: BorderRadius.circular(5),
           ),
           content: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width *1.6,
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.14,
+            width: MediaQuery.of(context).size.width * 1.6,
+            height: MediaQuery.of(context).size.height * 0.14,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -527,7 +483,8 @@ if (timeInterval!<1){
                   padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Are you sure you want to leave the r/$communityName community?',
-                    textAlign: TextAlign.left,),
+                    textAlign: TextAlign.left,
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -536,10 +493,7 @@ if (timeInterval!<1){
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -547,8 +501,8 @@ if (timeInterval!<1){
                               ),
                               side: BorderSide(color: Colors.grey),
                             ),
-                            child: Text(
-                                'Cancel', style: TextStyle(color: Colors.grey)),
+                            child: Text('Cancel',
+                                style: TextStyle(color: Colors.grey)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -560,10 +514,7 @@ if (timeInterval!<1){
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
@@ -571,31 +522,28 @@ if (timeInterval!<1){
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
-                            child: Text(
-                                'Leave', style: TextStyle(color: Colors.white)),
+                            child: Text('Leave',
+                                style: TextStyle(color: Colors.white)),
                             onPressed: () {
                               Navigator.of(context).pop();
                               hasJoined = false;
                               _fetchCommunityData();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    backgroundColor: Colors.transparent,
-                                    elevation: 0,
-                                    content: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(
-                                            30.0),
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.0, vertical: 8.0),
-                                      child: Text(
-                                          'You have left the community: $communityName',
-                                          style: TextStyle(
-                                              color: Colors.white)),
-                                    ),
-                                  )
-                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                content: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                      'You have left the community: $communityName',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                              ));
                             },
                           ),
                         ),

@@ -50,7 +50,7 @@ class _TabBarExampleState extends State<TabBarExample> {
       initialIndex: 0,
       length: 2,
       child: Scaffold(
-        bottomNavigationBar: homeNavigationBar(),
+        bottomNavigationBar: HomeNavigationBar(),
         appBar: AppBar(
           title: const Text('Saved'),
           centerTitle: true,

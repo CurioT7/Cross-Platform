@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:curio/Models/minipost.dart';
 
 class ApiService{
-  final String baseUrl = 'http://192.168.1.13:3000/api';
-  
+  //final String baseUrl = 'http://192.168.1.13:3000/api';
+  final String baseUrl = 'http://192.168.1.7/api';
+
   Future<List<MiniPost>> searchPost(String query) async {
     print('Search query: $query');
     final response = await http.get(Uri.parse('$baseUrl/search/$query'));

@@ -33,7 +33,7 @@ void _navigateToComments(BuildContext context) async {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewPostComments(post: post),
+        builder: (context) => ViewPostComments(postID: miniPost.id ),
       ),
     );
   } else {

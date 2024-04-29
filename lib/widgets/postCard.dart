@@ -528,7 +528,7 @@ void _launchURL(String url) async {
               ),
             ),
             title: Text(
-              'r/${widget.post.linkedSubreddit}',
+              'r/${widget.post.subredditName}',
               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Text(

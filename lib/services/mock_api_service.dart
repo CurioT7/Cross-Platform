@@ -33,8 +33,8 @@ class MockApiService {
     // Return a list of fake posts
     return List.generate(100, (index) => Post(
       id: 'post_$index',
-      title: 'Post Title $index',
-      content: 'Post Content $index',
+      title: 'Post $index',
+      content: 'This is post number $index',
       authorName: 'Author $index',
       views: index * 10,
       createdAt: DateTime.now().subtract(Duration(days: index)),
@@ -47,10 +47,16 @@ class MockApiService {
       isSpoiler: false,
       isOC: false,
       isCrosspost: false,
-      awards: index * 3,
+      awards: index,
       media: 'https://via.placeholder.com/150',
       link: 'https://example.com/post_$index',
       isDraft: false,
+      isSaved : false,
+      voteStatus : 'upvoted',
+      isUserMemberOfItemSubreddit : false,
+      subredditName : 'subreddit_$index',
+      pollVote : 'yes',
+      pollEnded : false,
     ));
   }
 

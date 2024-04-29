@@ -20,6 +20,12 @@ class Post {
   final bool isDraft;
   bool isLocked = false;
   bool isSaved = false;
+  final String voteStatus;
+  final bool isUserMemberOfItemSubreddit;
+  final String subredditName;
+  final dynamic pollVote;
+  final bool pollEnded;
+
 
   Post({
     required this.id,
@@ -41,57 +47,54 @@ class Post {
     required this.media,
     required this.link,
     required this.isDraft,
+    required this.isLocked,
+    required this.isSaved,
+    required this.voteStatus,
+    required this.isUserMemberOfItemSubreddit,
+    required this.subredditName,
+    required this.pollVote,
+    required this.pollEnded,
+
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      id: json['_id'] as String,
-      title: json['title'] as String? ?? 'Untitled',
-      content: json['content'] as String? ?? '',
-      authorName: json['authorName'] ?? 'Unknown',
-      views: json['views'] ?? 0,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
-      upvotes: json['upvotes'] ?? 0,
-      downvotes: json['downvotes'] ?? 0,
-      linkedSubreddit: json['linkedSubreddit'] ?? 'Unknown',
-      comments: json['comments'] ?? [],
-      shares: json['shares'] ?? 0,
-      isNSFW: json['isNSFW'] ?? false,
-      isSpoiler: json['isSpoiler'] ?? false,
-      isOC: json['isOC'] ?? false,
-      isCrosspost: json['isCrosspost'] ?? false,
-      awards: json['awards'] ?? 0,
-      media: json['media'] as String?,
-      link: json['link'] ?? '',
-      isDraft: json['isDraft'] ?? false,
-    );
-  }
-
+  var postData = json['post'] as Map<String, dynamic>; // Access the nested 'post' object
+  var detailsData = json['details'] as Map<String, dynamic>; // Access the nested 'details' object
+  return Post(
+    id: postData['_id'] as String? ?? '',
+    title: postData['title'] as String? ?? 'Untitled',
+    content: postData['content'] as String? ?? '',
+    authorName: postData['authorName'] as String? ?? 'Unknown',
+    views: postData['views'] as int? ?? 0,
+    createdAt: postData['createdAt'] != null
+        ? DateTime.parse(postData['createdAt'] as String)
+        : DateTime.now(),
+    upvotes: postData['upvotes'] as int? ?? 0,
+    downvotes: postData['downvotes'] as int? ?? 0,
+    linkedSubreddit: postData['linkedSubreddit'] as String? ?? 'Unknown',
+    comments: postData['comments'] as List<dynamic>? ?? [],
+    shares: postData['shares'] as int? ?? 0,
+    isNSFW: postData['isNSFW'] as bool? ?? false,
+    isSpoiler: postData['isSpoiler'] as bool? ?? false,
+    isOC: postData['isOC'] as bool? ?? false,
+    isCrosspost: postData['isCrosspost'] as bool? ?? false,
+    awards: postData['awards'] as int? ?? 0,
+    media: postData['media'] as String?,
+    link: postData['link'] as String? ?? '',
+    isDraft: postData['isDraft'] as bool? ?? false,
+    isLocked: postData['isLocked'] as bool? ?? false, // new field
+    isSaved: postData['isSaved'] as bool? ?? false, // new field
+    voteStatus: detailsData['voteStatus'] as String? ?? 'unvoted',
+    isUserMemberOfItemSubreddit: detailsData['isUserMemberOfItemSubreddit'] as bool? ?? false,
+    subredditName: detailsData['subredditName'] as String? ?? 'Unknown',
+    pollVote: detailsData['pollVote'],
+    pollEnded: detailsData['pollEnded'] as bool? ?? false,
+  );
+}
+  
   static List<Post> getPosts(List<dynamic> json) {
     return json
-        .map((post) => Post(
-              id: post['_id'],
-              title: post['title'],
-              content: post['content'],
-              authorName: post['authorName'],
-              views: post['views'],
-              createdAt: DateTime.parse(post['createdAt']),
-              upvotes: post['upvotes'],
-              downvotes: post['downvotes'],
-              linkedSubreddit: post['linkedSubreddit'],
-              comments: List<String>.from(post['comments']),
-              shares: post['shares'],
-              isNSFW: post['isNSFW'],
-              isSpoiler: post['isSpoiler'],
-              isOC: post['isOC'],
-              isCrosspost: post['isCrosspost'],
-              awards: post['awards'],
-              media: post['media'],
-              link: post['link'],
-              isDraft: post['isDraft'],
-            ))
+        .map((post) => Post.fromJson(post as Map<String, dynamic>))
         .toList();
   }
 }

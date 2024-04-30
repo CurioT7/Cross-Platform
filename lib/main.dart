@@ -44,7 +44,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HistoryCubit(),
@@ -59,11 +59,11 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
           ),
-          textTheme: const TextTheme(
-            bodyLarge: TextStyle(color: Colors.black),
-            bodyMedium: TextStyle(color: Colors.black),
+          textTheme: TextTheme(
+            bodyText1: TextStyle(color: Colors.black),
+            bodyText2: TextStyle(color: Colors.black),
           ),
-          colorScheme: const ColorScheme.light(
+          colorScheme: ColorScheme.light(
             primary: Colors.white,
             onPrimary: Colors.black,
             secondary: Colors.deepOrange,
@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
               backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
             ),
           ),
-          progressIndicatorTheme: const ProgressIndicatorThemeData(
+          progressIndicatorTheme: ProgressIndicatorThemeData(
             color: Colors.deepOrange,
           ),
         ),
@@ -100,7 +100,7 @@ class HomePageBeforeSignIn extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const sideBarBeforeLogin(),
-      bottomNavigationBar: HomeNavigationBar(),
+      bottomNavigationBar:const  HomeNavigationBar(),
       appBar: AppBar(
         title: const Text('Side menu'),
         actions: [

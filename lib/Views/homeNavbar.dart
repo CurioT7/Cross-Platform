@@ -88,13 +88,17 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
         fontSize: MediaQuery.of(context).size.width * 0.03,
       ),
       currentIndex: _selectedIndex,
+      currentIndex: _selectedIndex,
       onTap: (index) async {
+        setState(() {
+          _selectedIndex = index;
+        });
         setState(() {
           _selectedIndex = index;
         });
         switch (index) {
           case 0:
-            // Handle tap on 'Home'
+          // Handle tap on 'Home'
             break;
           case 1:
             try {
@@ -107,7 +111,9 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => TopCommunitiesPage()),
+                MaterialPageRoute(builder: (context) => TopCommunitiesPage()),
               );
+            } catch (e) {
             } catch (e) {
               throw Exception('Error fetching user details: $e');
             }
@@ -127,7 +133,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
             );
             break;
           case 3:
-            // Handle tap on 'Chat'
+          // Handle tap on 'Chat'
             break;
           // case 4:
 

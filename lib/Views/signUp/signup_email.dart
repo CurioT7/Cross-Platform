@@ -60,6 +60,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                 },
                 child:
                     const Text('Login ', style: TextStyle(color: redditGrey)),
+
               ),
             ),
           ],

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,23 +25,22 @@ class _PostToPageState extends State<PostToPage> {
     fetchCommunities();
   }
 
-  Future<void> fetchCommunities() async {
-    final sharedPrefs = await SharedPreferences.getInstance();
-    String token = sharedPrefs.getString('token')!;
-    // get the communities from the API
-    print('Fetching communities from user token: $token');
-    communities = ApiService().getCommunities(token, context);
-    if (communities != null) {
-      communityList = await communities!;
-      displayedCommunities = communityList.sublist(0, itemCount);
-      searchController.addListener(() {
-        setState(() {
-          displayedCommunities = communityList
-              .where((community) => community.name
-                  .toLowerCase()
-                  .contains(searchController.text.toLowerCase()))
-              .toList();
-        });
+Future<void> fetchCommunities() async {
+  final sharedPrefs = await SharedPreferences.getInstance();
+  String token = sharedPrefs.getString('token')!;
+  // get the communities from the API
+  print('Fetching communities from user token: $token');
+  communities = ApiService().getCommunities(token,context);
+  if (communities != null) {
+    communityList = await communities!;
+    displayedCommunities = communityList.sublist(0, itemCount);
+    searchController.addListener(() {
+      setState(() {
+        displayedCommunities = communityList
+            .where((community) => community.name
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase()))
+            .toList();
       });
     }
   }

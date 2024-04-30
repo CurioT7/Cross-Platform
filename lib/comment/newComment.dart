@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class newComment extends StatefulWidget {
   final Post post;
   newComment({required this.post});
+
   @override
   _newCommentState createState() => _newCommentState();
 }
@@ -28,17 +29,17 @@ class _newCommentState extends State<newComment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Comment',
-            style: TextStyle(
-              fontSize: 18,
-            )),
+        title: Text('Add Comment', style: TextStyle(fontSize: 18,)),
       ),
+
       body: Column(
         children: <Widget>[
+
           Divider(color: Colors.grey[300]),
           Padding(
             padding: EdgeInsets.only(left: 15.0),
-            child: Row(
+            child:
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
@@ -58,6 +59,8 @@ class _newCommentState extends State<newComment> {
               padding: const EdgeInsets.only(
                 left: 15.0,
               ),
+
+
               child: TextField(
                 controller: _commentController,
                 decoration: InputDecoration(
@@ -79,43 +82,47 @@ class _newCommentState extends State<newComment> {
               onPressed: isAttachmentAdded
                   ? null
                   : () {
+
+                setState(() {
+                  attachment = Attachment(
+                    type: 'link',
+                    data: linkController.text,
+                    component:
+                    Container(), // Temporary component
+                  );
+                  attachment!.component = URLComponent(
+                    controller: linkController,
+                    onClear: () {
                       setState(() {
-                        attachment = Attachment(
-                          type: 'link',
-                          data: linkController.text,
-                          component: Container(), // Temporary component
-                        );
-                        attachment!.component = URLComponent(
-                          controller: linkController,
-                          onClear: () {
-                            setState(() {
-                              attachment = null;
-                              isAttachmentAdded = false;
-                            });
-                          },
-                        );
-                        isAttachmentAdded = true;
+                        attachment = null;
+                        isAttachmentAdded = false;
                       });
                     },
+                  );
+                  isAttachmentAdded = true;
+                });
+              },
             ),
             IconButton(
               icon: const Icon(FontAwesomeIcons.image),
               onPressed: isAttachmentAdded
                   ? null
                   : () async {
-                      final ImagePicker picker0 = ImagePicker();
-                      final XFile? image =
-                          await picker0.pickImage(source: ImageSource.gallery);
-                      setState(() {
-                        optionSelected = false;
-                        _pickedImage = image;
-                        attachment = Attachment(
-                            type: 'image',
-                            data: image,
-                            component: Image.file(File(image!.path)));
-                        isAttachmentAdded = true;
-                      });
-                    },
+
+                final ImagePicker picker0 = ImagePicker();
+                final XFile? image = await picker0.pickImage(
+                    source: ImageSource.gallery);
+                setState(() {
+                  optionSelected = false;
+                  _pickedImage = image;
+                  attachment = Attachment(
+                      type: 'image',
+                      data: image,
+                      component:
+                      Image.file(File(image!.path)));
+                  isAttachmentAdded = true;
+                });
+              },
             ),
           ],
         ),
@@ -178,7 +185,6 @@ class _newCommentState extends State<newComment> {
       } catch (e) {
         print(e);
       }
-    }
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -219,7 +225,8 @@ class _newCommentState extends State<newComment> {
       },
     );
   }
-}
+  }
+
 
 class Attachment {
   final String type;
@@ -257,3 +264,4 @@ class URLComponent extends StatelessWidget {
     );
   }
 }
+

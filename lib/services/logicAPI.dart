@@ -7,21 +7,16 @@ import 'package:curio/Models/post.dart';
 
 import 'package:curio/Models/comment.dart';
 
-import '../Views/Notifications/notificationModel.dart';
-
 class logicAPI {
-  final String _baseUrl =
-      'http://10.0.2.2:3000'; // Replace with your backend URL
-  // final String _baseUrl = 'http://20.19.89.1'; // Replace with your backend URL
+  final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
   // final String _baseUrl = 'http://192.168.1.7';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/user/$username/about'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+      Uri.parse('$_baseUrl/user/$username/about'), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },);
+
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -50,12 +45,11 @@ class logicAPI {
 //print parameter token
     print(token);
     final response = await http.get(
-      Uri.parse('$_baseUrl/api/settings/v1/me'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-    );
+      Uri.parse('$_baseUrl/api/settings/v1/me'), headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },);
+
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -81,7 +75,9 @@ class logicAPI {
     final DateTime cakeDayDate = formatter.parse(cakeDay);
     final DateTime currentDate = DateTime.now();
 
-    final int daysDifference = currentDate.difference(cakeDayDate).inDays;
+    final int daysDifference = currentDate
+        .difference(cakeDayDate)
+        .inDays;
     print("date hereeeeeeeeeeeeee");
     print(daysDifference);
     return daysDifference;
@@ -151,8 +147,8 @@ class logicAPI {
   }
 
   //Community profile page functions
-  Future<Map<String, dynamic>> joinCommunity(
-      String token, String communityName) async {
+  Future<Map<String, dynamic>> joinCommunity(String token,
+      String communityName) async {
     // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
     print("inside join community inside logicapi");
 
@@ -181,8 +177,8 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> leaveCommunity(
-      String token, String communityName) async {
+  Future<Map<String, dynamic>> leaveCommunity(String token,
+      String communityName) async {
     // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
 
     final response = await http.post(
@@ -240,8 +236,8 @@ class logicAPI {
     }
   }
 
-  Future<List<Post>> fetchCommunityProfilePosts(
-      String subreddit, String type) async {
+  Future<List<Post>> fetchCommunityProfilePosts(String subreddit,
+      String type) async {
     final response = await http.get(
         Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type'));
 
@@ -339,17 +335,21 @@ class logicAPI {
   //   }
   // }
 
-  Future<List<Post>?> fetchTopPosts(
-      String subreddit, String timeinterval) async {
+  Future<List<Post>?> fetchTopPosts(String subreddit,
+      String timeinterval) async {
     try {
       print("inside LOGICAPI TIME INTERVAL = ");
       print(timeinterval);
       final response = await http.get(Uri.parse(
-          '$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri.encodeComponent(timeinterval)}'));
+          '$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri
+              .encodeComponent(timeinterval)}'));
+
 
       if (response.statusCode == 200) {
         return Post.getPosts((jsonDecode(response.body)['post']));
-      } else if (response.statusCode == 404) {
+      }
+
+      else if (response.statusCode == 404) {
         return null;
       } else {
         throw Exception('Failed to load posts');
@@ -398,6 +398,7 @@ class logicAPI {
     }
   }
 
+
   Future<void> postComment(String postId, String content, String token) async {
     try {
       final response = await http.post(
@@ -423,8 +424,8 @@ class logicAPI {
         throw Exception(
             'Error 500: Internal Server Error. Failed to post comment.');
       } else {
-        throw Exception(
-            'Failed to post comment with status code: ${response.statusCode}. Error: ${response.body}');
+        throw Exception('Failed to post comment with status code: ${response
+            .statusCode}. Error: ${response.body}');
       }
     } catch (e) {
       print('Exception: $e');
@@ -432,8 +433,7 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> updateComment(
-      String commentId, String content, String token) async {
+  Future<Map<String, dynamic>> updateComment(String commentId, String content, String token) async {
     try {
       final response = await http.patch(
         Uri.parse('$_baseUrl/api/updatecomments'),
@@ -455,20 +455,16 @@ class logicAPI {
         throw Exception('Error 404: Not Found. Failed to update comment.');
       } else if (response.statusCode == 500) {
         print('Error 500: Internal Server Error. Failed to update comment.');
-        throw Exception(
-            'Error 500: Internal Server Error. Failed to update comment.');
+        throw Exception('Error 500: Internal Server Error. Failed to update comment.');
       } else {
-        throw Exception(
-            'Failed to update comment with status code: ${response.statusCode}. Error: ${response.body}');
+        throw Exception('Failed to update comment with status code: ${response.statusCode}. Error: ${response.body}');
       }
     } catch (e) {
       print('Exception: $e');
       throw Exception('Error updating comment: $e');
     }
   }
-
-  Future<Map<String, dynamic>> deleteComment(
-      String commentId, String token) async {
+  Future<Map<String, dynamic>> deleteComment(String commentId, String token) async {
     try {
       final response = await http.delete(
         Uri.parse('$_baseUrl/api/deletecomments/$commentId'),
@@ -489,64 +485,13 @@ class logicAPI {
         throw Exception('Error 404: Not Found. Failed to delete comment.');
       } else if (response.statusCode == 500) {
         print('Error 500: Internal Server Error. Failed to delete comment.');
-        throw Exception(
-            'Error 500: Internal Server Error. Failed to delete comment.');
+        throw Exception('Error 500: Internal Server Error. Failed to delete comment.');
       } else {
-        throw Exception(
-            'Failed to delete comment with status code: ${response.statusCode}. Error: ${response.body}');
+        throw Exception('Failed to delete comment with status code: ${response.statusCode}. Error: ${response.body}');
       }
     } catch (e) {
       print('Exception: $e');
       throw Exception('Error deleting comment: $e');
-    }
-  }
-
-  Future<List<NotificationModel>> getAllNotifications(String token) async {
-    final url = Uri.parse('$_baseUrl/api/notifications/history');
-
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        print('success 200 notifications');
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        log(responseBody.toString());
-        if (responseBody['success'] == true) {
-          List<dynamic> notificationsJson = responseBody['notifications'];
-          print('success: code 200 notifications');
-          return NotificationModel.getNotifications(notificationsJson);
-        } else {
-          throw Exception('Failed to load notifications');
-        }
-      } else {
-        throw Exception(
-            'Failed to load notifications with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Failed to fetch notifications: $e');
-    }
-  }
-
-  Future<List<NotificationModel>> getReadNotifications(String token) async {
-    final response = await http.get(
-      Uri.parse('$_baseUrl/api/notifications/read'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      List notificationsJson = data['readNotifications'];
-      return NotificationModel.getNotifications(notificationsJson);
-    } else {
-      throw Exception('Failed to load notifications');
     }
   }
 }

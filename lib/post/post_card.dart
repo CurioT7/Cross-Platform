@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class PostCard2 extends StatefulWidget {
   final String id;
   final String title;
@@ -38,21 +39,16 @@ class _PostCardState extends State<PostCard2> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: widget.userImage != null
-                      ? NetworkImage(widget.userImage!)
-                      : null,
-                ),
-                title: Text(widget.username ?? 'Unknown'),
-                subtitle: Text(widget.postTime ?? 'Unknown time'),
-                trailing: const Icon(Icons.more_vert),
+
+    child: Card( child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            ListTile(
+              leading: CircleAvatar(
+                backgroundImage:
+                    widget.userImage != null ? NetworkImage(widget.userImage!) : null,
               ),
               if (widget.postImage != null)
                 Image.network(
@@ -163,6 +159,8 @@ class _PostCardState extends State<PostCard2> {
           ),
         ),
       ),
+    ),
+
     );
   }
 }

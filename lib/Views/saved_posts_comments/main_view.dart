@@ -128,6 +128,7 @@ class _TabBarExampleState extends State<TabBarExample>
                                   snapshot.data!['savedComments'][index].upvotes.toString() +
                                   ' upvotes';
                               return SavedCommentCard(
+                                title: snapshot.data!['titles'][index],
                                 content: snapshot.data!['savedComments'][index].content,
                                 postID: snapshot.data!['savedComments'][index].linkedPost,
                                 metaData: metaData,

@@ -3,11 +3,13 @@ import 'package:curio/comment/viewPostComments.dart';
 
 class SavedCommentCard extends StatelessWidget {
   final String content;
+  final String title;
   final String postID;
   final String metaData;
 
   SavedCommentCard(
       {Key? key,
+      required this.title,
       required this.content,
       required this.postID,
       required this.metaData})
@@ -37,10 +39,17 @@ class SavedCommentCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
                   metaData,
                   style: const TextStyle(
                     fontSize: 10,
-                    color: Colors.black,
+                    color: Colors.grey,
                   ),
                 ),
                 Text(

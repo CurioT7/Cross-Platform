@@ -178,12 +178,37 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
       print("Saved Posts: ${body['savedPosts']}");
       savedPosts = Post.getPosts(body['savedPosts']);
     }
-    List<Comment> savedComments = [];
+    List<Comment> savedComments= [];
+    List<String>titles = [];
     if(body['savedComments'] != []) {
       print("Saved Comments: ${body['savedComments']}");
       savedComments = Comment.getComments(body['savedComments']);
+      // itterate over the saved comments and list all linkedposts
+
+      for (var comment in savedComments) {
+        var objectID = comment.linkedPost;
+        try {
+          print(objectID);
+          final response = await http.get(
+            Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+            headers:<String, String> {
+              'Content-Type': 'application/json; charset=UTF-8',
+
+            },
+          );
+
+          if (response.statusCode == 200) {
+            titles.add(jsonDecode(response.body)['item']['title']);
+          } else {
+            print('Response body: ${response.body}');
+            throw Exception('Failed to load info with status code: ${response.statusCode}');
+          }
+        } catch (e) {
+          throw Exception('Failed to load info. Error: $e');
+        }
+      }
     }
-    return {'savedPosts': savedPosts, 'savedComments': savedComments};
+    return {'savedPosts': savedPosts, 'savedComments': savedComments, 'titles': titles};
   }
   else{
     throw Exception('Failed to fetch saved posts and comments');

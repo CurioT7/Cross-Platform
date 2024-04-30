@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
-   final String baseUrl= 'http://192.168.1.13:3000/api';
-
+  //  final String baseUrl= 'http://192.168.1.13:3000/api';
+  final String baseUrl = 'http://10.0.2.2:3000';
 
     Future<List<Post>> getBestPosts() async {
     try {
@@ -228,7 +228,7 @@ Future<bool> lockPost(String postId, String token) async {
 
   Future<bool> savePost(String postId, String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/save'),
+      Uri.parse('$baseUrl/api/save'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -246,6 +246,39 @@ Future<bool> lockPost(String postId, String token) async {
       print('Response body: ${response.body}');
       throw Exception('Failed to save post');
     }
+    /*
+      void saveComment(String commentId, String token) async {
+    print("inside save comment");
+     final response = await http.post(
+       Uri.parse('$_baseUrl/api/save'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+       body: jsonEncode(<String, dynamic>{
+         'category': 'comment',
+         'id': commentId,
+       }),
+     );
+
+    if (response.statusCode == 200) {
+      print("Comment saved successfully");
+    } else if (response.statusCode == 400) {
+      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+    } else if (response.statusCode == 403) {
+      throw Exception('Forbidden: The client does not have access rights to the content.');
+    } else if (response.statusCode == 404) {
+      throw Exception('Not Found: The server can not find the requested resource.');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
+
+    } else {
+      throw Exception('Failed to save comment. Status code: ${response.statusCode}');
+      }
+   }
+     */
   }
 
   Future<bool> unsavePost(String postId, String token) async {

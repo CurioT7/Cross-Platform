@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/community_bar.dart';
 import 'package:curio/Models/community_model.dart';
 import 'package:curio/widgets/tags.dart';
-import 'dart:io';
+import 'package:curio/widgets/poll_component.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
 
@@ -112,6 +112,21 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                         if (isCommunitySelected) {
+                          String type = attachment != null ? attachment!.type : 'post';
+                          if(type == 'image' || type == 'video') {
+                            type = 'media';
+                          }
+                          List<String>? options = [];
+                          String? voteLength = '';
+
+                          if(type == 'poll'){
+                            // get the options list
+                          options = (attachment!.component as PollComponent).getOptions();
+                          print(options);
+
+                          voteLength = (attachment!.component as PollComponent).getSelectedOption();
+                          }
+
                           Map<String, dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
@@ -119,12 +134,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             'isSpoiler': selectedTags.contains('Spoiler'),
                             'isOC': selectedTags.contains('isOC'),
                             'subreddit': selectedCommunity.name,
-                            'destination': "subreddit",
+                            // 'destination': "subreddit",
+                            'type': type,
                           };
                           //check if the attachment has been added
                           if (attachment != null && attachment!.type == 'url') {
                             // print the attachment type
                             post['media'] = attachment!.data;
+                          }
+                          if(type=='poll'){
+                            post['Options'] = options;
+                            post['voteLength'] = voteLength;
                           }
 
                           final SharedPreferences prefs =
@@ -181,160 +201,171 @@ class _AddPostScreenState extends State<AddPostScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(1, 0, 1, 1),
-            child: Column(
-              children: [
-                if (isCommunitySelected)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          // Add this line
-                          child: CommunityBar(
-                              community: selectedCommunity.name,
-                              communityId: selectedCommunity.id,
-                              onTap: () async {
-                                // ignore: unused_local_variable
-                                selectedCommunity = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PostToPage(),
-                                  ),
-                                );
-                                setState(() {
-                                  isCommunitySelected = true;
-                                });
-                              }),
-                        ),
-                      ],
-                    ),
-                  ),
-                SizedBox(
-                  height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
-                  child: Builder(
-                    builder: (context) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 700),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (isCommunitySelected)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.warning,
-                                    size: 20), // Add this line
-                                ...selectedTags
-                                    .map(
-                                      (tag) => Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          tag,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
-                                            fontSize: 18,
-                                          ),
-                                        ),
+                            Expanded(
+                              // Add this line
+                              child: CommunityBar(
+                                  community: selectedCommunity.name,
+                                  communityId: selectedCommunity.id,
+                                  onTap: () async {
+                                    // ignore: unused_local_variable
+                                    selectedCommunity = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PostToPage(),
                                       ),
-                                    )
-                                    .toList(),
+                                    );
+                                    setState(() {
+                                      isCommunitySelected = true;
+                                    });
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    SizedBox(
+                      height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
+                      child: Builder(
+                        builder: (context) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.warning,
+                                        size: 20), // Add this line
+                                    ...selectedTags
+                                        .map(
+                                          (tag) => Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              tag,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    hintText: 'Title',
-                    border: InputBorder.none,
-                    fillColor: theme.cardColor,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(
-                  height: 0 + (isCommunitySelected ? 50 : 0),
-                  child: Builder(
-                    builder: (context) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              builder: (BuildContext context) {
-                                return TagBottomSheet(
-                                  onDismiss: (List<String> selectedTags) {
-                                    // Handle selectedTags list here
-                                    setState(
-                                      () {
-                                        this.selectedTags.clear();
-                                        this.selectedTags.addAll(selectedTags);
-                                      },
-                                    );
-                                  },
-                                  selectedTags: this.selectedTags,
-                                );
-                              },
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            backgroundColor: Colors.grey[300], // text color
-                          ),
-                          child: const Text(
-                            'tags(optional)',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: 0 + (attachment != null ? 50 : 0),
-                  child: Visibility(
-                    visible: attachment != null && !optionSelected,
-                    child: Builder(
-                      builder: (context) {
-                        return Row(
-                          children: [
-                            Expanded(child: attachment!.component),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                if (widget.type == 'text')
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: descriptionController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              hintText: 'body (optional)',
-                              border: InputBorder.none,
-                              fillColor: theme.cardColor,
-                              counterText: '',
-                            ),
-                            maxLines: null,
-                          ),
-                        ],
+                          );
+                        },
                       ),
                     ),
-                  ),
-              ],
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: 'Title',
+                        border: InputBorder.none,
+                        fillColor: theme.cardColor,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 0 + (isCommunitySelected ? 50 : 0),
+                      child: Builder(
+                        builder: (context) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) {
+                                    return TagBottomSheet(
+                                      onDismiss: (List<String> selectedTags) {
+                                        // Handle selectedTags list here
+                                        setState(
+                                          () {
+                                            this.selectedTags.clear();
+                                            this
+                                                .selectedTags
+                                                .addAll(selectedTags);
+                                          },
+                                        );
+                                      },
+                                      selectedTags: this.selectedTags,
+                                    );
+                                  },
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                backgroundColor: Colors.grey[300], // text color
+                              ),
+                              child: const Text(
+                                'tags(optional)',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 0 +
+                          (attachment != null
+                              ? attachment!.type == "poll"
+                                  ? 200
+                                  : 50
+                              : 0),
+                      child: Visibility(
+                        visible: attachment != null && !optionSelected,
+                        child: Builder(
+                          builder: (context) {
+                            return Row(
+                              children: [
+                                Expanded(child: attachment!.component),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    if (widget.type == 'text')
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: descriptionController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: 'body (optional)',
+                                border: InputBorder.none,
+                                fillColor: theme.cardColor,
+                                counterText: '',
+                              ),
+                              maxLines: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -453,6 +484,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 },
                         ),
                         if (!keyboardOpen) const Text('Video'),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        IconButton(
+                          icon: const Icon(FontAwesomeIcons.poll),
+                          onPressed: isAttachmentAdded
+                              ? null
+                              : () {
+                                  setState(() {
+                                    attachment = Attachment(
+                                      type: 'poll',
+                                      data: null,
+                                      component: PollComponent(
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                        pollComponentKey: GlobalKey(),
+                                      ),
+                                    );
+                                    isAttachmentAdded = true;
+                                  });
+                                },
+                        ),
+                        if (!keyboardOpen) const Text('Poll'),
                       ],
                     ),
                   ],

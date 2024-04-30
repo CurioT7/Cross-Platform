@@ -1,12 +1,12 @@
-import 'package:curio/post/community_card.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:curio/Views/homeNavbar.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:curio/Models/post.dart';
-import 'package:curio/Models/comment.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/comment/commentCard.dart';
+import 'package:curio/widgets/savedCommentCard.dart';
 
 class PostsCommentsExample extends StatelessWidget {
   const PostsCommentsExample({Key? key}) : super(key: key);
@@ -27,39 +27,49 @@ class TabBarExample extends StatefulWidget {
   _TabBarExampleState createState() => _TabBarExampleState();
 }
 
-class _TabBarExampleState extends State<TabBarExample> {
+class _TabBarExampleState extends State<TabBarExample>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> savedData = Future.value({});
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     loadSavedData(); // Call the method here
     // replace 'your_token_here' with your actual token
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+      loadSavedData();
+    }
+  }
   Future<void> loadSavedData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('token');
-    savedData = ApiService().fetchSavedPostsAndComments(
-        token!); // replace 'your_token_here' with your actual token
+    final data = await ApiService().fetchSavedPostsAndComments(token!);
+    setState(() {
+      savedData = Future.value(data);
+    });
   }
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0,
       length: 2,
       child: Scaffold(
-        bottomNavigationBar: homeNavigationBar(),
+        bottomNavigationBar: HomeNavigationBar(),
         appBar: AppBar(
           title: const Text('Saved'),
           centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
           bottom: const TabBar(
             tabs: <Widget>[
               Tab(
@@ -82,54 +92,52 @@ class _TabBarExampleState extends State<TabBarExample> {
               if (snapshot.data!.isEmpty) {
                 return const Center(child: Icon(Icons.local_hospital));
               }
-              if (snapshot.data!['savedPosts'].isEmpty) {
-                return TabBarView(
-                  children: <Widget>[
-                    const Center(
-                      child: Icon(Icons.directions_car),
-                    ),
-                    ListView.builder(
-                      itemCount: snapshot.data!['savedComments'].length,
-                      itemBuilder: (context, index) {
-                        return PostCard(
-                            post: snapshot.data!['savedComments'][index]);
-                      },
-                    ),
-                  ],
-                );
-              }
-              if (snapshot.data!['savedComments'].isEmpty) {
-                return TabBarView(
-                  children: <Widget>[
-                    ListView.builder(
-                      itemCount: snapshot.data!['savedComments'].length,
-                      itemBuilder: (context, index) {
-                        return
-                          CommentCard(
-                            postID: snapshot.data!['savedComments'][index].linkedPost,
-                            id: snapshot.data!['savedComments'][index]._id,
-                              content: snapshot.data!['savedComments'][index].content,
-                              authorUsername: snapshot.data!['savedComments'][index].authorName,
-                              createdAt: snapshot.data!['savedComments'][index].createdAt,
-                              upvotes: snapshot.data!['savedComments'][index].upvotes,
-                              downvotes: snapshot.data!['savedComments'][index].downvotes,
-                              linkedPost: snapshot.data!['savedComments'][index].linkedPost,
-                              linkedSubreddit: snapshot.data!['savedComments'][index].linkedSubreddit,
-                              awards: snapshot.data!['savedComments'][index].awards,
-                              userImage: "lib/assets/images/example.jpg",
-                          );
-                      },
-                    ),
-                    const Center(
-                      child:// random icon
-                      Icon(Icons.directions_car),
-                    ),
-                  ],
-                );
-              }
+              return TabBarView(
+                children: <Widget>[
+                  // First tab: Posts
+                  RefreshIndicator(
+                    onRefresh: loadSavedData,
+                    child: snapshot.data!['savedPosts'].isEmpty
+                        ? const Center(child: Text('No saved posts'))
+                        : ListView.builder(
+                            itemCount: snapshot.data!['savedPosts'].length,
+                            itemBuilder: (context, index) {
+                              return PostCard(
+                                post: snapshot.data!['savedPosts'][index],
+                              );
+                            },
+                          ),
+                  ),
+                  // Second tab: Comments
+                  RefreshIndicator(
+                    onRefresh: loadSavedData,
+                    child: snapshot.data!['savedComments'].isEmpty
+                        ? const Center(child: Text('No saved comments'))
+                        : ListView.builder(
+                            itemCount: snapshot.data!['savedComments'].length,
+                            itemBuilder: (context, index) {
+                              /**
+                               *  "authorName": "Arianna.Gutkowski53",
+                                  "createdAt": "2023-07-10T19:06:25.448Z",
+                                  "upvotes": 30105,
+                               */
+                              String metaData = snapshot.data!['savedComments'][index].authorUsername +
+                                  ' - ' +
+                                  snapshot.data!['savedComments'][index].createdAt.toString() +
+                                  ' - ' +
+                                  snapshot.data!['savedComments'][index].upvotes.toString() +
+                                  ' upvotes';
+                              return SavedCommentCard(
+                                content: snapshot.data!['savedComments'][index].content,
+                                postID: snapshot.data!['savedComments'][index].linkedPost,
+                                metaData: metaData,
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              );
             }
-            // Default return statement
-            return const Center(child: Text('Loading...'));
           },
         ),
       ),

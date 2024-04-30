@@ -7,7 +7,7 @@ import '../models/account_info.dart';
 
 class ApiService {
  //final String _baseUrl = 'http://20.19.89.1'; // Base URL
-   final String _baseUrl= 'http://192.168.1.7';
+   final String _baseUrl= 'http://10.0.2.2:3000';
 
   Future<Map<String, dynamic>> getUserOverview() async {
     const String endpoint =

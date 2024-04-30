@@ -16,7 +16,7 @@ import 'package:curio/Models/comment.dart';
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl= 'http://10.0.0.2:3000';
+  final String _baseUrl= 'http://10.0.2.2:3000';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -173,14 +173,16 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
   );
   if (response.statusCode == 200) {
     Map<String, dynamic> body = jsonDecode(response.body);
-    if(body.isEmpty){
-      return {'savedPosts': [], 'savedComments': []};
+    List<Post> savedPosts = [];
+    if(body['savedPosts'] != []) {
+      print("Saved Posts: ${body['savedPosts']}");
+      savedPosts = Post.getPosts(body['savedPosts']);
     }
-    if(body['savedPosts'] == null || body['savedComments'] == null){
-      return {'savedPosts': [], 'savedComments': []};
+    List<Comment> savedComments = [];
+    if(body['savedComments'] != []) {
+      print("Saved Comments: ${body['savedComments']}");
+      savedComments = Comment.getComments(body['savedComments']);
     }
-    List<Post> savedPosts = (body['savedPosts'] as List).map((i) => Post.fromJson(i)).toList();
-    List<Comment> savedComments = (body['savedComments'] as List).map((i) => Comment.fromJson(i)).toList();
     return {'savedPosts': savedPosts, 'savedComments': savedComments};
   }
   else{
@@ -191,8 +193,6 @@ Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
 Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token, XFile? imageFile) async {
   print("submitting post");
   print(jsonEncode(post));
-
-
 
 
   var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
@@ -382,7 +382,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
-    //const baseUrl = 'http://20.19.89.1';
+    // const baseUrl = 'http://20.19.89.1';
 
      // final String baseUrl= 'http://192.168.1.7';
 

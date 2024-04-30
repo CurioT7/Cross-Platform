@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 // import C:\Users\yaray\OneDrive\Documents\HEM\Software\Curio_v1\Cross-Platform\lib\Models\post.dart
@@ -64,12 +65,12 @@ class logicAPI {
   Map<String, dynamic> extractUsername(Map<String, dynamic> userData) {
     return {
       'username': userData['username'],
-
     };
   }
 
   Future<int> daysSinceCakeDay(Map<String, dynamic> userDetails) async {
-    final String cakeDay = userDetails['cakeDay']; // Assuming the cakeDay is in the format "Mar 2, 2024"
+    final String cakeDay = userDetails[
+        'cakeDay']; // Assuming the cakeDay is in the format "Mar 2, 2024"
     final DateFormat formatter = DateFormat('MMM d, yyyy');
     final DateTime cakeDayDate = formatter.parse(cakeDay);
     final DateTime currentDate = DateTime.now();

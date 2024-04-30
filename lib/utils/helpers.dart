@@ -3,7 +3,6 @@ import 'package:curio/utils/reddit_colors.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 class CustomTextField extends StatefulWidget {
   final String labelText;
   final TextEditingController controller;
@@ -12,12 +11,13 @@ class CustomTextField extends StatefulWidget {
   final ValueChanged<bool>? onValidChanged;
 
   const CustomTextField(
-      this.labelText,
-      this.controller, {super.key,
-        this.obscureText = false,
-        this.onChanged,
-        this.onValidChanged,
-      });
+    this.labelText,
+    this.controller, {
+    super.key,
+    this.obscureText = false,
+    this.onChanged,
+    this.onValidChanged,
+  });
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
@@ -39,16 +39,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
             RegExp regex = new RegExp(pattern.toString());
             _isValid = regex.hasMatch(value);
           } else if (widget.labelText == 'Password') {
-            final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+            final passwordRegex =
+                RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
             _isValid = passwordRegex.hasMatch(value);
             _isValid = value.length >= 8;
-          }
-          else if (widget.labelText == 'Username') {
+          } else if (widget.labelText == 'Username') {
             _isValid = value.length >= 3;
             // _isValid = true;
             // TODO- check with the backend if the username is available
-          }
-          else {
+          } else {
             _isValid = true;
           }
           widget.onValidChanged?.call(_isValid!);
@@ -68,13 +67,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(25)),
-          borderSide: BorderSide(color: Colors.black), // Set border side to a visible color when focused
+          borderSide: BorderSide(
+              color: Colors
+                  .black), // Set border side to a visible color when focused
         ),
         suffixIcon: _isValid == null
             ? null
             : _isValid!
-            ? const Icon(Icons.check_circle, color: Colors.green)
-            : const Icon(Icons.error, color: Colors.red),
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : const Icon(Icons.error, color: Colors.red),
       ),
       obscureText: widget.obscureText,
       validator: (value) {
@@ -93,16 +94,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
           } else {
             return null;
           }
+        } else if (widget.labelText == 'Username') if (value!.length < 3) {
+          return 'Username must be longer than 3 characters';
+        } else {
+          return null;
         }
-        else if (widget.labelText == 'Username')
-          if (value!.length < 3) {
-            return 'Username must be longer than 3 characters';
-          } else {
-            return null;
-          }
       },
     );
   }
 }
-
-

@@ -7,6 +7,7 @@ import 'package:curio/Models/post.dart';
 //import 'package:curio/post/post_card.dart';
 import 'package:curio/comment/newComment.dart';
 import 'package:curio/widgets/postCard.dart';
+
 class ViewPostComments extends StatefulWidget {
 
   final Post post;
@@ -18,12 +19,14 @@ class ViewPostComments extends StatefulWidget {
 
 class _ViewPostCommentsState extends State<ViewPostComments> {
 
+
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     logicAPI().fetchPostComments(widget.post.id);
+
   }@override
   Widget build(BuildContext context) {
     print('Post: ${widget.post.title}');
@@ -31,9 +34,11 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
 String postTitle = widget.post.title;
 String postcontent = widget.post.content;
 
+
     return Scaffold(
       //set color of page to ligth grey
       backgroundColor: Colors.grey[200],
+
     appBar: topAppBar(context),
       body: Column(
         children: <Widget>[
@@ -85,6 +90,7 @@ String postcontent = widget.post.content;
                       onTap: () {
                         Navigator.push(
                           context,
+
                           MaterialPageRoute(builder: (context) => newComment(post:widget.post)),
                         );
                       },
@@ -112,3 +118,4 @@ String postcontent = widget.post.content;
     );
   }
 }
+

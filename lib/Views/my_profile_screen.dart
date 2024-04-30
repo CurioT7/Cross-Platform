@@ -49,6 +49,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     ),
                     SliverToBoxAdapter(
                       child: TabBar(
+                        indicatorColor: Colors.blue,
+                        labelColor: Colors.blue,
                         tabs: _sections.map(
                           (section) {
                             return Tab(
@@ -63,7 +65,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         children: [
                           const ProfilePostsTab(),
                           const Center(
-                            child: Text('Tab 2'),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.reddit,
+                                  size: 50.0,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 5.0),
+                                Text('Wow, such empty'),
+                              ],
+                            ),
                           ),
                           AboutSection(
                             postKarmaNumber:

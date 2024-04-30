@@ -4,10 +4,10 @@ import 'package:curio/Models/community_model.dart';
 
 final icons = [Icons.home, Icons.star, Icons.school, Icons.work, Icons.alarm, Icons.account_balance];
 
+
 class CommunityCard extends StatelessWidget {
   final Community community;
   final Function onTap;
-
   CommunityCard(
       {Key? key, required this.community, required this.onTap}) : super(key: key);
 
@@ -52,3 +52,4 @@ class CommunityCard extends StatelessWidget {
     );
   }
 }
+

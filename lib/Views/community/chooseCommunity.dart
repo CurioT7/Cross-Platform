@@ -5,9 +5,9 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 
 class ChooseCommunityPage extends StatefulWidget {
-    final String oldPostId;
+  final String oldPostId;
 
-    ChooseCommunityPage({required this.oldPostId});
+  ChooseCommunityPage({required this.oldPostId});
   @override
   _ChooseCommunityPageState createState() => _ChooseCommunityPageState();
 }
@@ -34,7 +34,8 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userProfile = await _apiService.getUserProfile(token);
+      Map<String, dynamic> userProfile =
+          await _apiService.getUserProfile(token);
       setState(() {
         _username = userProfile['username'];
         _email = userProfile['email'];
@@ -51,7 +52,8 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userCommunities = await _apiService.getUserCommunities(token, _username);
+      Map<String, dynamic> userCommunities =
+          await _apiService.getUserCommunities(token, _username);
       setState(() {
         communities = userCommunities['communities'];
       });
@@ -72,7 +74,8 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
             color: Colors.grey[300],
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text('Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text('Profile',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ),
           Padding(
@@ -86,7 +89,6 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
                 ),
                 SizedBox(width: 10),
                 Text('My profile'),
-
               ],
             ),
           ),
@@ -94,7 +96,8 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
             color: Colors.grey[300],
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text('Joined', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text('Joined',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ),
           Expanded(
@@ -114,10 +117,11 @@ class _ChooseCommunityPageState extends State<ChooseCommunityPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ShareToSubredditPage(selectedNewSubreddit: community['name'],oldPostId: widget.oldPostId),
+                        builder: (context) => ShareToSubredditPage(
+                            selectedNewSubreddit: community['name'],
+                            oldPostId: widget.oldPostId),
                       ),
                     );
-
                   },
                 );
               },

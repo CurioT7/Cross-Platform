@@ -8,7 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class newComment extends StatefulWidget {
   final Post post;
-  newComment({ required this.post});
+  newComment({required this.post});
+
   @override
   _newCommentState createState() => _newCommentState();
 }
@@ -52,11 +53,14 @@ class _newCommentState extends State<newComment> {
               ],
             ),
           ),
-
           Divider(color: Colors.grey[300]),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 15.0,),
+              padding: const EdgeInsets.only(
+                left: 15.0,
+              ),
+
+
               child: TextField(
                 controller: _commentController,
                 decoration: InputDecoration(
@@ -78,6 +82,7 @@ class _newCommentState extends State<newComment> {
               onPressed: isAttachmentAdded
                   ? null
                   : () {
+
                 setState(() {
                   attachment = Attachment(
                     type: 'link',
@@ -103,6 +108,7 @@ class _newCommentState extends State<newComment> {
               onPressed: isAttachmentAdded
                   ? null
                   : () async {
+
                 final ImagePicker picker0 = ImagePicker();
                 final XFile? image = await picker0.pickImage(
                     source: ImageSource.gallery);
@@ -176,14 +182,9 @@ class _newCommentState extends State<newComment> {
         }
         api.postComment(widget.post.id, _commentController.text, token);
         Navigator.of(context).pop();
-
-
-      }
-      catch(e){
+      } catch (e) {
         print(e);
       }
-
-    }
   }
 
   void _showBottomSheet(BuildContext context) {
@@ -224,8 +225,9 @@ class _newCommentState extends State<newComment> {
       },
     );
   }
+  }
 
-}
+
 class Attachment {
   final String type;
   final dynamic data;
@@ -262,3 +264,4 @@ class URLComponent extends StatelessWidget {
     );
   }
 }
+

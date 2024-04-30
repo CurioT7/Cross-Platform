@@ -95,7 +95,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                        if (isCommunitySelected & descriptionController.text.isNotEmpty) {
+
+                        if (isCommunitySelected) {
                           Map<String,dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
@@ -109,6 +110,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           if (attachment != null) {
                             post['media'] = attachment!.data;
                           }
+
 
                           final SharedPreferences prefs = await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
@@ -134,7 +136,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             isCommunitySelected = true;
                           });
                         }
-
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -174,8 +175,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           // Add this line
                           child: CommunityBar(
                               community: selectedCommunity.name,
-                              communityId: selectedCommunity
-                                  .id,
+                              communityId: selectedCommunity.id,
                               onTap: () async {
                                 // ignore: unused_local_variable
                                 selectedCommunity = await Navigator.push(

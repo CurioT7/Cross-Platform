@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'rules_page.dart';
 
+
 final icons = [Icons.home, Icons.star, Icons.school, Icons.work]; // Add more icons as needed
 
 class CommunityBar extends StatelessWidget {
@@ -44,7 +45,9 @@ class CommunityBar extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  RulesPage(communityId: communityId)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          RulesPage(communityId: communityId)),
                 );
               },
               child: const Text('Rules'),

@@ -27,7 +27,7 @@ class PostCard extends StatefulWidget {
   _PostCardState createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends State<PostCard> with AutomaticKeepAliveClientMixin {
   late int votes;
   bool upvoted = false;
   bool downvoted = false;
@@ -39,6 +39,9 @@ class _PostCardState extends State<PostCard> {
   bool isInSubreddit =true;
 
   @override
+  bool get wantKeepAlive => true; // Add this line
+
+  @override
   void initState() {
     super.initState();
     votes = widget.post.upvotes - widget.post.downvotes;
@@ -46,9 +49,12 @@ class _PostCardState extends State<PostCard> {
     prefs = value;
     setState(() {
       voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      upvoted = voteStatus == 'upvoted';
+      downvoted = voteStatus == 'downvoted';
     });
   });
   }
+
 Future<String> getToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString('token')!;
@@ -538,8 +544,10 @@ void _launchURL(String url) async {
             trailing: Row(
               mainAxisSize: MainAxisSize.min, // set to minimum to prevent overflow
               children: [
-                JoinButton(),
-                IconButton(
+                JoinButton(
+                  isUserMemberOfItemSubreddit: widget.post.isUserMemberOfItemSubreddit,
+                  communityName: widget.post.subredditName,
+                ),                IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.grey),
                   onPressed: _additionalOptions,
                 ),

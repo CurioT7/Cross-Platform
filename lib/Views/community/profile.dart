@@ -30,14 +30,17 @@ class _CommunityProfileState extends State<communityProfile> {
 
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  String communityName = 'Art eum';
-  bool? isJoined = null;
+  //String communityName = 'Art eum';
+  bool? isJoined;
 
-  bool isJoinedChanged= false;
+  bool
+  isJoinedChanged= false;
   Future<void> fetchPreferencesIsJoined() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //_fetchJoinState();
     isJoined = prefs.getBool('isJoinedSubreddit');
     // You can now use isJoined
+
   }
   void _fetchJoinState() async {
     try {
@@ -50,7 +53,7 @@ class _CommunityProfileState extends State<communityProfile> {
       final data = apiLogic.extractUsername(username);
 
       String extractedUsername = data['username'];
-      logicAPI().fetchJoinedCommunityNames(extractedUsername, token, communityName);
+      logicAPI().fetchJoinedCommunityNames(extractedUsername, token, widget.communityName);
       //  return joinedCommunities.contains(communityName);
 
 
@@ -80,7 +83,7 @@ class _CommunityProfileState extends State<communityProfile> {
     print('Fetching community data');
     logicAPI api = logicAPI();
     Map<String, dynamic> communityData = await api.fetchCommunityData(
-        communityName);
+        widget.communityName);
     setState(() {
       privacyMode = communityData['privacyMode'];
       name = communityData['name'];
@@ -105,7 +108,7 @@ class _CommunityProfileState extends State<communityProfile> {
     logicAPI api = logicAPI();
     switch (_selectedSort) {
       case 'hot':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'hot');
+        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(widget.communityName, 'hot');
         setState(() {
           posts = fetchedPosts; print("fetchedposts");
 
@@ -114,7 +117,7 @@ class _CommunityProfileState extends State<communityProfile> {
         });
         break;
       case 'new':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'new');
+        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(widget.communityName, 'new');
         setState(() {
           posts = fetchedPosts; print("fetchedposts");
           print("fetchedposts");
@@ -128,7 +131,7 @@ class _CommunityProfileState extends State<communityProfile> {
         print("Time interval");
         print(timeInterval);
         if (timeInterval!<1){
-          List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, "now");
+          List<Post>? fetchedPosts = await api.fetchTopPosts(widget.communityName, "now");
           setState(() {
             if(fetchedPosts!=null) {
               posts = fetchedPosts;
@@ -139,7 +142,7 @@ class _CommunityProfileState extends State<communityProfile> {
           ;
           return;
         }
-        List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, (timeInterval! ).toString());
+        List<Post>? fetchedPosts = await api.fetchTopPosts(widget.communityName, (timeInterval! ).toString());
         setState(() {
           if(fetchedPosts!=null) {
             posts = fetchedPosts;
@@ -156,11 +159,13 @@ class _CommunityProfileState extends State<communityProfile> {
   @override
   void initState() {
     super.initState();
-    communityName = widget.communityName;
+
     _scrollController.addListener(_scrollListener);
-    _fetchCommunityData();
-    isJoined = null;
-    _initializeState();
+    _fetchCommunityData(
+    );
+
+    //isJoined = null;
+   _initializeState();
 
 
     //TODO FETCH COMMUNITY JOIN STATE
@@ -174,15 +179,17 @@ class _CommunityProfileState extends State<communityProfile> {
   }
 
   void _initializeState() async {
-    if ( isJoinedChanged==true || isJoined==null){
+
 
       _fetchJoinState();
       await fetchPreferencesIsJoined();
       print('Is Joined: $isJoined');
 
-      setState(() {});
+      setState(()  {
 
-    }}
+      });
+
+    }
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
   //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
@@ -353,7 +360,8 @@ class _CommunityProfileState extends State<communityProfile> {
                           (Set<MaterialState> states) {
 
                         _initializeState();
-
+_fetchJoinState();
+fetchPreferencesIsJoined();
                         if (isJoined == true) {
                           return Colors.white; // Set the button color to white if the user has joined
                         } else {
@@ -366,6 +374,8 @@ class _CommunityProfileState extends State<communityProfile> {
                         if (isJoined == true) {
                           return BorderSide(color: Colors.grey); // Set the border color to dark grey if the user has joined
                         } else {
+
+
                           return BorderSide.none; // Otherwise, no border
                         }
                       },
@@ -379,15 +389,17 @@ class _CommunityProfileState extends State<communityProfile> {
                         throw Exception('Token is null');
                       }
                       _initializeState();
-
+                      _fetchJoinState();
+                      fetchPreferencesIsJoined();
                       if (isJoined!) {
                         try {
                           //await apiLogic.leaveCommunity(token, communityName);
                           // isJoined = false;
                           setState(() {
-                            showLeaveCommunityDialog(context, communityName);
-                            _fetchCommunityData();
-
+                            showLeaveCommunityDialog(context, widget.communityName);
+//                             _initializeState();
+//                             _fetchCommunityData();
+// fetchPreferencesIsJoined();
 
 
                           });
@@ -396,12 +408,20 @@ class _CommunityProfileState extends State<communityProfile> {
                         }
                       } else {
                         try {
-                          await apiLogic.joinCommunity(token, communityName);
+                          await apiLogic.joinCommunity(token, widget.communityName);
                           isJoinedChanged=true;
-                          //isJoined = true;
+                          //might change test
+                          setState(() {isJoined=true;
+                          prefs.setBool('isJoinedSubreddit', true);});
 
-                          _initializeState();
-                          _fetchCommunityData();
+                          //isJoined = true;
+// if (isJoinedChanged==true) {
+//   _initializeState();
+//   _fetchCommunityData();
+//   _fetchJoinState();
+//   fetchPreferencesIsJoined();
+//   isJoinedChanged=false;
+// }
                           setState(() {
 
 
@@ -416,7 +436,7 @@ class _CommunityProfileState extends State<communityProfile> {
                                   ),
                                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                                   child: Text(
-                                      'You have succesfully joined the community: $communityName',
+                                      'You have succesfully joined the community: $widget.communityName',
                                       style: TextStyle(color: Colors.white)
                                   ),
                                 ),
@@ -432,7 +452,9 @@ class _CommunityProfileState extends State<communityProfile> {
                       print('Error in SharedPreferences: $e');
                     }
                   },
-                  child: Text(
+                  child:
+                  Text(
+
                     isJoined == true ? 'Joined' : 'Join',
                     // Change the text based on whether the user has joined or not
                     style: TextStyle(
@@ -474,7 +496,7 @@ class _CommunityProfileState extends State<communityProfile> {
                       context,
                       MaterialPageRoute(builder: (context) =>
                           AboutComunityPage(
-                              subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
+                              subredditName: widget.communityName)), // Replace SecondPage() with the actual page you want to navigate to
                     );
                   },
                   child: Text(
@@ -613,13 +635,23 @@ class _CommunityProfileState extends State<communityProfile> {
                               }
                               await apiLogic.leaveCommunity(token, communityName);
 
+                              //might change test
+setState(() {isJoined=false;
+prefs.setBool('isJoinedSubreddit', false);});
 
                               isJoinedChanged=true;
-
+                              // if (isJoinedChanged==true) {
+                              //   _initializeState();
+                              //   _fetchCommunityData();
+                              //   _fetchJoinState();
+                              //   fetchPreferencesIsJoined();
+                              //   isJoinedChanged=false;
+                              // }
                               Navigator.of(context).pop();
                               // isJoined = false;
                               _fetchCommunityData();
-                              _initializeState();
+                              fetchPreferencesIsJoined();
+
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     backgroundColor: Colors.transparent,

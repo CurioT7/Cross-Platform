@@ -76,7 +76,11 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
         _topCommunities = response;
         // Initialize communityStates with false for each community
         _topCommunities!['communities'].forEach((community) {
-          final bool isJoined = communities.any((userCommunity) {
+
+          final bool isJoined = communities.any((userCommunity)
+
+            {
+
             return userCommunity['_id'].toString() == community['_id'];
           }); communityStates[community['name']] = isJoined;
         });
@@ -179,6 +183,12 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                   if (communityStates[communityName] ?? false) {
                     try {
                       await apiLogic.leaveCommunity(token, communityName);
+                      final username = await apiLogic.fetchUsername(token);
+                      final data = apiLogic.extractUsername(username);
+
+                      String extractedUsername = data['username'];
+                      apiLogic.fetchJoinedCommunityNames(extractedUsername, token, communityName);
+
                       setState(() {
                         showLeaveCommunityDialog(context, communityName);
                       });
@@ -188,7 +198,11 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                   } else {
                     try {
                       await apiLogic.joinCommunity(token, communityName);
+                      final username = await apiLogic.fetchUsername(token);
+                      final data = apiLogic.extractUsername(username);
 
+                      String extractedUsername = data['username'];
+                      apiLogic.fetchJoinedCommunityNames(extractedUsername, token, communityName);
                       setState(() {
                         communityStates[communityName] = true;
                         ScaffoldMessenger.of(context).showSnackBar(

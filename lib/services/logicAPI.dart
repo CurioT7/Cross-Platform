@@ -12,7 +12,9 @@ import '../Notifications/notificationModel.dart';
 
 class logicAPI {
  // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
-   final String _baseUrl = 'http://192.168.1.7';
+ //  final String _baseUrl = 'http://192.168.1.8:3000';
+   final String _baseUrl= 'http://10.0.2.2:3000';
+
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
@@ -270,18 +272,19 @@ class logicAPI {
          Map<String, dynamic> responseBody = json.decode(response.body);
          if (responseBody['success']) {
            List<dynamic> communitiesJson = responseBody['communities'];
+           final SharedPreferences prefs = await SharedPreferences.getInstance();
 
            for (var community in communitiesJson) {
              String communityName = community['name'];
              bool isJoined = name == communityName;
 
-             final SharedPreferences prefs = await SharedPreferences.getInstance();
              if (isJoined) {
                await prefs.setBool('isJoinedSubreddit', true);
                return;
              }
-             await prefs.setBool('isJoinedSubreddit', false);
+
            }
+           await prefs.setBool('isJoinedSubreddit', false);
          } else {
            throw Exception('Failed to load communities');
          }
@@ -734,6 +737,32 @@ class logicAPI {
       return NotificationModel.getNotifications(notificationsJson);
     } else {
       throw Exception('Failed to load notifications');
+    }
+  }
+
+  //get saved comments
+
+  Future<List<String>> fetchSavedCommentIds(String token) async {
+
+    print("inside fetchSavedCommentIds");
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/saved_categories'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+      if(body.isEmpty || body['savedComments'] == null){
+        return [];
+      }
+      print("saved comments ids success 200");
+      List<Comment> comments = Comment.getComments(body['savedComments']);
+      List<String> commentIds = comments.map((comment) => comment.id.toString()).toList();
+      return commentIds;
+    } else {
+      throw Exception('Failed to fetch saved comment IDs');
     }
   }
 }

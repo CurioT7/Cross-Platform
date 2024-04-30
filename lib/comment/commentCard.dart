@@ -53,7 +53,19 @@ class _CommentCardState extends State<CommentCard> {
   bool downvotePressed = false;
   int upvotes = 0;
   int downvotes = 0;
-
+  void checkIfCommentIsSaved() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token != null) {
+      List<String> savedCommentIds = await logicAPI().fetchSavedCommentIds(
+          token);
+      setState(() {
+        savePressed = savedCommentIds.contains(widget.id);
+      });
+    } else {
+      throw Exception('Token is null');
+    }
+  }
   Map<String, dynamic>? userDetails;
   String? username;
   Future<Map<String, dynamic>> _fetchUsername() async {
@@ -79,6 +91,7 @@ class _CommentCardState extends State<CommentCard> {
     super.initState();
     upvotes = widget.upvotes;
     downvotes = widget.downvotes;
+    checkIfCommentIsSaved();
   }
 
   @override

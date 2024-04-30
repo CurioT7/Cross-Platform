@@ -247,6 +247,4 @@ class ApiService {
       throw Exception('Failed to fetch user submitted posts: $e');
     }
   }
-
-  
 }

@@ -723,7 +723,7 @@ class logicAPI {
       throw Exception('Failed to fetch notifications: $e');
     }
   }
-  Future<List<NotificationModel>> getReadNotifications(String token) async {
+  Future<List<String>> getReadNotifications(String token) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/notifications/read'),
       headers: {
@@ -733,13 +733,51 @@ class logicAPI {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
-      List notificationsJson = data['readNotifications'];
-      return NotificationModel.getNotifications(notificationsJson);
+      List? notificationsJson = data['readNotifications'];
+      if (notificationsJson != null) {
+        List<NotificationModel> notifications = NotificationModel.getNotifications(notificationsJson);
+        return notifications.map((notification) => notification.id).toList();
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load notifications');
     }
   }
 
+
+  Future<bool> markNotificationAsRead(String token, String notificationID) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/notifications/read-notification'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'notificationID': notificationID,
+      }),
+    );
+
+    var data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      if (data['success']) {
+        return true;
+      } else {
+        throw Exception(data['message']);
+      }
+    } else if (response.statusCode == 400) {
+      throw Exception('Notification is already read');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized');
+    } else if (response.statusCode == 404) {
+      throw Exception('Notification not found');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server error');
+    } else {
+      throw Exception('Unexpected error occurred');
+    }
+  }
   //get saved comments
 
   Future<List<String>> fetchSavedCommentIds(String token) async {

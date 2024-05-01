@@ -94,7 +94,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return Container();
                 }
               },
             ),

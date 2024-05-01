@@ -5,14 +5,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../post/screen_post.dart';
+
+
 class createCommunity extends StatefulWidget {
   @override
   _createCommunityState createState() => _createCommunityState();
 }
 
 class _createCommunityState extends State<createCommunity> {
-  String? token;
-
+  String? token ;
+  final TextEditingController _descriptionTextEditingController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -189,13 +192,46 @@ class _createCommunityState extends State<createCommunity> {
                       ),
                     )),
               ),
-              SizedBox(height: MediaQuery.of(context).size.width * 0.08),
+              SizedBox(height: MediaQuery.of(context).size.width * 0.2),
+              Container(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.035,
+                  top: MediaQuery.of(context).size.width * 0.015,
+                  bottom: MediaQuery.of(context).size.width * 0.015,
+                ),
+                child: Text(
+                  'Community description:',
+                  style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontFamily: 'IBM Plex Sans'),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.035,
+                    vertical: MediaQuery.of(context).size.width * 0.002),
+                child: TextField(
+                  controller: _descriptionTextEditingController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[400]?.withOpacity(0.2),
+                    hintText: 'Community description',
+                    hintStyle: TextStyle(
+                        color: Colors.grey[130],
+                        fontFamily: 'IBM Plex Sans Light'),
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
                     padding: EdgeInsets.only(
                       left: MediaQuery.of(context).size.width * 0.04,
+                      top: MediaQuery.of(context).size.width * 0.07,
                     ), // Adjust padding as needed
                     child: Text(
                       '18+ community',
@@ -208,6 +244,8 @@ class _createCommunityState extends State<createCommunity> {
                   Padding(
                     padding: EdgeInsets.only(
                       right: MediaQuery.of(context).size.width * 0.05,
+                      top: MediaQuery.of(context).size.width * 0.07,
+
                     ), // Adjust padding as needed
                     child: Switch.adaptive(
                       activeTrackColor: Colors.blueAccent[400],
@@ -224,55 +262,67 @@ class _createCommunityState extends State<createCommunity> {
                 ],
               ),
               SizedBox(
-                height: MediaQuery.of(context).size.width * 0.04,
+                height: MediaQuery.of(context).size.width * 0.06,
               ),
-              Center(
-                  child: ElevatedButton(
+
+              //add text field for community description
+
+
+
+              Center( child:
+              ElevatedButton(
+
                 onPressed: isButtonEnabled
                     ? () async {
-                        setState(() {
-                          // Set loading state if needed
+                  setState(() {
+                    // Set loading state if needed
+                  });
+                  try {
+                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                    token = prefs.getString('token');
+                    print(token);
+                    // await prefs.remove('token');
+                  }
+                  catch(e){
+                    print(e);
+                  }
+                  if (token != null) {
+                    apiLogic
+                        .createCommunity(_textEditingController.text,
+                        isSwitched, listTileTitle, token!, _descriptionTextEditingController.text)
+                        .then((_) {
+                      setState(() {
+                        // Show a SnackBar with a success message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Community created successfully'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        Future.delayed(Duration(seconds: 1), () {
+                          //TODO open create new post
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(builder: (context) => AddPostScreen(type:'text')), // replace NewPage with the actual page you want to navigate to
+                         );
                         });
-                        try {
-                          final SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          token = prefs.getString('token');
-                          print(token);
-                          // await prefs.remove('token');
-                        } catch (e) {
-                          print(e);
-                        }
-                        if (token != null) {
-                          apiLogic
-                              .createCommunity(_textEditingController.text,
-                                  isSwitched, listTileTitle, token!)
-                              .then((_) {
-                            setState(() {
-                              // Show a SnackBar with a success message
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text('Community created successfully'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                            });
-                          }).catchError((error) {
-                            setState(() {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content:
-                                      Text('Error creating community: $error'),
-                                  duration: Duration(seconds: 2),
-                                ),
-                              );
-                              print('Error creating community: $error');
-                            });
-                          });
-                        } else {
-                          print('Token is null');
-                        }
-                      }
+                      });
+                    }).catchError((error) {
+                      setState(() {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error creating community: $error'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        print('Error creating community: $error');
+                      });
+                    });
+                  }
+                  else{
+                    print('Token is null');
+                  }
+                }
                     : null,
                 child: Stack(
                   alignment: Alignment.center,

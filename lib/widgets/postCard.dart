@@ -52,6 +52,7 @@ class _PostCardState extends State<PostCard> {
 Future<String> getToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString('token')!;
+  print("Token: $token");
   return token;
 }
   void _toggleVisibility() async {
@@ -140,7 +141,7 @@ Future<String> getToken() async {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewPostComments(post: widget.post),
+        builder: (context) => ViewPostComments(postID: widget.post.id),
       ),
     );
   }
@@ -551,7 +552,7 @@ void _launchURL(String url) async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewPostComments(post: widget.post),
+                  builder: (context) => ViewPostComments(postID: widget.post.id),
                 ),
               );
             },
@@ -583,7 +584,7 @@ void _launchURL(String url) async {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewPostComments(post: widget.post),
+                    builder: (context) => ViewPostComments(postID: widget.post.id),
                   ),
                 );
               },

@@ -1,3 +1,4 @@
+import 'package:curio/Notifications/viewNotifications.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/post/screen_post.dart';
 import 'package:curio/Views/community/profile.dart';
@@ -139,23 +140,17 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
 
           //   break;
           case 4:
-            getUnreadNotifications();
-            if (notficationsMessage == null) {
-              showSnackbar(context, 'There are no unread notifications');
-            }
-            final SharedPreferences prefs =
-                await SharedPreferences.getInstance();
-            String? token = prefs.getString('token');
-            if (token == null) {
-              return;
-            }
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ViewNotifications(),
-              ),
-            );
-            break;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('token');
+        if (token == null) {
+        return;
+        }
+        Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ViewNotifications()),
+        );
+        break;
         }
       },
     );

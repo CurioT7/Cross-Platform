@@ -7,9 +7,9 @@ import 'package:curio/services/logicAPI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Models/comment.dart';
 class editComment extends StatefulWidget {
-  final Post post;
+  final String postID;
   final String commentId;
-  editComment({ required this.post, required this.commentId});
+  editComment({ required this.postID, required this.commentId});
   @override
   _editCommentState createState() => _editCommentState();
 }

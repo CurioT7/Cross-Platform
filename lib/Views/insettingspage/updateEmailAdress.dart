@@ -3,8 +3,7 @@ import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-import 'package:shared_preferences/shared_preferences.dart ';
-import 'package:shared_preferences/shared_preferences.dart ';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateEmailAdressPage extends StatefulWidget {
   @override

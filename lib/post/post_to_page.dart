@@ -32,6 +32,7 @@ Future<void> fetchCommunities() async {
   print('Fetching communities from user token: $token');
   communities = ApiService().getCommunities(token,context);
   if (communities != null) {
+    print("Number of communities: ${communities}");
     communityList = await communities!;
     displayedCommunities = communityList.sublist(0, itemCount);
     searchController.addListener(() {

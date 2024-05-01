@@ -18,7 +18,6 @@ class CommunityCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(
 
-
       ),
       child: Row(
         children: [

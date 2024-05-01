@@ -9,6 +9,7 @@ import 'package:curio/Views/signUp/userName.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curio/Views/saved_posts_comments/main_view.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -90,14 +91,15 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                       if (userCredential != null) {
                         String? accessToken =
                             userCredential.credential?.accessToken;
-                        await apiService.signInWithToken(accessToken!);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      } else {
+                            await apiService.signInWithToken(accessToken!);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>   HomeScreen(),
+                        ),
+                      );
+                    }
+                      else{
                         // stay on the same page
                       }
                     },
@@ -240,3 +242,4 @@ class LoginButton extends StatelessWidget {
     );
   }
 }
+

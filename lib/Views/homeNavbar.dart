@@ -1,10 +1,11 @@
-import 'package:curio/Notifications/viewNotifications.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/post/screen_post.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/topCommunity.dart';
 import 'package:curio/services/apiServiceMahmoud.dart';
+
+import 'package:curio/Notifications/viewNotifications.dart';
 
 class HomeNavigationBar extends StatefulWidget {
   @override
@@ -34,12 +35,10 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       final notifications = await apiService.getUnreadNotifications(token);
       setState(() {
 
-        if(notifications['message'] == null) {
-          notificationCount = notifications['unreadCount'];
-        }else{
-          notficationsMessage=notifications['message'];
-          notificationCount = '0';
-        }
+
+        notificationCount = notifications['unreadCount'];
+
+
 
       });
       print(notifications);
@@ -47,6 +46,34 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       print('Error: $e');
     }
   }
+
+  void markReadNotifications() async {
+    final apiService = ApiServiceMahmoud();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+      final message = await apiService.markViewed(token);
+      print(message);
+      setState(() {
+          if (message['success']) {
+            showSnackbar(context, 'Notifications marked as read');
+            notificationCount = '0';
+          } else {
+            showSnackbar(context, 'error marking viewed : ${message['message']}');
+          }
+      });
+      print(message);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+
  @override
   void initState() {
     super.initState();
@@ -125,17 +152,23 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
           // Handle tap on 'Chat'
             break;
           case 4:
-
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('token');
-        if (token == null) {
-        return;
-        }
-        Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ViewNotifications()),
-        );
-        break;
+            //TODO CORRECT THIS
+            // markReadNotifications();
+            // getUnreadNotifications();
+            // if(notificationCount == 0) {
+            //   showSnackbar(context, 'There are no unread notifications');
+            // }
+            //
+            // final SharedPreferences prefs = await SharedPreferences.getInstance();
+            // String? token = prefs.getString('token');
+            // if (token == null) {
+            //   return;
+            // }
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ViewNotifications()),
+            );
+            break;
         }
       },
     );

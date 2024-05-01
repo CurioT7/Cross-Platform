@@ -30,6 +30,7 @@ import 'package:curio/Views/insettingspage/confirmPassword.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
+import 'package:curio/Views/insettingspage/comfirmPasswordForsignIn.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -54,6 +55,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   String _email = '';
 
   ApiServiceMahmoud _apiService = ApiServiceMahmoud();
+
+
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -164,7 +167,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             title: Text('Change password', style: kTitleHeader),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
-              if(!_createdPassword){
+              if(_createdPassword){
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ChangePasswordPage()),
@@ -235,10 +238,17 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ConfirmPasswordPage()),
-                  );
+                  ).then((_) {
+                    _loadInitialData();
+                  });
                 }
                 else {
-                  _signInWithGoogle();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ConfirmPasswordPageSignIn()),
+                  ).then((_) {
+                    _loadInitialData();
+                  });
                 }
               },
             ),
@@ -283,30 +293,6 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       ),
     );
   }
-  void _signInWithGoogle() async {
-    print("Connecting with Google...");
 
-    await GoogleSignIn().signOut();
-    UserCredential? userCredential = await googleAuthSignInService.signInWithGoogle();
-    if (userCredential != null) {
-      String? accessToken = userCredential.credential?.accessToken;
-      print('The access token is $accessToken');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var token = prefs.getString('token');
 
-      try {
-        var response = await _apiService.connectWithGoogle(token!, accessToken!);
-        if (response['success']) {
-          setState(() {
-            _isConnected = true;
-            _showSnackBar(response['message']);
-          });
-        } else {
-          _showSnackBar(response['message']);
-        }
-      } catch (e) {
-        print('Error: $e');
-      }
-    }
-  }
 }

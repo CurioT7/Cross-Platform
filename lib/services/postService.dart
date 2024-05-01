@@ -3,11 +3,8 @@ import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
-   //final String baseUrl= 'http://192.168.1.13:3000/api';
-  // final String baseUrl = 'http://192.168.1.8:3000/api';
-   final String baseUrl= 'http://10.0.2.2:3000';
-
-
+  //  final String baseUrl= 'http://192.168.1.13:3000/api';
+  final String baseUrl = 'http://10.0.2.2:3000';
 
     Future<List<Post>> getBestPosts() async {
     try {
@@ -231,7 +228,7 @@ Future<bool> lockPost(String postId, String token) async {
 
   Future<bool> savePost(String postId, String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/save'),
+      Uri.parse('$baseUrl/api/save'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

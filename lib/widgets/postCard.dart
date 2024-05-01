@@ -52,6 +52,7 @@ class _PostCardState extends State<PostCard> {
 Future<String> getToken() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   String token = prefs.getString('token')!;
+  print("Token: $token");
   return token;
 }
   void _toggleVisibility() async {

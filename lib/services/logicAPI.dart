@@ -11,9 +11,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Notifications/notificationModel.dart';
 
 class logicAPI {
- // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
- //  final String _baseUrl = 'http://192.168.1.8:3000';
-   final String _baseUrl= 'http://10.0.2.2:3000';
+  // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
+  //  final String _baseUrl = 'http://192.168.1.8:3000';
+  final String _baseUrl= 'http://10.0.2.2:3000';
 
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
@@ -259,43 +259,43 @@ class logicAPI {
       throw Exception('Failed to load posts');
     }
   }
-   void fetchJoinedCommunityNames(String username, String token, String name) async {
-     try {
-       final response = await http.get(
-         Uri.parse('$_baseUrl/api/user/$username/communities'),
-         headers: <String, String>{
-           'Content-Type': 'application/json; charset=UTF-8',
-           'Authorization': 'Bearer $token',
-         },
-       );
-       if (response.statusCode == 200) {
-         Map<String, dynamic> responseBody = json.decode(response.body);
-         if (responseBody['success']) {
-           List<dynamic> communitiesJson = responseBody['communities'];
-           final SharedPreferences prefs = await SharedPreferences.getInstance();
+  void fetchJoinedCommunityNames(String username, String token, String name) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/user/$username/communities'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          List<dynamic> communitiesJson = responseBody['communities'];
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-           for (var community in communitiesJson) {
-             String communityName = community['name'];
-             bool isJoined = name == communityName;
+          for (var community in communitiesJson) {
+            String communityName = community['name'];
+            bool isJoined = name == communityName;
 
-             if (isJoined) {
-               await prefs.setBool('isJoinedSubreddit', true);
-               return;
-             }
+            if (isJoined) {
+              await prefs.setBool('isJoinedSubreddit', true);
+              return;
+            }
 
-           }
-           await prefs.setBool('isJoinedSubreddit', false);
-         } else {
-           throw Exception('Failed to load communities');
-         }
-       } else {
-         throw Exception('Failed to load communities with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       print('Error: $e');
-       throw e;
-     }
-   }
+          }
+          await prefs.setBool('isJoinedSubreddit', false);
+        } else {
+          throw Exception('Failed to load communities');
+        }
+      } else {
+        throw Exception('Failed to load communities with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+      throw e;
+    }
+  }
   // Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
   //   final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/$timeinterval'));
   //
@@ -543,53 +543,53 @@ class logicAPI {
 
   //voteComment
 
-   Future<void> voteComment(String commentId, int direction, String token) async {
-     final response = await http.post(
-       Uri.parse('$_baseUrl/api/vote'),
-       headers: <String, String>{
-         'Content-Type': 'application/json; charset=UTF-8',
-         'Authorization': 'Bearer $token',
-       },
-       body: jsonEncode(<String, dynamic>{
-         'itemID': commentId,
-         'itemName': 'comment',
-         'direction': direction,
-       }),
-     );
-     Map<String, dynamic> responseBody = jsonDecode(response.body);
+  Future<void> voteComment(String commentId, int direction, String token) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/vote'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'itemID': commentId,
+        'itemName': 'comment',
+        'direction': direction,
+      }),
+    );
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-     if (response.statusCode == 200) {
-       if (responseBody['success']) {
-         print(responseBody['message']);
-       } else {
-         throw Exception('Unexpected error: ${responseBody['message']}');
-       }
-     } else if (response.statusCode == 404) {
-       throw Exception(responseBody['message']);
-     } else if (response.statusCode == 400) {
-       throw Exception(responseBody['message']);
-     } else if (response.statusCode == 500) {
-       throw Exception(responseBody['message']);
-     } else if (response.statusCode == 401) {
-       throw Exception(responseBody['message']);
-     } else {
-       throw Exception('Failed to vote on comment. Status code: ${response.statusCode}');
-     }
-   }
+    if (response.statusCode == 200) {
+      if (responseBody['success']) {
+        print(responseBody['message']);
+      } else {
+        throw Exception('Unexpected error: ${responseBody['message']}');
+      }
+    } else if (response.statusCode == 404) {
+      throw Exception(responseBody['message']);
+    } else if (response.statusCode == 400) {
+      throw Exception(responseBody['message']);
+    } else if (response.statusCode == 500) {
+      throw Exception(responseBody['message']);
+    } else if (response.statusCode == 401) {
+      throw Exception(responseBody['message']);
+    } else {
+      throw Exception('Failed to vote on comment. Status code: ${response.statusCode}');
+    }
+  }
   //save comment
-   void saveComment(String commentId, String token) async {
+  void saveComment(String commentId, String token) async {
     print("inside save comment");
-     final response = await http.post(
-       Uri.parse('$_baseUrl/api/save'),
-       headers: <String, String>{
-         'Content-Type': 'application/json; charset=UTF-8',
-         'Authorization': 'Bearer $token',
-       },
-       body: jsonEncode(<String, dynamic>{
-         'category': 'comment',
-         'id': commentId,
-       }),
-     );
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/save'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'category': 'comment',
+        'id': commentId,
+      }),
+    );
 
     if (response.statusCode == 200) {
       print("Comment saved successfully");
@@ -606,90 +606,90 @@ class logicAPI {
 
     } else {
       throw Exception('Failed to save comment. Status code: ${response.statusCode}');
-      }
-   }
+    }
+  }
 
-   //unsave comment
+  //unsave comment
 
-   void unsaveComment(String commentId, String token) async {
-     print("inside unsave comment");
+  void unsaveComment(String commentId, String token) async {
+    print("inside unsave comment");
 
-     final response = await http.post(
-       Uri.parse('$_baseUrl/api/unsave'),
-       headers: <String, String>{
-         'Content-Type': 'application/json; charset=UTF-8',
-         'Authorization': 'Bearer $token',
-       },
-       body: jsonEncode(<String, dynamic>{
-         'id': commentId,
-       }),
-     );
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/unsave'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'id': commentId,
+      }),
+    );
 
-     if (response.statusCode == 200) {
-       print("Comment unsaved successfully");
-     } else if (response.statusCode == 400) {
-       throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
-     } else if (response.statusCode == 401) {
-       throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
-     } else if (response.statusCode == 403) {
-       throw Exception('Forbidden: The client does not have access rights to the content.');
-     } else if (response.statusCode == 404) {
-       throw Exception('Not Found: The server can not find the requested resource.');
-     } else if (response.statusCode == 500) {
-       throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
+    if (response.statusCode == 200) {
+      print("Comment unsaved successfully");
+    } else if (response.statusCode == 400) {
+      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+    } else if (response.statusCode == 403) {
+      throw Exception('Forbidden: The client does not have access rights to the content.');
+    } else if (response.statusCode == 404) {
+      throw Exception('Not Found: The server can not find the requested resource.');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
 
-     } else {
-       throw Exception('Failed to unsave comment. Status code: ${response.statusCode}');
-     }
-   }
+    } else {
+      throw Exception('Failed to unsave comment. Status code: ${response.statusCode}');
+    }
+  }
   //getpostbyid
 
-   Future<Post> fetchPostByID(String objectID) async {
-     try {
-       print(objectID);
-       final response = await http.get(
-         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
-         headers:<String, String> {
-           'Content-Type': 'application/json; charset=UTF-8',
+  Future<Post> fetchPostByID(String objectID) async {
+    try {
+      print(objectID);
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+        headers:<String, String> {
+          'Content-Type': 'application/json; charset=UTF-8',
 
-         },
-       );
+        },
+      );
 
-       if (response.statusCode == 200) {
-         return Post.fromJson((jsonDecode(response.body)['item']));
-       } else {
-         print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        return Post.fromJson((jsonDecode(response.body)['item']));
+      } else {
+        print('Response body: ${response.body}');
 
-         throw Exception('Failed to load info with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       throw Exception('Failed to load info. Error: $e');
-     }
-   }
+        throw Exception('Failed to load info with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load info. Error: $e');
+    }
+  }
 
-   //getCommentbyid
-   Future<Comment> fetchCommentByID(String objectID) async {
-     try {
-       print(objectID);
-       final response = await http.get(
-         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=comment'),
-         headers:<String, String> {
-           'Content-Type': 'application/json; charset=UTF-8',
+  //getCommentbyid
+  Future<Comment> fetchCommentByID(String objectID) async {
+    try {
+      print(objectID);
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=comment'),
+        headers:<String, String> {
+          'Content-Type': 'application/json; charset=UTF-8',
 
-         },
-       );
+        },
+      );
 
-       if (response.statusCode == 200) {
-         return Comment.fromJson((jsonDecode(response.body)['item']));
-       } else {
-         print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        return Comment.fromJson((jsonDecode(response.body)['item']));
+      } else {
+        print('Response body: ${response.body}');
 
-         throw Exception('Failed to load info with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       throw Exception('Failed to load info. Error: $e');
-     }
-   }
+        throw Exception('Failed to load info with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load info. Error: $e');
+    }
+  }
 //Notifications
 
   Future<List<NotificationModel>>  getAllNotifications(String token) async {

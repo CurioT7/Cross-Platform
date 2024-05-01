@@ -6,7 +6,7 @@ class ApiService {
   //  final String baseUrl= 'http://192.168.1.13:3000/api';
   final String baseUrl = 'http://10.0.2.2:3000';
 
-    Future<List<Post>> getBestPosts() async {
+  Future<List<Post>> getBestPosts() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/best'));
       if (response.statusCode == 200) {
@@ -27,27 +27,27 @@ class ApiService {
   }
 
   Future<Post> fetchPostByID(String objectID) async {
-     try {
-       print(objectID);
-       final response = await http.get(
-         Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
-         headers:<String, String> {
-           'Content-Type': 'application/json; charset=UTF-8',
+    try {
+      print(objectID);
+      final response = await http.get(
+        Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
+        headers:<String, String> {
+          'Content-Type': 'application/json; charset=UTF-8',
 
-         },
-       );
+        },
+      );
 
-       if (response.statusCode == 200) {
-         return Post.fromJson((jsonDecode(response.body)['item']));
-       } else {
-         print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        return Post.fromJson((jsonDecode(response.body)['item']));
+      } else {
+        print('Response body: ${response.body}');
 
-         throw Exception('Failed to load info with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       throw Exception('Failed to load info. Error: $e');
-     }
-   }
+        throw Exception('Failed to load info with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load info. Error: $e');
+    }
+  }
   Future<Post> getRandomPost(String subreddit) async {
     final response = await http.get(Uri.parse('$baseUrl/r/$subreddit/random'));
     if (response.statusCode == 200) {
@@ -58,7 +58,7 @@ class ApiService {
   }
 
   Future<List<Post>> getDiscoveryPosts() async {
-   try {
+    try {
       final response = await http.get(Uri.parse('$baseUrl/best'));
       if (response.statusCode == 200) {
         Map<String, dynamic> responseBody = json.decode(response.body);
@@ -96,7 +96,7 @@ class ApiService {
       throw e;
     }
   }
-  
+
   Future<List<Post>> getTrendingPosts() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/trendingSearches'));
@@ -120,51 +120,51 @@ class ApiService {
       throw e;
     }
   }
-Future<void> castVote(String itemID, int direction, String token) async {
-  final String url = '$baseUrl/vote';
-  final Map<String, String> headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer $token',
-  };
-  final Map<String, dynamic> body = {
-    'itemID': itemID,
-    'itemName': 'post',
-    'direction': direction,
-  };
+  Future<void> castVote(String itemID, int direction, String token) async {
+    final String url = '$baseUrl/vote';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final Map<String, dynamic> body = {
+      'itemID': itemID,
+      'itemName': 'post',
+      'direction': direction,
+    };
 
-  final response = await http.post(
-    Uri.parse(url),
-    headers: headers,
-    body: jsonEncode(body),
-  );
-
-  if (response.statusCode != 200) {
-    throw Exception('Failed to cast vote: ${response.body}');
-  }
-}
-Future<bool> spoilPost(String postId, String token) async {
-  try {
     final response = await http.post(
-      Uri.parse('$baseUrl/spoil'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({'postId': postId}),
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200) {
-      return true;
-    } else {
-      print('Server responded with status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      throw Exception('Failed to spoil post');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to cast vote: ${response.body}');
     }
-  } catch (e) {
-    print('An error occurred: $e');
-    throw e;
   }
-}
+  Future<bool> spoilPost(String postId, String token) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/spoil'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({'postId': postId}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Server responded with status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to spoil post');
+      }
+    } catch (e) {
+      print('An error occurred: $e');
+      throw e;
+    }
+  }
   Future<bool> unspoilPost(String postId, String token) async {
     try {
       final response = await http.post(
@@ -185,11 +185,11 @@ Future<bool> spoilPost(String postId, String token) async {
       }
     } catch (e) {
       print('An error occurred: $e');
-      throw e;    
+      throw e;
     }
   }
 
-Future<bool> lockPost(String postId, String token) async {
+  Future<bool> lockPost(String postId, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/lock'),
       headers: {
@@ -246,6 +246,39 @@ Future<bool> lockPost(String postId, String token) async {
       print('Response body: ${response.body}');
       throw Exception('Failed to save post');
     }
+    /*
+      void saveComment(String commentId, String token) async {
+    print("inside save comment");
+     final response = await http.post(
+       Uri.parse('$_baseUrl/api/save'),
+       headers: <String, String>{
+         'Content-Type': 'application/json; charset=UTF-8',
+         'Authorization': 'Bearer $token',
+       },
+       body: jsonEncode(<String, dynamic>{
+         'category': 'comment',
+         'id': commentId,
+       }),
+     );
+
+    if (response.statusCode == 200) {
+      print("Comment saved successfully");
+    } else if (response.statusCode == 400) {
+      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+    } else if (response.statusCode == 401) {
+      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+    } else if (response.statusCode == 403) {
+      throw Exception('Forbidden: The client does not have access rights to the content.');
+    } else if (response.statusCode == 404) {
+      throw Exception('Not Found: The server can not find the requested resource.');
+    } else if (response.statusCode == 500) {
+      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
+
+    } else {
+      throw Exception('Failed to save comment. Status code: ${response.statusCode}');
+      }
+   }
+     */
   }
 
   Future<bool> unsavePost(String postId, String token) async {
@@ -287,7 +320,7 @@ Future<bool> lockPost(String postId, String token) async {
       throw Exception('Failed to hide post');
     }
   }
-  
+
   Future<bool> unhidePost(String postId, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/unhide'),
@@ -301,32 +334,32 @@ Future<bool> lockPost(String postId, String token) async {
     if (response.statusCode == 200) {
       return true;
     } else {
-      print('Server responded with status code: ${response.statusCode}'); 
+      print('Server responded with status code: ${response.statusCode}');
       print('Response body: ${response.body}');
       throw Exception('Failed to unhide post');
     }
   }
-Future<bool> markAsNsfw(String postId, String token) async {
-  final response = await http.post(
-    Uri.parse('$baseUrl/marknsfw'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode({
-      'postId': postId,
-    }),
-  );
+  Future<bool> markAsNsfw(String postId, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/marknsfw'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'postId': postId,
+      }),
+    );
 
-  if (response.statusCode == 200) {
-    print('Response body: ${response.body}');
-    return true;
-  } else {
-    print('Server responded with status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    throw Exception('Failed to mark post as NSFW');
+    if (response.statusCode == 200) {
+      print('Response body: ${response.body}');
+      return true;
+    } else {
+      print('Server responded with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to mark post as NSFW');
+    }
   }
-}
   Future<bool> unmarkAsNsfw(String postId, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/unmarknsfw'),
@@ -349,23 +382,23 @@ Future<bool> markAsNsfw(String postId, String token) async {
     }
   }
   Future<Map<String, dynamic>> deletePost(String postId, String token) async {
-  final response = await http.delete(
-    Uri.parse('$baseUrl/deletepost/$postId'),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    },
-  );
+    final response = await http.delete(
+      Uri.parse('$baseUrl/deletepost/$postId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } else {
-    print('Server responded with status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    throw Exception('Failed to delete post');
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Server responded with status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to delete post');
+    }
+
   }
-
-}
 
 
 }

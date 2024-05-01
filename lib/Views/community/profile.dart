@@ -165,7 +165,7 @@ class _CommunityProfileState extends State<communityProfile> {
     );
 
     //isJoined = null;
-   _initializeState();
+    _initializeState();
 
 
     //TODO FETCH COMMUNITY JOIN STATE
@@ -181,15 +181,15 @@ class _CommunityProfileState extends State<communityProfile> {
   void _initializeState() async {
 
 
-      _fetchJoinState();
-      await fetchPreferencesIsJoined();
-      print('Is Joined: $isJoined');
+    _fetchJoinState();
+    await fetchPreferencesIsJoined();
+    print('Is Joined: $isJoined');
 
-      setState(()  {
+    setState(()  {
 
-      });
+    });
 
-    }
+  }
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
   //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
@@ -360,8 +360,8 @@ class _CommunityProfileState extends State<communityProfile> {
                           (Set<MaterialState> states) {
 
                         _initializeState();
-_fetchJoinState();
-fetchPreferencesIsJoined();
+                        _fetchJoinState();
+                        fetchPreferencesIsJoined();
                         if (isJoined == true) {
                           return Colors.white; // Set the button color to white if the user has joined
                         } else {
@@ -636,8 +636,8 @@ fetchPreferencesIsJoined();
                               await apiLogic.leaveCommunity(token, communityName);
 
                               //might change test
-setState(() {isJoined=false;
-prefs.setBool('isJoinedSubreddit', false);});
+                              setState(() {isJoined=false;
+                              prefs.setBool('isJoinedSubreddit', false);});
 
                               isJoinedChanged=true;
                               // if (isJoinedChanged==true) {

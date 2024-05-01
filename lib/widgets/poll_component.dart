@@ -25,7 +25,7 @@ class _PollComponentState extends State<PollComponent> {
   ];
   List<String> getOptions() {
     // give a default value of the text if nontext is entered
-return optionControllers.map((controller) => controller.text.isEmpty ? 'Option' : controller.text).toList();
+    return optionControllers.map((controller) => controller.text.isEmpty ? 'Option' : controller.text).toList();
   }
 
   String getSelectedOption() {

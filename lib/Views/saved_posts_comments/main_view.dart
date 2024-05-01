@@ -100,13 +100,13 @@ class _TabBarExampleState extends State<TabBarExample>
                     child: snapshot.data!['savedPosts'].isEmpty
                         ? const Center(child: Text('No saved posts'))
                         : ListView.builder(
-                            itemCount: snapshot.data!['savedPosts'].length,
-                            itemBuilder: (context, index) {
-                              return PostCard(
-                                post: snapshot.data!['savedPosts'][index],
-                              );
-                            },
-                          ),
+                      itemCount: snapshot.data!['savedPosts'].length,
+                      itemBuilder: (context, index) {
+                        return PostCard(
+                          post: snapshot.data!['savedPosts'][index],
+                        );
+                      },
+                    ),
                   ),
                   // Second tab: Comments
                   RefreshIndicator(
@@ -114,27 +114,27 @@ class _TabBarExampleState extends State<TabBarExample>
                     child: snapshot.data!['savedComments'].isEmpty
                         ? const Center(child: Text('No saved comments'))
                         : ListView.builder(
-                            itemCount: snapshot.data!['savedComments'].length,
-                            itemBuilder: (context, index) {
-                              /**
-                               *  "authorName": "Arianna.Gutkowski53",
-                                  "createdAt": "2023-07-10T19:06:25.448Z",
-                                  "upvotes": 30105,
-                               */
-                              String metaData = snapshot.data!['savedComments'][index].authorUsername +
-                                  ' - ' +
-                                  snapshot.data!['savedComments'][index].createdAt.toString() +
-                                  ' - ' +
-                                  snapshot.data!['savedComments'][index].upvotes.toString() +
-                                  ' upvotes';
-                              return SavedCommentCard(
-                                title: snapshot.data!['titles'][index],
-                                content: snapshot.data!['savedComments'][index].content,
-                                postID: snapshot.data!['savedComments'][index].linkedPost,
-                                metaData: metaData,
-                              );
-                            },
-                          ),
+                      itemCount: snapshot.data!['savedComments'].length,
+                      itemBuilder: (context, index) {
+                        /**
+                         *  "authorName": "Arianna.Gutkowski53",
+                            "createdAt": "2023-07-10T19:06:25.448Z",
+                            "upvotes": 30105,
+                         */
+                        String metaData = snapshot.data!['savedComments'][index].authorUsername +
+                            ' - ' +
+                            snapshot.data!['savedComments'][index].createdAt.toString() +
+                            ' - ' +
+                            snapshot.data!['savedComments'][index].upvotes.toString() +
+                            ' upvotes';
+                        return SavedCommentCard(
+                          title: snapshot.data!['titles'][index],
+                          content: snapshot.data!['savedComments'][index].content,
+                          postID: snapshot.data!['savedComments'][index].linkedPost,
+                          metaData: metaData,
+                        );
+                      },
+                    ),
                   ),
                 ],
               );

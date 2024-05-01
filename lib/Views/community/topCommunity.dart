@@ -79,7 +79,7 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
 
           final bool isJoined = communities.any((userCommunity)
 
-            {
+          {
 
             return userCommunity['_id'].toString() == community['_id'];
           }); communityStates[community['name']] = isJoined;

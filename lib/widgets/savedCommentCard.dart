@@ -9,10 +9,10 @@ class SavedCommentCard extends StatelessWidget {
 
   SavedCommentCard(
       {Key? key,
-      required this.title,
-      required this.content,
-      required this.postID,
-      required this.metaData})
+        required this.title,
+        required this.content,
+        required this.postID,
+        required this.metaData})
       : super(key: key);
 
   @override

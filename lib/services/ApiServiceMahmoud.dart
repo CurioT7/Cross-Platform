@@ -781,14 +781,15 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getRandomPosts() async {
     print('fetching random posts  from api service mahmoud  ');
-    final String endpoint = '/api/allpage/random?';
+    final String endpoint = '/api/allpage/random?page=1';
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
-
+      print(response.statusCode);
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
+
       } else if (response.statusCode == 404) {
         return {'success': false, 'message': 'Page not found'};
       } else {

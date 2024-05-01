@@ -15,7 +15,7 @@ class HomeNavigationBar extends StatefulWidget {
 class _HomeNavigationBarState extends State<HomeNavigationBar> {
   String? notficationsMessage;
   int _selectedIndex = 0;
-  String notificationCount = '0'; // Notification count
+  int notificationCount = 0; // Notification count
   void showSnackbar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -37,6 +37,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
 
 
         notificationCount = notifications['unreadCount'];
+        print('$notificationCount notifications found');
 
 
 
@@ -62,7 +63,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       setState(() {
           if (message['success']) {
             showSnackbar(context, 'Notifications marked as read');
-            notificationCount = '0';
+            notificationCount = 0;
           } else {
             showSnackbar(context, 'error marking viewed : ${message['message']}');
           }
@@ -153,17 +154,13 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
             break;
           case 4:
             //TODO CORRECT THIS
-            // markReadNotifications();
-            // getUnreadNotifications();
-            // if(notificationCount == 0) {
-            //   showSnackbar(context, 'There are no unread notifications');
-            // }
-            //
-            // final SharedPreferences prefs = await SharedPreferences.getInstance();
-            // String? token = prefs.getString('token');
-            // if (token == null) {
-            //   return;
-            // }
+            markReadNotifications();
+            getUnreadNotifications();
+            final SharedPreferences prefs = await SharedPreferences.getInstance();
+            String? token = prefs.getString('token');
+            if (token == null) {
+              return;
+            }
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ViewNotifications()),
@@ -176,7 +173,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
 }
 
 class NotificationIcon extends StatelessWidget {
-  final String notificationCount;
+  final int notificationCount;
 
   const NotificationIcon({
     required this.notificationCount,
@@ -184,7 +181,7 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   if(notificationCount == '0'){
+   if(notificationCount == 0){
      return Icon(Icons.notifications_none_outlined);
   }else{
      return Stack(
@@ -205,7 +202,7 @@ class NotificationIcon extends StatelessWidget {
              minHeight: 18,
            ),
            child: Text(
-             notificationCount,
+             '$notificationCount',
              style: TextStyle(
                color: Colors.white,
                fontSize: 12,

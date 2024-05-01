@@ -45,10 +45,38 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       print('Error: $e');
     }
   }
+
+  void markReadNotifications() async {
+    final apiService = ApiServiceMahmoud();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+
+      if (token == null) {
+        throw Exception('Token not found');
+      }
+      final message = await apiService.markViewed(token);
+      print(message);
+      setState(() {
+          if (message['success']) {
+            showSnackbar(context, 'Notifications marked as read');
+            notificationCount = 0;
+          } else {
+            showSnackbar(context, 'error marking viewed : ${message['message']}');
+          }
+      });
+      print(message);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+
  @override
   void initState() {
     super.initState();
-  getUnreadNotifications();
+   getUnreadNotifications();
 
   }
 
@@ -123,11 +151,10 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
           // Handle tap on 'Chat'
             break;
           case 4:
+            markReadNotifications();
             getUnreadNotifications();
             if(notificationCount == 0) {
-
               showSnackbar(context, 'There are no unread notifications');
-
             }
             break;
         }

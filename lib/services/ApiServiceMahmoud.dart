@@ -11,6 +11,38 @@ class ApiServiceMahmoud {
   // final String _baseUrlDataBase= 'http://192.168.1.7';
 
 
+  Future<Map<String, dynamic>> markViewed(String token) async {
+    final String url = '$_baseUrlDataBase/api/notifications/mark-all-viewed';
+    print('api called from the api page');
+    print('the token is $token');
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    try {
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: headers
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print("notification  mark-viewed successfully: ${responseData['message']}");
+        print('the response data is $responseData inside tge api page ');
+        return responseData;
+      } else {
+        final errorResponse = jsonDecode(response.body);
+        print('the response data is $errorResponse inside tge api page ');
+        print("Error mark-viewed notification location: ${errorResponse['message']}");
+        return errorResponse;
+      }
+    } catch (e) {
+      print("Failed to mark-viewed notification: $e");
+      throw Exception("Failed to mark-viewed notification : $e");
+    }
+  }
+
+
+
   Future<Map<String, dynamic>> getUnreadNotifications(String token) async {
     final String endpoint = '/api/notifications/unread';
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
@@ -442,6 +474,7 @@ class ApiServiceMahmoud {
     }
   }
 
+
   Future<Map<String, dynamic>> updateGender(String token, String gender) async {
     final String url = '$_baseUrlDataBase/api/settings/v1/me/prefs';
     print('api called from the api page');
@@ -687,8 +720,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getHotPosts() async {
     print('fetching hot posts  from api service mahmoud ');
-    final String endpoint = '/api/hot';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/hot?';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -707,8 +740,8 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getNewPosts() async {
-    final String endpoint = '/api/new';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/new?';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
     print('fetching new posts  from api service mahmoud ');
 
     try {
@@ -728,8 +761,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getRisingPosts() async {
     print('fetching rising posts  from api service mahmoud  ');
-    final String endpoint = '/api/rising';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/best?';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -747,10 +780,9 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getRandomPosts() async {
-    print('fetching random posts  from api service mahmoud');
-    final String endpoint = '/api/random';
-    print('$_baseUrlMoch$endpoint');
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    print('fetching random posts  from api service mahmoud  ');
+    final String endpoint = '/api/allpage/random?';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -760,10 +792,10 @@ class ApiServiceMahmoud {
       } else if (response.statusCode == 404) {
         return {'success': false, 'message': 'Page not found'};
       } else {
-        throw Exception('Failed to fetch hot posts: ${response.statusCode}');
+        throw Exception('Failed to fetch rising posts: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch hot posts: $e');
+      throw Exception('Failed to fetch rising posts: $e');
     }
   }
 

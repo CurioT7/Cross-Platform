@@ -38,7 +38,7 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
       try {
         // Call the getInfo function to get post info
         Map<String, dynamic> postInfo =
-        await ApiServiceMahmoud().getInfo(token, postId, 'post');
+            await ApiServiceMahmoud().getInfo(token, postId, 'post');
         // Update state with post information
         setState(() {
           postId = postInfo['item']['_id'] ?? '';
@@ -68,7 +68,7 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
       print('Title: $title');
       print('Post ID: $postId');
       Map<String, dynamic> response =
-      await ApiServiceMahmoud().sharePostToProfile(token, title, postId);
+          await ApiServiceMahmoud().sharePostToProfile(token, title, postId);
       print(response);
       // Show snackbar based on the response
       if (response['success']) {
@@ -116,7 +116,8 @@ class _ShareToProfilePageState extends State<ShareToProfilePage> {
           ),
         ],
       ),
-      body: SingleChildScrollView( // Wrap the Column with SingleChildScrollView
+      body: SingleChildScrollView(
+        // Wrap the Column with SingleChildScrollView
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

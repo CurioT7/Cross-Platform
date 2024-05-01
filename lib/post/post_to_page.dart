@@ -3,6 +3,7 @@ import 'package:curio/post/community_card.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Models/community_model.dart';
+
 class PostToPage extends StatefulWidget {
   const PostToPage({Key? key}) : super(key: key);
 
@@ -23,6 +24,7 @@ class _PostToPageState extends State<PostToPage> {
     super.initState();
     fetchCommunities();
   }
+
 Future<void> fetchCommunities() async {
   final sharedPrefs = await SharedPreferences.getInstance();
   String token = sharedPrefs.getString('token')!;
@@ -41,9 +43,9 @@ Future<void> fetchCommunities() async {
                 .contains(searchController.text.toLowerCase()))
             .toList();
       });
-    });
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
@@ -156,11 +158,7 @@ Future<void> fetchCommunities() async {
                       community: displayedCommunities[index],
                       onTap: () {
                         // send the selected community to the post screen
-                        Navigator.pop(
-                          context,
-                          displayedCommunities[index]
-                        );
-
+                        Navigator.pop(context, displayedCommunities[index]);
                       },
                     );
                   }
@@ -172,5 +170,4 @@ Future<void> fetchCommunities() async {
       ),
     );
   }
-
 }

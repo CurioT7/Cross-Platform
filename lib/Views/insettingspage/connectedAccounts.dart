@@ -4,7 +4,6 @@ import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/utils/passwordValidateOnSave.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 
-
 class ConnectToGooglePage extends StatefulWidget {
   const ConnectToGooglePage({Key? key}) : super(key: key);
 
@@ -31,7 +30,8 @@ class _ConnectToGooglePageState extends State<ConnectToGooglePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             UserInfoSubBar(),
-            Text('For your security, confirm your password to finish disconnecting your account.'),
+            Text(
+                'For your security, confirm your password to finish disconnecting your account.'),
             // New Password
             TextField(
               controller: _newPasswordController,
@@ -40,7 +40,8 @@ class _ConnectToGooglePageState extends State<ConnectToGooglePage> {
               onChanged: (value) {
                 setState(() {
                   _isNewPasswordValid = value.length >= 8;
-                  _arePasswordsMatching = value == _confirmNewPasswordController.text;
+                  _arePasswordsMatching =
+                      value == _confirmNewPasswordController.text;
                 });
               },
             ),

@@ -10,6 +10,7 @@ class Post {
   final String? linkedSubreddit;
   final List<dynamic> comments;
   final int shares;
+
   late  bool isNSFW;
   late  bool isSpoiler;
   final bool isOC;

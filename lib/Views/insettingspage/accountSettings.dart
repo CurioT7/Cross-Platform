@@ -31,6 +31,24 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 
+import 'package:curio/Views/Home_screen.dart';
+import 'package:curio/services/api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:curio/utils/helpers.dart';
+import 'package:curio/utils/reddit_colors.dart';
+import 'package:curio/Views/signIn/signIn.dart';
+import 'package:curio/Views/signUp/userName.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:curio/Views/signIn/forgotPassword.dart';
+import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:curio/Views/insettingspage/confirmPassword.dart';
+import 'package:curio/Views/community/chooseCommunity.dart';
+import 'package:curio/Views/share/shareToProfile.dart';
+import 'package:curio/Views/share/shareToSubreddit.dart';
+
 class AccountSettingsPage extends StatefulWidget {
   @override
   State<AccountSettingsPage> createState() => _AccountSettingsPageState();
@@ -42,18 +60,26 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
   final _passwordController = TextEditingController();
   final ApiService apiService = ApiService();
   final GoogleAuthSignInService googleAuthSignInService =
-  GoogleAuthSignInService();
+      GoogleAuthSignInService();
   bool validEmail = false;
   bool _createdPassword = false;
   bool validPassword = false;
   final storage = FlutterSecureStorage();
   String _selectedGender = 'Man'; // Initial selected gender
   String _selectedLocation = 'Mexico';
+  String _selectedLocation = 'Mexico';
   bool _isConnected = false;
   String _username = '';
   String _email = '';
 
   ApiServiceMahmoud _apiService = ApiServiceMahmoud();
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -72,6 +98,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var value = prefs.getString('token');
 
+
     print('the value of the token inside the settings page is  $value');
     String? initialGender = prefs.getString('selectedGender');
     if (initialGender != null) {
@@ -81,6 +108,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
     _fetchUserProfile();
   }
+
 
   void _fetchUserProfile() async {
     try {
@@ -93,25 +121,25 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       }
 
       Map<String, dynamic> userProfile =
-      await _apiService.getUserProfile(token);
+          await _apiService.getUserProfile(token);
       print(userProfile); // Print the fetched data for debugging
       // Fetch user preferences
 
-      Map<String, dynamic> userPref = await _apiService.getUserPreferences(token);
+      Map<String, dynamic> userPref =
+          await _apiService.getUserPreferences(token);
 
       print('$userPref'); // Print the fetched data for debugging
 
-
       setState(() {
-        _selectedLocation= userPref['locationCustomization'];
+        _selectedLocation = userPref['locationCustomization'];
         print('the value of the selected location is $_selectedLocation');
         print('the value of the connected to google is $_isConnected');
-        _createdPassword = userProfile['createdPassword']??true;
+        _createdPassword = userProfile['createdPassword'] ?? true;
         print('the value of the created password is $_createdPassword');
-        _selectedGender = userPref['gender']??'N/A';
+        _selectedGender = userPref['gender'] ?? 'N/A';
         _username = userProfile['username'];
         _email = userProfile['email'];
-        _isConnected = userProfile['connectedToGoogle']??true;
+        _isConnected = userProfile['connectedToGoogle'] ?? true;
 
         print(userProfile['connectedToGoogle']);
       });
@@ -120,6 +148,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
     }
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,24 +168,24 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             title: Text('Update email address', style: kTitleHeader),
             subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
                 style: kMoreInfoTextStyle),
+            subtitle: Text(_email.isNotEmpty ? _email : 'Loading...',
+                style: kMoreInfoTextStyle),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
-            onTap: () {if(_createdPassword)
-            {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UpdateEmailAdressPage()),
-              ).then((_) {
-                _fetchUserProfile();
-              });
-            }
-            else
-            {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-              );
-            }
-
+            onTap: () {
+              if (_createdPassword) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UpdateEmailAdressPage()),
+                ).then((_) {
+                  _fetchUserProfile();
+                });
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                );
+              }
             },
           ),
           ListTile(
@@ -164,14 +193,12 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             title: Text('Change password', style: kTitleHeader),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
-              if(!_createdPassword){
+              if (!_createdPassword) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ChangePasswordPage()),
                 );
-              }
-              else
-              {
+              } else {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
@@ -184,21 +211,32 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
               alignment: Alignment.topLeft,
               width: 28,
               height: double.infinity,
-              child: Icon(Icons.location_on_outlined, color: KIconColor,),
+              child: Icon(
+                Icons.location_on_outlined,
+                color: KIconColor,
+              ),
             ),
             title: Text('Location customization', style: kTitleHeader),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_selectedLocation, style: kMoreInfoTextStyle, textAlign: TextAlign.left,),
-                Text("Specify a location to customize your recommendations and feed. Reddit does not track your precise geolocation data.", style: kMoreInfoTextStyle,)
+                Text(
+                  _selectedLocation,
+                  style: kMoreInfoTextStyle,
+                  textAlign: TextAlign.left,
+                ),
+                Text(
+                  "Specify a location to customize your recommendations and feed. Reddit does not track your precise geolocation data.",
+                  style: kMoreInfoTextStyle,
+                )
               ],
             ),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () async {
               final selectedLocation = await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LocationCustomizationPage()),
+                MaterialPageRoute(
+                    builder: (context) => LocationCustomizationPage()),
               );
               setState(() {
                 _selectedLocation = selectedLocation;
@@ -226,18 +264,20 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             ),
           ),
           ListTile(
-            leading: Image.asset('lib/assets/images/google.png', height: 40, width: 40),
+            leading: Image.asset('lib/assets/images/google.png',
+                height: 40, width: 40),
             title: Text('Google', style: kTitleHeader),
             trailing: TextButton(
-              child: Text((_isConnected==false ? "Connect" : "Disconnect"), style: KConnectedAccountsButtonColor),
+              child: Text((_isConnected == false ? "Connect" : "Disconnect"),
+                  style: KConnectedAccountsButtonColor),
               onPressed: () {
                 if (_isConnected) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ConfirmPasswordPage()),
+                    MaterialPageRoute(
+                        builder: (context) => ConfirmPasswordPage()),
                   );
-                }
-                else {
+                } else {
                   _signInWithGoogle();
                 }
               },
@@ -275,7 +315,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
+                MaterialPageRoute(
+                    builder: (context) => NotificationSettingsPage()),
               );
             },
           ),
@@ -283,11 +324,13 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       ),
     );
   }
+
   void _signInWithGoogle() async {
     print("Connecting with Google...");
 
     await GoogleSignIn().signOut();
-    UserCredential? userCredential = await googleAuthSignInService.signInWithGoogle();
+    UserCredential? userCredential =
+        await googleAuthSignInService.signInWithGoogle();
     if (userCredential != null) {
       String? accessToken = userCredential.credential?.accessToken;
       print('The access token is $accessToken');
@@ -295,7 +338,8 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
       var token = prefs.getString('token');
 
       try {
-        var response = await _apiService.connectWithGoogle(token!, accessToken!);
+        var response =
+            await _apiService.connectWithGoogle(token!, accessToken!);
         if (response['success']) {
           setState(() {
             _isConnected = true;

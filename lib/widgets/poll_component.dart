@@ -81,7 +81,7 @@ return optionControllers.map((controller) => controller.text.isEmpty ? 'Option' 
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.grey),
+                          MaterialStateProperty.all<Color>(Colors.grey),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
@@ -169,7 +169,7 @@ return optionControllers.map((controller) => controller.text.isEmpty ? 'Option' 
                             hintText: 'Option ${index + 1}',
                             border: const OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(20)),
+                                  BorderRadius.all(Radius.circular(20)),
                               borderSide: BorderSide.none,
                             ),
                           ),

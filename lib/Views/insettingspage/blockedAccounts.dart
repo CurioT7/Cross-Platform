@@ -73,9 +73,9 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
                     },
                     child: Text(isBlocked ? 'Unblock' : 'Block'),
                     style: ElevatedButton.styleFrom(
-                      //primary: isBlocked ? Colors.blue : Colors.red,
-                      //onPrimary: Colors.white,
-                    ),
+                        //primary: isBlocked ? Colors.blue : Colors.red,
+                        //onPrimary: Colors.white,
+                        ),
                   ),
                 );
               },
@@ -94,7 +94,8 @@ class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
     } else {
       setState(() {
         filteredAccounts = allAccounts
-            .where((account) => account.toLowerCase().contains(query.toLowerCase()))
+            .where((account) =>
+                account.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }

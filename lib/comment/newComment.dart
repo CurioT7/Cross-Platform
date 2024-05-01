@@ -279,3 +279,4 @@ class URLComponent extends StatelessWidget {
     );
   }
 }
+

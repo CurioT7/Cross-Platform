@@ -100,7 +100,7 @@ class HomePageBeforeSignIn extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const sideBarBeforeLogin(),
-      bottomNavigationBar: HomeNavigationBar(),
+      bottomNavigationBar:const  HomeNavigationBar(),
       appBar: AppBar(
         title: const Text('Side menu'),
         actions: [

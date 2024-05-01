@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:curio/Models/post.dart';
+
 class MockApiService {
   Future<http.Response> signIn(String email, String password) async {
     await Future.delayed(Duration(seconds: 1)); // Simulate network delay
@@ -31,27 +32,30 @@ class MockApiService {
     await Future.delayed(Duration(seconds: 1));
 
     // Return a list of fake posts
-    return List.generate(100, (index) => Post(
-      id: 'post_$index',
-      title: 'Post Title $index',
-      content: 'Post Content $index',
-      authorName: 'Author $index',
-      views: index * 10,
-      createdAt: DateTime.now().subtract(Duration(days: index)),
-      upvotes: index * 100,
-      downvotes: index * 10,
-      linkedSubreddit: 'subreddit_$index',
-      comments: List.generate(index, (i) => 'Comment $i'), // Generate some fake comments
-      shares: index * 5,
-      isNSFW: false,
-      isSpoiler: false,
-      isOC: false,
-      isCrosspost: false,
-      awards: index * 3,
-      media: 'https://via.placeholder.com/150',
-      link: 'https://example.com/post_$index',
-      isDraft: false,
-    ));
+    return List.generate(
+        100,
+        (index) => Post(
+              id: 'post_$index',
+              title: 'Post Title $index',
+              content: 'Post Content $index',
+              authorName: 'Author $index',
+              views: index * 10,
+              createdAt: DateTime.now().subtract(Duration(days: index)),
+              upvotes: index * 100,
+              downvotes: index * 10,
+              linkedSubreddit: 'subreddit_$index',
+              comments: List.generate(
+                  index, (i) => 'Comment $i'), // Generate some fake comments
+              shares: index * 5,
+              isNSFW: false,
+              isSpoiler: false,
+              isOC: false,
+              isCrosspost: false,
+              awards: index * 3,
+              media: 'https://via.placeholder.com/150',
+              link: 'https://example.com/post_$index',
+              isDraft: false,
+            ));
   }
 
   Future<Post> getRandomPost(String subreddit) async {
@@ -69,7 +73,8 @@ class MockApiService {
       upvotes: 1000,
       downvotes: 100,
       linkedSubreddit: subreddit,
-      comments: List.generate(10, (i) => 'Comment $i'), // Generate some fake comments
+      comments:
+          List.generate(10, (i) => 'Comment $i'), // Generate some fake comments
       shares: 50,
       isNSFW: false,
       isSpoiler: false,
@@ -87,27 +92,30 @@ class MockApiService {
     await Future.delayed(Duration(seconds: 1));
 
     // Return a list of fake popular posts
-    return List.generate(50, (index) => Post(
-      id: 'popular_post_$index',
-      title: 'Popular Post $index',
-      content: 'Popular Post Content $index',
-      authorName: 'Popular Author $index',
-      views: index * 50,
-      createdAt: DateTime.now().subtract(Duration(days: index)),
-      upvotes: index * 500,
-      downvotes: index * 50,
-      linkedSubreddit: 'popular_subreddit_$index',
-      comments: List.generate(index, (i) => 'Popular Comment $i'), // Generate some fake comments
-      shares: index * 25,
-      isNSFW: false,
-      isSpoiler: false,
-      isOC: false,
-      isCrosspost: false,
-      awards: index * 5,
-      media: 'https://via.placeholder.com/150',
-      link: 'https://example.com/popular_post_$index',
-      isDraft: false,
-    ));
+    return List.generate(
+        50,
+        (index) => Post(
+              id: 'popular_post_$index',
+              title: 'Popular Post $index',
+              content: 'Popular Post Content $index',
+              authorName: 'Popular Author $index',
+              views: index * 50,
+              createdAt: DateTime.now().subtract(Duration(days: index)),
+              upvotes: index * 500,
+              downvotes: index * 50,
+              linkedSubreddit: 'popular_subreddit_$index',
+              comments: List.generate(index,
+                  (i) => 'Popular Comment $i'), // Generate some fake comments
+              shares: index * 25,
+              isNSFW: false,
+              isSpoiler: false,
+              isOC: false,
+              isCrosspost: false,
+              awards: index * 5,
+              media: 'https://via.placeholder.com/150',
+              link: 'https://example.com/popular_post_$index',
+              isDraft: false,
+            ));
   }
 
   Future<List<Post>> getDiscoveryPosts() async {
@@ -115,26 +123,29 @@ class MockApiService {
     await Future.delayed(Duration(seconds: 1));
 
     // Return a list of fake discovery posts
-    return List.generate(20, (index) => Post(
-      id: 'discovery_post_$index',
-      title: 'Discovery Post $index',
-      content: 'Discovery Post Content $index',
-      authorName: 'Discovery Author $index',
-      views: index * 20,
-      createdAt: DateTime.now().subtract(Duration(days: index)),
-      upvotes: index * 200,
-      downvotes: index * 20,
-      linkedSubreddit: 'discovery_subreddit_$index',
-      comments: List.generate(index, (i) => 'Discovery Comment $i'), // Generate some fake comments
-      shares: index * 10,
-      isNSFW: false,
-      isSpoiler: false,
-      isOC: false,
-      isCrosspost: false,
-      awards: index * 2,
-      media: 'https://via.placeholder.com/150',
-      link: 'https://example.com/discovery_post_$index',
-      isDraft: false,
-    ));
+    return List.generate(
+        20,
+        (index) => Post(
+              id: 'discovery_post_$index',
+              title: 'Discovery Post $index',
+              content: 'Discovery Post Content $index',
+              authorName: 'Discovery Author $index',
+              views: index * 20,
+              createdAt: DateTime.now().subtract(Duration(days: index)),
+              upvotes: index * 200,
+              downvotes: index * 20,
+              linkedSubreddit: 'discovery_subreddit_$index',
+              comments: List.generate(index,
+                  (i) => 'Discovery Comment $i'), // Generate some fake comments
+              shares: index * 10,
+              isNSFW: false,
+              isSpoiler: false,
+              isOC: false,
+              isCrosspost: false,
+              awards: index * 2,
+              media: 'https://via.placeholder.com/150',
+              link: 'https://example.com/discovery_post_$index',
+              isDraft: false,
+            ));
   }
 }

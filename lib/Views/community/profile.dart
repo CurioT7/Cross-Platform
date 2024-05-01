@@ -13,10 +13,12 @@ import 'package:curio/Models/post.dart';
 //import 'package:curio/widgets/postCard.dart';
 
 import 'aboutComunity.dart';
-class communityProfile extends StatefulWidget {
-  final String communityName ;
 
-  const communityProfile({Key? key, required this.communityName}) : super(key: key);
+class communityProfile extends StatefulWidget {
+  final String communityName;
+
+  const communityProfile({Key? key, required this.communityName})
+      : super(key: key);
 
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
@@ -71,16 +73,16 @@ class _CommunityProfileState extends State<communityProfile> {
 
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
-      newSort= _selectedSort;
-      newIcon= _selectedIcon ;
+      newSort = _selectedSort;
+      newIcon = _selectedIcon;
     });
   }
 
   void _fetchCommunityData() async {
     print('Fetching community data');
     logicAPI api = logicAPI();
-    Map<String, dynamic> communityData = await api.fetchCommunityData(
-        communityName);
+    Map<String, dynamic> communityData =
+        await api.fetchCommunityData(communityName);
     setState(() {
       privacyMode = communityData['privacyMode'];
       name = communityData['name'];
@@ -93,7 +95,6 @@ class _CommunityProfileState extends State<communityProfile> {
     });
   }
 
-
   String _selectedSort = 'Hot';
   IconData _selectedIcon = Icons.whatshot; // Default icon
 
@@ -105,18 +106,22 @@ class _CommunityProfileState extends State<communityProfile> {
     logicAPI api = logicAPI();
     switch (_selectedSort) {
       case 'hot':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'hot');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(communityName, 'hot');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
 
           print("fetchedposts");
           print(posts);
         });
         break;
       case 'new':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(communityName, 'new');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(communityName, 'new');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
           print("fetchedposts");
           print(posts);
         });
@@ -141,12 +146,13 @@ class _CommunityProfileState extends State<communityProfile> {
         }
         List<Post>? fetchedPosts = await api.fetchTopPosts(communityName, (timeInterval! ).toString());
         setState(() {
-          if(fetchedPosts!=null) {
+          if (fetchedPosts != null) {
             posts = fetchedPosts;
             print(posts);
+          } else {
+            posts = [];
           }
-          else{posts=[];
-          }});
+        });
         break;
     }
   }
@@ -156,6 +162,7 @@ class _CommunityProfileState extends State<communityProfile> {
   @override
   void initState() {
     super.initState();
+    communityName = widget.communityName;
     communityName = widget.communityName;
     _scrollController.addListener(_scrollListener);
     _fetchCommunityData();
@@ -196,7 +203,6 @@ class _CommunityProfileState extends State<communityProfile> {
   //   });
   // }
 
-
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
@@ -206,10 +212,8 @@ class _CommunityProfileState extends State<communityProfile> {
 
   _scrollListener() {
     double scrollPosition = _scrollController.position.pixels;
-    double limit = MediaQuery
-        .of(context)
-        .size
-        .width * 0.3; // Set your limit here
+    double limit =
+        MediaQuery.of(context).size.width * 0.3; // Set your limit here
 
     if (scrollPosition > limit) {
       blurValue.value = 3.0; // Set a high blur value
@@ -276,23 +280,15 @@ class _CommunityProfileState extends State<communityProfile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.04),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.04),
               CircleAvatar(
-                radius: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.05,
+                radius: MediaQuery.of(context).size.width * 0.05,
 
                 //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                backgroundImage: AssetImage('assets/images/example.jpg'),),
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.03),
+                backgroundImage: AssetImage('assets/images/example.jpg'),
+              ),
+              SizedBox(width: MediaQuery.of(context).size.width * 0.03),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -308,17 +304,11 @@ class _CommunityProfileState extends State<communityProfile> {
                       Text('$membersCount members',
                           style: TextStyle(
                               fontSize:
-                              MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.03,
+                                  MediaQuery.of(context).size.width * 0.03,
                               color: Colors.grey[500],
                               fontWeight: FontWeight.bold,
                               fontFamily: 'IBM_Plex_Sans_Light')),
-                      SizedBox(width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.02),
+                      SizedBox(width: MediaQuery.of(context).size.width * 0.02),
                       //draw green filled icon circle
 
 
@@ -334,15 +324,9 @@ class _CommunityProfileState extends State<communityProfile> {
                   .size
                   .width * 0.15),
               SizedBox(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
+                width: MediaQuery.of(context).size.width *
                     0.13, // Set the width of the button
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
+                height: MediaQuery.of(context).size.width *
                     0.07, // Set the height of the button
 
                 child: TextButton(
@@ -446,10 +430,7 @@ class _CommunityProfileState extends State<communityProfile> {
               ),
             ],
           ),
-          SizedBox(height: MediaQuery
-              .of(context)
-              .size
-              .width * 0.02),
+          SizedBox(height: MediaQuery.of(context).size.width * 0.02),
           Padding(
             padding: EdgeInsets.only(
                 left: 20.0), // Adjust the padding value as needed
@@ -472,22 +453,20 @@ class _CommunityProfileState extends State<communityProfile> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>
-                          AboutComunityPage(
-                              subredditName: communityName)), // Replace SecondPage() with the actual page you want to navigate to
+                      MaterialPageRoute(
+                          builder: (context) => AboutComunityPage(
+                              subredditName:
+                                  communityName)), // Replace SecondPage() with the actual page you want to navigate to
                     );
                   },
                   child: Text(
                     "See more",
                     style: TextStyle(
                         color: Colors.blue[900],
-                        fontSize: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.03,
-                        fontWeight: FontWeight
-                            .bold // Set the color to dark blue
-                    ),
+                        fontSize: MediaQuery.of(context).size.width * 0.03,
+                        fontWeight:
+                            FontWeight.bold // Set the color to dark blue
+                        ),
                   ),
                 )
               ],
@@ -497,28 +476,31 @@ class _CommunityProfileState extends State<communityProfile> {
           TextButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
-              shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-
+              shape: MaterialStateProperty.all(
+                  RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
             ),
             onPressed: () {
-              timeSelection = showSortPostsBottomSheet(
-                  context, _selectedSort, Icons.whatshot, _updateSortAndIcon,
-                  fetchPosts, true);
+              timeSelection = showSortPostsBottomSheet(context, _selectedSort,
+                  Icons.whatshot, _updateSortAndIcon, fetchPosts, true);
               print('Time Selection');
               print(timeSelection);
             },
-
             child: Row(
               children: [
-
-
-
-                Icon(_selectedIcon,  color: Colors.grey,),
-                Text('${_selectedSort.toUpperCase()} POSTS', style: TextStyle(color: Colors.grey),),
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
+                Icon(
+                  _selectedIcon,
+                  color: Colors.grey,
+                ),
+                Text(
+                  '${_selectedSort.toUpperCase()} POSTS',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey,
+                ),
               ],
             ),
-
           ),
           Expanded(
             child: ListView.builder(
@@ -544,14 +526,8 @@ class _CommunityProfileState extends State<communityProfile> {
             borderRadius: BorderRadius.circular(5),
           ),
           content: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width *1.6,
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.14,
+            width: MediaQuery.of(context).size.width * 1.6,
+            height: MediaQuery.of(context).size.height * 0.14,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -559,7 +535,8 @@ class _CommunityProfileState extends State<communityProfile> {
                   padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Are you sure you want to leave the r/$communityName community?',
-                    textAlign: TextAlign.left,),
+                    textAlign: TextAlign.left,
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -568,10 +545,7 @@ class _CommunityProfileState extends State<communityProfile> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -579,8 +553,8 @@ class _CommunityProfileState extends State<communityProfile> {
                               ),
                               side: BorderSide(color: Colors.grey),
                             ),
-                            child: Text(
-                                'Cancel', style: TextStyle(color: Colors.grey)),
+                            child: Text('Cancel',
+                                style: TextStyle(color: Colors.grey)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -592,10 +566,7 @@ class _CommunityProfileState extends State<communityProfile> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,

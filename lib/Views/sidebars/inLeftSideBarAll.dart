@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:curio/utils/componentSelectionPopUPPage.dart';
-import 'package:curio/widgets/postCard.dart';
-import 'package:curio/Models/post.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
+import 'package:flutter/material.dart';
+
+import '../../models/post.dart';
+import '../../utils/componentSelectionPopUPPage.dart';
+import '../../widgets/postCard.dart';
 
 class AllPage extends StatefulWidget {
   const AllPage({Key? key}) : super(key: key);

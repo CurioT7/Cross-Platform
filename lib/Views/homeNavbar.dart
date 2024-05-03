@@ -154,13 +154,13 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
             break;
           case 4:
             //TODO CORRECT THIS
-            markReadNotifications();
-            getUnreadNotifications();
-            final SharedPreferences prefs = await SharedPreferences.getInstance();
-            String? token = prefs.getString('token');
-            if (token == null) {
-              return;
-            }
+            //markReadNotifications();
+            //getUnreadNotifications();
+            // final SharedPreferences prefs = await SharedPreferences.getInstance();
+            // String? token = prefs.getString('token');
+            // if (token == null) {
+            //   return;
+            // }
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ViewNotifications()),

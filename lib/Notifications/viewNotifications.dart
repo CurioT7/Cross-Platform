@@ -83,7 +83,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
                   List<NotificationModel> notifications = snapshot.data!;
                   return ListView.builder(
                     shrinkWrap: true,
-                    itemCount: notifications.length,
+                    itemCount: notifications.length ,
                     itemBuilder: (context, index) {
                       print('Notification ${index + 1}: ${notifications[index].message}');
                       return NotificationCard(

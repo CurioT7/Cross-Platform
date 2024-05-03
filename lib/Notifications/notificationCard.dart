@@ -19,7 +19,10 @@ class _NotificationCardState extends State<NotificationCard> {
   @override
   void initState() {
     super.initState();
-    initializeReadNotifications();
+    setState(() {
+      initializeReadNotifications();
+    });
+    //initializeReadNotifications();
   }
 
   Future<List<String>> initializeReadNotifications() async {

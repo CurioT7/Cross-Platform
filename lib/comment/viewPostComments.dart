@@ -17,7 +17,11 @@ class ViewPostComments extends StatefulWidget {
   @override
   _ViewPostCommentsState createState() => _ViewPostCommentsState();
 }
-
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
 class _ViewPostCommentsState extends State<ViewPostComments> {
 
   final ScrollController _scrollController = ScrollController();

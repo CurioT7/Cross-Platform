@@ -4,6 +4,7 @@ import 'package:curio/comment/viewPostComments.dart';
 import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class MiniPostCard extends StatelessWidget {
   final MiniPost miniPost;
 
@@ -26,10 +27,14 @@ String formatDateTime(DateTime dateTime) {
     return 'now';
   }
 }
-
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
 void _navigateToComments(BuildContext context) async {
   if (miniPost.id.isNotEmpty) { // Make sure the id is not an empty string
-    Post post = await ApiService().fetchPostByID(miniPost.id);
+    Post post = await ApiService().fetchPostByID(miniPost.id, await getToken()) ;
     Navigator.push(
       context,
       MaterialPageRoute(

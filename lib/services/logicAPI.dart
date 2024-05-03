@@ -12,7 +12,7 @@ import '../Notifications/notificationModel.dart';
 
 class logicAPI {
  // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
-   final String _baseUrl = 'http://192.168.1.13:3000';
+   final String _baseUrl = 'http://20.199.94.136';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
@@ -641,28 +641,30 @@ class logicAPI {
    }
   //getpostbyid
 
-   Future<Post> fetchPostByID(String objectID) async {
-     try {
-       print(objectID);
-       final response = await http.get(
-         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
-         headers:<String, String> {
-           'Content-Type': 'application/json; charset=UTF-8',
+  Future<Post> fetchPostByID(String objectID, String token) async {
+    try {
+      print(objectID);
+      final response = await http.get(
+        Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+        headers:<String, String> {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
 
-         },
-       );
+      if (response.statusCode == 200) {
+        Post post = Post.fromJson((jsonDecode(response.body)['item']));
+        print('Post: $post'); 
+        return post;
+      } else {
+        print('Response body: ${response.body}');
 
-       if (response.statusCode == 200) {
-         return Post.fromJson((jsonDecode(response.body)['item']));
-       } else {
-         print('Response body: ${response.body}');
-
-         throw Exception('Failed to load info with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       throw Exception('Failed to load info. Error: $e');
-     }
-   }
+        throw Exception('Failed to load info with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load info. Error: $e');
+    }
+  }
 
    //getCommentbyid
    Future<Comment> fetchCommentByID(String objectID) async {

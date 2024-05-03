@@ -4,7 +4,7 @@ import 'package:curio/Models/post.dart';
 class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
    //final String bas = eUrl= 'http://192.168.1.13:3000/api';
-   final String baseUrl ='http://192.168.1.13:3000/api';
+   final String baseUrl ='http://20.199.94.136/api';
 
 
     Future<List<Post>> getPosts(String type, {int page = 1 , String? token} ) async {
@@ -50,29 +50,30 @@ class ApiService {
       return getPosts('hot', token: token, page: page);
     }
 
-  Future<Post> fetchPostByID(String objectID) async {
-     try {
-       print(objectID);
-       final response = await http.get(
-         Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
-         headers:<String, String> {
-           'Content-Type': 'application/json; charset=UTF-8',
+  Future<Post> fetchPostByID(String objectID, String token) async {
+    try {
+      print(objectID);
+      final response = await http.get(
+        Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
+        headers:<String, String> {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token', // Add this line
+        },
+      );
 
-         },
-       );
+      if (response.statusCode == 200) {
+        var responseBody = jsonDecode(response.body)['item'];
+        print('Response body: $responseBody'); // Print the response body
+        return Post.fromJson(responseBody);
+      } else {
+        print('Response body: ${response.body}');
 
-       if (response.statusCode == 200) {
-         return Post.fromJson((jsonDecode(response.body)['item']));
-       } else {
-         print('Response body: ${response.body}');
-
-         throw Exception('Failed to load info with status code: ${response.statusCode}');
-       }
-     } catch (e) {
-       throw Exception('Failed to load info. Error: $e');
-     }
-   }
-  
+        throw Exception('Failed to load info with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load info. Error: $e');
+    }
+  }
   // Future<List<Post>> getTrendingPosts() async {
   //   try {
   //     final response = await http.get(Uri.parse('$baseUrl/trendingSearches'));

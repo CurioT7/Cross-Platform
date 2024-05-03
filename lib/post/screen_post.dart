@@ -14,7 +14,7 @@ import 'package:video_player/video_player.dart';
 
 Future<void> uploadImage(XFile imageFile) async {
   var request =
-  http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
+      http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
 
   request.files.add(await http.MultipartFile.fromPath(
     'image', // consider 'image' as the key for the image file in your server
@@ -111,76 +111,80 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-                  if (isCommunitySelected) {
-                    String type = attachment != null ? attachment!.type : 'post';
-                    if(type == 'image' || type == 'video') {
-                      type = 'media';
-                    }
-                    List<String>? options = [];
-                    String? voteLength = '';
+                        if (isCommunitySelected) {
+                          String type =
+                              attachment != null ? attachment!.type : 'post';
+                          if (type == 'image' || type == 'video') {
+                            type = 'media';
+                          }
+                          List<String>? options = [];
+                          String? voteLength = '';
 
-                    if(type == 'poll'){
-                      // get the options list
-                      options = (attachment!.component as PollComponent).getOptions();
-                      print(options);
+                          if (type == 'poll') {
+                            // get the options list
+                            options = (attachment!.component as PollComponent)
+                                .getOptions();
+                            print(options);
 
-                      voteLength = (attachment!.component as PollComponent).getSelectedOption();
-                    }
+                            voteLength =
+                                (attachment!.component as PollComponent)
+                                    .getSelectedOption();
+                          }
 
-                    Map<String, dynamic> post = {
-                      'title': titleController.text,
-                      'content': descriptionController.text,
-                      'isNSFW': selectedTags.contains('NSFW'),
-                      'isSpoiler': selectedTags.contains('Spoiler'),
-                      'isOC': selectedTags.contains('isOC'),
-                      'subreddit': selectedCommunity.name,
-                      // 'destination': "subreddit",
-                      'type': type,
-                    };
-                    //check if the attachment has been added
-                    if (attachment != null && attachment!.type == 'url') {
-                      // print the attachment type
-                      post['media'] = attachment!.data;
-                    }
-                    if(type=='poll'){
-                      post['Options'] = options;
-                      post['voteLength'] = voteLength;
-                    }
+                          Map<String, dynamic> post = {
+                            'title': titleController.text,
+                            'content': descriptionController.text,
+                            'isNSFW': selectedTags.contains('NSFW'),
+                            'isSpoiler': selectedTags.contains('Spoiler'),
+                            'isOC': selectedTags.contains('isOC'),
+                            'subreddit': selectedCommunity.name,
+                            // 'destination': "subreddit",
+                            'type': type,
+                          };
+                          //check if the attachment has been added
+                          if (attachment != null && attachment!.type == 'url') {
+                            // print the attachment type
+                            post['media'] = attachment!.data;
+                          }
+                          if (type == 'poll') {
+                            post['Options'] = options;
+                            post['voteLength'] = voteLength;
+                          }
 
-                    final SharedPreferences prefs =
-                    await SharedPreferences.getInstance();
-                    final String token = prefs.getString('token')!;
-                    final response = await ApiService().submitPost(
-                        post, token, _pickedImage ?? (_pickedVideo));
-                    if (response['success'] == true) {
-                      Navigator.pop(context);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(response['message']),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  } else {
-                    selectedCommunity = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const PostToPage(),
-                      ),
-                    );
-                    setState(() {
-                      isCommunitySelected = true;
-                    });
-                  }
-                }
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          final String token = prefs.getString('token')!;
+                          final response = await ApiService().submitPost(
+                              post, token, _pickedImage ?? (_pickedVideo));
+                          if (response['success'] == true) {
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(response['message']),
+                                duration: const Duration(seconds: 3),
+                              ),
+                            );
+                          }
+                        } else {
+                          selectedCommunity = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PostToPage(),
+                            ),
+                          );
+                          setState(() {
+                            isCommunitySelected = true;
+                          });
+                        }
+                      }
                     : null,
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: value.text.isNotEmpty
                       ? Colors.blue.shade800
                       : Colors
-                      .transparent, // This will give the button a white text color
+                          .transparent, // This will give the button a white text color
                   side: BorderSide(
                     color: value.text.isNotEmpty
                         ? Theme.of(context).primaryColor
@@ -191,7 +195,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 child: // I want make it Post when the selected Community is set and Post whenn the selecetcommunity is not set
-                Text(isCommunitySelected ? 'Post' : 'Next'),
+                    Text(isCommunitySelected ? 'Post' : 'Next'),
               );
             },
           ),
@@ -222,7 +226,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                        const PostToPage(),
+                                            const PostToPage(),
                                       ),
                                     );
                                     setState(() {
@@ -248,17 +252,17 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                     ...selectedTags
                                         .map(
                                           (tag) => Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          tag,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
-                                            fontSize: 18,
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              tag,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    )
+                                        )
                                         .toList(),
                                   ],
                                 ),
@@ -297,7 +301,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                       onDismiss: (List<String> selectedTags) {
                                         // Handle selectedTags list here
                                         setState(
-                                              () {
+                                          () {
                                             this.selectedTags.clear();
                                             this
                                                 .selectedTags
@@ -328,9 +332,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     SizedBox(
                       height: 0 +
                           (attachment != null
-                              ? attachment!.type == "poll"
-                              ? 200
-                              : 50
+                              ? attachment!.type == "poll" || attachment!.type == "video"
+                                  ? 200
+                                  : 50
                               : 0),
                       child: Visibility(
                         visible: attachment != null && !optionSelected,
@@ -395,25 +399,25 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                            setState(() {
-                              attachment = Attachment(
-                                type: 'link',
-                                data: linkController.text,
-                                component:
-                                Container(), // Temporary component
-                              );
-                              attachment!.component = URLComponent(
-                                controller: linkController,
-                                onClear: () {
                                   setState(() {
-                                    attachment = null;
-                                    isAttachmentAdded = false;
+                                    attachment = Attachment(
+                                      type: 'link',
+                                      data: linkController.text,
+                                      component:
+                                          Container(), // Temporary component
+                                    );
+                                    attachment!.component = URLComponent(
+                                      controller: linkController,
+                                      onClear: () {
+                                        setState(() {
+                                          attachment = null;
+                                          isAttachmentAdded = false;
+                                        });
+                                      },
+                                    );
+                                    isAttachmentAdded = true;
                                   });
                                 },
-                              );
-                              isAttachmentAdded = true;
-                            });
-                          },
                         ),
                         if (!keyboardOpen) const Text('Link'),
                       ],
@@ -425,29 +429,30 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () async {
-                            final ImagePicker picker0 = ImagePicker();
-                            final XFile? image = await picker0.pickImage(
-                                source: ImageSource.gallery);
-                            setState(() {
-                              optionSelected = false;
-                              _pickedImage = image;
-                              attachment = Attachment(
-                                  type: 'image',
-                                  data: image,
-                                  component:
-                                  Image.file(File(image!.path)));
-                              attachment!.component = ImageComponent(
-                                image: image,
-                                onClear: () {
-                                  setState(() {
-                                    attachment = null;
-                                    isAttachmentAdded = false;
-                                  });
+                                  final ImagePicker picker0 = ImagePicker();
+                                  final XFile? image = await picker0.pickImage(
+                                      source: ImageSource.gallery);
+                                  if (image != null) {
+                                    final File imageFile = File(image.path);
+                                    setState(() {
+                                      optionSelected = false;
+                                      attachment = Attachment(
+                                          type: 'image',
+                                          data: imageFile,
+                                          component: Image.file(imageFile));
+                                      attachment!.component = ImageComponent(
+                                        image: imageFile,
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                      );
+                                      isAttachmentAdded = true;
+                                    });
+                                  }
                                 },
-                              );
-                              isAttachmentAdded = true;
-                            });
-                          },
                         ),
                         if (!keyboardOpen) const Text('Image'),
                       ],
@@ -459,29 +464,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           onPressed: isAttachmentAdded
                               ? null
                               : () async {
-                            final ImagePicker picker = ImagePicker();
-                            final XFile? video = await picker.pickVideo(
-                                source: ImageSource.gallery);
-                            if (video != null) {
-                              setState(() {
-                                _pickedVideo = video;
-                                attachment = Attachment(
-                                  type: 'video',
-                                  data: video,
-                                  component: VideoComponent(
-                                    video: video,
-                                    onClear: () {
-                                      setState(() {
-                                        attachment = null;
-                                        isAttachmentAdded = false;
-                                      });
-                                    },
-                                  ),
-                                );
-                                isAttachmentAdded = true;
-                              });
-                            }
-                          },
+                                  final ImagePicker picker = ImagePicker();
+                                  final XFile? video = await picker.pickVideo(
+                                      source: ImageSource.gallery);
+                                  if (video != null) {
+                                    final File videoFile = File(video.path);
+                                    setState(() {
+                                      attachment = Attachment(
+                                        type: 'video',
+                                        data: videoFile,
+                                        component: VideoComponent(
+                                          video: videoFile,
+                                          onClear: () {
+                                            setState(() {
+                                              attachment = null;
+                                              isAttachmentAdded = false;
+                                            });
+                                          },
+                                        ),
+                                      );
+                                      isAttachmentAdded = true;
+                                    });
+                                  }
+                                },
                         ),
                         if (!keyboardOpen) const Text('Video'),
                       ],
@@ -489,27 +494,27 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     Column(
                       children: [
                         IconButton(
-                          icon: const Icon(FontAwesomeIcons.poll),
+                          icon: const Icon(FontAwesomeIcons.squarePollVertical),
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
-                            setState(() {
-                              attachment = Attachment(
-                                type: 'poll',
-                                data: null,
-                                component: PollComponent(
-                                  onClear: () {
-                                    setState(() {
-                                      attachment = null;
-                                      isAttachmentAdded = false;
-                                    });
-                                  },
-                                  pollComponentKey: GlobalKey(),
-                                ),
-                              );
-                              isAttachmentAdded = true;
-                            });
-                          },
+                                  setState(() {
+                                    attachment = Attachment(
+                                      type: 'poll',
+                                      data: null,
+                                      component: PollComponent(
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                        pollComponentKey: GlobalKey(),
+                                      ),
+                                    );
+                                    isAttachmentAdded = true;
+                                  });
+                                },
                         ),
                         if (!keyboardOpen) const Text('Poll'),
                       ],
@@ -562,53 +567,116 @@ class URLComponent extends StatelessWidget {
   }
 }
 
-class ImageComponent extends StatelessWidget {
-  final XFile image;
+class ImageComponent extends StatefulWidget {
+  final File image;
   final VoidCallback onClear;
 
-  const ImageComponent({super.key, required this.image, required this.onClear});
+  ImageComponent({Key? key, required this.image, required this.onClear})
+      : super(key: key);
+
+  @override
+  _ImageComponentState createState() => _ImageComponentState();
+}
+
+class _ImageComponentState extends State<ImageComponent> {
+  late Future<File> _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageFile = _loadImageFromHDD();
+  }
+
+  Future<File> _loadImageFromHDD() async {
+    // Load image from local storage
+    return widget.image;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Image.file(File(image.path)),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: onClear,
-          ),
-        ),
-      ],
+    return FutureBuilder<File>(
+      future: _imageFile,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else {
+          if (snapshot.hasError)
+            return Text('Error: ${snapshot.error}');
+          else
+            return Stack(
+              children: [
+                Image.file(snapshot.data!),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: widget.onClear,
+                  ),
+                ),
+              ],
+            );
+        }
+      },
     );
   }
 }
 
-class VideoComponent extends StatelessWidget {
-  final XFile video;
+class VideoComponent extends StatefulWidget {
+  final File video;
   final VoidCallback onClear;
 
-  const VideoComponent({super.key, required this.video, required this.onClear});
+  VideoComponent({Key? key, required this.video, required this.onClear})
+      : super(key: key);
+
+  @override
+  _VideoComponentState createState() => _VideoComponentState();
+}
+
+class _VideoComponentState extends State<VideoComponent> {
+  late Future<VideoPlayerController> _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = _loadVideoFromHDD();
+  }
+
+  Future<VideoPlayerController> _loadVideoFromHDD() async {
+    // Load video from local storage
+    final VideoPlayerController controller =
+        VideoPlayerController.file(widget.video);
+    await controller.initialize();
+    return controller;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final VideoPlayerController controller =
-    VideoPlayerController.file(File(video.path));
-    controller.initialize();
-    return Stack(
-      children: [
-        VideoPlayer(controller),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: onClear,
-          ),
-        ),
-      ],
+    return FutureBuilder<VideoPlayerController>(
+      future: _controller,
+      builder: (BuildContext context,
+          AsyncSnapshot<VideoPlayerController> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else {
+          if (snapshot.hasError)
+            return Text('Error: ${snapshot.error}');
+          else
+            return Stack(
+              children: [
+                VideoPlayer(snapshot.data!),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: widget.onClear,
+                  ),
+                ),
+              ],
+            );
+        }
+      },
     );
   }
 }

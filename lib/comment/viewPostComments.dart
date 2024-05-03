@@ -44,7 +44,7 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
       child: FutureBuilder<Post>(
           future: () async {
 
-    return logicAPI().fetchPostByID(widget.postID);
+    return logicAPI().fetchPostByID(widget.postID , await getToken());
     }(),
     builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
     if (snapshot.connectionState == ConnectionState.waiting) {

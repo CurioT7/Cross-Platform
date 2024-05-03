@@ -124,11 +124,12 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             // get the options list
                             options = (attachment!.component as PollComponent)
                                 .getOptions();
-                            print(options);
 
                             voteLength =
                                 (attachment!.component as PollComponent)
                                     .getSelectedOption();
+                            // split the vote length string "1 day" to get the number of days into just 1
+                            voteLength = voteLength!.split(' ')[0];
                           }
 
                           Map<String, dynamic> post = {
@@ -147,8 +148,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             post['media'] = attachment!.data;
                           }
                           if (type == 'poll') {
-                            post['Options'] = options;
+                            post['options'] = options!.join(',');
                             post['voteLength'] = voteLength;
+                            post['media'] = 'assets/images/poll.png';
                           }
 
                           final SharedPreferences prefs =

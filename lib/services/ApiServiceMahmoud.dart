@@ -782,7 +782,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getRandomPosts() async {
     print('fetching random posts  from api service mahmoud  ');
-    final String endpoint = '/api/allpage/random?page=1';
+    final String endpoint = '/api/allpage/random?';
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {

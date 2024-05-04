@@ -21,6 +21,10 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  void onNotificationHidden() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +92,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
                       print('Notification ${index + 1}: ${notifications[index].message}');
                       return NotificationCard(
                         notification: notifications[index],
+                        onHidden: onNotificationHidden,
                       );
                     },
                   );

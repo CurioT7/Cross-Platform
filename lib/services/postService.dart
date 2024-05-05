@@ -3,53 +3,69 @@ import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
-   //final String bas = eUrl= 'http://192.168.1.13:3000/api';
-   final String baseUrl ='http://20.199.94.136/api';
+   final String baseUrl= 'http://192.168.1.13:3000/api';
+  // final String baseUrl ='http://20.199.94.136/api';
 
+Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token, String timeframe = 'year'} ) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/homepage/$type/$timeframe?page=$page'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      print('Raw response: ${response.body}'); // Print the raw response
 
-    Future<List<Post>> getPosts(String type, {int page = 1 , String? token} ) async {
-      try {
-        final response = await http.get(
-          Uri.parse('$baseUrl/homepage/$type?page=$page'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-        );
-        print('Response body: ${response.body}'); // Print the response body
-        if (response.statusCode == 200) {
-          Map<String, dynamic> responseBody = json.decode(response.body);
-          if (responseBody['success']) {
-            List<dynamic> postsJson = responseBody['posts'];
-            return postsJson.map((json) => Post.fromJson(json)).toList();
-          } else {
-            throw Exception('Failed to load posts');
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+      print('Decoded response: $responseBody'); // Print the decoded response
+
+      if (response.statusCode == 200) {
+        List<dynamic> postsJson = responseBody['posts'];
+        print('Posts JSON: $postsJson'); // Print the posts JSON
+
+        List<Post> posts = postsJson.map((json) {
+          try {
+            print('Post JSON: ${json}'); // Print the post JSON
+            return Post.fromJson(json);
+          } catch (e) {
+            print('Exception when creating Post: $e');
+            throw e;
           }
-        } else {
-          throw Exception('Failed to load posts with status code: ${response.statusCode}');
-        }
-      } catch (e) {
-        print('Exception occurred: $e');
-        throw e;
-      }
-    }
+        }).toList();
 
-    Future<List<Post>> getBestPosts(String token, int page) async {
+        return {
+          'totalPosts': responseBody['totalPosts'],
+          'posts': posts,
+        };
+      } else {
+        throw Exception('Failed to load posts');
+      }
+    } else {
+      throw Exception('Failed to load posts with status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Exception occurred: $e');
+    throw e;
+  }
+}
+
+    Future<Map<String, dynamic>> getBestPosts(String token, int page) async {
       return getPosts('best', token: token, page: page);
     }
     
-    Future<List<Post>> getDiscoveryPosts(String token, int page) async {
+    Future<Map<String, dynamic>> getDiscoveryPosts(String token, int page) async {
       return getPosts('new', token: token, page: page);
     }
     
-    Future<List<Post>> getPopularPosts(String token, int page) async {
+    Future<Map<String, dynamic>> getPopularPosts(String token, int page) async {
       return getPosts('top', token: token, page: page);
     }
     
-    Future<List<Post>> getTrendingPosts(String token, int page) async {
+    Future<Map<String, dynamic>> getTrendingPosts(String token, int page) async {
       return getPosts('hot', token: token, page: page);
     }
-
   Future<Post> fetchPostByID(String objectID, String token) async {
     try {
       print(objectID);

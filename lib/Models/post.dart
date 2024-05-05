@@ -57,7 +57,7 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     var postData = json['post'] as Map<String, dynamic>? ?? {};
-    var detailsData = json['details'] as Map<String, dynamic>? ?? {};
+   var detailsData = json['details'] as Map<String, dynamic>? ?? {};
     return Post(
       id: postData['_id'] as String? ?? '',
       title: postData['title'] as String? ?? 'Untitled',
@@ -92,6 +92,7 @@ class Post {
 
   static List<Post> getPosts(List<dynamic> json) {
     return json
+        .where((post) => post != null)
         .map((post) => Post.fromJson(post as Map<String, dynamic>))
         .toList();
   }

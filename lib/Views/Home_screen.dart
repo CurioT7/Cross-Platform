@@ -53,18 +53,19 @@ class _HomeScreenState extends State<HomeScreen> {
       if (token == null) {
         throw Exception('Token is null');
       }
-      List<Post> posts;
+      Map<String, dynamic> postsData;
       if (category == 'Home') {
-        posts = await _apiService.getBestPosts(token, _page);
+        postsData = await _apiService.getBestPosts(token, _page);
       } else if (category == 'Popular') {
-        posts = await _apiService.getPopularPosts(token, _page);
+        postsData = await _apiService.getPopularPosts(token, _page);
       } else if (category == 'Discovery') {
-        posts = await _apiService.getDiscoveryPosts(token, _page);
+        postsData = await _apiService.getDiscoveryPosts(token, _page);
       } else if (category == 'Trending') {
-        posts = await _apiService.getTrendingPosts(token, _page);
+        postsData = await _apiService.getTrendingPosts(token, _page);
       } else {
-        posts = [];
+        postsData = {'posts': []};
       }
+      List<Post> posts = postsData['posts'];
       setState(() {
         _posts = [..._posts, ...posts];
         _isLoading = false;

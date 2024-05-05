@@ -418,7 +418,7 @@ void _launchURL(String url) async {
               title: const Text('Copy Text'),
               onTap: () {
                 Clipboard.setData(
-                    ClipboardData(text: widget.post.content ?? ""));
+                    ClipboardData(text: widget.post.content ));
                 Navigator.pop(context);
               },
             ),
@@ -494,6 +494,7 @@ void _launchURL(String url) async {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (!_canUnhide) {
       return Container();
     } else if (!_isVisible) {
@@ -569,7 +570,7 @@ void _launchURL(String url) async {
                 children: [
                   Expanded(
                     child: Text(
-                      widget.post.title ?? '',
+                      widget.post.title ,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
@@ -597,7 +598,7 @@ void _launchURL(String url) async {
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(widget.post.content!, style: const TextStyle(color: Colors.black)),
+                child: Text(widget.post.content, style: const TextStyle(color: Colors.black)),
               ),
             ),
           if (widget.post.media != null && widget.post.media!.isNotEmpty)

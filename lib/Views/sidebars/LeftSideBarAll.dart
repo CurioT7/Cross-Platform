@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
 import 'package:curio/widgets/postCard.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 class AllPage extends StatefulWidget {
   const AllPage({Key? key}) : super(key: key);
@@ -14,7 +14,7 @@ class AllPage extends StatefulWidget {
 class _AllPageState extends State<AllPage> {
   String _selectedSort = 'hot';
   IconData _selectedIcon = Icons.whatshot;
-  List<Post> _posts = [];
+  List<PostHeader> _posts = [];
   bool _isLoading = true;
 
   @override
@@ -81,7 +81,9 @@ class _AllPageState extends State<AllPage> {
           break;
       }
       setState(() {
-        _posts = (response['posts'] as List<dynamic>).map((postJson) => Post.fromJson(postJson)).toList();
+        _posts = (response as List<dynamic>).map((postJson) {
+          return PostHeader.fromJson(response);
+        }).toList();
         _isLoading = false;
       });
       print(response['posts']); // Print fetched posts
@@ -93,7 +95,7 @@ class _AllPageState extends State<AllPage> {
   void printPosts(List<dynamic> posts) {
     print('Fetched Posts:');
     for (var postJson in posts) {
-      print(Post.fromJson(postJson));
+      var details = postJson.containsKey('details') ? postJson['details'] : {};
     }
   }
 

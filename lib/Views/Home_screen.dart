@@ -1,3 +1,4 @@
+import 'package:curio/Models/posts_response.dart';
 import 'package:curio/Views/Search/searchScreen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -7,10 +8,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/signIn/signin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/services/postService.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/views/sidebars/customSidebar.dart';
+
+import '../services/mock_api_service.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -21,13 +24,13 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  //final MockApiService _apiService = MockApiService(); // Use the mock API service
+  // final MockApiService _apiService1 = MockApiService(); // Use the mock API service
   final ApiService _apiService = ApiService(); // Use the real API service
   final ScrollController _scrollController = ScrollController();
-  List<Post> _posts = [];
   bool _isLoading = true;
   String dropdownValue = 'Home';
   int _page = 1;
+  PostsResponse? _postsResponse;
 
   @override
   void initState() {
@@ -53,20 +56,21 @@ class _HomeScreenState extends State<HomeScreen> {
       if (token == null) {
         throw Exception('Token is null');
       }
-      List<Post> posts;
+      PostsResponse? postsResponse;
       if (category == 'Home') {
-        posts = await _apiService.getBestPosts(token, _page);
+        print("fdsfdsfdsfsd");
+        postsResponse = await _apiService.getBestPosts(token, _page);
       } else if (category == 'Popular') {
-        posts = await _apiService.getPopularPosts(token, _page);
+        postsResponse = await _apiService.getPopularPosts(token, _page);
       } else if (category == 'Discovery') {
-        posts = await _apiService.getDiscoveryPosts(token, _page);
+        postsResponse = await _apiService.getDiscoveryPosts(token, _page);
       } else if (category == 'Trending') {
-        posts = await _apiService.getTrendingPosts(token, _page);
-      } else {
-        posts = [];
+        postsResponse = await _apiService.getTrendingPosts(token, _page);
+      }else{
+        postsResponse = null;
       }
       setState(() {
-        _posts = [..._posts, ...posts];
+        _postsResponse = postsResponse;
         _isLoading = false;
         _page++;
       });
@@ -146,9 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
           : RefreshIndicator(
               onRefresh: () => _fetchBestPosts(dropdownValue),
               child: ListView.builder(
-                itemCount: _posts.length,
+                itemCount: _postsResponse!.posts.length,
                 itemBuilder: (context, index) {
-                  return PostCard(post: _posts[index]);
+                  return PostCard(post: _postsResponse!.posts[index].post);
                 },
               ),
             ),

@@ -10,7 +10,7 @@ import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/community_model.dart';
 import 'logicAPI.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
@@ -164,30 +164,33 @@ class ApiService {
       throw Exception('Failed to reset password');
     }
   }
-Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
-  final response = await http.get(
-    Uri.parse('$_baseUrl/api/saved_categories'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-  );
-  if (response.statusCode == 200) {
-    Map<String, dynamic> body = jsonDecode(response.body);
-    if(body.isEmpty){
-      return {'savedPosts': [], 'savedComments': []};
-    }
-    if(body['savedPosts'] == null || body['savedComments'] == null){
-      return {'savedPosts': [], 'savedComments': []};
-    }
-    List<Post> savedPosts = (body['savedPosts'] as List).map((i) => Post.fromJson(i)).toList();
-    List<Comment> savedComments = (body['savedComments'] as List).map((i) => Comment.fromJson(i)).toList();
-    return {'savedPosts': savedPosts, 'savedComments': savedComments};
-  }
-  else{
-    throw Exception('Failed to fetch saved posts and comments');
-  }
-}
+// Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
+//   final response = await http.get(
+//     Uri.parse('$_baseUrl/api/saved_categories'),
+//     headers: <String, String>{
+//       'Content-Type': 'application/json; charset=UTF-8',
+//       'Authorization': 'Bearer $token',
+//     },
+//   );
+//   if (response.statusCode == 200) {
+//     Map<String, dynamic> body = jsonDecode(response.body);
+//     if(body.isEmpty){
+//       return {'savedPosts': [], 'savedComments': []};
+//     }
+//     if(body['savedPosts'] == null || body['savedComments'] == null){
+//       return {'savedPosts': [], 'savedComments': []};
+//     }
+//     List<POST> savedPosts = (body['savedPosts'] as List).map((i) {
+//       var details = i.containsKey('details') ? i['details'] : {};
+//       return Post.fromJson(i, details);
+//     }).toList();
+//     List<Comment> savedComments = (body['savedComments'] as List).map((i) => Comment.fromJson(i)).toList();
+//     return {'savedPosts': savedPosts, 'savedComments': savedComments};
+//   }
+//   else{
+//     throw Exception('Failed to fetch saved posts and comments');
+//   }
+// }
 
 Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token, XFile? imageFile) async {
   print("submitting post");

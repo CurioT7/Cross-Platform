@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:curio/Views/homeNavbar.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/Models/comment.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/comment/commentCard.dart';
@@ -33,16 +33,16 @@ class _TabBarExampleState extends State<TabBarExample> {
   @override
   void initState() {
     super.initState();
-    loadSavedData(); // Call the method here
+    // loadSavedData(); // Call the method here
     // replace 'your_token_here' with your actual token
   }
 
-  Future<void> loadSavedData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('token');
-    savedData = ApiService().fetchSavedPostsAndComments(
-        token!); // replace 'your_token_here' with your actual token
-  }
+  // Future<void> loadSavedData() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   final String? token = prefs.getString('token');
+  //   savedData = ApiService().fetchSavedPostsAndComments(
+  //       token!); // replace 'your_token_here' with your actual token
+  // }
 
   @override
   Widget build(BuildContext context) {

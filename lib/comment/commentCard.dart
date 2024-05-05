@@ -2,7 +2,7 @@ import 'package:curio/comment/editComment.dart';
 import 'package:curio/comment/viewPostComments.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:curio/services/logicAPI.dart';

@@ -1,5 +1,5 @@
 import 'package:curio/Models/minipost.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/comment/viewPostComments.dart';
 import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ Future<String> getToken() async {
 }
 void _navigateToComments(BuildContext context) async {
   if (miniPost.id.isNotEmpty) { // Make sure the id is not an empty string
-    Post post = await ApiService().fetchPostByID(miniPost.id, await getToken()) ;
+    PostHeader post = await ApiService().fetchPostByID(miniPost.id, await getToken()) ;
     Navigator.push(
       context,
       MaterialPageRoute(

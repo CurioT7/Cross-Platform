@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

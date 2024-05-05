@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:ffi';
+import 'package:curio/Models/post.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 // import C:\Users\yaray\OneDrive\Documents\HEM\Software\Curio_v1\Cross-Platform\lib\Models\post.dart
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 
 import 'package:curio/Models/comment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -244,19 +245,19 @@ class logicAPI {
     }
   }
 
-  Future<List<Post>> fetchCommunityProfilePosts(String subreddit,
-      String type) async {
-    final response = await http.get(
-        Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type'));
+  // Future<List<Post>> fetchCommunityProfilePosts(String subreddit,
+  //     String type) async {
+  //   final response = await http.get(
+  //       Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/$type'));
 
-    if (response.statusCode == 200) {
-      return Post.getPosts((jsonDecode(response.body)['posts']));
-    } else if (response.statusCode == 404) {
-      throw Exception('Subreddit not found');
-    } else {
-      throw Exception('Failed to load posts');
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     return Post.getPosts((jsonDecode(response.body)['posts']));
+  //   } else if (response.statusCode == 404) {
+  //     throw Exception('Subreddit not found');
+  //   } else {
+  //     throw Exception('Failed to load posts');
+  //   }
+  // }
    void fetchJoinedCommunityNames(String username, String token, String name) async {
      try {
        final response = await http.get(
@@ -378,7 +379,7 @@ class logicAPI {
   //   }
   // }
 
-  Future<List<Post>?> fetchTopPosts(String subreddit,
+  Future<List<PostHeader>?> fetchTopPosts(String subreddit,
       String timeinterval) async {
     try {
       print("inside LOGICAPI TIME INTERVAL = ");
@@ -387,9 +388,11 @@ class logicAPI {
           '$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri
               .encodeComponent(timeinterval)}'));
 
-
+  final Map<String, dynamic> jsonResponse = jsonDecode(response.body)['posts'];
       if (response.statusCode == 200) {
-        return Post.getPosts((jsonDecode(response.body)['post']));
+        return jsonResponse.entries.map((entry) {
+          return PostHeader.fromJson(entry.value);
+        }).toList();
       }
 
       else if (response.statusCode == 404) {
@@ -645,17 +648,17 @@ class logicAPI {
     try {
       print(objectID);
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+        Uri.parse('$_baseUrl/info?objectID=$objectID&objectType=post'),
         headers:<String, String> {
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token', // Add this line
         },
       );
 
       if (response.statusCode == 200) {
-        Post post = Post.fromJson((jsonDecode(response.body)['item']));
-        print('Post: $post'); 
-        return post;
+        var responseBody = jsonDecode(response.body);
+        print('Response body: $responseBody'); // Print the response body
+        return Post.fromJson(responseBody);
       } else {
         print('Response body: ${response.body}');
 

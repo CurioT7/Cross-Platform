@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:io';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Models/post.dart';
 
 class newComment extends StatefulWidget {
   final String postID;
@@ -66,12 +68,12 @@ Future<String> getToken() async {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        post.title, // Access the post title from the fetched post
+                        post.post.title ?? 'null', // Access the post title from the fetched post
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: Icon(Icons.expand_more),
-                        onPressed: () => _showBottomSheet(context, post), // Pass the fetched post to _showBottomSheet
+                        onPressed: () => _showBottomSheet(context, post.post), // Pass the fetched post to _showBottomSheet
                       ),
                     ],
                   ),
@@ -209,7 +211,7 @@ Future<String> getToken() async {
     }
   }
 
-  void _showBottomSheet(BuildContext context, Post post) {
+  void _showBottomSheet(BuildContext context, PostHeader post) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -233,7 +235,7 @@ Future<String> getToken() async {
                   width: MediaQuery.of(context).size.width,
                   child: SingleChildScrollView(
                     child: Text(
-                      post.content, // Access the post content from the fetched post
+                      post.content ?? 'null', // Access the post content from the fetched post
                       style: TextStyle(fontSize: 12),
                     ),
                   ),

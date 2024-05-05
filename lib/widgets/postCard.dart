@@ -3,13 +3,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:curio/Views/my_profile_screen.dart';
 import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
+import '../Models/post.dart';
 import '../controller/report/report_cubit.dart';
 import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';
@@ -17,7 +18,7 @@ import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
 import 'join_button.dart';
 class PostCard extends StatefulWidget {
-  final Post post;
+  final PostHeader post;
   final bool isModerator;
   final bool isMyPost;
 
@@ -44,11 +45,11 @@ class _PostCardState extends State<PostCard> with AutomaticKeepAliveClientMixin 
   @override
   void initState() {
     super.initState();
-    votes = widget.post.upvotes - widget.post.downvotes;
+    votes = 0 ;
     SharedPreferences.getInstance().then((value) {
     prefs = value;
     setState(() {
-      voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      voteStatus = prefs?.getString(widget.post.id ?? 'null') ?? 'neutral'; // todo:dsdsdds
       upvoted = voteStatus == 'upvoted';
       downvoted = voteStatus == 'downvoted';
     });
@@ -64,7 +65,7 @@ Future<String> getToken() async {
     if (_isVisible || _canUnhide) {
       String token = await getToken();
       if (_isVisible) {
-        bool hideResult = await ApiService().hidePost(widget.post.id, token);
+        bool hideResult = await ApiService().hidePost(widget.post.id ?? 'null', token);
         if (hideResult) {
           setState(() {
             _isVisible = !_isVisible;
@@ -80,7 +81,7 @@ Future<String> getToken() async {
           print('Failed to hide post');
         }
       } else {
-        bool unhideResult = await ApiService().unhidePost(widget.post.id, token);
+        bool unhideResult = await ApiService().unhidePost(widget.post.id ?? 'null', token);
         if (unhideResult) {
           setState(() {
             _isVisible = !_isVisible;
@@ -111,10 +112,10 @@ Future<String> getToken() async {
     });
   
     // Save vote status to SharedPreferences
-    prefs.setString(widget.post.id, upvoted ? 'upvoted' : 'neutral');
+    prefs.setString(widget.post.id ?? 'null', upvoted ? 'upvoted' : 'neutral');
   
     int direction = upvoted ? 1 : 0;
-    ApiService().castVote(widget.post.id, direction,token);
+    ApiService().castVote(widget.post.id ?? 'null', direction,token);
   }
   
   Future<void> _downvote() async {
@@ -136,17 +137,17 @@ Future<String> getToken() async {
     });
   
     // Save vote status to SharedPreferences
-    prefs.setString(widget.post.id, downvoted ? 'downvoted' : 'neutral');
+    prefs.setString(widget.post.id ?? 'null', downvoted ? 'downvoted' : 'neutral');
   
     int direction = downvoted ? -1 : 0;
-    ApiService().castVote(widget.post.id, direction,token);
+    ApiService().castVote(widget.post.id ?? 'null', direction,token);
   }
 
   void _navigateToComments() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewPostComments(postID: widget.post.id),
+        builder: (context) => ViewPostComments(postID: widget.post.id ?? 'null'),
       ),
     );
   }
@@ -183,14 +184,14 @@ void _launchURL(String url) async {
                 String token = await getToken();
                 String message;
                 if (widget.post.isSpoiler) {
-                  await ApiService().unspoilPost(widget.post.id, token);
+                  await ApiService().unspoilPost(widget.post.id ?? 'null', token);
                   message = 'Post has been unmarked as spoiler';
                 } else {
-                  await ApiService().spoilPost(widget.post.id, token);
+                  await ApiService().spoilPost(widget.post.id ?? 'null', token);
                   message = 'Post has been marked as spoiler';
                 }
                 setState(() {
-                  widget.post.isSpoiler = !widget.post.isSpoiler;
+                  // widget.post.isSpoiler = !widget.post.isSpoiler;
                 });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -203,14 +204,14 @@ void _launchURL(String url) async {
                 String token = await getToken();
                 String message;
                 if (widget.post.isLocked) {
-                  await ApiService().unlockPost(widget.post.id, token);
+                  await ApiService().unlockPost(widget.post.id ?? 'null', token);
                   message = 'Comments have been unlocked';
                 } else {
-                  await ApiService().lockPost(widget.post.id, token);
+                  await ApiService().lockPost(widget.post.id ?? 'null', token);
                   message = 'Comments have been locked';
                 }
                 setState(() {
-                  widget.post.isLocked = !widget.post.isLocked;
+                  // widget.post.isLocked = !widget.post.isLocked;
                 });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -223,14 +224,14 @@ void _launchURL(String url) async {
                 String token = await getToken();
                 String message;
                 if (widget.post.isNSFW) {
-                  await ApiService().unmarkAsNsfw(widget.post.id, token);
+                  await ApiService().unmarkAsNsfw(widget.post.id ?? 'null', token);
                   message = 'Post has been unmarked as NSFW';
                 } else {
-                  await ApiService().markAsNsfw(widget.post.id, token);
+                  await ApiService().markAsNsfw(widget.post.id ?? 'null', token);
                   message = 'Post has been marked as NSFW';
                 }
                 setState(() {
-                  widget.post.isNSFW = !widget.post.isNSFW;
+                  // widget.post.isNSFW = !widget.post.isNSFW;
                 });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
@@ -358,7 +359,7 @@ void _launchURL(String url) async {
               onTap: () async {
                 String token = await getToken();
                 if (widget.post.isSaved) {
-                  await ApiService().unsavePost(widget.post.id, token);
+                  await ApiService().unsavePost(widget.post.id ?? 'null', token);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('You have unsaved this post.'),
@@ -366,7 +367,7 @@ void _launchURL(String url) async {
                     ),
                   );
                 } else {
-                  await ApiService().savePost(widget.post.id, token);
+                  await ApiService().savePost(widget.post.id ?? 'null', token);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('You have saved this post.'),
@@ -375,7 +376,7 @@ void _launchURL(String url) async {
                   );
                 }
                 setState(() {
-                  widget.post.isSaved = !widget.post.isSaved;
+                  // widget.post.isSaved = !widget.post.isSaved;
                 });
                 Navigator.pop(context); // Close the options menu
               },
@@ -400,7 +401,7 @@ void _launchURL(String url) async {
                   builder: (context) {
                     return BlocProvider(
                       create: (context) => ReportCubit(),
-                      child: ReportUserOrPostBottomSheet(id: widget.post.id),
+                      child: ReportUserOrPostBottomSheet(id: widget.post.id ?? 'null'),
                     );
                   },
                 );
@@ -428,10 +429,9 @@ void _launchURL(String url) async {
   
               onTap: () {
                 print('this is the crosspost to community page' );
-                print('widget.post.id' + widget.post.id);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ChooseCommunityPage(oldPostId: widget.post.id)),
+                  MaterialPageRoute(builder: (context) => ChooseCommunityPage(oldPostId: widget.post.id ?? 'null')),
                 );
               },
             ),
@@ -441,11 +441,10 @@ void _launchURL(String url) async {
   
               onTap: () {
                 print('this is the share to profile page' );
-                print('widget.post.id' + widget.post.id);
   
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
+                  MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ?? 'null' ,)),
                 );
               },
             ),
@@ -462,7 +461,7 @@ void _launchURL(String url) async {
                 title: const Text('Delete'),
                 onTap: () async {
                   try {
-                    var postId = widget.post.id; // Replace with your post id
+                    var postId = widget.post.id ?? 'null'; // Replace with your post id
                     var token = 'your_token'; // Replace with your token
                     var response = await ApiService().deletePost(postId, token);
 
@@ -523,7 +522,7 @@ void _launchURL(String url) async {
                   builder: (context) => MyProfileScreen(
                     isUser: true,
                     userName: widget.post.authorName,
-                    days: widget.post.createdAt.day,
+                    days: DateTime.now().day, // todo: edit thsi
                   ),
                 ),
               );
@@ -538,15 +537,15 @@ void _launchURL(String url) async {
               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Text(
-              'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
+              'u/${widget.post.authorName} • ${timeago.format(DateTime.now())}', // todo : DateTime.parse(widget.post.createdAt)
               style: const TextStyle(color: Colors.grey),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min, // set to minimum to prevent overflow
               children: [
                 JoinButton(
-                  isUserMemberOfItemSubreddit: widget.post.isUserMemberOfItemSubreddit,
-                  communityName: widget.post.subredditName,
+                  isUserMemberOfItemSubreddit: widget.post.isUserMemberOfItemSubreddit ?? false,
+                  communityName: widget.post.subredditName ?? 'Unknown',
                 ),                IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.grey),
                   onPressed: _additionalOptions,
@@ -559,7 +558,7 @@ void _launchURL(String url) async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewPostComments(postID: widget.post.id),
+                  builder: (context) => ViewPostComments(postID: widget.post.id ?? 'null'),
                 ),
               );
             },
@@ -591,7 +590,7 @@ void _launchURL(String url) async {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewPostComments(postID: widget.post.id),
+                    builder: (context) => ViewPostComments(postID: widget.post.id ?? 'null'),
                   ),
                 );
               },

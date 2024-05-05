@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:curio/Models/comment.dart';
 import 'package:curio/comment/commentCard.dart';
 import 'package:curio/comment/topBar.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 //import 'package:curio/post/post_card.dart';
 import 'package:curio/comment/newComment.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../Models/post.dart';
 
 class ViewPostComments extends StatefulWidget {
 
@@ -53,7 +55,7 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
     return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
     } else {
     return Container(
-    child: PostCard(post: snapshot.data!),
+    child: PostCard(post: snapshot.data!.post),
     );
 
                 }

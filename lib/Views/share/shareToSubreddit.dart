@@ -2,10 +2,12 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/community/chooseCommunity2.dart';
+
+import '../../Models/post.dart';
 
 class ShareToSubredditPage extends StatefulWidget {
   final String selectedNewSubreddit;
@@ -78,28 +80,28 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
     fetchPostInfo(widget.oldPostId);
     _selectedNewSubreddit = widget.selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
     fetchSubredditInfo(_selectedNewSubreddit);
-    samplePost = Post.fromJson({
-      "_id": "65fba6e0aab809eceb312466",
-      "title": "this is the post title.",
-      "content": "post conntecnt.",
-      "authorName": "Cecile56",
-      "views": 14611,
-      "createdAt": "2024-03-16T03:23:13.002Z",
-      "upvotes": 58542,
-      "downvotes": 11880,
-      "linkedSubreddit": "65fba6dbaab809eceb3123ee",
-      "comments": [],
-      "shares": 91827,
-      "isNSFW": true,
-      "isSpoiler": false,
-      "isOC": true,
-      "isCrosspost": true,
-      "awards": 96140,
-      "media": "https://nayeli.name",
-      "link": "https://brandon.biz",
-      "isDraft": true,
-      "__v": 0
-    });
+    // samplePost = Post.fromJson({
+    //   "_id": "65fba6e0aab809eceb312466",
+    //   "title": "this is the post title.",
+    //   "content": "post conntecnt.",
+    //   "authorName": "Cecile56",
+    //   "views": 14611,
+    //   "createdAt": "2024-03-16T03:23:13.002Z",
+    //   "upvotes": 58542,
+    //   "downvotes": 11880,
+    //   "linkedSubreddit": "65fba6dbaab809eceb3123ee",
+    //   "comments": [],
+    //   "shares": 91827,
+    //   "isNSFW": true,
+    //   "isSpoiler": false,
+    //   "isOC": true,
+    //   "isCrosspost": true,
+    //   "awards": 96140,
+    //   "media": "https://nayeli.name",
+    //   "link": "https://brandon.biz",
+    //   "isDraft": true,
+    //   "__v": 0
+    // });
 
   }
 
@@ -152,7 +154,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
 
   @override
   Widget build(BuildContext context) {
-    String nameofcommunity = samplePost.linkedSubreddit ?? 'Unknown Community';
+    String nameofcommunity = samplePost.post.linkedSubreddit ?? 'Unknown Community';
 
     return Scaffold(
       appBar: AppBar(

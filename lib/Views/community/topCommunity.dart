@@ -4,7 +4,7 @@ import 'package:curio/services/logicAPI.dart'; // Import the necessary file for 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
-import 'package:curio/Models/post.dart';
+import 'package:curio/Models/post_header.dart';
 import 'package:curio/Views/community/topAppBar.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:curio/Views/community/SelectionCommunityPopUp.dart';
@@ -127,12 +127,12 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
 
             return ListTile(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => communityProfile(communityName: communityName,),
-                  ),
-                ).then((_) => _fetchUserProfile());
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => communityProfile(communityName: communityName,),
+                //   ),
+                // ).then((_) => _fetchUserProfile());
               },
 
 

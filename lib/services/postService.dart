@@ -16,21 +16,15 @@ Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token
       },
     );
     if (response.statusCode == 200) {
-      print('Raw response: ${response.body}'); // Print the raw response
-
       Map<String, dynamic> responseBody = jsonDecode(response.body);
-      print('Decoded response: $responseBody'); // Print the decoded response
 
       if (response.statusCode == 200) {
         List<dynamic> postsJson = responseBody['posts'];
-        print('Posts JSON: $postsJson'); // Print the posts JSON
 
         List<Post> posts = postsJson.map((json) {
           try {
-            print('Post JSON: ${json}'); // Print the post JSON
             return Post.fromJson(json);
           } catch (e) {
-            print('Exception when creating Post: $e');
             throw e;
           }
         }).toList();
@@ -46,7 +40,6 @@ Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token
       throw Exception('Failed to load posts with status code: ${response.statusCode}');
     }
   } catch (e) {
-    print('Exception occurred: $e');
     throw e;
   }
 }

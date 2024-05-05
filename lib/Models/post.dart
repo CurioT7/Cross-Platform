@@ -56,8 +56,17 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
-    var postData = json['post'] as Map<String, dynamic>? ?? {};
-   var detailsData = json['details'] as Map<String, dynamic>? ?? {};
+    var postData = json.containsKey('post') ? json['post'] : json;
+    var detailsData = {};
+  
+    if (postData['details'] != null) {
+      if (postData['details'] is List) {
+        detailsData = (postData['details'] as List).isEmpty ? {} : postData['details'][0];
+      } else if (postData['details'] is Map) {
+        detailsData = postData['details'];
+      }
+    }
+  
     return Post(
       id: postData['_id'] as String? ?? '',
       title: postData['title'] as String? ?? 'Untitled',

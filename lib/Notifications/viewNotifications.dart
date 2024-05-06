@@ -1,4 +1,5 @@
 import 'package:curio/Models/message.dart';
+import 'package:curio/Views/Messages/messages_list.dart';
 import 'package:curio/Views/Messages/pop_up_menu.dart';
 import 'package:curio/services/messageService.dart';
 import 'package:curio/widgets/messege_card.dart';
@@ -100,36 +101,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
               },
             ),
           ),
-          Expanded(
-            child: StreamBuilder<List<Message>>(
-              stream: () async* {
-                final apiService = ApiService();
-                yield await apiService.getSentMessages();
-              }().asBroadcastStream(),
-              builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
-                if (snapshot.hasData) {
-                  List<Message> messages = snapshot.data!;
-                  if (messages.isEmpty) {
-                    return Center(child: Text('WOW, such empty'));
-                  }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      print('Message ${index + 1}: ${messages[index].message}');
-                      return MessageCard(
-                        message: messages[index],
-                      );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return const CircularProgressIndicator();
-                }
-              },
-            ),
-          ),
+         MessagesList(),
         ],
       ),
     );

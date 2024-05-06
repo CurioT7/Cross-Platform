@@ -20,7 +20,7 @@ class _MessagesListState extends State<MessagesList> {
   Future<List<Message>> _refreshMessages() async {
     final apiService = ApiService();
     List<Message> sentMessages = await apiService.getSentMessages();
-    List<Message> inboxMessages = await apiService.getInboxMessages('all');
+    List<Message> inboxMessages = await apiService.getInboxMessages('postReply');
     return [...sentMessages, ...inboxMessages];
   }
 

@@ -24,38 +24,54 @@ class MessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        leading: Icon(
-          Icons.mail,
-          color: message.isRead ? Colors.grey : Colors.blue,
-        ),
-        title: Text(
-          message.sender.username,
-          style: TextStyle(
-            fontWeight: message.isRead ? FontWeight.normal : FontWeight.bold,
-          ),
-        ),
-        subtitle: Column(
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              message.message,
+              message.subject??'No Subject',
               style: TextStyle(
-                fontWeight: message.isRead ? FontWeight.normal : FontWeight.bold,
+                fontWeight: FontWeight.bold,
+                fontSize: 16.0,
               ),
             ),
+            SizedBox(height: 10.0),
             Text(
-              timeAgo,
+              message.message,
               style: TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 14.0,
               ),
+            ),
+            SizedBox(height: 10.0),
+            Row(
+              children: [
+                Text(
+                  'u/${message.sender.username}',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12.0,
+                  ),
+                ),
+                Text(
+                  ' • ',
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12.0,
+                  ),
+                ),
+                Text(
+                  timeAgo,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12.0,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        onTap: () {
-          // Handle tap event, e.g., mark message as read
-        },
       ),
     );
   }

@@ -69,40 +69,42 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
       ),
       body: TabBarView(
         controller: _tabController,
-
         children: [
-          // Replace with your Notifications and Messages pages
-          Expanded(
-            child: FutureBuilder<List<NotificationModel>>(
-              future: () async {
-                final SharedPreferences prefs = await SharedPreferences.getInstance();
-                String? token = prefs.getString('token');
-                if (token == null) {
-                  throw Exception('Token is null');
-                }
-                return logicAPI().getAllNotifications(token);
-              }(),
-              builder: (BuildContext context, AsyncSnapshot<List<NotificationModel>> snapshot) {
-                if (snapshot.hasData) {
-                  List<NotificationModel> notifications = snapshot.data!;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: notifications.length ,
-                    itemBuilder: (context, index) {
-                      print('Notification ${index + 1}: ${notifications[index].message}');
-                      return NotificationCard(
-                        notification: notifications[index],
-                        onHidden: onNotificationHidden,
+          Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<NotificationModel>>(
+                  future: () async {
+                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                    String? token = prefs.getString('token');
+                    if (token == null) {
+                      throw Exception('Token is null');
+                    }
+                    return logicAPI().getAllNotifications(token);
+                  }(),
+                  builder: (BuildContext context, AsyncSnapshot<List<NotificationModel>> snapshot) {
+                    if (snapshot.hasData) {
+                      List<NotificationModel> notifications = snapshot.data!;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: notifications.length ,
+                        itemBuilder: (context, index) {
+                          print('Notification ${index + 1}: ${notifications[index].message}');
+                          return NotificationCard(
+                            notification: notifications[index],
+                            onHidden: onNotificationHidden,
+                          );
+                        },
                       );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return Container();
-                }
-              },
-            ),
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
           Container(color: Colors.blue),
         ],

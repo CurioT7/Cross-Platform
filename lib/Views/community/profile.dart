@@ -13,35 +13,33 @@ import 'package:curio/Models/post.dart';
 //import 'package:curio/widgets/postCard.dart';
 
 import 'aboutComunity.dart';
-class communityProfile extends StatefulWidget {
-  final String communityName ;
 
-  const communityProfile({Key? key, required this.communityName}) : super(key: key);
+class communityProfile extends StatefulWidget {
+  final String communityName;
+
+  const communityProfile({Key? key, required this.communityName})
+      : super(key: key);
 
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
 
-
-
 class _CommunityProfileState extends State<communityProfile> {
-
   // bool hasJoined = false;
 
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
   //String communityName = 'Art eum';
   bool? isJoined;
-
-  bool
-  isJoinedChanged= false;
+  late List<String> moderators;
+  bool isJoinedChanged = false;
   Future<void> fetchPreferencesIsJoined() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     //_fetchJoinState();
     isJoined = prefs.getBool('isJoinedSubreddit');
     // You can now use isJoined
-
   }
+
   void _fetchJoinState() async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,16 +51,13 @@ class _CommunityProfileState extends State<communityProfile> {
       final data = apiLogic.extractUsername(username);
 
       String extractedUsername = data['username'];
-      logicAPI().fetchJoinedCommunityNames(extractedUsername, token, widget.communityName);
+      logicAPI().fetchJoinedCommunityNames(
+          extractedUsername, token, widget.communityName);
       //  return joinedCommunities.contains(communityName);
-
-
     } catch (e) {
       throw Exception('Error fetching user details: $e');
     }
   }
-
-
 
   List<Post> posts = [];
   String? privacyMode;
@@ -74,16 +69,16 @@ class _CommunityProfileState extends State<communityProfile> {
 
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
-      newSort= _selectedSort;
-      newIcon= _selectedIcon ;
+      newSort = _selectedSort;
+      newIcon = _selectedIcon;
     });
   }
 
   void _fetchCommunityData() async {
     print('Fetching community data');
     logicAPI api = logicAPI();
-    Map<String, dynamic> communityData = await api.fetchCommunityData(
-        widget.communityName);
+    Map<String, dynamic> communityData =
+        await api.fetchCommunityData(widget.communityName);
     setState(() {
       privacyMode = communityData['privacyMode'];
       name = communityData['name'];
@@ -91,11 +86,10 @@ class _CommunityProfileState extends State<communityProfile> {
       membersCount = communityData['membersCount'];
       banner = communityData['banner'];
       icon = communityData['icon'];
-
+      moderators = communityData['moderators'];
       print('Community Data: $communityData');
     });
   }
-
 
   String _selectedSort = 'Hot';
   IconData _selectedIcon = Icons.whatshot; // Default icon
@@ -108,18 +102,22 @@ class _CommunityProfileState extends State<communityProfile> {
     logicAPI api = logicAPI();
     switch (_selectedSort) {
       case 'hot':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(widget.communityName, 'hot');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(widget.communityName, 'hot');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
 
           print("fetchedposts");
           print(posts);
         });
         break;
       case 'new':
-        List<Post> fetchedPosts = await api.fetchCommunityProfilePosts(widget.communityName, 'new');
+        List<Post> fetchedPosts =
+            await api.fetchCommunityProfilePosts(widget.communityName, 'new');
         setState(() {
-          posts = fetchedPosts; print("fetchedposts");
+          posts = fetchedPosts;
+          print("fetchedposts");
           print("fetchedposts");
           print(posts);
         });
@@ -130,26 +128,29 @@ class _CommunityProfileState extends State<communityProfile> {
 
         print("Time interval");
         print(timeInterval);
-        if (timeInterval!<1){
-          List<Post>? fetchedPosts = await api.fetchTopPosts(widget.communityName, "now");
+        if (timeInterval! < 1) {
+          List<Post>? fetchedPosts =
+              await api.fetchTopPosts(widget.communityName, "now");
           setState(() {
-            if(fetchedPosts!=null) {
+            if (fetchedPosts != null) {
               posts = fetchedPosts;
               print(posts);
+            } else {
+              posts = [];
             }
-            else{posts=[];
-            }})
-          ;
+          });
           return;
         }
-        List<Post>? fetchedPosts = await api.fetchTopPosts(widget.communityName, (timeInterval! ).toString());
+        List<Post>? fetchedPosts = await api.fetchTopPosts(
+            widget.communityName, (timeInterval!).toString());
         setState(() {
-          if(fetchedPosts!=null) {
+          if (fetchedPosts != null) {
             posts = fetchedPosts;
             print(posts);
+          } else {
+            posts = [];
           }
-          else{posts=[];
-          }});
+        });
         break;
     }
   }
@@ -161,12 +162,10 @@ class _CommunityProfileState extends State<communityProfile> {
     super.initState();
 
     _scrollController.addListener(_scrollListener);
-    _fetchCommunityData(
-    );
+    _fetchCommunityData();
 
     //isJoined = null;
     _initializeState();
-
 
     //TODO FETCH COMMUNITY JOIN STATE
     //hasJoined = _fetchJoinState() ;
@@ -179,16 +178,11 @@ class _CommunityProfileState extends State<communityProfile> {
   }
 
   void _initializeState() async {
-
-
     _fetchJoinState();
     await fetchPreferencesIsJoined();
     print('Is Joined: $isJoined');
 
-    setState(()  {
-
-    });
-
+    setState(() {});
   }
   // void fetchPosts() async {
   //   logicAPI api = logicAPI();
@@ -203,7 +197,6 @@ class _CommunityProfileState extends State<communityProfile> {
   //   });
   // }
 
-
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
@@ -213,10 +206,8 @@ class _CommunityProfileState extends State<communityProfile> {
 
   _scrollListener() {
     double scrollPosition = _scrollController.position.pixels;
-    double limit = MediaQuery
-        .of(context)
-        .size
-        .width * 0.3; // Set your limit here
+    double limit =
+        MediaQuery.of(context).size.width * 0.3; // Set your limit here
 
     if (scrollPosition > limit) {
       blurValue.value = 3.0; // Set a high blur value
@@ -277,144 +268,117 @@ class _CommunityProfileState extends State<communityProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: topAppBar(context, blurValue),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.04),
-              CircleAvatar(
-                radius: MediaQuery
-                    .of(context)
-                    .size
-                    .width * 0.05,
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SizedBox(width: MediaQuery.of(context).size.width * 0.04),
+            CircleAvatar(
+              radius: MediaQuery.of(context).size.width * 0.05,
 
-                //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
+              //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-                backgroundImage: AssetImage('assets/images/example.jpg'),),
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.03),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('r/$name',
-                      style: TextStyle(
-                          fontSize: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.034,
-                          fontWeight: FontWeight.bold)),
-                  Row(
-                    children: [
-                      Text('$membersCount members',
-                          style: TextStyle(
-                              fontSize:
-                              MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.03,
-                              color: Colors.grey[500],
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'IBM_Plex_Sans_Light')),
-                      SizedBox(width: MediaQuery
-                          .of(context)
-                          .size
-                          .width * 0.02),
-                      //draw green filled icon circle
+              backgroundImage: AssetImage('assets/images/example.jpg'),
+            ),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.03),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('r/$name',
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.034,
+                        fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    Text('$membersCount members',
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).size.width * 0.03,
+                            color: Colors.grey[500],
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'IBM_Plex_Sans_Light')),
+                    SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                    //draw green filled icon circle
+                  ],
+                ),
+              ],
+            ),
 
+            //choose height and width of button
 
-                    ],
-                  ),
-                ],
-              ),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.15),
+            SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.13, // Set the width of the button
+              height: MediaQuery.of(context).size.width *
+                  0.07, // Set the height of the button
 
-              //choose height and width of button
-
-              SizedBox(width: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.15),
-              SizedBox(
-                width: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
-                    0.13, // Set the width of the button
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .width *
-                    0.07, // Set the height of the button
-
-                child: TextButton(
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(EdgeInsets.only(right: 8.0, left: 8.0)),
-
-                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
-
-                        _initializeState();
-                        _fetchJoinState();
-                        fetchPreferencesIsJoined();
-                        if (isJoined == true) {
-                          return Colors.white; // Set the button color to white if the user has joined
-                        } else {
-                          return Colors.blue.shade900; // Otherwise, set it to dark blue
-                        }
-                      },
-                    ),
-                    side: MaterialStateProperty.resolveWith<BorderSide>(
-                          (Set<MaterialState> states) {
-                        if (isJoined == true) {
-                          return BorderSide(color: Colors.grey); // Set the border color to dark grey if the user has joined
-                        } else {
-
-
-                          return BorderSide.none; // Otherwise, no border
-                        }
-                      },
-                    ),
-                  ),
-                  onPressed: () async {
-                    try {
-                      final SharedPreferences prefs = await SharedPreferences.getInstance();
-                      String? token = prefs.getString('token');
-                      if (token == null) {
-                        throw Exception('Token is null');
-                      }
+              child: TextButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                      EdgeInsets.only(right: 8.0, left: 8.0)),
+                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
                       _initializeState();
                       _fetchJoinState();
                       fetchPreferencesIsJoined();
-                      if (isJoined!) {
-                        try {
-                          //await apiLogic.leaveCommunity(token, communityName);
-                          // isJoined = false;
-                          setState(() {
-                            showLeaveCommunityDialog(context, widget.communityName);
+                      if (isJoined == true) {
+                        return Colors
+                            .white; // Set the button color to white if the user has joined
+                      } else {
+                        return Colors
+                            .blue.shade900; // Otherwise, set it to dark blue
+                      }
+                    },
+                  ),
+                  side: MaterialStateProperty.resolveWith<BorderSide>(
+                    (Set<MaterialState> states) {
+                      if (isJoined == true) {
+                        return BorderSide(
+                            color: Colors
+                                .grey); // Set the border color to dark grey if the user has joined
+                      } else {
+                        return BorderSide.none; // Otherwise, no border
+                      }
+                    },
+                  ),
+                ),
+                onPressed: () async {
+                  try {
+                    final SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    String? token = prefs.getString('token');
+                    if (token == null) {
+                      throw Exception('Token is null');
+                    }
+                    _initializeState();
+                    _fetchJoinState();
+                    fetchPreferencesIsJoined();
+                    if (isJoined!) {
+                      try {
+                        //await apiLogic.leaveCommunity(token, communityName);
+                        // isJoined = false;
+                        setState(() {
+                          showLeaveCommunityDialog(
+                              context, widget.communityName);
 //                             _initializeState();
 //                             _fetchCommunityData();
 // fetchPreferencesIsJoined();
+                        });
+                      } catch (e) {
+                        print('Error leaving community: $e');
+                      }
+                    } else {
+                      try {
+                        await apiLogic.joinCommunity(
+                            token, widget.communityName);
+                        isJoinedChanged = true;
+                        //might change test
+                        setState(() {
+                          isJoined = true;
+                          prefs.setBool('isJoinedSubreddit', true);
+                        });
 
-
-                          });
-                        } catch (e) {
-                          print('Error leaving community: $e');
-                        }
-                      } else {
-                        try {
-                          await apiLogic.joinCommunity(token, widget.communityName);
-                          isJoinedChanged=true;
-                          //might change test
-                          setState(() {isJoined=true;
-                          prefs.setBool('isJoinedSubreddit', true);});
-
-                          //isJoined = true;
+                        //isJoined = true;
 // if (isJoinedChanged==true) {
 //   _initializeState();
 //   _fetchCommunityData();
@@ -422,126 +386,176 @@ class _CommunityProfileState extends State<communityProfile> {
 //   fetchPreferencesIsJoined();
 //   isJoinedChanged=false;
 // }
-                          setState(() {
-
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                                content: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                  child: Text(
-                                      'You have succesfully joined the community: $widget.communityName',
-                                      style: TextStyle(color: Colors.white)
-                                  ),
+                        setState(() {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              content: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(30.0),
                                 ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16.0, vertical: 8.0),
+                                child: Text(
+                                    'You have succesfully joined the community: $widget.communityName',
+                                    style: TextStyle(color: Colors.white)),
                               ),
-                            );
-                          });
-
-                        } catch (e) {
-                          print('Error joining community: $e');
-                        }
+                            ),
+                          );
+                        });
+                      } catch (e) {
+                        print('Error joining community: $e');
                       }
-                    } catch (e) {
-                      print('Error in SharedPreferences: $e');
                     }
-                  },
-                  child:
-                  Text(
-
-                    isJoined == true ? 'Joined' : 'Join',
-                    // Change the text based on whether the user has joined or not
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.022,
-                      color: isJoined == true ? Colors.grey : Colors.white,
-                      // Change the text color based on whether the user has joined or not
-                      fontWeight: FontWeight.bold,
-                    ),
+                  } catch (e) {
+                    print('Error in SharedPreferences: $e');
+                  }
+                },
+                child: Text(
+                  isJoined == true ? 'Joined' : 'Join',
+                  // Change the text based on whether the user has joined or not
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.022,
+                    color: isJoined == true ? Colors.grey : Colors.white,
+                    // Change the text color based on whether the user has joined or not
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: MediaQuery.of(context).size.width * 0.02),
+        Padding(
+          padding:
+              EdgeInsets.only(left: 20.0), // Adjust the padding value as needed
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding:
+                    EdgeInsets.only(right: 7.0), // Adjust the value as needed
+                child: Text(
+                  '$description',
+                  maxLines:
+                      null, // Allows the text to wrap onto unlimited lines
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.03,
+                    fontFamily: "IBM_Plex_Sans_Light",
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AboutComunityPage(
+                            subredditName: widget
+                                .communityName)), // Replace SecondPage() with the actual page you want to navigate to
+                  );
+                },
+                child: Text(
+                  "See more",
+                  style: TextStyle(
+                      color: Colors.blue[900],
+                      fontSize: MediaQuery.of(context).size.width * 0.03,
+                      fontWeight: FontWeight.bold // Set the color to dark blue
+                      ),
+                ),
+              )
+            ],
+          ),
+        ),
+        // Divider(thickness: 1.0),
+        TextButton(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
+            shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+          ),
+          onPressed: () {
+            timeSelection = showSortPostsBottomSheet(context, _selectedSort,
+                Icons.whatshot, _updateSortAndIcon, fetchPosts, true);
+            print('Time Selection');
+            print(timeSelection);
+          },
+          child: Row(
+            children: [
+              Icon(
+                _selectedIcon,
+                color: Colors.grey,
+              ),
+              Text(
+                '${_selectedSort.toUpperCase()} POSTS',
+                style: TextStyle(color: Colors.grey),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.grey,
+              ),
+            ],
+          ),
+        ),
+        if (privacyMode == 'private') ...[
+          // If privacyMode is 'private', blur all posts and disable the join button
+          // Use a Stack widget to overlay a translucent container over the posts
+          Stack(
+            children: [
+              // Your existing ListView.builder for posts
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    Post post = posts[index];
+                    return PostCard(post: post);
+                  },
+                ),
+              ),
+              // Translucent container to create a blur effect
+              Container(
+                color: Colors.white.withOpacity(0.8),
+                child: Center(
+                  child: Text('This community is private'),
                 ),
               ),
             ],
           ),
-          SizedBox(height: MediaQuery
-              .of(context)
-              .size
-              .width * 0.02),
-          Padding(
-            padding: EdgeInsets.only(
-                left: 20.0), // Adjust the padding value as needed
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(right: 7.0), // Adjust the value as needed
-                  child: Text(
-                    '$description',
-                    maxLines: null, // Allows the text to wrap onto unlimited lines
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.03,
-                      fontFamily: "IBM_Plex_Sans_Light",
-                      color: Colors.black,
-                    ),
-                  ),
+          // Disable the join button
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.13,
+            height: MediaQuery.of(context).size.width * 0.07,
+            child: TextButton(
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    EdgeInsets.only(right: 8.0, left: 8.0)),
+                backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                  return Colors
+                      .grey.shade200; // Use any color that suits your design
+                }),
+                side: MaterialStateProperty.resolveWith<BorderSide>(
+                    (Set<MaterialState> states) {
+                  return BorderSide(color: Colors.grey);
+                }),
+              ),
+              onPressed:
+                  null, // Disable the button by setting onPressed to null
+              child: Text(
+                'Join',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.022,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
                 ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>
-                          AboutComunityPage(
-                              subredditName: widget.communityName)), // Replace SecondPage() with the actual page you want to navigate to
-                    );
-                  },
-                  child: Text(
-                    "See more",
-                    style: TextStyle(
-                        color: Colors.blue[900],
-                        fontSize: MediaQuery
-                            .of(context)
-                            .size
-                            .width * 0.03,
-                        fontWeight: FontWeight
-                            .bold // Set the color to dark blue
-                    ),
-                  ),
-                )
-              ],
+              ),
             ),
           ),
-          // Divider(thickness: 1.0),
-          TextButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.grey.shade200),
-              shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-
-            ),
-            onPressed: () {
-              timeSelection = showSortPostsBottomSheet(
-                  context, _selectedSort, Icons.whatshot, _updateSortAndIcon,
-                  fetchPosts, true);
-              print('Time Selection');
-              print(timeSelection);
-            },
-
-            child: Row(
-              children: [
-
-
-
-                Icon(_selectedIcon,  color: Colors.grey,),
-                Text('${_selectedSort.toUpperCase()} POSTS', style: TextStyle(color: Colors.grey),),
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey,),
-              ],
-            ),
-
-          ),
+        ] else ...[
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -553,7 +567,7 @@ class _CommunityProfileState extends State<communityProfile> {
             ),
           ),
         ],
-      ),
+      ]),
     );
   }
 
@@ -566,14 +580,8 @@ class _CommunityProfileState extends State<communityProfile> {
             borderRadius: BorderRadius.circular(5),
           ),
           content: Container(
-            width: MediaQuery
-                .of(context)
-                .size
-                .width *1.6,
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.14,
+            width: MediaQuery.of(context).size.width * 1.6,
+            height: MediaQuery.of(context).size.height * 0.14,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -581,7 +589,8 @@ class _CommunityProfileState extends State<communityProfile> {
                   padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Are you sure you want to leave the r/$communityName community?',
-                    textAlign: TextAlign.left,),
+                    textAlign: TextAlign.left,
+                  ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -590,10 +599,7 @@ class _CommunityProfileState extends State<communityProfile> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -601,8 +607,8 @@ class _CommunityProfileState extends State<communityProfile> {
                               ),
                               side: BorderSide(color: Colors.grey),
                             ),
-                            child: Text(
-                                'Cancel', style: TextStyle(color: Colors.grey)),
+                            child: Text('Cancel',
+                                style: TextStyle(color: Colors.grey)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -614,10 +620,7 @@ class _CommunityProfileState extends State<communityProfile> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: SizedBox(
-                          height: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.07,
+                          height: MediaQuery.of(context).size.width * 0.07,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
@@ -625,21 +628,25 @@ class _CommunityProfileState extends State<communityProfile> {
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
-                            child: Text(
-                                'Leave', style: TextStyle(color: Colors.white)),
+                            child: Text('Leave',
+                                style: TextStyle(color: Colors.white)),
                             onPressed: () async {
-                              final SharedPreferences prefs = await SharedPreferences.getInstance();
+                              final SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
                               String? token = prefs.getString('token');
                               if (token == null) {
                                 throw Exception('Token is null');
                               }
-                              await apiLogic.leaveCommunity(token, communityName);
+                              await apiLogic.leaveCommunity(
+                                  token, communityName);
 
                               //might change test
-                              setState(() {isJoined=false;
-                              prefs.setBool('isJoinedSubreddit', false);});
+                              setState(() {
+                                isJoined = false;
+                                prefs.setBool('isJoinedSubreddit', false);
+                              });
 
-                              isJoinedChanged=true;
+                              isJoinedChanged = true;
                               // if (isJoinedChanged==true) {
                               //   _initializeState();
                               //   _fetchCommunityData();
@@ -652,25 +659,22 @@ class _CommunityProfileState extends State<communityProfile> {
                               _fetchCommunityData();
                               fetchPreferencesIsJoined();
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    backgroundColor: Colors.transparent,
-                                    elevation: 0,
-                                    content: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(
-                                            30.0),
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.0, vertical: 8.0),
-                                      child: Text(
-                                          'You have left the community: $communityName',
-                                          style: TextStyle(
-                                              color: Colors.white)),
-                                    ),
-                                  )
-                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                content: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                      'You have left the community: $communityName',
+                                      style: TextStyle(color: Colors.white)),
+                                ),
+                              ));
                             },
                           ),
                         ),

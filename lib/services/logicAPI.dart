@@ -236,6 +236,7 @@ class logicAPI {
         'membersCount': subredditData['members'].length,
         'banner': subredditData['banner'],
         'icon': subredditData['icon'],
+        'moderators': subredditData['moderators'].map((moderator) => moderator['username']).toList(),
       };
     } else if (response.statusCode == 404) {
       throw Exception('Subreddit not found');

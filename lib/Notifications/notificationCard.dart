@@ -15,6 +15,7 @@ class NotificationCard extends StatefulWidget {
 
 class _NotificationCardState extends State<NotificationCard> {
   bool isVisible = true;
+  bool isUnhidden = false;
   Future<List<String>> readNotificationIds = Future.value([]);
   Color tileColor = Colors.blue.shade50;
   @override
@@ -160,17 +161,66 @@ class _NotificationCardState extends State<NotificationCard> {
                             else {
                               Map<String, dynamic> response = await logicAPI().hideNotification(token, widget.notification.id);
                               if (response['success']) {
-                                readNotificationIds = logicAPI().getReadNotifications(token);
+                               // readNotificationIds = logicAPI().getReadNotifications(token);
+                               //  ScaffoldMessenger.of(context).showSnackBar(
+                               //    SnackBar(
+                               //      content: Text('Notification successfully hidden'),
+                               //    ),
+                               //  );
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Notification successfully hidden'),
-                                  ),
+                                    content: Text('Notification is hidden'),
+                                    // action: SnackBarAction(
+                                    //   label: 'UNDO',
+                                    //   textColor: Colors.blue, onPressed: () {  },
+                                      // onPressed: () async {
+                                      //   final SharedPreferences prefs = await SharedPreferences
+                                      //       .getInstance();
+                                      //   String? token = prefs.getString(
+                                      //       'token');
+                                      //   if (token == null) {
+                                      //     throw Exception('Token is null');
+                                      //   }
+                                      //   else {
+                                      //     Map<String,
+                                      //         dynamic> response = await logicAPI()
+                                      //         .
+                                      //     unhideNotification(
+                                      //         token, (widget.notification.id));
+                                      //     if (response['success']) {
+                                      //
+                                      //       print('Notification unhidden successfully');
+                                      //       ScaffoldMessenger.of(context)
+                                      //           .showSnackBar(
+                                      //         SnackBar(
+                                      //           content: Text(
+                                      //               'Notification is unhidden'),
+                                      //         ),
+                                      //       );
+                                      //       setState(() {
+                                      //         isVisible = true;
+                                      //         isUnhidden=true;
+                                      //       });
+                                      //     } else {
+                                      //       ScaffoldMessenger.of(context)
+                                      //           .showSnackBar(
+                                      //         SnackBar(
+                                      //           content: Text(
+                                      //               'Failed to unhide notification'),
+                                      //         ),
+                                      //       );
+                                      //     };
+                                      //   };
+                                      // }
+                                    ),
+
                                 );
+                                if(isUnhidden==false){
                                 setState(() {
                                   isVisible = false; // Hide the card again
                                 });
                                 widget.onHidden(); // Call the callback function
-                              } else {
+                              }} else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text('Failed to hide notification'),

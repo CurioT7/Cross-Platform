@@ -32,6 +32,7 @@ class _CommunityProfileState extends State<communityProfile> {
   //String communityName = 'Art eum';
   bool? isJoined;
   late List<String> moderators;
+  bool isModerator =false;
   bool isJoinedChanged = false;
   Future<void> fetchPreferencesIsJoined() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -51,6 +52,9 @@ class _CommunityProfileState extends State<communityProfile> {
       final data = apiLogic.extractUsername(username);
 
       String extractedUsername = data['username'];
+      if (moderators.contains(extractedUsername)) {
+        isModerator = true;
+      }
       logicAPI().fetchJoinedCommunityNames(
           extractedUsername, token, widget.communityName);
       //  return joinedCommunities.contains(communityName);
@@ -86,7 +90,7 @@ class _CommunityProfileState extends State<communityProfile> {
       membersCount = communityData['membersCount'];
       banner = communityData['banner'];
       icon = communityData['icon'];
-      moderators = communityData['moderators'];
+      moderators = List<String>.from(communityData['moderators'] ?? []);
       print('Community Data: $communityData');
     });
   }
@@ -308,7 +312,7 @@ class _CommunityProfileState extends State<communityProfile> {
             SizedBox(width: MediaQuery.of(context).size.width * 0.15),
             SizedBox(
               width: MediaQuery.of(context).size.width *
-                  0.13, // Set the width of the button
+                  0.17, // Set the width of the button
               height: MediaQuery.of(context).size.width *
                   0.07, // Set the height of the button
 
@@ -321,7 +325,8 @@ class _CommunityProfileState extends State<communityProfile> {
                       _initializeState();
                       _fetchJoinState();
                       fetchPreferencesIsJoined();
-                      if (isJoined == true) {
+
+                      if (isJoined == true && isModerator==false) {
                         return Colors
                             .white; // Set the button color to white if the user has joined
                       } else {
@@ -332,7 +337,7 @@ class _CommunityProfileState extends State<communityProfile> {
                   ),
                   side: MaterialStateProperty.resolveWith<BorderSide>(
                     (Set<MaterialState> states) {
-                      if (isJoined == true) {
+                      if (isJoined == true && isModerator==false){
                         return BorderSide(
                             color: Colors
                                 .grey); // Set the border color to dark grey if the user has joined
@@ -353,32 +358,33 @@ class _CommunityProfileState extends State<communityProfile> {
                     _initializeState();
                     _fetchJoinState();
                     fetchPreferencesIsJoined();
-                    if (isJoined!) {
-                      try {
-                        //await apiLogic.leaveCommunity(token, communityName);
-                        // isJoined = false;
-                        setState(() {
-                          showLeaveCommunityDialog(
-                              context, widget.communityName);
+                    if (isModerator==false) {
+                      if (isJoined!) {
+                        try {
+                          //await apiLogic.leaveCommunity(token, communityName);
+                          // isJoined = false;
+                          setState(() {
+                            showLeaveCommunityDialog(
+                                context, widget.communityName);
 //                             _initializeState();
 //                             _fetchCommunityData();
 // fetchPreferencesIsJoined();
-                        });
-                      } catch (e) {
-                        print('Error leaving community: $e');
-                      }
-                    } else {
-                      try {
-                        await apiLogic.joinCommunity(
-                            token, widget.communityName);
-                        isJoinedChanged = true;
-                        //might change test
-                        setState(() {
-                          isJoined = true;
-                          prefs.setBool('isJoinedSubreddit', true);
-                        });
+                          });
+                        } catch (e) {
+                          print('Error leaving community: $e');
+                        }
+                      } else {
+                        try {
+                          await apiLogic.joinCommunity(
+                              token, widget.communityName);
+                          isJoinedChanged = true;
+                          //might change test
+                          setState(() {
+                            isJoined = true;
+                            prefs.setBool('isJoinedSubreddit', true);
+                          });
 
-                        //isJoined = true;
+                          //isJoined = true;
 // if (isJoinedChanged==true) {
 //   _initializeState();
 //   _fetchCommunityData();
@@ -386,40 +392,43 @@ class _CommunityProfileState extends State<communityProfile> {
 //   fetchPreferencesIsJoined();
 //   isJoinedChanged=false;
 // }
-                        setState(() {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.transparent,
-                              elevation: 0,
-                              content: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.black,
-                                  borderRadius: BorderRadius.circular(30.0),
+                          setState(() {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                content: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0, vertical: 8.0),
+                                  child: Text(
+                                      'You have succesfully joined the community: $widget.communityName',
+                                      style: TextStyle(color: Colors.white)),
                                 ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 16.0, vertical: 8.0),
-                                child: Text(
-                                    'You have succesfully joined the community: $widget.communityName',
-                                    style: TextStyle(color: Colors.white)),
                               ),
-                            ),
-                          );
-                        });
-                      } catch (e) {
-                        print('Error joining community: $e');
+                            );
+                          });
+                        } catch (e) {
+                          print('Error joining community: $e');
+                        }
                       }
                     }
+                    else(){
+
+                      //todo open modtools settings page
+                    };
                   } catch (e) {
                     print('Error in SharedPreferences: $e');
                   }
                 },
                 child: Text(
-                  isJoined == true ? 'Joined' : 'Join',
-                  // Change the text based on whether the user has joined or not
+                  isModerator ? 'Mod Tools' : (isJoined == true ? 'Joined' : 'Join'),
                   style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width * 0.022,
-                    color: isJoined == true ? Colors.grey : Colors.white,
-                    // Change the text color based on whether the user has joined or not
+                    color: isModerator ? Colors.white : (isJoined == true ? Colors.grey : Colors.white),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

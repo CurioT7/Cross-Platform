@@ -860,6 +860,9 @@ class logicAPI {
         throw Exception('Failed to unhide notification: ${response.statusCode}');
       }
     } catch (e) {
+
+      print(e);
+
       throw Exception('Failed to unhide notification: $e');
     }
   }

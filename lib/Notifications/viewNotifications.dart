@@ -21,9 +21,22 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
     _tabController = TabController(length: 2, vsync: this);
   }
 
-  void onNotificationHidden() {
-    setState(() {});
-  }
+  // void onNotificationHidden() {
+  //   setState(() {});
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('Notification is hidden'),
+  //       action: SnackBarAction(
+  //         label: 'UNDO',
+  //         textColor: Colors.blue,
+  //         onPressed: () {
+  //
+  //
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +103,29 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
                         itemCount: notifications.length ,
                         itemBuilder: (context, index) {
                           print('Notification ${index + 1}: ${notifications[index].message}');
+                          // return NotificationCard(
+                          //   key: ValueKey(notifications[index].id),
+                          //   notification: notifications[index],
+                          //   onHidden: () {
+                          // setState(() {});
+                          //
+                          // },
+                          // );
+
                           return NotificationCard(
+                            key: ValueKey(notifications[index].id),
                             notification: notifications[index],
-                            onHidden: onNotificationHidden,
+                            onHidden: () {
+                              setState(() {
+                                notifications.remove(notifications[index]);
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Notification is hidden'),
+                                ),
+                              );
+                            },
                           );
                         },
                       );

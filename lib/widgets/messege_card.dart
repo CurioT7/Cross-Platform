@@ -33,67 +33,50 @@ class _MessageCardState extends State<MessageCard> {
     return Card(
       child: Padding(
         padding: EdgeInsets.all(10.0),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.mail,
-                    color: _isRead ? Colors.grey : Colors.blue,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isRead = !_isRead;
-                    });
-                  },
-                ),
-                SizedBox(width: 10.0),
-                Expanded(
-                  child: Text(
+            IconButton(
+              icon: Icon(
+                Icons.mail,
+                color: _isRead ? Colors.grey : Colors.blue,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isRead = !_isRead;
+                });
+              },
+            ),
+            SizedBox(width: 10.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     widget.message.subject ?? 'No Subject',
                     style: TextStyle(
                       fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
                       fontSize: 16.0,
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10.0),
-            Text(
-              widget.message.message,
-              style: TextStyle(
-                fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
-                fontSize: 14.0,
+                  SizedBox(height: 10.0),
+                  Text(
+                    widget.message.message,
+                    style: TextStyle(
+                      fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  Text(
+                    'u/${widget.message.sender.username} • $timeAgo',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12.0,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(height: 10.0),
-            Row(
-              children: [
-                Text(
-                  'u/${widget.message.sender.username}',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12.0,
-                  ),
-                ),
-                Text(
-                  ' • ',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12.0,
-                  ),
-                ),
-                Text(
-                  timeAgo,
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ],
             ),
           ],
         ),

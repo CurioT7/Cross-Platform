@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:curio/services/messageService.dart';
 
 class NewMessageScreen extends StatefulWidget {
   const NewMessageScreen({Key? key}) : super(key: key);
@@ -12,11 +13,6 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
-  bool get isFormFilled =>
-      _usernameController.text.isNotEmpty &&
-      _subjectController.text.isNotEmpty &&
-      _messageController.text.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,19 +20,43 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
       appBar: AppBar(
         title: const Text('New Message'),
         actions: [
-          ValueListenableBuilder<TextEditingValue>(
-            valueListenable: _usernameController,
-            builder: (_, __, ___) {
-              return TextButton(
-                onPressed: isFormFilled ? () {} : null,
-                child: const Text(
-                  'SEND',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
+          TextButton(
+            onPressed: () async {
+              final messageService = ApiService();
+              await messageService.sendMessage(
+                recipient: _usernameController.text,
+                subject: _subjectController.text,
+                message: _messageController.text,
+                sendToSubreddit: false, // Update this as per your requirement
+              );
+              showDialog(
+                context: context,
+                builder: (BuildContext dialogContext) { // Use a different BuildContext
+                  return AlertDialog(
+                    title: Text('Message sent'),
+                    content: Text('Message sent successfully!'),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text(
+                          'OK',
+                          style: TextStyle(color: Colors.black), // Set the color to black
+                        ),
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop(); // Close the dialog
+                          Navigator.of(context).pop(); // Close the screen
+                        },
+                      ),
+                    ],
+                  );
+                },
               );
             },
+            child: const Text(
+              'SEND',
+              style: TextStyle(
+                color: Colors.blue,
+              ),
+            ),
           ),
         ],
       ),

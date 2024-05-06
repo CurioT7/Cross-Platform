@@ -18,11 +18,11 @@ class _MessageCardState extends State<MessageCard> {
     final now = DateTime.now();
     final difference = now.difference(widget.message.timestamp);
     if (difference.inDays > 0) {
-      return '${difference.inDays} days ago';
+      return '${difference.inDays}d';
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} hours ago';
+      return '${difference.inHours}h';
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minutes ago';
+      return '${difference.inMinutes}m';
     } else {
       return 'Just now';
     }
@@ -50,11 +50,13 @@ class _MessageCardState extends State<MessageCard> {
                   },
                 ),
                 SizedBox(width: 10.0),
-                Text(
-                  widget.message.subject ?? 'No Subject',
-                  style: TextStyle(
-                    fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
-                    fontSize: 16.0,
+                Expanded(
+                  child: Text(
+                    widget.message.subject ?? 'No Subject',
+                    style: TextStyle(
+                      fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
                   ),
                 ),
               ],

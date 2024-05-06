@@ -10,45 +10,48 @@ class MessagesList extends StatefulWidget {
 
 class _MessagesListState extends State<MessagesList> {
   List<Message>? _messages;
+  Stream<List<Message>>? _messagesStream;
 
-  Future<List<Message>> _refreshMessages() async {
+  @override
+  void initState() {
+    super.initState();
+    _refreshMessages();
+  }
+
+  void _refreshMessages() async {
     final apiService = ApiService();
-    _messages = await apiService.getSentMessages();
-    return _messages!;
+    List<Message> sentMessages = await apiService.getSentMessages();
+    List<Message> inboxMessages = await apiService.getInboxMessages('all');
+    _messages = [...sentMessages, ...inboxMessages];
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Message>>(
-      future: _messages == null || _messages!.isEmpty ? _refreshMessages() : Future.value(_messages),
+    return StreamBuilder<List<Message>>(
+      stream: _messagesStream,
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (snapshot.hasData) {
-          _messages = snapshot.data!;
-          if (_messages!.isEmpty) {
-            return Center(child: Text('WOW, such empty'));
-          }
-          return RefreshIndicator(
-            onRefresh: _refreshMessages,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: _messages!.length,
-              itemBuilder: (context, index) {
-                print('Message ${index + 1}: ${_messages![index].message}');
-                return MessageCard(
-                  message: _messages![index],
-                );
-              },
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}');
-        } else {
-          return SizedBox(
-            width: 30,
-            height: 30,
-            child: const CircularProgressIndicator(),
-          );
+          _messages!.addAll(snapshot.data!);
         }
+        if (_messages == null || _messages!.isEmpty) {
+          return Center(child: Text('WOW, such empty'));
+        }
+        return RefreshIndicator(
+          onRefresh: () async {
+            _refreshMessages();
+          },
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: _messages!.length,
+            itemBuilder: (context, index) {
+              print('Message ${index + 1}: ${_messages![index].message}');
+              return MessageCard(
+                message: _messages![index],
+              );
+            },
+          ),
+        );
       },
     );
   }

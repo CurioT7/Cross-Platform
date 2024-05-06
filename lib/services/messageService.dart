@@ -12,7 +12,11 @@ class ApiService {
   }
 
   Future<List<Message>> getSentMessages() async {
+    print('Getting token...');
     final token = await getToken();
+    print('Token: $token');
+
+    print('Sending GET request...');
     final response = await http.get(
       Uri.parse('$baseUrl/sent'),
       headers: {
@@ -20,15 +24,24 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
+      print('Parsing response...');
       List data = jsonDecode(response.body)['messages'];
-      return data.map((item) => Message.fromJson(item)).toList();
+      print('Parsed data: $data');
+
+      print('Converting data to messages...');
+      List<Message> messages = data.map((item) => Message.fromJson(item)).toList();
+      print('Converted messages: $messages');
+
+      return messages;
     } else {
+      print('Failed to load messages');
       throw Exception('Failed to load messages');
     }
   }
-
 Future<Map<String, dynamic>> sendMessage({
   required String recipient,
   required String subject,
@@ -55,7 +68,11 @@ Future<Map<String, dynamic>> sendMessage({
   return jsonDecode(response.body);
 }
   Future<List<Message>> getInboxMessages(String type) async {
+    print('Getting token...');
     final token = await getToken();
+    print('Token: $token');
+
+    print('Sending GET request to $baseUrl/inbox/$type...');
     final response = await http.get(
       Uri.parse('$baseUrl/inbox/$type'),
       headers: {
@@ -63,11 +80,21 @@ Future<Map<String, dynamic>> sendMessage({
         'Content-Type': 'application/json',
       },
     );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     if (response.statusCode == 200) {
+      print('Parsing response...');
       List data = jsonDecode(response.body)['messages'];
-      return data.map((item) => Message.fromJson(item)).toList();
+      print('Parsed data: $data');
+
+      print('Converting data to messages...');
+      List<Message> messages = data.map((item) => Message.fromJson(item)).toList();
+      print('Converted messages: $messages');
+
+      return messages;
     } else {
+      print('Failed to load messages');
       throw Exception('Failed to load messages');
     }
   }

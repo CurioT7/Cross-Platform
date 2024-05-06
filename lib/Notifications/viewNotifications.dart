@@ -101,11 +101,11 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Message>>(
-              future: () async {
+            child: StreamBuilder<List<Message>>(
+              stream: () async* {
                 final apiService = ApiService();
-                return apiService.getInboxMessages('type'); // Replace 'type' with the type of messages you want to fetch
-              }(),
+                yield await apiService.getSentMessages();
+              }().asBroadcastStream(),
               builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
                 if (snapshot.hasData) {
                   List<Message> messages = snapshot.data!;

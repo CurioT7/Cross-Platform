@@ -10,7 +10,6 @@ class MessagesList extends StatefulWidget {
 
 class _MessagesListState extends State<MessagesList> {
   List<Message>? _messages;
-  Stream<List<Message>>? _messagesStream;
 
   @override
   void initState() {
@@ -18,29 +17,28 @@ class _MessagesListState extends State<MessagesList> {
     _refreshMessages();
   }
 
-  void _refreshMessages() async {
+  Future<List<Message>> _refreshMessages() async {
     final apiService = ApiService();
     List<Message> sentMessages = await apiService.getSentMessages();
     List<Message> inboxMessages = await apiService.getInboxMessages('all');
     _messages = [...sentMessages, ...inboxMessages];
-    setState(() {});
+    return _messages!;
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Message>>(
-      stream: _messagesStream,
+    return FutureBuilder<List<Message>>(
+      future: _refreshMessages(),
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
-        if (snapshot.hasData) {
-          _messages!.addAll(snapshot.data!);
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
         }
-        if (_messages == null || _messages!.isEmpty) {
-          return Center(child: Text('WOW, such empty'));
+        if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
         }
+        _messages = snapshot.data!;
         return RefreshIndicator(
-          onRefresh: () async {
-            _refreshMessages();
-          },
+          onRefresh: _refreshMessages,
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: _messages!.length,

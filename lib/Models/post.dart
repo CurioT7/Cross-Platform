@@ -57,15 +57,11 @@ class Post {
 
   factory Post.fromJson(Map<String, dynamic> json) {
     var postData = json.containsKey('post') ? json['post'] : json;
-    var detailsData = {};
-  
-    if (postData['details'] != null) {
-      if (postData['details'] is List) {
-        detailsData = (postData['details'] as List).isEmpty ? {} : postData['details'][0];
-      } else if (postData['details'] is Map) {
-        detailsData = postData['details'];
-      }
-    }
+  var detailsData = json.containsKey('details') ? json['details'] : postData['details'] ?? {};
+
+  if (detailsData is List) {
+    detailsData = detailsData.isEmpty ? {} : detailsData[0];
+  }
   
     return Post(
       id: postData['_id'] as String? ?? '',
@@ -92,7 +88,7 @@ class Post {
       isLocked: postData['isLocked'] as bool? ?? false,
       isSaved: postData['isSaved'] as bool? ?? false,
       voteStatus: detailsData['voteStatus'] as String? ?? 'unvoted',
-      isUserMemberOfItemSubreddit: detailsData['isUserMemberOfItemSubreddit'] as bool? ?? false,
+      isUserMemberOfItemSubreddit: detailsData['isUserMemberOfItemSubreddit'] as bool? ?? true,
       subredditName: detailsData['subredditName'] as String? ?? 'Unknown',
       pollVote: detailsData['pollVote'],
       pollEnded: detailsData['pollEnded'] as bool? ?? false,

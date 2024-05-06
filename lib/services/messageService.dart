@@ -29,7 +29,7 @@ class ApiService {
     }
   }
 
-Future<String> sendMessage({
+Future<Map<String, dynamic>> sendMessage({
   required String recipient,
   required String subject,
   required String message,
@@ -37,8 +37,6 @@ Future<String> sendMessage({
   String? subreddit,
 }) async {
   final token = await getToken();
-  print('Token: $token'); // Print the token
-
   final response = await http.post(
     Uri.parse('$baseUrl/compose'),
     headers: {
@@ -54,20 +52,8 @@ Future<String> sendMessage({
     }),
   );
 
-  print('Response status: ${response.statusCode}'); // Print the response status
-  print('Response body: ${response.body}'); // Print the response body
-
-  if (response.statusCode == 200) {
-    if (jsonDecode(response.body)['success']) {
-      return 'Message sent successfully!';
-    } else {
-      return jsonDecode(response.body)['message'];
-    }
-  } else {
-    throw Exception('Failed to send message');
-  }
+  return jsonDecode(response.body);
 }
-
   Future<List<Message>> getInboxMessages(String type) async {
     final token = await getToken();
     final response = await http.get(

@@ -22,34 +22,61 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
         actions: [
           TextButton(
             onPressed: () async {
-              final messageService = ApiService();
-              await messageService.sendMessage(
-                recipient: _usernameController.text,
-                subject: _subjectController.text,
-                message: _messageController.text,
-                sendToSubreddit: false, // Update this as per your requirement
-              );
-              showDialog(
-                context: context,
-                builder: (BuildContext dialogContext) { // Use a different BuildContext
-                  return AlertDialog(
-                    title: Text('Message sent'),
-                    content: Text('Message sent successfully!'),
-                    actions: <Widget>[
-                      TextButton(
-                        child: Text(
-                          'OK',
-                          style: TextStyle(color: Colors.black), // Set the color to black
+              if (_usernameController.text.isEmpty ||
+                  _subjectController.text.isEmpty ||
+                  _messageController.text.isEmpty) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      title: Text('Error'),
+                      content: Text('Please fill all the fields'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text(
+                            'OK',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                          },
                         ),
-                        onPressed: () {
-                          Navigator.of(dialogContext).pop(); // Close the dialog
-                          Navigator.of(context).pop(); // Close the screen
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+                      ],
+                    );
+                  },
+                );
+              } else {
+                final messageService = ApiService();
+                final response = await messageService.sendMessage(
+                  recipient: _usernameController.text,
+                  subject: _subjectController.text,
+                  message: _messageController.text,
+                  sendToSubreddit: false, // Update this as per your requirement
+                );
+                showDialog(
+                  context: context,
+                  builder: (BuildContext dialogContext) {
+                    return AlertDialog(
+                      title: Text(response['success'] ? 'Message sent' : 'Error'),
+                      content: Text(response['message']),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text(
+                            'OK',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop();
+                            if (response['success']) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
             },
             child: const Text(
               'SEND',

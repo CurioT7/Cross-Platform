@@ -9,26 +9,25 @@ class MessagesList extends StatefulWidget {
 }
 
 class _MessagesListState extends State<MessagesList> {
-  List<Message>? _messages;
+  Future<List<Message>>? _messagesFuture;
 
   @override
   void initState() {
     super.initState();
-    _refreshMessages();
+    _messagesFuture = _refreshMessages();
   }
 
   Future<List<Message>> _refreshMessages() async {
     final apiService = ApiService();
     List<Message> sentMessages = await apiService.getSentMessages();
     List<Message> inboxMessages = await apiService.getInboxMessages('all');
-    _messages = [...sentMessages, ...inboxMessages];
-    return _messages!;
+    return [...sentMessages, ...inboxMessages];
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Message>>(
-      future: _refreshMessages(),
+      future: _messagesFuture,
       builder: (BuildContext context, AsyncSnapshot<List<Message>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -36,16 +35,19 @@ class _MessagesListState extends State<MessagesList> {
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         }
-        _messages = snapshot.data!;
+        List<Message> _messages = snapshot.data!;
         return RefreshIndicator(
-          onRefresh: _refreshMessages,
+          onRefresh: () async {
+            _messagesFuture = _refreshMessages();
+            setState(() {});
+          },
           child: ListView.builder(
             shrinkWrap: true,
-            itemCount: _messages!.length,
+            itemCount: _messages.length,
             itemBuilder: (context, index) {
-              print('Message ${index + 1}: ${_messages![index].message}');
+              print('Message ${index + 1}: ${_messages[index].message}');
               return MessageCard(
-                message: _messages![index],
+                message: _messages[index],
               );
             },
           ),

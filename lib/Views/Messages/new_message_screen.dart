@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
 
-class NewMessageScreen extends StatelessWidget {
-  const NewMessageScreen({super.key});
+class NewMessageScreen extends StatefulWidget {
+  const NewMessageScreen({Key? key}) : super(key: key);
+
+  @override
+  _NewMessageScreenState createState() => _NewMessageScreenState();
+}
+
+class _NewMessageScreenState extends State<NewMessageScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _subjectController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
+
+  bool get isFormFilled =>
+      _usernameController.text.isNotEmpty &&
+      _subjectController.text.isNotEmpty &&
+      _messageController.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -10,90 +24,100 @@ class NewMessageScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('New Message'),
         actions: [
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              'SEND',
-              style: TextStyle(
-                color: Colors.grey,
-              ),
-            ),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _usernameController,
+            builder: (_, __, ___) {
+              return TextButton(
+                onPressed: isFormFilled ? () {} : null,
+                child: const Text(
+                  'SEND',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'u/',
-                  style: TextStyle(
-                    fontSize: 20.0,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text(
+                    'u/',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Username',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(
+                  Expanded(
+                    child: TextField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Username',
+                        border: InputBorder.none,
+                        hintStyle: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey,
                       ),
                     ),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 5.0),
+              const Divider(color: Colors.grey),
+              const SizedBox(height: 5.0),
+              TextField(
+                controller: _subjectController,
+                decoration: const InputDecoration(
+                  hintText: 'Subject',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 5.0),
-            Divider(color: Colors.grey),
-            SizedBox(height: 5.0),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Subject',
-                border: InputBorder.none,
-                hintStyle: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey,
                 ),
               ),
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
-            SizedBox(height: 5.0),
-            Divider(color: Colors.grey),
-            SizedBox(height: 5.0),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Message',
-                border: InputBorder.none,
-                hintStyle: TextStyle(
+              const SizedBox(height: 5.0),
+              const Divider(color: Colors.grey),
+              const SizedBox(height: 5.0),
+              TextField(
+                controller: _messageController,
+                decoration: const InputDecoration(
+                  hintText: 'Message',
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+                maxLines: 10,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.grey,
                 ),
               ),
-              maxLines: 10,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -92,6 +92,8 @@ class _CommunityProfileState extends State<communityProfile> {
       icon = communityData['icon'];
       moderators = List<String>.from(communityData['moderators'] ?? []);
       print('Community Data: $communityData');
+      print('privacyMode');
+      print(privacyMode);
     });
   }
 
@@ -329,7 +331,10 @@ class _CommunityProfileState extends State<communityProfile> {
                       if (isJoined == true && isModerator==false) {
                         return Colors
                             .white; // Set the button color to white if the user has joined
-                      } else {
+                      }
+                      else if (privacyMode == 'private' && isJoined == false) { return Colors
+                          .grey;}
+                      else {
                         return Colors
                             .blue.shade900; // Otherwise, set it to dark blue
                       }
@@ -347,7 +352,7 @@ class _CommunityProfileState extends State<communityProfile> {
                     },
                   ),
                 ),
-                onPressed: () async {
+                onPressed: (privacyMode == 'private' && isJoined == false) ? null : () async {
                   try {
                     final SharedPreferences prefs =
                         await SharedPreferences.getInstance();
@@ -509,61 +514,59 @@ class _CommunityProfileState extends State<communityProfile> {
             ],
           ),
         ),
-        if (privacyMode == 'private') ...[
-          // If privacyMode is 'private', blur all posts and disable the join button
-          // Use a Stack widget to overlay a translucent container over the posts
-          Stack(
-            children: [
-              // Your existing ListView.builder for posts
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: posts.length,
-                  itemBuilder: (context, index) {
-                    Post post = posts[index];
-                    return PostCard(post: post);
-                  },
-                ),
-              ),
-              // Translucent container to create a blur effect
-              Container(
-                color: Colors.white.withOpacity(0.8),
-                child: Center(
-                  child: Text('This community is private'),
-                ),
-              ),
-            ],
-          ),
-          // Disable the join button
+        if (privacyMode == 'private' && isModerator==false) ...[
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.13,
-            height: MediaQuery.of(context).size.width * 0.07,
-            child: TextButton(
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                    EdgeInsets.only(right: 8.0, left: 8.0)),
-                backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  return Colors
-                      .grey.shade200; // Use any color that suits your design
-                }),
-                side: MaterialStateProperty.resolveWith<BorderSide>(
-                    (Set<MaterialState> states) {
-                  return BorderSide(color: Colors.grey);
-                }),
+            height: 50,
+            width: 50,
+          ),
+          Center(
+            child: Container(
+              padding: EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+                borderRadius: BorderRadius.circular(10),
               ),
-              onPressed:
-                  null, // Disable the button by setting onPressed to null
               child: Text(
-                'Join',
+                'This community is private',
                 style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.022,
-                  color: Colors.grey,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade900,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
-          ),
+          )
+          // Disable the join button
+          // SizedBox(
+          //   width: MediaQuery.of(context).size.width * 0.13,
+          //   height: MediaQuery.of(context).size.width * 0.07,
+          //   child: TextButton(
+          //     style: ButtonStyle(
+          //       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          //           EdgeInsets.only(right: 8.0, left: 8.0)),
+          //       backgroundColor: MaterialStateProperty.resolveWith<Color>(
+          //           (Set<MaterialState> states) {
+          //         return Colors
+          //             .grey.shade200; // Use any color that suits your design
+          //       }),
+          //       side: MaterialStateProperty.resolveWith<BorderSide>(
+          //           (Set<MaterialState> states) {
+          //         return BorderSide(color: Colors.grey);
+          //       }),
+          //     ),
+          //     onPressed:
+          //         null, // Disable the button by setting onPressed to null
+          //     child: Text(
+          //       'Join',
+          //       style: TextStyle(
+          //         fontSize: MediaQuery.of(context).size.width * 0.022,
+          //         color: Colors.grey,
+          //         fontWeight: FontWeight.bold,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ] else ...[
           Expanded(
             child: ListView.builder(

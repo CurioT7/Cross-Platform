@@ -2,13 +2,15 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:curio/Models/minipost.dart';
 
-class ApiService{
+/// A class that provides API services for searching posts.
+class ApiService {
   //final String baseUrl = 'http://192.168.1.13:3000/api';
-  //final String baseUrl = 'http://192.168.1.8:3000/api';
-  final String baseUrl= 'http://10.0.2.2:3000/api';
-  //final String baseUrl= 'http://20.199.94.136/api';
-
-
+  // final String baseUrl = 'http://192.168.1.13:3000/api';
+  final String baseUrl = 'http://10.0.2.2:3000/api';
+  /// Searches for posts based on the given query.
+  ///
+  /// Returns a list of [MiniPost] objects representing the search results.
+  /// Throws an [Exception] if the search results could not be loaded.
   Future<List<MiniPost>> searchPost(String query) async {
     print('Search query: $query');
     final response = await http.get(Uri.parse('$baseUrl/search/$query'));
@@ -24,5 +26,4 @@ class ApiService{
       throw Exception('Failed to load search results');
     }
   }
-
 }

@@ -32,4 +32,10 @@ class MiniPost {
   String toString() {
     return 'MiniPost {authorName: $authorName, subredditName: $subredditName, createdAt: $createdAt, title: $title, upvotes: $upvotes, comments: $comments}';
   }
+
+  static List<MiniPost> getMiniPosts(List<dynamic> json) {
+    return json
+        .map((minipost) => MiniPost.fromJson(minipost))
+        .toList();
+  }
 }

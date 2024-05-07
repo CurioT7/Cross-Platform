@@ -1,3 +1,8 @@
+import 'package:curio/Models/message.dart';
+import 'package:curio/Views/Messages/messages_list.dart';
+import 'package:curio/Views/Messages/pop_up_menu.dart';
+import 'package:curio/services/messageService.dart';
+import 'package:curio/widgets/messege_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Views/sidebars/CustomSidebar.dart';
 import 'package:curio/Views/sidebars/sidebarAfterlogin.dart';
@@ -43,7 +48,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
           onPressed: () {
             Navigator.push(
               context,
@@ -51,12 +56,9 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
             );
           },
         ),
-        title: Text('Inbox'),
+        title: const Text('Inbox'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert),
-            onPressed: () {},
-          ),
+          CustomPopupMenuButton(),
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -64,7 +66,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
                 MaterialPageRoute(builder: (context) => SidebarAfterLogIn()),
               );
             },
-            child: CircleAvatar(
+            child: const CircleAvatar(
               backgroundImage: AssetImage('assets/Curio.png'),
             ),
           ),
@@ -139,7 +141,7 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
               ),
             ],
           ),
-          Container(color: Colors.blue),
+         MessagesList(),
         ],
       ),
     );

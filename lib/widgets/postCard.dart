@@ -27,7 +27,7 @@ class PostCard extends StatefulWidget {
   _PostCardState createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> {
+class _PostCardState extends State<PostCard> with AutomaticKeepAliveClientMixin {
   late int votes;
   bool upvoted = false;
   bool downvoted = false;
@@ -39,22 +39,27 @@ class _PostCardState extends State<PostCard> {
   bool isInSubreddit =true;
 
   @override
+  bool get wantKeepAlive => true; // Add this line
+
+  @override
   void initState() {
     super.initState();
     votes = widget.post.upvotes - widget.post.downvotes;
     SharedPreferences.getInstance().then((value) {
-      prefs = value;
-      setState(() {
-        voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
-      });
+    prefs = value;
+    setState(() {
+      voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      upvoted = voteStatus == 'upvoted';
+      downvoted = voteStatus == 'downvoted';
     });
+  });
   }
-  Future<String> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token')!;
-    print("Token: $token");
-    return token;
-  }
+
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
   void _toggleVisibility() async {
     if (_isVisible || _canUnhide) {
       String token = await getToken();
@@ -413,7 +418,7 @@ class _PostCardState extends State<PostCard> {
               title: const Text('Copy Text'),
               onTap: () {
                 Clipboard.setData(
-                    ClipboardData(text: widget.post.content ?? ""));
+                    ClipboardData(text: widget.post.content ));
                 Navigator.pop(context);
               },
             ),
@@ -489,6 +494,7 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     if (!_canUnhide) {
       return Container();
     } else if (!_isVisible) {
@@ -529,7 +535,7 @@ class _PostCardState extends State<PostCard> {
               ),
             ),
             title: Text(
-              'r/${widget.post.linkedSubreddit}',
+              'r/${widget.post.subredditName}',
               style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Text(
@@ -539,8 +545,10 @@ class _PostCardState extends State<PostCard> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min, // set to minimum to prevent overflow
               children: [
-                JoinButton(),
-                IconButton(
+                JoinButton(
+                  isUserMemberOfItemSubreddit: widget.post.isUserMemberOfItemSubreddit,
+                  communityName: widget.post.subredditName,
+                ),                IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.grey),
                   onPressed: _additionalOptions,
                 ),
@@ -562,7 +570,7 @@ class _PostCardState extends State<PostCard> {
                 children: [
                   Expanded(
                     child: Text(
-                      widget.post.title ?? '',
+                      widget.post.title ,
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
@@ -590,7 +598,7 @@ class _PostCardState extends State<PostCard> {
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(widget.post.content!, style: const TextStyle(color: Colors.black)),
+                child: Text(widget.post.content, style: const TextStyle(color: Colors.black)),
               ),
             ),
           if (widget.post.media != null && widget.post.media!.isNotEmpty)

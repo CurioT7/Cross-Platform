@@ -4,6 +4,7 @@ import 'package:curio/comment/viewPostComments.dart';
 import 'package:curio/services/postService.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 class MiniPostCard extends StatelessWidget {
   final MiniPost miniPost;
 
@@ -12,34 +13,38 @@ class MiniPostCard extends StatelessWidget {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
 
-    if (difference.inDays > 365) {
-      return '${difference.inDays ~/ 365}y';
-    } else if (difference.inDays > 30) {
-      return '${difference.inDays ~/ 30}mo';
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}d';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}h';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}m';
-    } else {
-      return 'now';
-    }
+  if (difference.inDays > 365) {
+    return '${difference.inDays ~/ 365}y';
+  } else if (difference.inDays > 30) {
+    return '${difference.inDays ~/ 30}mo';
+  } else if (difference.inDays > 0) {
+    return '${difference.inDays}d';
+  } else if (difference.inHours > 0) {
+    return '${difference.inHours}h';
+  } else if (difference.inMinutes > 0) {
+    return '${difference.inMinutes}m';
+  } else {
+    return 'now';
   }
-
-  void _navigateToComments(BuildContext context) async {
-    if (miniPost.id.isNotEmpty) { // Make sure the id is not an empty string
-      Post post = await ApiService().fetchPostByID(miniPost.id);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ViewPostComments(postID: post.id),
-        ),
-      );
-    } else {
-      print('MiniPost id is an empty string');
-    }
+}
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
+void _navigateToComments(BuildContext context) async {
+  if (miniPost.id.isNotEmpty) { // Make sure the id is not an empty string
+    Post post = await ApiService().fetchPostByID(miniPost.id, await getToken()) ;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewPostComments(postID: miniPost.id ),
+      ),
+    );
+  } else {
+    print('MiniPost id is an empty string');
   }
+}
 
   @override
   Widget build(BuildContext context) {

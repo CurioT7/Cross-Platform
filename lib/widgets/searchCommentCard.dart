@@ -31,7 +31,7 @@ class SearchCommentCard extends StatelessWidget {
     required this.numberOfComments,
     required this.postCreatedAt,
     required this.commentCreatedAt,
-    required this.userName, required MockApiService apiService,
+    required this.userName,
   });
 
   @override
@@ -73,13 +73,13 @@ class SearchCommentCard extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // Navigate to comments page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewPostComments(postID: postID),
-                    ),
-                  );
-                  // Add your action here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewPostComments(postID: postID),
+                  ),
+                );
+                // Add your action here
               },
               child: const Text(
                 'Go to comments',

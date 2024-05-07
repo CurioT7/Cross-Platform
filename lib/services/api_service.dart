@@ -18,9 +18,8 @@ import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl = 'http://10.0.2.2:3000';
-
-
+  final String _baseUrl= 'http://10.0.2.2:3000';
+  // final String _baseUrl = 'http://192.168.1.13:3000';
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/api/auth/app/login'),
@@ -235,15 +234,19 @@ class ApiService {
     var imageData = imageFile != null
         ? await imageFile.readAsBytes()
         : null; // image data is null if no image is selected
+
     print("image data: $imageData");
     var request =
-        http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+    http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
     request.fields
         .addAll(post.map((key, value) => MapEntry(key, value.toString())));
     if (imageData != null) {
       request.files.add(http.MultipartFile.fromBytes('media', imageData,
           filename: imageFile!.path.split('/').last));
+
+
+
     }
   if (imageFile != null) {
   var imageData = await imageFile.readAsBytes();
@@ -290,7 +293,7 @@ class ApiService {
         errorMessage = 'User not found';
       } else {
         errorMessage =
-            'No communities found you have to create/join at least one';
+        'No communities found you have to create/join at least one';
       }
 
       // Show snackbar with error message
@@ -365,6 +368,7 @@ class ApiService {
       print('Response body: ${response.body}');
       throw Exception(
           'Failed to load comments with status code: ${response.statusCode}');
+
     }
 
   }
@@ -551,7 +555,7 @@ class GoogleAuthSignInService {
       }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+      await googleUser!.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -563,7 +567,7 @@ class GoogleAuthSignInService {
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
       final userCredential =
-          await FirebaseAuth.instance.signInWithCredential(googleCredential);
+      await FirebaseAuth.instance.signInWithCredential(googleCredential);
       return userCredential;
     } catch (e) {
       print(e.toString());

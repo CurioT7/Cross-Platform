@@ -35,7 +35,7 @@ class AddPostScreen extends StatefulWidget {
   final String type;
   final bool isScheduled;
 
-  const AddPostScreen({super.key, required this.type, this.isScheduled = false});
+  const AddPostScreen({super.key, required this.type, this.isScheduled = true});
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }

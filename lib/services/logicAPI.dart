@@ -8,19 +8,25 @@ import 'package:curio/Models/post.dart';
 import 'package:curio/Models/comment.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Models/minipost.dart';
 import '../Notifications/notificationModel.dart';
+import '../widgets/miniPostCard.dart';
+import '../widgets/searchCommentCard.dart';
+import 'package:flutter/material.dart';
 
 class logicAPI {
   // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
   //  final String _baseUrl = 'http://192.168.1.8:3000';
-  final String _baseUrl= 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
+
 //final String _baseUrl= 'http://20.199.94.136';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
-      Uri.parse('$_baseUrl/api/user/$username/about'), headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },);
+      Uri.parse('$_baseUrl/api/user/$username/about'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },);
 
 
     if (response.statusCode == 200) {
@@ -34,9 +40,11 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> extractUserDetails(Map<String, dynamic> userData) async {
+  Future<Map<String, dynamic>> extractUserDetails(
+      Map<String, dynamic> userData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('karma', userData['postKarma']+ userData['commentKarma']);
+    await prefs.setInt(
+        'karma', userData['postKarma'] + userData['commentKarma']);
     return {
       'postKarma': userData['postKarma'],
       'commentKarma': userData['commentKarma'],
@@ -118,7 +126,8 @@ class logicAPI {
   //   }
   // }
   Future<Map<String, dynamic>> createCommunity(String communityName,
-      bool isOver18, String typeCommunity, String token, String description) async {
+      bool isOver18, String typeCommunity, String token,
+      String description) async {
     try {
       //  token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
       print("Tokens: $token");
@@ -236,7 +245,8 @@ class logicAPI {
         'membersCount': subredditData['members'].length,
         'banner': subredditData['banner'],
         'icon': subredditData['icon'],
-        'moderators': subredditData['moderators'].map((moderator) => moderator['username']).toList(),
+        'moderators': subredditData['moderators'].map((
+            moderator) => moderator['username']).toList(),
       };
     } else if (response.statusCode == 404) {
       throw Exception('Subreddit not found');
@@ -260,7 +270,9 @@ class logicAPI {
       throw Exception('Failed to load posts');
     }
   }
-  void fetchJoinedCommunityNames(String username, String token, String name) async {
+
+  void fetchJoinedCommunityNames(String username, String token,
+      String name) async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/api/user/$username/communities'),
@@ -283,20 +295,21 @@ class logicAPI {
               await prefs.setBool('isJoinedSubreddit', true);
               return;
             }
-
           }
           await prefs.setBool('isJoinedSubreddit', false);
         } else {
           throw Exception('Failed to load communities');
         }
       } else {
-        throw Exception('Failed to load communities with status code: ${response.statusCode}');
+        throw Exception('Failed to load communities with status code: ${response
+            .statusCode}');
       }
     } catch (e) {
       print('Error: $e');
       throw e;
     }
   }
+
   // Future<List<Map<String, dynamic>>> fetchTopPosts(String subreddit, String timeinterval) async {
   //   final response = await http.get(Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/$timeinterval'));
   //
@@ -480,7 +493,8 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> updateComment(String commentId, String content, String token) async {
+  Future<Map<String, dynamic>> updateComment(String commentId, String content,
+      String token) async {
     try {
       final response = await http.patch(
         Uri.parse('$_baseUrl/api/updatecomments'),
@@ -502,16 +516,20 @@ class logicAPI {
         throw Exception('Error 404: Not Found. Failed to update comment.');
       } else if (response.statusCode == 500) {
         print('Error 500: Internal Server Error. Failed to update comment.');
-        throw Exception('Error 500: Internal Server Error. Failed to update comment.');
+        throw Exception(
+            'Error 500: Internal Server Error. Failed to update comment.');
       } else {
-        throw Exception('Failed to update comment with status code: ${response.statusCode}. Error: ${response.body}');
+        throw Exception('Failed to update comment with status code: ${response
+            .statusCode}. Error: ${response.body}');
       }
     } catch (e) {
       print('Exception: $e');
       throw Exception('Error updating comment: $e');
     }
   }
-  Future<Map<String, dynamic>> deleteComment(String commentId, String token) async {
+
+  Future<Map<String, dynamic>> deleteComment(String commentId,
+      String token) async {
     try {
       final response = await http.delete(
         Uri.parse('$_baseUrl/api/deletecomments/$commentId'),
@@ -532,9 +550,11 @@ class logicAPI {
         throw Exception('Error 404: Not Found. Failed to delete comment.');
       } else if (response.statusCode == 500) {
         print('Error 500: Internal Server Error. Failed to delete comment.');
-        throw Exception('Error 500: Internal Server Error. Failed to delete comment.');
+        throw Exception(
+            'Error 500: Internal Server Error. Failed to delete comment.');
       } else {
-        throw Exception('Failed to delete comment with status code: ${response.statusCode}. Error: ${response.body}');
+        throw Exception('Failed to delete comment with status code: ${response
+            .statusCode}. Error: ${response.body}');
       }
     } catch (e) {
       print('Exception: $e');
@@ -544,7 +564,8 @@ class logicAPI {
 
   //voteComment
 
-  Future<void> voteComment(String commentId, int direction, String token) async {
+  Future<void> voteComment(String commentId, int direction,
+      String token) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/api/vote'),
       headers: <String, String>{
@@ -574,9 +595,11 @@ class logicAPI {
     } else if (response.statusCode == 401) {
       throw Exception(responseBody['message']);
     } else {
-      throw Exception('Failed to vote on comment. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to vote on comment. Status code: ${response.statusCode}');
     }
   }
+
   //save comment
   void saveComment(String commentId, String token) async {
     print("inside save comment");
@@ -595,18 +618,23 @@ class logicAPI {
     if (response.statusCode == 200) {
       print("Comment saved successfully");
     } else if (response.statusCode == 400) {
-      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+      throw Exception(
+          'Bad Request: The server could not understand the request due to invalid syntax.');
     } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+      throw Exception(
+          'Unauthorized: The client must authenticate itself to get the requested response.');
     } else if (response.statusCode == 403) {
-      throw Exception('Forbidden: The client does not have access rights to the content.');
+      throw Exception(
+          'Forbidden: The client does not have access rights to the content.');
     } else if (response.statusCode == 404) {
-      throw Exception('Not Found: The server can not find the requested resource.');
+      throw Exception(
+          'Not Found: The server can not find the requested resource.');
     } else if (response.statusCode == 500) {
-      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
-
+      throw Exception(
+          'Internal Server Error: The server has encountered a situation it doesnt know how to handle');
     } else {
-      throw Exception('Failed to save comment. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to save comment. Status code: ${response.statusCode}');
     }
   }
 
@@ -629,35 +657,43 @@ class logicAPI {
     if (response.statusCode == 200) {
       print("Comment unsaved successfully");
     } else if (response.statusCode == 400) {
-      throw Exception('Bad Request: The server could not understand the request due to invalid syntax.');
+      throw Exception(
+          'Bad Request: The server could not understand the request due to invalid syntax.');
     } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized: The client must authenticate itself to get the requested response.');
+      throw Exception(
+          'Unauthorized: The client must authenticate itself to get the requested response.');
     } else if (response.statusCode == 403) {
-      throw Exception('Forbidden: The client does not have access rights to the content.');
+      throw Exception(
+          'Forbidden: The client does not have access rights to the content.');
     } else if (response.statusCode == 404) {
-      throw Exception('Not Found: The server can not find the requested resource.');
+      throw Exception(
+          'Not Found: The server can not find the requested resource.');
     } else if (response.statusCode == 500) {
-      throw Exception('Internal Server Error: The server has encountered a situation it doesnt know how to handle');
-
+      throw Exception(
+          'Internal Server Error: The server has encountered a situation it doesnt know how to handle');
     } else {
-      throw Exception('Failed to unsave comment. Status code: ${response.statusCode}');
+      throw Exception(
+          'Failed to unsave comment. Status code: ${response.statusCode}');
     }
   }
+
   //getpostbyid
 
-  Future<Post> fetchPostByID(String objectID) async {
+  Future<Post> fetchPostByID(String objectID, String token) async {
     try {
       print(objectID);
       final response = await http.get(
         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
         headers:<String, String> {
           'Content-Type': 'application/json; charset=UTF-8',
-
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
-        return Post.fromJson((jsonDecode(response.body)['item']));
+        Post post = Post.fromJson((jsonDecode(response.body)['item']));
+        print('Post: $post'); 
+        return post;
       } else {
         print('Response body: ${response.body}');
 
@@ -674,7 +710,7 @@ class logicAPI {
       print(objectID);
       final response = await http.get(
         Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=comment'),
-        headers:<String, String> {
+        headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
 
         },
@@ -685,15 +721,17 @@ class logicAPI {
       } else {
         print('Response body: ${response.body}');
 
-        throw Exception('Failed to load info with status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load info with status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load info. Error: $e');
     }
   }
+
 //Notifications
 
-  Future<List<NotificationModel>>  getAllNotifications(String token) async {
+  Future<List<NotificationModel>> getAllNotifications(String token) async {
     final url = Uri.parse('$_baseUrl/api/notifications/history');
 
 
@@ -722,8 +760,8 @@ class logicAPI {
           'Failed to load notifications with status code: ${response
               .statusCode}');
     }
-
   }
+
   Future<List<String>> getReadNotifications(String token) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/notifications/read'),
@@ -736,7 +774,8 @@ class logicAPI {
       var data = jsonDecode(response.body);
       List? notificationsJson = data['readNotifications'];
       if (notificationsJson != null) {
-        List<NotificationModel> notifications = NotificationModel.getNotifications(notificationsJson);
+        List<NotificationModel> notifications = NotificationModel
+            .getNotifications(notificationsJson);
         return notifications.map((notification) => notification.id).toList();
       } else {
         return [];
@@ -747,7 +786,8 @@ class logicAPI {
   }
 
 
-  Future<bool> markNotificationAsRead(String token, String notificationID) async {
+  Future<bool> markNotificationAsRead(String token,
+      String notificationID) async {
     print("inside notifcation marked read");
 
     final response = await http.post(
@@ -790,7 +830,8 @@ class logicAPI {
     }
   }
 
-  Future<Map<String, dynamic>> hideNotification(String token, String notificationID) async {
+  Future<Map<String, dynamic>> hideNotification(String token,
+      String notificationID) async {
     final String endpoint = '/api/notifications/hide';
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -824,7 +865,9 @@ class logicAPI {
       throw Exception('Failed to hide notification: $e');
     }
   }
-  Future<Map<String, dynamic>> unhideNotification(String token, String notificationID) async {
+
+  Future<Map<String, dynamic>> unhideNotification(String token,
+      String notificationID) async {
     final String endpoint = '/api/notifications/unhide';
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -857,19 +900,19 @@ class logicAPI {
 
         throw Exception('Internal Server error');
       } else {
-        throw Exception('Failed to unhide notification: ${response.statusCode}');
+        throw Exception(
+            'Failed to unhide notification: ${response.statusCode}');
       }
     } catch (e) {
-
       print(e);
 
       throw Exception('Failed to unhide notification: $e');
     }
   }
+
   //get saved comments
 
   Future<List<String>> fetchSavedCommentIds(String token) async {
-
     print("inside fetchSavedCommentIds");
     final response = await http.get(
       Uri.parse('$_baseUrl/api/saved_categories'),
@@ -880,15 +923,139 @@ class logicAPI {
     );
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
-      if(body.isEmpty || body['savedComments'] == null){
+      if (body.isEmpty || body['savedComments'] == null) {
         return [];
       }
       print("saved comments ids success 200");
       List<Comment> comments = Comment.getComments(body['savedComments']);
-      List<String> commentIds = comments.map((comment) => comment.id.toString()).toList();
+      List<String> commentIds = comments.map((comment) => comment.id.toString())
+          .toList();
       return commentIds;
     } else {
       throw Exception('Failed to fetch saved comment IDs');
+    }
+  }
+
+  //fetch search hashtag
+
+  Future <List<dynamic>> fetchHashtagResultsComments(String searchQuery) async {
+    //final String query = searchOpts['query'];
+    //const String type = 'comment';
+    //final String sortOption = searchOpts['sortOption'];
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final token = sharedPreferences.getString('token');
+
+
+    final String url =
+        '/api/searchHashtags/%23$searchQuery';
+    print('Fetching comments from: $url');
+    final response = await http.get(
+      Uri.parse('$_baseUrl$url'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    // result is a list of comments with the follwoing additional fields:
+    // linkedPostTitle, linkedPostAuthor, linkedPostNumComments, linkedPostNumUpvotes
+    final List<dynamic> result = [];
+
+    if (response.statusCode == 200) {
+      final List<dynamic> comments = jsonDecode(response.body)['comments'];
+      for (var comment in comments) {
+        final String linkedPostId = comment['linkedPost'];
+        final postResponse = await http.get(
+          Uri.parse(
+              '$_baseUrl/api/info?objectID=$linkedPostId&objectType=post'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+        );
+        if (postResponse.statusCode == 200) {
+          Map<String, dynamic> post = jsonDecode(postResponse.body);
+          post = post['item'];
+          comment['linkedPostTitle'] = post['title'];
+          comment['linkedPostNumComments'] = post['comments']!.length;
+          comment['linkedPostNumUpvotes'] = post['upvotes'];
+          comment['postCreatedAt'] = post['createdAt'];
+          comment['linkedPostId'] = post['_id'];
+          final linkedSubreddit = comment['linkedSubreddit'];
+          if (linkedSubreddit == null) {
+            comment['linkedSubreddit'] = 'Unknown';
+          } else {
+            final subredditResponse = await http.get(
+              Uri.parse(
+                  '$_baseUrl/api/info?objectID=$linkedSubreddit&objectType=subreddit'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+            );
+            if (subredditResponse.statusCode == 200) {
+              Map<String, dynamic> subreddit =
+              jsonDecode(subredditResponse.body);
+              subreddit = subreddit['item'];
+              comment['linkedSubreddit'] = subreddit['name'];
+            } else {
+              comment['linkedSubreddit'] = 'Unknown';
+            }
+            result.add(comment);
+          }
+        }
+
+
+        else {
+          throw Exception('Failed to fetch the post');
+        }
+      }
+      print('Comments: $result');
+      return result;
+    }
+    else if (response.statusCode == 404)
+
+    {
+      return result;
+    }
+    else {
+      throw Exception(
+          'Failed to load comments with status code: ${response.statusCode}');
+    }
+  }
+
+  Future <List<MiniPost>> fetchHashtagResultsPosts(String searchQuery) async {
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final token = sharedPreferences.getString('token');
+
+
+    final String url =
+        '/api/searchHashtags/%23$searchQuery';
+    print('Fetching Posts from: $url');
+    final response = await http.get(
+      Uri.parse('$_baseUrl$url'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    // result is a list of comments with the follwoing additional fields:
+    // linkedPostTitle, linkedPostAuthor, linkedPostNumComments, linkedPostNumUpvotes
+
+    if (response.statusCode == 200) {
+      List<Map<String, dynamic>> postsData = jsonDecode(
+          response.body)['posts'] != null ? List<Map<String, dynamic>>.from(
+          jsonDecode(response.body)['posts']) : [];
+
+      print('Posts: $postsData');
+      List<MiniPost> posts = MiniPost.getMiniPosts(jsonDecode(response.body)['posts'])
+          .toList();
+      return posts;
+    }
+    else if (response.statusCode == 404)
+
+    {
+      List<MiniPost> posts = [];
+      return posts;
+    }else {
+      throw Exception(
+          'Failed to load posts with status code: ${response.statusCode}');
     }
   }
 }

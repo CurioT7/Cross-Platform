@@ -1,3 +1,4 @@
+import 'package:curio/Views/Messages/message_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/message.dart';
 import 'package:intl/intl.dart';
@@ -30,55 +31,68 @@ class _MessageCardState extends State<MessageCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.mail,
-                color: _isRead ? Colors.grey : Colors.blue,
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _isRead = true;
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MessageDetailPage(message: widget.message),
+          ),
+        );
+      },
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.mail,
+                  color: _isRead ? Colors.grey : Colors.blue,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isRead = !_isRead;
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  _isRead = !_isRead;
-                });
-              },
-            ),
-            SizedBox(width: 10.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.message.subject ?? 'No Subject',
-                    style: TextStyle(
-                      fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
-                      fontSize: 16.0,
+              SizedBox(width: 10.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.message.subject ?? 'No Subject',
+                      style: TextStyle(
+                        fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10.0),
-                  Text(
-                    widget.message.message,
-                    style: TextStyle(
-                      fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
-                      fontSize: 14.0,
+                    SizedBox(height: 10.0),
+                    Text(
+                      widget.message.message,
+                      style: TextStyle(
+                        fontWeight: _isRead ? FontWeight.normal : FontWeight.bold,
+                        fontSize: 14.0,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10.0),
-                  Text(
-                    'u/${widget.message.sender.username} • $timeAgo',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12.0,
+                    SizedBox(height: 10.0),
+                    Text(
+                      'u/${widget.message.sender.username} • $timeAgo',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12.0,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

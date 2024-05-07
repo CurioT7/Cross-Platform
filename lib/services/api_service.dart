@@ -14,9 +14,10 @@ import 'package:curio/Models/post.dart';
 import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
+
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl= 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -32,8 +33,8 @@ class ApiService {
     return response;
   }
 
-  Future<Map<String, dynamic>> changeEmail(String newEmail, String password,
-      String token) async {
+  Future<Map<String, dynamic>> changeEmail(
+      String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -45,13 +46,14 @@ class ApiService {
     };
 
     try {
-      final response = await http.patch(
-          Uri.parse(url), headers: headers, body: jsonEncode(body));
+      final response = await http.patch(Uri.parse(url),
+          headers: headers, body: jsonEncode(body));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         // Edit the success message here
-        String editedMessage = "Your email has been successfully changed to $newEmail. Please verify your new email address.";
+        String editedMessage =
+            "Your email has been successfully changed to $newEmail. Please verify your new email address.";
         return {'success': true, 'message': editedMessage};
       } else {
         return {'success': false, 'message': responseData['message']};
@@ -60,7 +62,9 @@ class ApiService {
       return {'success': false, 'message': 'Error: $e'};
     }
   }
-  Future<String?> signup(String email, String password,String username ,BuildContext context) async {
+
+  Future<String?> signup(String email, String password, String username,
+      BuildContext context) async {
     // Navigator.push(
     //   context,
     //   MaterialPageRoute(
@@ -89,6 +93,7 @@ class ApiService {
     }
     return response.body;
   }
+
   Future<List<Map<String, String>>> communityRules(String communityId) async {
     //TODO: Implement this method to fetch community rules from the API
     // Mock API call
@@ -108,6 +113,7 @@ class ApiService {
       {'header': 'Rule 10', 'body': 'This is the body for Rule 10'},
     ];
   }
+
   Future<Map<String, dynamic>> isUsernameAvailable(String username) async {
     if (username.isEmpty) {
       return {'available': false, 'message': 'Username cannot be empty'};
@@ -141,7 +147,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> resetPassword(String username, String email) async {
+  Future<Map<String, dynamic>> resetPassword(
+      String username, String email) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/api/auth/password'),
       headers: <String, String>{
@@ -163,6 +170,7 @@ class ApiService {
       throw Exception('Failed to reset password');
     }
   }
+
   Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/api/saved_categories'),
@@ -174,13 +182,13 @@ class ApiService {
     if (response.statusCode == 200) {
       Map<String, dynamic> body = jsonDecode(response.body);
       List<Post> savedPosts = [];
-      if(body['savedPosts'] != []) {
+      if (body['savedPosts'] != []) {
         print("Saved Posts: ${body['savedPosts']}");
         savedPosts = Post.getPosts(body['savedPosts']);
       }
-      List<Comment> savedComments= [];
-      List<String>titles = [];
-      if(body['savedComments'] != []) {
+      List<Comment> savedComments = [];
+      List<String> titles = [];
+      if (body['savedComments'] != []) {
         print("Saved Comments: ${body['savedComments']}");
         savedComments = Comment.getComments(body['savedComments']);
         // itterate over the saved comments and list all linkedposts
@@ -190,10 +198,10 @@ class ApiService {
           try {
             print(objectID);
             final response = await http.get(
-              Uri.parse('$_baseUrl/api/info?objectID=$objectID&objectType=post'),
-              headers:<String, String> {
+              Uri.parse(
+                  '$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+              headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
-
               },
             );
 
@@ -201,28 +209,34 @@ class ApiService {
               titles.add(jsonDecode(response.body)['item']['title']);
             } else {
               print('Response body: ${response.body}');
-              throw Exception('Failed to load info with status code: ${response.statusCode}');
+              throw Exception(
+                  'Failed to load info with status code: ${response.statusCode}');
             }
           } catch (e) {
             throw Exception('Failed to load info. Error: $e');
           }
         }
       }
-      return {'savedPosts': savedPosts, 'savedComments': savedComments, 'titles': titles};
-    }
-    else{
+      return {
+        'savedPosts': savedPosts,
+        'savedComments': savedComments,
+        'titles': titles
+      };
+    } else {
       throw Exception('Failed to fetch saved posts and comments');
     }
   }
 
-  Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post, String token, XFile? imageFile) async {
+  Future<Map<String, dynamic>> submitPost(
+      Map<String, dynamic> post, String token, XFile? imageFile) async {
     print("submitting post");
     print(jsonEncode(post));
 
+    var request =
+        http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
-    var request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
-
-    request.fields.addAll(post.map((key, value) => MapEntry(key, value.toString())));
+    request.fields
+        .addAll(post.map((key, value) => MapEntry(key, value.toString())));
 
     if (imageFile != null) {
       print("image file: ${imageFile.path}");
@@ -243,12 +257,13 @@ class ApiService {
       final respStr = await response.stream.bytesToString();
       return jsonDecode(respStr);
     } else {
-      print("response body: ${await response.stream.bytesToString()}");
-      return {'success': false, 'message': 'Failed to submit post'};
+      final respStr = await response.stream.bytesToString();
+      return {'success': false, 'message': respStr};
     }
   }
 
-  Future<List<Community>> getCommunities(String token, BuildContext context) async {
+  Future<List<Community>> getCommunities(
+      String token, BuildContext context) async {
     final logicAPI apiLogic = logicAPI();
     Map<String, dynamic> userProfile = await apiLogic.fetchUsername(token);
     final userName = apiLogic.extractUsername(userProfile);
@@ -266,11 +281,11 @@ class ApiService {
       final body = communities as List;
       return body.map((dynamic item) => Community.fromJson(item)).toList();
     } else {
-
       if (response.statusCode == 404) {
         errorMessage = 'User not found';
       } else {
-        errorMessage = 'No communities found you have to create/join at least one';
+        errorMessage =
+            'No communities found you have to create/join at least one';
       }
 
       // Show snackbar with error message
@@ -283,6 +298,113 @@ class ApiService {
 
       throw Exception(errorMessage);
     }
+  }
+
+  Future<List<dynamic>> fetchComments(Map<String, dynamic> searchOpts) async {
+    // Replace these with your actual values
+    final String query = searchOpts['query'];
+    const String type = 'comment';
+    final String sortOption = searchOpts['sortOption'];
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final token = sharedPreferences.getString('token');
+    // just retun the mock api
+    // return [
+    //   {
+    //     'authorName': 'John Doe',
+    //     'content': 'This is a comment',
+    //     'upvotes': 10,
+    //     'downvotes': 2,
+    //     'linkedPostTitle': 'This is a post',
+    //     'linkedPostAuthor': 'Jane Doe',
+    //     'linkedPostNumComments': 5,
+    //     'linkedPostNumUpvotes': 20,
+    //     'linkedSubreddit': '123',
+    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
+    //     'createdAt': '2021-09-01T12:00:00.000Z',
+    //     'linkedPostId': '123'
+    //   },
+    //   {
+    //     'authorName': 'Jane Doe',
+    //     'content': 'This is another comment',
+    //     'upvotes': 5,
+    //     'downvotes': 1,
+    //     'linkedPostTitle': 'This is another post',
+    //     'linkedPostAuthor': 'John Doe',
+    //     'linkedPostNumComments': 10,
+    //     'linkedPostNumUpvotes': 30,
+    //     'linkedSubreddit': '456',
+    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
+    //     'createdAt': '2021-09-01T12:00:00.000Z',
+    //     'linkedPostId': '456'
+    //   },
+    // ];
+
+    final String url =
+        '$_baseUrl/api/searchCommentsOrPosts/$query/$type/$sortOption/';
+    print('Fetching comments from: $url');
+    final response = await http.get(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    // result is a list of comments with the follwoing additional fields:
+    // linkedPostTitle, linkedPostAuthor, linkedPostNumComments, linkedPostNumUpvotes
+    final List<dynamic> result = [];
+
+    if (response.statusCode == 200) {
+      final List<dynamic> comments = jsonDecode(response.body)['content'];
+      for (var comment in comments) {
+        final String linkedPostId = comment['linkedPost'];
+        final postResponse = await http.get(
+          Uri.parse(
+              '$_baseUrl/api/info?objectID=$linkedPostId&objectType=post'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+        );
+        if (postResponse.statusCode == 200) {
+          Map<String, dynamic> post = jsonDecode(postResponse.body);
+          post = post['item'];
+          comment['linkedPostTitle'] = post['title'];
+          comment['linkedPostNumComments'] = post['comments']!.length;
+          comment['linkedPostNumUpvotes'] = post['upvotes'];
+          comment['postCreatedAt'] = post['createdAt'];
+          comment['linkedPostId'] = post['_id'];
+          final linkedSubreddit = comment['linkedSubreddit'];
+          if (linkedSubreddit == null) {
+            comment['linkedSubreddit'] = 'Unknown';
+          } else {
+
+            final subredditResponse = await http.get(
+              Uri.parse(
+                  '$_baseUrl/api/info?objectID=$linkedSubreddit&objectType=subreddit'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+            );
+            if (subredditResponse.statusCode == 200) {
+              Map<String, dynamic> subreddit =
+                  jsonDecode(subredditResponse.body);
+              subreddit = subreddit['item'];
+              comment['linkedSubreddit'] = subreddit['name'];
+            } else {
+              comment['linkedSubreddit'] = 'Unknown';
+            }
+            result.add(comment);
+          }
+        } else {
+          throw Exception('Failed to fetch the post');
+        }
+      }
+      print('Comments: $result');
+      return result;
+    } else {
+      throw Exception(
+          'Failed to load comments with status code: ${response.statusCode}');
+    }
+
   }
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
@@ -318,7 +440,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
-    final String endpoint = '/api/user/$username/about'; // Endpoint for fetching user about info
+    final String endpoint =
+        '/api/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -338,9 +461,10 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createUserSubredditRelationship(String userId,
-      String subredditId) async {
-    final String endpoint = '/api/friend'; // Endpoint for creating user-subreddit relationship
+  Future<Map<String, dynamic>> createUserSubredditRelationship(
+      String userId, String subredditId) async {
+    final String endpoint =
+        '/api/friend'; // Endpoint for creating user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -364,17 +488,17 @@ class ApiService {
             'Failed to create user-subreddit relationship: ${response.body}');
       } else {
         throw Exception(
-            'Failed to create user-subreddit relationship: ${response
-                .statusCode}');
+            'Failed to create user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to create user-subreddit relationship: $e');
     }
   }
 
-  Future<Map<String, dynamic>> removeUserSubredditRelationship(String userId,
-      String subredditId) async {
-    final String endpoint = '/api/unfriend'; // Endpoint for removing user-subreddit relationship
+  Future<Map<String, dynamic>> removeUserSubredditRelationship(
+      String userId, String subredditId) async {
+    final String endpoint =
+        '/api/unfriend'; // Endpoint for removing user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
@@ -397,8 +521,7 @@ class ApiService {
         throw Exception('Subreddit not found: ${response.body}');
       } else {
         throw Exception(
-            'Failed to remove user-subreddit relationship: ${response
-                .statusCode}');
+            'Failed to remove user-subreddit relationship: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to remove user-subreddit relationship: $e');
@@ -406,7 +529,8 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> signInWithToken(String token) async {
-    const String endpoint = '/api/auth/google/'; // Endpoint for signing in with token
+    const String endpoint =
+        '/api/auth/google/'; // Endpoint for signing in with token
     // const baseUrl = 'http://20.19.89.1';
 
     // final String baseUrl= 'http://192.168.1.7';
@@ -455,18 +579,17 @@ class MockGoogleAuthApi {
 }
 
 class GoogleAuthSignInService {
-
   Future<UserCredential?> signInWithGoogle() async {
     try {
       // Trigger the Google Sign In process
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if(googleUser == null) {
+      if (googleUser == null) {
         print("Google Sign In failed");
         return null;
       }
       // Obtain the GoogleSignInAuthentication object
-      final GoogleSignInAuthentication googleAuth = await googleUser!
-          .authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -477,10 +600,10 @@ class GoogleAuthSignInService {
       // Once signed in, return the UserCredential
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-          googleCredential);
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(googleCredential);
       return userCredential;
-    }catch (e) {
+    } catch (e) {
       print(e.toString());
     }
     return null;

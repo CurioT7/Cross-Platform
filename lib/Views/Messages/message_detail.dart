@@ -60,24 +60,24 @@ class MessageDetailPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10.0),
-            ElevatedButton(
-              child: Text('Reply to Message', style: TextStyle(color: Colors.white)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ReplyPage(message: message),
-                  ),
-                );
-              },
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
-                  ),
-                ),
-              ),
-            ),
+            // ElevatedButton(
+            //   child: Text('Reply to Message', style: TextStyle(color: Colors.white)),
+            //   onPressed: () {
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => ReplyPage(message: message),
+            //       ),
+            //     );
+            //   },
+            //   style: ButtonStyle(
+            //     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            //       RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(18.0),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

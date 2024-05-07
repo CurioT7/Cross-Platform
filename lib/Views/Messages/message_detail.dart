@@ -7,6 +7,19 @@ class MessageDetailPage extends StatelessWidget {
 
   MessageDetailPage({required this.message});
 
+  String get timeAgo {
+    final now = DateTime.now();
+    final difference = now.difference(message.timestamp);
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m';
+    } else {
+      return 'Just now';
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +46,7 @@ class MessageDetailPage extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             Text(
-              'u/${message.sender.username} • ${message.timestamp}',
+              'u/${message.sender.username} • $timeAgo',
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 12.0,
@@ -48,7 +61,7 @@ class MessageDetailPage extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             ElevatedButton(
-              child: Text('REPLY TO MESSAGE'),
+              child: Text('Reply to Message', style: TextStyle(color: Colors.white)),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -57,6 +70,13 @@ class MessageDetailPage extends StatelessWidget {
                   ),
                 );
               },
+              style: ButtonStyle(
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -64,4 +84,3 @@ class MessageDetailPage extends StatelessWidget {
     );
   }
 }
-

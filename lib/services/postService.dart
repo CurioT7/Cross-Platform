@@ -191,7 +191,7 @@ Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token
 
   Future<bool> savePost(String postId, String token) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/save'),
+      Uri.parse('$baseUrl/save'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

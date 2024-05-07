@@ -5,7 +5,7 @@ import 'package:curio/Models/minipost.dart';
 /// A class that provides API services for searching posts.
 class ApiService {
   //final String baseUrl = 'http://192.168.1.13:3000/api';
-  final String baseUrl = 'http://192.168.1.13:3000';
+  final String baseUrl = 'http://192.168.1.13:3000/api';
   /// Searches for posts based on the given query.
   ///
   /// Returns a list of [MiniPost] objects representing the search results.

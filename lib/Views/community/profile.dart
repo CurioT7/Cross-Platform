@@ -514,7 +514,7 @@ class _CommunityProfileState extends State<communityProfile> {
             ],
           ),
         ),
-        if (privacyMode == 'private') ...[
+        if (privacyMode == 'private' && isModerator==false) ...[
           SizedBox(
             height: 50,
             width: 50,

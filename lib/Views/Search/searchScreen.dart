@@ -16,7 +16,6 @@ class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final ApiService _searchService = ApiService();
-
   List<MiniPost> searchResults = [];
   List<String> suggestions = [];
   String dropdownValue = 'Hot';

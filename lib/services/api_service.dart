@@ -356,52 +356,9 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final List<dynamic> comments = jsonDecode(response.body)['content'];
-      for (var comment in comments) {
-        final String linkedPostId = comment['linkedPost'];
-        final postResponse = await http.get(
-          Uri.parse(
-              '$_baseUrl/api/info?objectID=$linkedPostId&objectType=post'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-        );
-        if (postResponse.statusCode == 200) {
-          Map<String, dynamic> post = jsonDecode(postResponse.body);
-          post = post['item'];
-          comment['linkedPostTitle'] = post['title'];
-          comment['linkedPostNumComments'] = post['comments']!.length;
-          comment['linkedPostNumUpvotes'] = post['upvotes'];
-          comment['postCreatedAt'] = post['createdAt'];
-          comment['linkedPostId'] = post['_id'];
-          final linkedSubreddit = comment['linkedSubreddit'];
-          if (linkedSubreddit == null) {
-            comment['linkedSubreddit'] = 'Unknown';
-          } else {
-
-            final subredditResponse = await http.get(
-              Uri.parse(
-                  '$_baseUrl/api/info?objectID=$linkedSubreddit&objectType=subreddit'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-              },
-            );
-            if (subredditResponse.statusCode == 200) {
-              Map<String, dynamic> subreddit =
-                  jsonDecode(subredditResponse.body);
-              subreddit = subreddit['item'];
-              comment['linkedSubreddit'] = subreddit['name'];
-            } else {
-              comment['linkedSubreddit'] = 'Unknown';
-            }
-            result.add(comment);
-          }
-        } else {
-          throw Exception('Failed to fetch the post');
-        }
-      }
-      print('Comments: $result');
-      return result;
+      return comments;
     } else {
+      print('Response body: ${response.body}');
       throw Exception(
           'Failed to load comments with status code: ${response.statusCode}');
     }

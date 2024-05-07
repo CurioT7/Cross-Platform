@@ -21,6 +21,23 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
     _tabController = TabController(length: 2, vsync: this);
   }
 
+  // void onNotificationHidden() {
+  //   setState(() {});
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('Notification is hidden'),
+  //       action: SnackBarAction(
+  //         label: 'UNDO',
+  //         textColor: Colors.blue,
+  //         onPressed: () {
+  //
+  //
+  //         },
+  //       ),
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,39 +82,62 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
       ),
       body: TabBarView(
         controller: _tabController,
-
         children: [
-          // Replace with your Notifications and Messages pages
-          Expanded(
-            child: FutureBuilder<List<NotificationModel>>(
-              future: () async {
-                final SharedPreferences prefs = await SharedPreferences.getInstance();
-                String? token = prefs.getString('token');
-                if (token == null) {
-                  throw Exception('Token is null');
-                }
-                return logicAPI().getAllNotifications(token);
-              }(),
-              builder: (BuildContext context, AsyncSnapshot<List<NotificationModel>> snapshot) {
-                if (snapshot.hasData) {
-                  List<NotificationModel> notifications = snapshot.data!;
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: notifications.length,
-                    itemBuilder: (context, index) {
-                      print('Notification ${index + 1}: ${notifications[index].message}');
-                      return NotificationCard(
-                        notification: notifications[index],
+          Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<NotificationModel>>(
+                  future: () async {
+                    final SharedPreferences prefs = await SharedPreferences.getInstance();
+                    String? token = prefs.getString('token');
+                    if (token == null) {
+                      throw Exception('Token is null');
+                    }
+                    return logicAPI().getAllNotifications(token);
+                  }(),
+                  builder: (BuildContext context, AsyncSnapshot<List<NotificationModel>> snapshot) {
+                    if (snapshot.hasData) {
+                      List<NotificationModel> notifications = snapshot.data!;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: notifications.length ,
+                        itemBuilder: (context, index) {
+                          print('Notification ${index + 1}: ${notifications[index].message}');
+                          // return NotificationCard(
+                          //   key: ValueKey(notifications[index].id),
+                          //   notification: notifications[index],
+                          //   onHidden: () {
+                          // setState(() {});
+                          //
+                          // },
+                          // );
+
+                          return NotificationCard(
+                            key: ValueKey(notifications[index].id),
+                            notification: notifications[index],
+                            onHidden: () {
+                              setState(() {
+                                notifications.remove(notifications[index]);
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Notification is hidden'),
+                                ),
+                              );
+                            },
+                          );
+                        },
                       );
-                    },
-                  );
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return Container();
-                }
-              },
-            ),
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
           Container(color: Colors.blue),
         ],

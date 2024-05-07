@@ -32,6 +32,8 @@ class NotificationModel {
   static List<NotificationModel> getNotifications(List<dynamic> json) {
     return json
         .map((notification) => NotificationModel.fromJson(notification))
-        .toList();
+        .take(30).toList();
+
+    //TODO Correct amount of notifications returned
   }
 }

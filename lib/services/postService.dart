@@ -5,6 +5,7 @@ class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
   //  final String baseUrl= 'http://192.168.1.13:3000/api';
   final String baseUrl = 'http://10.0.2.2:3000';
+  //final String baseUrl= 'http://20.199.94.136';
 
   Future<List<Post>> getBestPosts() async {
     try {

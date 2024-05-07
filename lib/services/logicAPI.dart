@@ -14,7 +14,7 @@ class logicAPI {
   // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
   //  final String _baseUrl = 'http://192.168.1.8:3000';
   final String _baseUrl= 'http://10.0.2.2:3000';
-
+//final String _baseUrl= 'http://20.199.94.136';
 
   Future<Map<String, dynamic>> fetchUserData(String username) async {
     final response = await http.get(
@@ -236,6 +236,7 @@ class logicAPI {
         'membersCount': subredditData['members'].length,
         'banner': subredditData['banner'],
         'icon': subredditData['icon'],
+        'moderators': subredditData['moderators'].map((moderator) => moderator['username']).toList(),
       };
     } else if (response.statusCode == 404) {
       throw Exception('Subreddit not found');
@@ -695,33 +696,33 @@ class logicAPI {
   Future<List<NotificationModel>>  getAllNotifications(String token) async {
     final url = Uri.parse('$_baseUrl/api/notifications/history');
 
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
 
-      if (response.statusCode == 200) {
-        print('success 200 notifications');
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success']) {
-          List<dynamic> notificationsJson = responseBody['notifications'];
-          print('success: code 200 notifications');
-          return NotificationModel.getNotifications(notificationsJson);
-        } else {
-          throw Exception('Failed to load notifications');
-        }
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      print('success 200 notifications');
+      print(response.body);
+
+      Map<String, dynamic> responseBody = json.decode(response.body);
+      if (responseBody['success']) {
+        List<dynamic> notificationsJson = responseBody['notifications'];
+        print('success: code 200 notifications');
+        return NotificationModel.getNotifications(notificationsJson);
       } else {
-        throw Exception(
-            'Failed to load notifications with status code: ${response
-                .statusCode}');
+        throw Exception('Failed to load notifications');
       }
-    } catch (e) {
-      throw Exception('Failed to fetch notifications: $e');
+    } else {
+      throw Exception(
+          'Failed to load notifications with status code: ${response
+              .statusCode}');
     }
+
   }
   Future<List<String>> getReadNotifications(String token) async {
     final response = await http.get(
@@ -747,6 +748,8 @@ class logicAPI {
 
 
   Future<bool> markNotificationAsRead(String token, String notificationID) async {
+    print("inside notifcation marked read");
+
     final response = await http.post(
       Uri.parse('$_baseUrl/api/notifications/read-notification'),
       headers: {
@@ -762,20 +765,105 @@ class logicAPI {
 
     if (response.statusCode == 200) {
       if (data['success']) {
+        print("notifcation marked read succesfully");
         return true;
       } else {
         throw Exception(data['message']);
       }
     } else if (response.statusCode == 400) {
+      print(response.statusCode);
       throw Exception('Notification is already read');
     } else if (response.statusCode == 401) {
+      print(response.statusCode);
+
       throw Exception('Unauthorized');
     } else if (response.statusCode == 404) {
+      print(response.statusCode);
+
       throw Exception('Notification not found');
     } else if (response.statusCode == 500) {
+      print(response.statusCode);
+
       throw Exception('Internal Server error');
     } else {
       throw Exception('Unexpected error occurred');
+    }
+  }
+
+  Future<Map<String, dynamic>> hideNotification(String token, String notificationID) async {
+    final String endpoint = '/api/notifications/hide';
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'notificationID': notificationID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("hide notifcation successful");
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        print(response.statusCode);
+
+        throw Exception('Unauthorized');
+      } else if (response.statusCode == 500) {
+        print(response.statusCode);
+
+        throw Exception('Internal Server error');
+      } else {
+        throw Exception('Failed to hide notification: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to hide notification: $e');
+    }
+  }
+  Future<Map<String, dynamic>> unhideNotification(String token, String notificationID) async {
+    final String endpoint = '/api/notifications/unhide';
+    final url = Uri.parse('$_baseUrl$endpoint');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'notificationID': notificationID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print("unhide notifcation successful");
+
+        return jsonDecode(response.body);
+      } else if (response.statusCode == 401) {
+        print(response.statusCode);
+
+        throw Exception('Unauthorized');
+      } else if (response.statusCode == 404) {
+        print(response.statusCode);
+
+        throw Exception('Notification not found');
+      } else if (response.statusCode == 500) {
+        print(response.statusCode);
+
+        throw Exception('Internal Server error');
+      } else {
+        throw Exception('Failed to unhide notification: ${response.statusCode}');
+      }
+    } catch (e) {
+
+      print(e);
+
+      throw Exception('Failed to unhide notification: $e');
     }
   }
   //get saved comments

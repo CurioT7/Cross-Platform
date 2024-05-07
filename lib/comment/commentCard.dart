@@ -48,6 +48,7 @@ class CommentCard extends StatefulWidget {
 
 class _CommentCardState extends State<CommentCard> {
   //TODO ADJUST SAVE COMMENT INITIAL STate
+  String? image;
   bool savePressed = false;
   bool upvotePressed = false;
   bool downvotePressed = false;
@@ -66,6 +67,16 @@ class _CommentCardState extends State<CommentCard> {
       throw Exception('Token is null');
     }
   }
+
+  void fetchAndSetUserImage() async {
+    logicAPI api = logicAPI();
+    Map<String, dynamic> userData = await api.fetchUserData(widget.authorUsername);
+    Map<String, dynamic> userDetails = await api.extractUserDetails(userData);
+    setState(() {
+      image = userDetails['profilePicture'];
+    });
+  }
+
   Map<String, dynamic>? userDetails;
   String? username;
   Future<Map<String, dynamic>> _fetchUsername() async {
@@ -89,6 +100,7 @@ class _CommentCardState extends State<CommentCard> {
   @override
   void initState() {
     super.initState();
+    fetchAndSetUserImage();
     upvotes = widget.upvotes;
     downvotes = widget.downvotes;
     checkIfCommentIsSaved();
@@ -113,8 +125,7 @@ class _CommentCardState extends State<CommentCard> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         CircleAvatar(
-                          backgroundImage:
-                          widget.userImage != null ? AssetImage(widget.userImage!) : null,
+                          backgroundImage: image != null ? NetworkImage(image!) : null,
                         ),
                         SizedBox(width: 8.0),
                         Text(widget.authorUsername ?? 'Unknown',  style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 13),),

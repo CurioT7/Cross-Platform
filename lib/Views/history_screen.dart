@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:curio/Models/post.dart';
 import 'package:curio/widgets/postCard.dart';
-import 'package:flutter/material.dart';
 
 import '../widgets/recent_widget.dart';
 
@@ -13,6 +18,39 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   int votes = 0;
+  bool _isLoading = false;
+  List<Map<String, dynamic>> posts = [];
+
+  void getHiddenPosts() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      final response =
+      await http.get(Uri.parse('http://localhost:3000/api/hidden'));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          setState(() {
+            posts = responseBody['hiddenPosts'];
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      log('Exception occurred: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getHiddenPosts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,28 +72,36 @@ class _HistoryScreenState extends State<HistoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const RecentWidget(),
-          PostCard(
-            post: Post(
-              id: '661b22c0800e2136153309c3',
-              title: 'WHAT IS THIS',
-              content:
-              'Introducing lesser-known indie rock bands and albums that deserve more recognition, along with discussions on the evolution of the genre.',
-              authorName: 'senawy',
-              views: 657,
-              createdAt: DateTime.parse('2024-04-14T00:26:40.995Z'),
-              upvotes: 1,
-              downvotes: 0,
-              linkedSubreddit: '6615aaa2579c935be547895d',
-              comments: [],
-              shares: 0,
-              isNSFW: false,
-              isSpoiler: false,
-              isOC: false,
-              isCrosspost: false,
-              awards: 0,
-              media: '',
-              link: '',
-              isDraft: false,
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (BuildContext context, int index) {
+                return PostCard(
+                  post: Post(
+                    id: posts[index]['_id'],
+                    title: posts[index]['title'],
+                    content: posts[index]['content'],
+                    authorName: posts[index]['authorName'],
+                    views: posts[index]['views'],
+                    createdAt: DateTime.parse(posts[index]['createdAt']),
+                    upvotes: posts[index]['upvotes'],
+                    downvotes: posts[index]['downvotes'],
+                    linkedSubreddit: posts[index]['linkedSubreddit'],
+                    comments: posts[index]['comments'],
+                    shares: posts[index]['shares'],
+                    isNSFW: posts[index]['isNSFW'],
+                    isSpoiler: posts[index]['isSpoiler'],
+                    isOC: posts[index]['isOC'],
+                    isCrosspost: posts[index]['isCrosspost'],
+                    awards: posts[index]['awards'],
+                    media: '',
+                    link: '',
+                    isDraft: posts[index]['isDraft'],
+                  ),
+                );
+              },
             ),
           ),
         ],

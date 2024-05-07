@@ -98,4 +98,19 @@ Future<Map<String, dynamic>> sendMessage({
       throw Exception('Failed to load messages');
     }
   }
+  Future<Map<String, dynamic>> markAllAsRead() async {
+    print('Mark all as read started');
+    final token = await getToken();
+    print('Token: $token');
+    final response = await http.post(
+      Uri.parse('$baseUrl/readAll'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+    return jsonDecode(response.body);
+  }
 }

@@ -47,7 +47,12 @@ class _MessageCardState extends State<MessageCard> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isRead_${widget.message.id}', _isRead);
   }
-
+void markAllAsRead(List<String> messageIds) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  for (var messageId in messageIds) {
+    prefs.setBool('isRead_$messageId', true);
+  }
+}
   @override
   Widget build(BuildContext context) {
     return InkWell(

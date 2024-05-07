@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -228,10 +229,11 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> submitPost(
-      Map<String, dynamic> post, String token, XFile? imageFile) async {
+      Map<String, dynamic> post, String token, File? imageFile) async {
     print("submitting post");
     print(jsonEncode(post));
-
+    var imageData = File(imageFile!.path);
+    print("image data: $imageData");
     var request =
     http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
@@ -241,8 +243,8 @@ class ApiService {
     if (imageFile != null) {
       print("image file: ${imageFile.path}");
       request.files.add(await http.MultipartFile.fromPath(
-        'media', // consider 'media' as the key for the image file in your server
-        imageFile.path,
+        'file', // consider 'media' as the key for the image file in your server
+        
       ));
     }
 

@@ -18,6 +18,7 @@ class SortAndCommentList extends StatefulWidget {
   @override
   _SortAndCommentListState createState() => _SortAndCommentListState();
 }
+
 class _SortAndCommentListState extends State<SortAndCommentList> {
   Future<List<dynamic>>? commentsFuture;
   final ApiService _apiService = ApiService();
@@ -59,25 +60,30 @@ class _SortAndCommentListState extends State<SortAndCommentList> {
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                return snapshot.data != null ? ListView.builder(
+                return snapshot.data != null
+                    ? ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     var data = snapshot.data![index];
                     return SearchCommentCard(
                       communityImage: "assets/images/loft.png",
-                      communityName: data['linkedSubreddit'],
-                      postCreatedAt: data['postCreatedAt'],
+                      communityName: data['linkedSubreddit'] != null
+                          ? data['linkedSubreddit']['name']
+                          : 'Unknown',
+                      postCreatedAt: data['linkedPost']['createdAt'],
                       commentCreatedAt: data['createdAt'],
                       userName: data['authorName'],
-                      postTitle: data['linkedPostTitle'],
+                      postTitle: data['linkedPost']['title'],
                       commentContent: data['content'],
-                      postUpvotes: data['linkedPostNumUpvotes'],
+                      postUpvotes: data['linkedPost']['upvotes'],
                       commentUpvotes: data['upvotes'],
-                      numberOfComments: data['linkedPostNumComments'],
-                      postID: data['linkedPostId'],
+                      numberOfComments:
+                      data['linkedPost']['comments']!.length,
+                      postID: data['linkedPost']['_id'],
                     );
                   },
-                ) : Container();
+                )
+                    : Container();
               }
             },
           ),

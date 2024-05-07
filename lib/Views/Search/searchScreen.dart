@@ -1,4 +1,5 @@
 import 'package:curio/Models/minipost.dart';
+import 'package:curio/Views/Search/searchHashtag.dart';
 import 'package:curio/services/searchServices.dart';
 import 'package:curio/widgets/miniPostCard.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _SearchScreenState extends State<SearchScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+
   }
 
   @override
@@ -94,8 +96,8 @@ class _SearchScreenState extends State<SearchScreen>
             Tab(text: 'Posts'),
             Tab(text: 'Communities'),
             Tab(text: 'Comments'),
-            Tab(text: 'Media'),
             Tab(text: 'People'),
+            Tab(text: 'Hashtags'),
           ],
         ),
       ),
@@ -111,12 +113,22 @@ class _SearchScreenState extends State<SearchScreen>
             ),
           ),
           // Replace these with your actual widgets for displaying the search results
-          const Center(child: Text('Communities')),
+          const Center(child: Text('Comments')),
           SortAndCommentList(
               query: _searchController.text,
               sortOptions: const ['relevance', 'new','top'],
               onSortOptionSelected: (option) {}),
-          const Center(child: Text('Media')),
+          ValueListenableBuilder<TextEditingValue>(
+            valueListenable: _searchController,
+            builder: (BuildContext context, TextEditingValue value, Widget? child) {
+              return Column(
+                children: [
+                  const Center(child: Text('Hashtags')),
+                  SearchHashtag(query: value.text),
+                ],
+              );
+            },
+          ),
           const Center(child: Text('People')),
         ],
       ),

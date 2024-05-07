@@ -72,13 +72,13 @@ class SearchCommentCard extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // Navigate to comments page
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ViewPostComments(postID: postID),
-                    ),
-                  );
-                  // Add your action here
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ViewPostComments(postID: postID),
+                  ),
+                );
+                // Add your action here
               },
               child: const Text(
                 'Go to comments',

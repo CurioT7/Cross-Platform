@@ -2,6 +2,7 @@ import 'package:curio/Models/message.dart';
 import 'package:curio/services/messageService.dart';
 import 'package:curio/widgets/messege_card.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MessagesList extends StatefulWidget {
   @override
@@ -24,6 +25,14 @@ class _MessagesListState extends State<MessagesList> {
     return [...sentMessages, ...inboxMessages];
   }
 
+  void markAllAsRead(List<Message> messages) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    for (var message in messages) {
+      prefs.setBool('isRead_${message.id}', true);
+    }
+    _messagesFuture = _refreshMessages();  // Refresh _messagesFuture
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Message>>(

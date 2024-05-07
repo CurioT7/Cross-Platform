@@ -89,11 +89,20 @@ class User {
 
   User({this.id = '', this.username = 'you'});
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['_id'] ?? '',
-      username: json['username'] ?? 'you',
-    );
+  factory User.fromJson(dynamic json) {
+    if (json is Map<String, dynamic>) {
+      return User(
+        id: json['_id'] ?? '',
+        username: json['username'] ?? 'you',
+      );
+    } else if (json is String) {
+      return User(
+        id: json,
+        username: 'you',
+      );
+    } else {
+      throw Exception('Unexpected type for User');
+    }
   }
 
   Map<String, dynamic> toJson() {

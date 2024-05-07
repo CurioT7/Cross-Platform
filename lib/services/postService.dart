@@ -3,43 +3,77 @@ import 'dart:convert';
 import 'package:curio/Models/post.dart';
 class ApiService {
   // final String baseUrl = 'http://20.19.89.1/api';
-  //  final String baseUrl= 'http://192.168.1.13:3000/api';
-  final String baseUrl = 'http://10.0.2.2:3000';
-  //final String baseUrl= 'http://20.199.94.136';
+   final String baseUrl= 'http://192.168.1.13:3000/api';
+  // final String baseUrl ='http://20.199.94.136/api';
 
-  Future<List<Post>> getBestPosts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/best'));
+Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token, String timeframe = 'year'} ) async {
+  try {
+    final response = await http.get(
+      Uri.parse('$baseUrl/homepage/$type/$timeframe?page=$page'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseBody = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success']) {
-          List<dynamic> postsJson = responseBody['SortedPosts'];
-          return postsJson.map((json) => Post.fromJson(json)).toList();
-        } else {
-          throw Exception('Failed to load posts');
-        }
-      } else {
-        throw Exception('Failed to load posts with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw e;
-    }
-  }
+        List<dynamic> postsJson = responseBody['posts'];
 
-  Future<Post> fetchPostByID(String objectID) async {
+        List<Post> posts = postsJson.map((json) {
+          try {
+            return Post.fromJson(json);
+          } catch (e) {
+            throw e;
+          }
+        }).toList();
+
+        return {
+          'totalPosts': responseBody['totalPosts'],
+          'posts': posts,
+        };
+      } else {
+        throw Exception('Failed to load posts');
+      }
+    } else {
+      throw Exception('Failed to load posts with status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw e;
+  }
+}
+
+    Future<Map<String, dynamic>> getBestPosts(String token, int page) async {
+      return getPosts('best', token: token, page: page);
+    }
+    
+    Future<Map<String, dynamic>> getDiscoveryPosts(String token, int page) async {
+      return getPosts('new', token: token, page: page);
+    }
+    
+    Future<Map<String, dynamic>> getPopularPosts(String token, int page) async {
+      return getPosts('top', token: token, page: page);
+    }
+    
+    Future<Map<String, dynamic>> getTrendingPosts(String token, int page) async {
+      return getPosts('hot', token: token, page: page);
+    }
+  Future<Post> fetchPostByID(String objectID, String token) async {
     try {
       print(objectID);
       final response = await http.get(
         Uri.parse('$baseUrl/info?objectID=$objectID&objectType=post'),
         headers:<String, String> {
           'Content-Type': 'application/json; charset=UTF-8',
-
+          'Authorization': 'Bearer $token', // Add this line
         },
       );
 
       if (response.statusCode == 200) {
-        return Post.fromJson((jsonDecode(response.body)['item']));
+        var responseBody = jsonDecode(response.body)['item'];
+        print('Response body: $responseBody'); // Print the response body
+        return Post.fromJson(responseBody);
       } else {
         print('Response body: ${response.body}');
 
@@ -49,89 +83,17 @@ class ApiService {
       throw Exception('Failed to load info. Error: $e');
     }
   }
-  Future<Post> getRandomPost(String subreddit) async {
-    final response = await http.get(Uri.parse('$baseUrl/r/$subreddit/random'));
-    if (response.statusCode == 200) {
-      return Post.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load post');
-    }
-  }
-
-  Future<List<Post>> getDiscoveryPosts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/best'));
-      if (response.statusCode == 200) {
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success']) {
-          List<dynamic> postsJson = responseBody['SortedPosts'];
-          return postsJson.map((json) => Post.fromJson(json)).toList();
-        } else {
-          throw Exception('Failed to load posts');
-        }
-      } else {
-        throw Exception('Failed to load posts with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw e;
-    }
-  }
-
-  Future<List<Post>> getPopularPosts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/best'));
-      if (response.statusCode == 200) {
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success']) {
-          List<dynamic> postsJson = responseBody['SortedPosts'];
-          return postsJson.map((json) => Post.fromJson(json)).toList();
-        } else {
-          throw Exception('Failed to load posts');
-        }
-      } else {
-        throw Exception('Failed to load posts with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw e;
-    }
-  }
-
-  Future<List<Post>> getTrendingPosts() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/trendingSearches'));
-      if (response.statusCode == 200) {
-        Map<String, dynamic> responseBody = json.decode(response.body);
-        if (responseBody['success']) {
-          List<dynamic> postsJson = responseBody['posts'];
-          return postsJson.map((json) => Post.fromJson(json)).toList();
-        } else {
-          throw Exception('Failed to load posts');
-        }
-      } else if (response.statusCode == 404) {
-        throw Exception('No Trendings Today');
-      } else if (response.statusCode == 500) {
-        throw Exception('Error retrieving search results');
-      } else {
-        throw Exception('Failed to load posts with status code: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Exception occurred: $e');
-      throw e;
-    }
-  }
   Future<void> castVote(String itemID, int direction, String token) async {
-    final String url = '$baseUrl/vote';
-    final Map<String, String> headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    };
-    final Map<String, dynamic> body = {
-      'itemID': itemID,
-      'itemName': 'post',
-      'direction': direction,
-    };
+  final String url = '$baseUrl/vote';
+  final Map<String, String> headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+  };
+  final Map<String, dynamic> body = {
+    'itemID': itemID,
+    'itemName': 'post',
+    'direction': direction,
+  };
 
     final response = await http.post(
       Uri.parse(url),

@@ -16,7 +16,11 @@ class ViewPostComments extends StatefulWidget {
   @override
   _ViewPostCommentsState createState() => _ViewPostCommentsState();
 }
-
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
 class _ViewPostCommentsState extends State<ViewPostComments> {
   final ScrollController _scrollController = ScrollController();
 
@@ -34,21 +38,22 @@ class _ViewPostCommentsState extends State<ViewPostComments> {
       appBar: topAppBar(context),
       body: Column(
         children: <Widget>[
-          Container(
-            child: FutureBuilder<Post>(
-              future: () async {
-                return logicAPI().fetchPostByID(widget.postID);
-              }(),
-              builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Container(); // Show a loading spinner while waiting
-                } else if (snapshot.hasError) {
-                  return Text(
-                      'Error: ${snapshot.error}'); // Show error message if something went wrong
-                } else {
-                  return Container(
-                    child: PostCard(post: snapshot.data!),
-                  );
+      Container(
+      child: FutureBuilder<Post>(
+          future: () async {
+
+    return logicAPI().fetchPostByID(widget.postID , await getToken());
+    }(),
+    builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+    return Container(); // Show a loading spinner while waiting
+    } else if (snapshot.hasError) {
+    return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
+    } else {
+    return Container(
+    child: PostCard(post: snapshot.data!),
+    );
+
                 }
               },
             ),

@@ -21,10 +21,14 @@ class _newCommentState extends State<newComment> {
     super.initState();
     _fetchPost();
   }
-
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
   void _fetchPost() async {
 
-    _postFuture = logicAPI().fetchPostByID(widget.postID);
+    _postFuture = logicAPI().fetchPostByID(widget.postID , await getToken() );
   }
 
   final linkController = TextEditingController();

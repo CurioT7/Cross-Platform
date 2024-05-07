@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Post> _posts = [];
   bool _isLoading = true;
   String dropdownValue = 'Home';
+  int _page = 1;
 
   @override
   void initState() {
@@ -48,21 +49,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchBestPosts(String category) async {
     try {
-      List<Post> posts;
-      if (category == 'Home') {
-        posts = await _apiService.getBestPosts();
-      } else if (category == 'Popular') {
-        posts = await _apiService.getPopularPosts();
-      } else if (category == 'Discovery') {
-        posts = await _apiService.getDiscoveryPosts();
-      } else if (category == 'Trending') {
-        posts = await _apiService.getTrendingPosts();
-      } else {
-        posts = [];
+      String? token = await getToken();
+      if (token == null) {
+        throw Exception('Token is null');
       }
+      Map<String, dynamic> postsData;
+      if (category == 'Home') {
+        postsData = await _apiService.getBestPosts(token, _page);
+      } else if (category == 'Popular') {
+        postsData = await _apiService.getPopularPosts(token, _page);
+      } else if (category == 'Discovery') {
+        postsData = await _apiService.getDiscoveryPosts(token, _page);
+      } else if (category == 'Trending') {
+        postsData = await _apiService.getTrendingPosts(token, _page);
+      } else {
+        postsData = {'posts': []};
+      }
+      List<Post> posts = postsData['posts'];
       setState(() {
-        _posts = posts;
+        _posts = [..._posts, ...posts];
         _isLoading = false;
+        _page++;
       });
     } catch (e) {
       // Handle the exception
@@ -71,7 +78,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

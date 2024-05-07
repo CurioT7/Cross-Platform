@@ -31,6 +31,7 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 import 'package:curio/Views/insettingspage/comfirmPasswordForsignIn.dart';
+import 'package:curio/Views/moderator/moderator_Tools.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override

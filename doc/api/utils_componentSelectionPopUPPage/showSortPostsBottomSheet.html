@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the showSortPostsBottomSheet function from the componentSelectionPopUPPage library, for the Dart programming language.">
+  <title>showSortPostsBottomSheet function - componentSelectionPopUPPage library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">curio</a></li>
+    <li><a href="../utils_componentSelectionPopUPPage/utils_componentSelectionPopUPPage-library.html">utils\componentSelectionPopUPPage.dart</a></li>
+    <li class="self-crumb">showSortPostsBottomSheet function</li>
+  </ol>
+  <div class="self-name">showSortPostsBottomSheet</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        brightness_4
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        brightness_5
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="utils_componentSelectionPopUPPage&#47;utils_componentSelectionPopUPPage-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">showSortPostsBottomSheet</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>&gt;</span></span>
+<span class="name ">showSortPostsBottomSheet</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="showSortPostsBottomSheet-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="showSortPostsBottomSheet-param-initialSort"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">initialSort</span>, </span></li>
+<li><span class="parameter" id="showSortPostsBottomSheet-param-selectedIcon"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/IconData-class.html">IconData</a></span> <span class="parameter-name">selectedIcon</span>, </span></li>
+<li><span class="parameter" id="showSortPostsBottomSheet-param-updateSortAndIcon"><span class="type-annotation">dynamic</span> <span class="parameter-name">updateSortAndIcon</span>(<ol class="parameter-list"><li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, </span></li>
+<li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/IconData-class.html">IconData</a></span></span></li>
+</ol>
+), </span></li>
+<li><span class="parameter" id="showSortPostsBottomSheet-param-fetchPosts"><span class="type-annotation">dynamic</span> <span class="parameter-name">fetchPosts</span>(<ol class="parameter-list"><li><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span></span></li>
+</ol>
+), </span></li>
+<li><span class="parameter" id="showSortPostsBottomSheet-param-isCommunity">[<span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">isCommunity</span> = <span class="default-value">false</span>]</span></li>
+</ol>)
+
+        
+
+    </section>
+    
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;double?&gt; showSortPostsBottomSheet(BuildContext context, String initialSort, IconData selectedIcon, Function(String, IconData) updateSortAndIcon, Function(String) fetchPosts, [bool isCommunity = false]) {
+  Future&lt;double?&gt; timeSelected = Future.value(null);
+  var completer = Completer&lt;double?&gt;();
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      String selectedSort = initialSort;
+      IconData selectedSortIcon = selectedIcon; &#47;&#47; Store the selected icon separately
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setModalState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBar(
+                centerTitle: true,
+                title: Text(&#39;Sort Posts&#39;, style: TextStyle(fontWeight: FontWeight.bold)),
+                automaticallyImplyLeading: false,
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      updateSortAndIcon(selectedSort, selectedSortIcon); &#47;&#47; Pass the selected icon
+                      print(&#39;Selected Sort: $selectedSort&#39;);
+                      fetchPosts(selectedSort); &#47;&#47; Fetch posts based on the selected sorting criteria
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(&#39;Done&#39;, style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                ],
+              ),
+              ...[
+                {&#39;sort&#39;: &#39;hot&#39;, &#39;icon&#39;: Icons.whatshot},
+                {&#39;sort&#39;: &#39;new&#39;, &#39;icon&#39;: Icons.new_releases_outlined},
+                {&#39;sort&#39;: &#39;top&#39;, &#39;icon&#39;: Icons.arrow_upward_sharp},
+                if (!isCommunity){&#39;sort&#39;: &#39;random&#39;, &#39;icon&#39;: Icons.shuffle},
+                if (!isCommunity){&#39;sort&#39;: &#39;rising&#39;, &#39;icon&#39;: Icons.trending_up},
+              ].map((Map&lt;String, dynamic&gt; item) {
+                return RadioListTile&lt;String&gt;(
+                  title: Text(item[&#39;sort&#39;]),
+                  value: item[&#39;sort&#39;],
+                  groupValue: selectedSort,
+                  secondary: Icon(item[&#39;icon&#39;]),
+                  onChanged: (value) {
+                    if (value == &#39;top&#39;) {
+                      &#47;&#47; Call the showTimeSelection function to show the bottom sheet.
+                      timeSelected= showTimeSelection(context, (newSort) {
+                        setModalState(() {
+                         selectedSort = &#39;top $newSort&#39;;
+&#47;&#47;print timeSelected
+                          timeSelected.then((value) =&gt; print(&#39;Time Selected: $value&#39;));
+                          print(&#39;Selected Sort: $selectedSort&#39;);
+                          selectedIcon = Icons.arrow_upward_sharp; &#47;&#47; Keep the same icon for &#39;Top&#39;.
+                        });
+                      });
+                    } else {
+                      &#47;&#47; For other sort types, just update the state.
+
+                      setModalState(() {
+                        selectedSort = value ?? &#39;&#39;; &#47;&#47; Ensure the value is non-nullable.
+                        selectedIcon = item[&#39;icon&#39;]; &#47;&#47; Update the icon for the selected sort type.
+                      });
+                    }
+
+                  },
+                );
+              }).toList(),
+            ],
+          );
+        },
+      );
+    },
+  ).then((_) {
+    completer.complete(timeSelected);
+  });
+
+  return completer.future;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">curio</a></li>
+    <li><a href="../utils_componentSelectionPopUPPage/utils_componentSelectionPopUPPage-library.html">componentSelectionPopUPPage</a></li>
+    <li class="self-crumb">showSortPostsBottomSheet function</li>
+</ol>
+
+
+    <h5>componentSelectionPopUPPage library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    curio
+      1.0.0+1
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

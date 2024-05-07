@@ -1,8 +1,9 @@
 import 'package:curio/widgets/searchCommentCard.dart';
+import 'package:curio/widgets/search_comment_card_test.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/widgets/SortByButton.dart';
 import 'package:curio/services/api_service.dart';
-
+import 'package:mockito/mockito.dart';
 class SortAndCommentList extends StatefulWidget {
   final List<String> sortOptions;
   final String query;
@@ -56,7 +57,7 @@ class _SortAndCommentListState extends State<SortAndCommentList> {
             future: commentsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
@@ -79,7 +80,7 @@ class _SortAndCommentListState extends State<SortAndCommentList> {
                             commentUpvotes: data['upvotes'],
                             numberOfComments:
                                 data['linkedPost']['comments']!.length,
-                            postID: data['linkedPost']['_id'],
+                            postID: data['linkedPost']['_id'], apiService: MockApiService(),
                           );
                         },
                       )

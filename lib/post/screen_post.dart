@@ -11,8 +11,9 @@ import 'package:curio/widgets/tags.dart';
 import 'package:curio/widgets/poll_component.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
+import 'package:curio/post/shcudlesheet.dart';
 
-Future<void> uploadImage(XFile imageFile) async {
+Future<void> uploadImage(File imageFile) async {
   var request =
       http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
 
@@ -32,13 +33,15 @@ Future<void> uploadImage(XFile imageFile) async {
 
 class AddPostScreen extends StatefulWidget {
   final String type;
-  const AddPostScreen({super.key, required this.type});
+  final bool isScheduled;
+
+  const AddPostScreen({super.key, required this.type, this.isScheduled = false});
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
 
 class _AddPostScreenState extends State<AddPostScreen> {
-  final titleController = TextEditingController();
+  late TextEditingController titleController;
   final descriptionController = TextEditingController();
   final linkController = TextEditingController();
   final selectedTags = <String>[];
@@ -46,9 +49,10 @@ class _AddPostScreenState extends State<AddPostScreen> {
   bool isAttachmentAdded = false; // Add this line
   late Community selectedCommunity;
   bool isCommunitySelected = false;
+  File? image;
+  File? video;
   Attachment? attachment;
-  XFile? _pickedImage;
-  XFile? _pickedVideo;
+
 
   @override
   void dispose() {
@@ -61,6 +65,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
+    titleController = TextEditingController(
+      text: widget.isScheduled ? 'Scheduled Post' : '',
+    );
     selectedCommunity = Community(
       id: 'Community ID',
       name: 'Community Name',
@@ -112,6 +119,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                         if (isCommunitySelected) {
+                          dynamic media;
                           String type =
                               attachment != null ? attachment!.type : 'post';
                           if (type == 'image' || type == 'video') {
@@ -143,32 +151,45 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             'type': type,
                           };
                           //check if the attachment has been added
-                          if (attachment != null && attachment!.type == 'url') {
-                            // print the attachment type
-                            post['media'] = attachment!.data;
+                          if (attachment != null && attachment!.type == 'link') {
+                            post['media'] = linkController.text;
                           }
                           if (type == 'poll') {
                             post['options'] = options!.join(',');
                             post['voteLength'] = voteLength;
                             post['media'] = 'assets/images/poll.png';
                           }
-
-                          final SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          final String token = prefs.getString('token')!;
-                          final response = await ApiService().submitPost(
-                              post, token, _pickedImage ?? (_pickedVideo));
-                          if (response['success'] == true) {
-                            Navigator.pop(context);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(response['message']),
-                                duration: const Duration(seconds: 3),
-                              ),
+                          if (widget.isScheduled) {
+                            if(post['type'] == 'media'){
+                              print("Schdeuling media post");
+                              print("The component is ${attachment?.component}");
+                              post['media'] = attachment?.component;
+                            }
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return PostSettingsBottomSheet(post: post);
+                              },
                             );
                           }
-                        } else {
+                          else {
+                            final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                            final String token = prefs.getString('token')!;
+                            final response = await ApiService().submitPost(
+                                post, token, image??video);
+                            if (response['success'] == true) {
+                              Navigator.pop(context);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(response['message']),
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          }
+                        } else if (!isCommunitySelected) {
                           selectedCommunity = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -334,7 +355,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     SizedBox(
                       height: 0 +
                           (attachment != null
-                              ? attachment!.type == "poll" || attachment!.type == "video"
+                              ? attachment!.type == "poll" ||
+                                      attachment!.type == "video"
                                   ? 200
                                   : 50
                               : 0),
@@ -432,15 +454,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               ? null
                               : () async {
                                   final ImagePicker picker0 = ImagePicker();
-                                  final XFile? image = await picker0.pickImage(
-                                      source: ImageSource.gallery);
+                                  final dynamic image = (await picker0.pickImage(
+                                      source: ImageSource.gallery)) ;
                                   if (image != null) {
-                                    final File imageFile = File(image.path);
+                                    final dynamic imageFile = File(image.path);
                                     setState(() {
                                       optionSelected = false;
                                       attachment = Attachment(
                                           type: 'image',
-                                          data: imageFile,
+                                          data: image,
                                           component: Image.file(imageFile));
                                       attachment!.component = ImageComponent(
                                         image: imageFile,
@@ -452,6 +474,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                         },
                                       );
                                       isAttachmentAdded = true;
+                                      this.image = imageFile;
                                     });
                                   }
                                 },
@@ -467,25 +490,27 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               ? null
                               : () async {
                                   final ImagePicker picker = ImagePicker();
-                                  final XFile? video = await picker.pickVideo(
-                                      source: ImageSource.gallery);
+                                  final dynamic video = (await picker.pickVideo(
+                                      source: ImageSource.gallery)) ;
                                   if (video != null) {
                                     final File videoFile = File(video.path);
                                     setState(() {
                                       attachment = Attachment(
                                         type: 'video',
-                                        data: videoFile,
+                                        data: video,
                                         component: VideoComponent(
                                           video: videoFile,
                                           onClear: () {
                                             setState(() {
                                               attachment = null;
                                               isAttachmentAdded = false;
+
                                             });
                                           },
                                         ),
                                       );
                                       isAttachmentAdded = true;
+                                      this.video = videoFile;
                                     });
                                   }
                                 },
@@ -602,9 +627,9 @@ class _ImageComponentState extends State<ImageComponent> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
-          else
+          } else {
             return Stack(
               children: [
                 Image.file(snapshot.data!),
@@ -618,6 +643,7 @@ class _ImageComponentState extends State<ImageComponent> {
                 ),
               ],
             );
+          }
         }
       },
     );
@@ -661,9 +687,9 @@ class _VideoComponentState extends State<VideoComponent> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
-          else
+          } else {
             return Stack(
               children: [
                 VideoPlayer(snapshot.data!),
@@ -677,6 +703,7 @@ class _VideoComponentState extends State<VideoComponent> {
                 ),
               ],
             );
+          }
         }
       },
     );

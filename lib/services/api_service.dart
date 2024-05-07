@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -229,28 +230,30 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> submitPost(
-      Map<String, dynamic> post, String token, XFile? imageFile) async {
-    print("submitting post");
-    print(jsonEncode(post));
-
+      Map<String, dynamic> post, String token, File? imageFile) async {
+    // load the image file into binary
+    var imageData = imageFile != null
+        ? await imageFile.readAsBytes()
+        : null; // image data is null if no image is selected
+    print("image data: $imageData");
     var request =
         http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
     request.fields
         .addAll(post.map((key, value) => MapEntry(key, value.toString())));
-
-    if (imageFile != null) {
-      print("image file: ${imageFile.path}");
-      request.files.add(await http.MultipartFile.fromPath(
-        'media', // consider 'media' as the key for the image file in your server
-        imageFile.path,
-      ));
+    if (imageData != null) {
+      request.files.add(http.MultipartFile.fromBytes('media', imageData,
+          filename: imageFile!.path.split('/').last));
     }
+  if (imageFile != null) {
+  var imageData = await imageFile.readAsBytes();
+  request.files.add(http.MultipartFile.fromBytes('file', imageData));
+}
 
     request.headers.addAll(<String, String>{
       'Authorization': 'Bearer $token',
     });
-
+    // print the request
     var response = await request.send();
 
     if (response.statusCode == 201) {
@@ -259,6 +262,7 @@ class ApiService {
       return jsonDecode(respStr);
     } else {
       final respStr = await response.stream.bytesToString();
+      print("Failed to submit post: $respStr");
       return {'success': false, 'message': respStr};
     }
   }

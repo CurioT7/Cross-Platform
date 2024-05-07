@@ -2,6 +2,7 @@ import 'package:curio/Views/Messages/message_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/message.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MessageCard extends StatefulWidget {
   final Message message;
@@ -30,12 +31,31 @@ class _MessageCardState extends State<MessageCard> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadReadStatus();
+  }
+
+  _loadReadStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isRead = (prefs.getBool('isRead_${widget.message.id}') ?? false);
+    });
+  }
+
+  _saveReadStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isRead_${widget.message.id}', _isRead);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
         setState(() {
           _isRead = true;
         });
+        _saveReadStatus();
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -58,6 +78,7 @@ class _MessageCardState extends State<MessageCard> {
                   setState(() {
                     _isRead = !_isRead;
                   });
+                  _saveReadStatus();
                 },
               ),
               SizedBox(width: 10.0),

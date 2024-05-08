@@ -96,8 +96,8 @@ class _SearchScreenState extends State<SearchScreen>
             Tab(text: 'Posts'),
             Tab(text: 'Communities'),
             Tab(text: 'Comments'),
-            Tab(text: 'People'),
             Tab(text: 'Hashtags'),
+            Tab(text: 'People'),
           ],
         ),
       ),
@@ -123,7 +123,7 @@ class _SearchScreenState extends State<SearchScreen>
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
               return Column(
                 children: [
-                  const Center(child: Text('Hashtags')),
+
                   SearchHashtag(query: value.text),
                 ],
               );

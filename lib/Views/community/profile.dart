@@ -12,6 +12,7 @@ import 'package:curio/Models/post.dart';
 //import postcard.dart
 //import 'package:curio/widgets/postCard.dart';
 
+import '../moderator/moderator_tools.dart';
 import 'aboutComunity.dart';
 
 class communityProfile extends StatefulWidget {
@@ -421,7 +422,13 @@ class _CommunityProfileState extends State<communityProfile> {
                       }
                     }
                     else(){
-
+//open ModeratorToolsPage class and send to it this subreddit name
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ModeratorToolsPage(subredditName: widget.communityName),
+                        ),
+                      );
                       //todo open modtools settings page
                     };
                   } catch (e) {

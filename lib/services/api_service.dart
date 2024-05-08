@@ -18,7 +18,7 @@ import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl= 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
   // final String _baseUrl = 'http://192.168.1.13:3000';
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -209,7 +209,6 @@ class ApiService {
             if (response.statusCode == 200) {
               titles.add(jsonDecode(response.body)['item']['title']);
             } else {
-              print('Response body: ${response.body}');
               throw Exception(
                   'Failed to load info with status code: ${response.statusCode}');
             }
@@ -227,35 +226,91 @@ class ApiService {
       throw Exception('Failed to fetch saved posts and comments');
     }
   }
-Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
-  final response = await http.get(
-    Uri.parse(
-        '$_baseUrl/api/info?objectID=$communityId&objectType=community'),
+
+  Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
+    final response = await http.get(
+      Uri.parse(
+          '$_baseUrl/api/info?objectID=$communityId&objectType=community'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['item'];
+    } else {
+      throw Exception(
+          'Failed to load info with status code: ${response.statusCode}');
+    }
+  }
+
+  Future<List<dynamic>> fetchScheduledPosts(String subreddit) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/getScheduledPost/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['scheduledPosts'];
+    } else {
+      print('Response body: ${response.body}');
+      throw Exception(
+          'Failed to load scheduled posts with status code: ${response.statusCode}');
+    }
+  }
+
+Future<bool> deleteScheduledPost(String postId) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+  final response = await http.delete(
+    Uri.parse('$_baseUrl/api/deleteScheduledPost/$postId'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
     },
   );
 
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body)['item'];
-  } else {
+  if (response.statusCode != 200) {
     print('Response body: ${response.body}');
-    throw Exception(
-        'Failed to load info with status code: ${response.statusCode}');
+    throw Exception('Failed to delete scheduled post');
   }
+  return true;
 }
+
+Future<bool> submitScheduledPost(Map<String, dynamic> post, File?Image) async {
+    print('Post: $post');
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/scheduledPost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(post),
+    );
+    if (response.statusCode != 201) {
+      print('Response body: ${response.body}');
+      throw Exception('Failed to submit scheduled post');
+    }
+    return true;
+  }
+
   Future<Map<String, dynamic>> submitPost(
       Map<String, dynamic> post, String token, File? imageFile) async {
     // load the image file into binary
-    print('Post: $post');
-    print('Image file: $imageFile');
     var imageData = imageFile != null
         ? await imageFile.readAsBytes()
         : null; // image data is null if no image is selected
 
     print("image data: $imageData");
     var request =
-    http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+        http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
     request.fields
         .addAll(post.map((key, value) => MapEntry(key, value.toString())));
@@ -263,10 +318,10 @@ Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
       request.files.add(http.MultipartFile.fromBytes('media', imageData,
           filename: imageFile!.path.split('/').last));
     }
-  if (imageFile != null) {
-  var imageData = await imageFile.readAsBytes();
-  request.files.add(http.MultipartFile.fromBytes('file', imageData));
-}
+    if (imageFile != null) {
+      var imageData = await imageFile.readAsBytes();
+      request.files.add(http.MultipartFile.fromBytes('file', imageData));
+    }
 
     request.headers.addAll(<String, String>{
       'Authorization': 'Bearer $token',
@@ -284,7 +339,26 @@ Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
       return {'success': false, 'message': respStr};
     }
   }
-
+Future<bool> editScheduledPost(String postId, String content) async {
+  var sharedPreferences = await SharedPreferences.getInstance();
+  var token = sharedPreferences.getString('token');
+  final response = await http.patch(
+    Uri.parse('$_baseUrl/api/editScheduledPost'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode(<String, String>{
+      'scheduledPostId': postId,
+      'content': content,
+    }),
+  );
+  if (response.statusCode != 200) {
+    print('Response body: ${response.body}');
+    return false;
+  }
+  return true;
+}
   Future<List<Community>> getCommunities(
       String token, BuildContext context) async {
     final logicAPI apiLogic = logicAPI();
@@ -308,7 +382,7 @@ Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
         errorMessage = 'User not found';
       } else {
         errorMessage =
-        'No communities found you have to create/join at least one';
+            'No communities found you have to create/join at least one';
       }
 
       // Show snackbar with error message
@@ -383,9 +457,7 @@ Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
       print('Response body: ${response.body}');
       throw Exception(
           'Failed to load comments with status code: ${response.statusCode}');
-
     }
-
   }
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
@@ -570,7 +642,7 @@ class GoogleAuthSignInService {
       }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth =
-      await googleUser!.authentication;
+          await googleUser!.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -582,7 +654,7 @@ class GoogleAuthSignInService {
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
       final userCredential =
-      await FirebaseAuth.instance.signInWithCredential(googleCredential);
+          await FirebaseAuth.instance.signInWithCredential(googleCredential);
       return userCredential;
     } catch (e) {
       print(e.toString());

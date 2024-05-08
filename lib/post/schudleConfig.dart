@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:curio/post/screen_post.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -119,22 +122,6 @@ bool validateDateSelection(DateTime selectedDate, TimeOfDay selectedTime, BuildC
               ElevatedButton(
                 onPressed: () async {
 
-                  // final SharedPreferences prefs =
-                  //     await SharedPreferences.getInstance();
-                  // final String token = prefs.getString('token')!;
-                  // final response = await ApiService()
-                  //     .submitPost(widget.post, token, null);
-                  // if (response['success'] == true) {
-                  //   Navigator.pop(context);
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text(response['message']),
-                  //       duration: const Duration(seconds: 3),
-                  //     ),
-                  //   );
-                  // }
-                  // check the picked days/year and time
                   if (!validateDateSelection(selectedDate, selectedTime, context)) {
                     return;
                   }
@@ -151,11 +138,20 @@ bool validateDateSelection(DateTime selectedDate, TimeOfDay selectedTime, BuildC
 
                   String formattedDateTime =
                       selectedDateTime.toUtc().toIso8601String();
-                  print(formattedDateTime);
                   widget.post['scheduledPublishDate'] = formattedDateTime;
                   widget.post['repeatOption'] =
                       isRepeatingWeekly ? 'weekly' : 'does_not_repeat';
                   widget.post['isScheduled'] = true;
+                  File? image = widget.post['media'] is ImageComponent
+                      ? widget.post['media'].image
+                      : null;
+                  File? video = widget.post['media'] is VideoComponent
+                      ? widget.post['media'].video
+                      : null;
+                  var media =widget.post['type'] == 'media' ? image ?? video : null;
+                  var success = await ApiService().submitScheduledPost(
+                      widget.post, media);
+                  if (success) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -163,6 +159,14 @@ bool validateDateSelection(DateTime selectedDate, TimeOfDay selectedTime, BuildC
                           post: widget.post, community: widget.community),
                     ),
                   );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Failed to schedule post'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                  }
                 },
                 child: const Text('Save'),
               ),

@@ -8,15 +8,14 @@ import '../post/screen_post.dart';
 class ScheduledPostCard extends StatelessWidget {
   final Map<String, dynamic> post;
   final Function updatePost;
-
+  final Function submitPost;
   final Community community;
 
   ScheduledPostCard(
-      {required this.post, required this.community, required this.updatePost});
-
+      {required this.post, required this.community, required this.updatePost, required this.submitPost});
   @override
   Widget build(BuildContext context) {
-    print("Post in card: $post");
+
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Add this line
@@ -206,7 +205,7 @@ class ScheduledPostCard extends StatelessWidget {
             ),
             onPressed: () {
               // Add your action here
-              updatePost(post);
+              submitPost(post, community.name);
             },
           ),
           TextButton.icon(
@@ -221,6 +220,7 @@ class ScheduledPostCard extends StatelessWidget {
               ),
             ),
             onPressed: () {
+              print("Edit Post with ID: ${post['_id']}");
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -228,6 +228,7 @@ class ScheduledPostCard extends StatelessWidget {
                     post: post,
                     type: 'text',
                     isScheduled: true,
+                    schudlePostEdit: true,
                     canChooseCommunity: false,
                     subreddit: {'subreddit': community},
                   ),

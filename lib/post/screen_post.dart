@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:curio/post/schudledPostPage.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,6 @@ Future<void> uploadImage(File imageFile) async {
 }
 
 String validatePost(Map<String, dynamic> post, Community community) {
-
   // Check if images are allowed and if the post type is 'image'
   if (!community.allowImages && post['type'] == 'media' ||
       !community.allowVideos && post['type'] == 'media') {
@@ -69,13 +69,17 @@ class AddPostScreen extends StatefulWidget {
   final Map<String, dynamic> post;
   final Map<String, dynamic> subreddit;
   final bool canChooseCommunity;
+  final bool editingPost;
+  final bool schudlePostEdit;
 
   const AddPostScreen(
       {super.key,
       required this.type,
-      this.isScheduled = false,
+      this.isScheduled = true,
       this.post = const {},
       this.subreddit = const {},
+      this.editingPost = false,
+      this.schudlePostEdit = false,
       this.canChooseCommunity = true});
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
@@ -99,6 +103,48 @@ class _AddPostScreenState extends State<AddPostScreen> {
     titleController.dispose();
     descriptionController.dispose();
     linkController.dispose();
+  }
+
+  Future<void> _submitPost(Map<String, dynamic> post) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token')!;
+    var media = post['type'] == 'media' ? image ?? video : null;
+    final response = await ApiService().submitPost(post, token, media);
+    if (response['success'] == true) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message']),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+
+
+  Future<void> _editSchudledPost(Map<String, dynamic> post) async {
+    var content = post['content'];
+    var id = widget.post['_id'];
+    // call the api to save the post
+    var success = await ApiService().editScheduledPost(id,content);
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScheduledPostsPage(
+              post: post, community: {'subreddit': selectedCommunity}),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to schedule post'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override
@@ -128,7 +174,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
     // check if the media is there if it is there then make it true
     isAttachmentAdded = widget.post['media'] != null;
     isCommunitySelected = widget.subreddit['subreddit'] != null;
-    if (widget.subreddit['subreddit'] != null && widget.subreddit['subreddit'] is Community) {
+    if (widget.subreddit['subreddit'] != null &&
+        widget.subreddit['subreddit'] is Community) {
       selectedCommunity = widget.subreddit['subreddit'];
     } else {
       selectedCommunity = Community(
@@ -239,7 +286,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         ),
       );
     } else {
-      attachment = Attachment(type: 'text', data: null, component: Container());
+      attachment = Attachment(type: 'post', data: null, component: Container());
       isAttachmentAdded = false;
     }
   }
@@ -327,7 +374,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             );
                             return;
                           }
-                          if (widget.isScheduled) {
+
+                          if (widget.isScheduled && !widget.schudlePostEdit) {
                             if (post['type'] == 'media') {
                               print("Schdeuling media post");
                               print(
@@ -337,32 +385,24 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             showModalBottomSheet(
                               context: context,
                               builder: (BuildContext context) {
-                                return PostSettingsBottomSheet(post: post, community: {
-                                  'subreddit': selectedCommunity,
-                                });
+                                return PostSettingsBottomSheet(
+                                    post: post,
+                                    community: {
+                                      'subreddit': selectedCommunity,
+                                    });
                               },
                             );
                           } else {
-                            final SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            final String token = prefs.getString('token')!;
-                            var media = type== 'media'
-                                ? image?? video
-                                : null;
-                            final response = await ApiService()
-                                .submitPost(post, token, media);
-                            if (response['success'] == true) {
-                              Navigator.pop(context);
+                            // check if is post is being edited by the schuleded post
+                            if (widget.schudlePostEdit) {
+                              print("Editing the schudled post");
+                              _editSchudledPost(post);
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(response['message']),
-                                  duration: const Duration(seconds: 3),
-                                ),
-                              );
+                              _submitPost(post);
                             }
                           }
-                        } else if (!isCommunitySelected && widget.canChooseCommunity) {
+                        } else if (!isCommunitySelected &&
+                            widget.canChooseCommunity) {
                           selectedCommunity = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -391,7 +431,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 child: // I want make it Post when the selected Community is set and Post whenn the selecetcommunity is not set
-                    Text(isCommunitySelected ? 'Post' : 'Next'),
+                    Text(isCommunitySelected
+                        ? widget.isScheduled
+                            ? 'Schedule'
+                            : 'Post'
+                        : 'Next'),
               );
             },
           ),
@@ -771,7 +815,9 @@ class ImageComponent extends StatefulWidget {
 
   ImageComponent({Key? key, required this.image, required this.onClear})
       : super(key: key);
-
+  Map<String, dynamic> toJson() => {
+    'image': image.path,
+  };
   @override
   _ImageComponentState createState() => _ImageComponentState();
 }
@@ -789,7 +835,10 @@ class _ImageComponentState extends State<ImageComponent> {
     // Load image from local storage
     return widget.image;
   }
-
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'VideoComponent{video: ${widget.image.path}}';
+  }
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
@@ -825,16 +874,24 @@ class VideoComponent extends StatefulWidget {
   final File video;
   final VoidCallback onClear;
 
+  Map<String, dynamic> toJson() => {
+    'video': video.path,
+  };
   VideoComponent({Key? key, required this.video, required this.onClear})
       : super(key: key);
 
   @override
   _VideoComponentState createState() => _VideoComponentState();
+
+
 }
 
 class _VideoComponentState extends State<VideoComponent> {
   late Future<VideoPlayerController> _controller;
-
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'VideoComponent{video: ${widget.video.path}}';
+  }
   @override
   void initState() {
     super.initState();

@@ -286,7 +286,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
+                MaterialPageRoute(builder: (context) => ModeratorToolsPage(subredditName: 'Music esse',)),
               );
             },
           ),

@@ -31,6 +31,7 @@ import 'package:curio/Views/community/chooseCommunity.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/share/shareToSubreddit.dart';
 import 'package:curio/Views/insettingspage/comfirmPasswordForsignIn.dart';
+import 'package:curio/Views/moderator/moderator_tools.dart';
 
 class AccountSettingsPage extends StatefulWidget {
   @override
@@ -285,7 +286,7 @@ class _AccountSettingsPageState extends State<AccountSettingsPage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
+                MaterialPageRoute(builder: (context) => ModeratorToolsPage(subredditName: 'Music esse',)),
               );
             },
           ),

@@ -692,7 +692,8 @@ class logicAPI {
 
       if (response.statusCode == 200) {
         Post post = Post.fromJson((jsonDecode(response.body)['item']));
-        print('Post: $post'); 
+        print('Post: $post');
+        print("post fetched successfully by id");
         return post;
       } else {
         print('Response body: ${response.body}');
@@ -1042,15 +1043,19 @@ class logicAPI {
       List<Map<String, dynamic>> postsData = jsonDecode(
           response.body)['posts'] != null ? List<Map<String, dynamic>>.from(
           jsonDecode(response.body)['posts']) : [];
-
+print("success fetch post by id");
       print('Posts: $postsData');
-      List<MiniPost> posts = MiniPost.getMiniPosts(jsonDecode(response.body)['posts'])
-          .toList();
+      // List<MiniPost> posts = MiniPost.getMiniPosts(jsonDecode(response.body)['posts'])
+      //     .toList();
+
+      List<MiniPost> posts = postsData.map((post) => MiniPost.fromJson(post)).toList();
+
       return posts;
     }
     else if (response.statusCode == 404)
 
     {
+      print('no posts found in search by hashtag');
       List<MiniPost> posts = [];
       return posts;
     }else {

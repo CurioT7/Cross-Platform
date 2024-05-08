@@ -1,3 +1,4 @@
+import 'package:curio/Models/minipost.dart';
 import 'package:curio/widgets/searchCommentCard.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/services/logicAPI.dart';
@@ -18,7 +19,7 @@ class SearchHashtag extends StatefulWidget {
 
 class _SearchHashtagState extends State<SearchHashtag> {
   Future<List<dynamic>>? commentsFuture;
-  Future<List<dynamic>>? postsFuture;
+  Future<List<MiniPost>>? postsFuture;
   final logicAPI _logicAPI = logicAPI(); // Replace with the correct class name from your logicAPI file
 
   @override
@@ -65,7 +66,7 @@ class _SearchHashtagState extends State<SearchHashtag> {
               }
             },
           ),
-          FutureBuilder<List<dynamic>>(
+          FutureBuilder<List<MiniPost>>(
             future: postsFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -82,10 +83,8 @@ class _SearchHashtagState extends State<SearchHashtag> {
               }
             },
           ),
-
         ],
       ),
     );
   }
-
 }

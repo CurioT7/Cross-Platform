@@ -21,9 +21,10 @@ class _SearchScreenState extends State<SearchScreen>
   final ApiService _searchService = ApiService();
   List<MiniPost> searchResults = [];
   List<String> suggestions = [];
+  Map<String, dynamic> responseForCommunity = {};
   String dropdownValue = 'Hot';
   late TabController _tabController;
-  Map<String, dynamic>? responseForCommunity;
+  ValueNotifier<String> searchQueryNotifier = ValueNotifier<String>('');
 
   @override
   void initState() {
@@ -54,7 +55,11 @@ class _SearchScreenState extends State<SearchScreen>
   Future<void> search(String query) async {
     try {
       print('Search query: $query');
-      final List<MiniPost> results = await _searchService.searchPost(query);
+      searchQueryNotifier.value = query;
+      print("Search Query Notifier: ${searchQueryNotifier.value}");
+      final List<MiniPost> results = await _searchService
+          .searchPost(query); // Changed function name to searchPost
+
       print('Posts: $results');
 
       if (results.isEmpty) {
@@ -158,10 +163,16 @@ class _SearchScreenState extends State<SearchScreen>
           ),
           // Replace these with your actual widgets for displaying the search results
           const Center(child: Text('Comments')),
-          SortAndCommentList(
-              query: _searchController.text,
-              sortOptions: const ['relevance', 'new', 'top'],
-              onSortOptionSelected: (option) {}),
+          ValueListenableBuilder<String>(
+            valueListenable: searchQueryNotifier,
+            builder: (BuildContext context, String value, Widget? child) {
+              return SortAndCommentList(
+                query: value,
+                sortOptions: const ['relevance', 'new','top'],
+                onSortOptionSelected: (option) {},
+              );
+            },
+          ),
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _searchController,
             builder: (BuildContext context, TextEditingValue value,

@@ -31,8 +31,7 @@ class LocationCustomizationPage extends StatelessWidget {
         );
     }
 
-    void _handleLocationTap(
-        BuildContext context, String location, String? token) async {
+    void _handleLocationTap(BuildContext context, String location, String? token) async {
         Navigator.pop(context, location);
         if (token != null) {
             print('calling the api from the location page');

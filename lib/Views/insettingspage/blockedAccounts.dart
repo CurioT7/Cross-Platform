@@ -9,7 +9,7 @@ class BlockedAccountsPage extends StatefulWidget {
 }
 
 class _BlockedAccountsPageState extends State<BlockedAccountsPage> {
-List<dynamic> blockedAccounts = [];
+  List<dynamic> blockedAccounts = [];
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -24,8 +24,7 @@ List<dynamic> blockedAccounts = [];
     super.initState();
     _loadInitialData(); // Load initial data when the widget initializes
 
-      print('blocked accounts are $blockedAccounts');
-
+    print('blocked accounts are $blockedAccounts');
   }
 
   void _loadInitialData() async {
@@ -33,7 +32,6 @@ List<dynamic> blockedAccounts = [];
     var value = prefs.getString('token');
 
     print('the value of the token inside the settings page is  $value');
-
 
     _fetchUserProfile();
   }
@@ -53,16 +51,16 @@ List<dynamic> blockedAccounts = [];
       print(userProfile); // Print the fetched data for debugging
       // Fetch user preferences
 
-      Map<String, dynamic> userPref = await _apiService.getUserPreferences(token);
-      blockedAccounts= userPref['viewBlockedPeople'];
+      Map<String, dynamic> userPref =
+      await _apiService.getUserPreferences(token);
+      blockedAccounts = userPref['viewBlockedPeople'];
       print('blocked accounts are $blockedAccounts');
       print('$userPref'); // Print the fetched data for debugging
 
-
       setState(() {
-        blockedAccounts= userPref['viewBlockedPeople'];
-
-
+        blockedAccounts = userPref['viewBlockedPeople'];
+        // Initially show all blocked accounts
+        filteredAccounts = List.from(blockedAccounts);
       });
     } catch (e) {
       print('Failed to fetch user profile: $e');
@@ -71,11 +69,7 @@ List<dynamic> blockedAccounts = [];
 
   final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
 
-
-
   List<dynamic> filteredAccounts = [];
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +92,9 @@ List<dynamic> blockedAccounts = [];
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: blockedAccounts.length,
+              itemCount: filteredAccounts.length,
               itemBuilder: (context, index) {
-                String account = blockedAccounts[index]['blockedUsername'];
-
+                String account = filteredAccounts[index]['blockedUsername'];
 
                 return ListTile(
                   leading: CircleAvatar(
@@ -133,11 +126,18 @@ List<dynamic> blockedAccounts = [];
   void _filterAccounts(String query) {
     if (query.isEmpty) {
       setState(() {
-        blockedAccounts = blockedAccounts;
+        // If the query is empty, show all blocked accounts
+        filteredAccounts = List.from(blockedAccounts);
       });
     } else {
       setState(() {
-
+        // If the query is not empty, filter the accounts based on the query
+        filteredAccounts = blockedAccounts.where((account) {
+          return account['blockedUsername']
+              .toString()
+              .toLowerCase()
+              .contains(query.toLowerCase());
+        }).toList();
       });
     }
   }
@@ -151,7 +151,7 @@ List<dynamic> blockedAccounts = [];
         throw Exception('Token not found');
       }
 
-      final response = await _apiService.blockUser(token,account);
+      final response = await _apiService.blockUser(token, account);
       if (response['message'] == 'User successfully blocked') {
         setState(() {
           blockedAccounts.add(account);
@@ -188,7 +188,8 @@ List<dynamic> blockedAccounts = [];
               child: Container(
                 height: 40,
                 alignment: Alignment.center,
-                child: Text('Failed to block user: ${response['message']}'),
+                child:
+                Text('Failed to block user: ${response['message']}'),
               ),
             ),
           ),
@@ -224,13 +225,11 @@ List<dynamic> blockedAccounts = [];
 
       if (token != null) {
         final response = await _apiService.unblockUser(token, account);
-        if (response['message'] == 'User successfully unblocked')
-        {
+        if (response['message'] == 'User successfully unblocked') {
           setState(() {
             blockedAccounts.remove(account);
             _filterAccounts('');
             printBlockedAccounts();
-
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -262,7 +261,8 @@ List<dynamic> blockedAccounts = [];
                 child: Container(
                   height: 40,
                   alignment: Alignment.center,
-                  child: Text('Failed to unblock user: ${response['message']}'),
+                  child:
+                  Text('Failed to unblock user: ${response['message']}'),
                 ),
               ),
             ),

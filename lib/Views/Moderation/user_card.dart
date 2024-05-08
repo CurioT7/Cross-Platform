@@ -1,3 +1,4 @@
+import 'package:curio/Views/Messages/new_message_screen.dart';
 import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
@@ -48,7 +49,12 @@ class _UserCardState extends State<UserCard> {
                       title: Text('Send Message'),
                       trailing: Icon(Icons.arrow_forward),
                       onTap: () {
-                        //Navigate to message screen with username as argument
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewMessageScreen(username: widget.username),
+                          ),
+                        );
                       },
                     ),
                     ListTile(

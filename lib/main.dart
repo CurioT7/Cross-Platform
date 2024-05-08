@@ -1,6 +1,4 @@
 import 'package:curio/Views/signUp/signup_email.dart';
-import 'package:curio/bloc_observer.dart';
-import 'package:curio/controller/chat_cubit/chat_cubit.dart';
 import 'package:flutter/material.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
@@ -39,7 +37,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   const storage = FlutterSecureStorage();
-  Bloc.observer = MyBlocObserver();
   await storage.deleteAll();
   runApp(const MyApp());
 }
@@ -49,15 +46,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => HistoryCubit(),
-        ),
-        BlocProvider(
-          create: (context) => ChatCubit(),
-        ),
-      ],
+    return BlocProvider(
+      create: (context) => HistoryCubit()..getHistory(),
       child: MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
@@ -110,7 +100,7 @@ class HomePageBeforeSignIn extends StatelessWidget {
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: const sideBarBeforeLogin(),
-      bottomNavigationBar: const HomeNavigationBar(),
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         title: const Text('Side menu'),
         actions: [

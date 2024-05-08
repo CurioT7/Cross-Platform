@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 
-void showGenderBottomSheet(BuildContext context, Function(String) updateGender) async {
+void showGenderBottomSheet(
+    BuildContext context, Function(String) updateGender) async {
   // Initialize SharedPreferences instance
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -54,7 +55,7 @@ void showGenderBottomSheet(BuildContext context, Function(String) updateGender) 
               ),
               RadioListTile<String>(
                 title: Text('Man'),
-                value: 'man',
+                value: 'Man',
                 groupValue: _selectedGender,
                 onChanged: (value) {
                   setModalState(() {
@@ -64,7 +65,7 @@ void showGenderBottomSheet(BuildContext context, Function(String) updateGender) 
               ),
               RadioListTile<String>(
                 title: Text('Woman'),
-                value: 'woman',
+                value: 'Woman',
                 groupValue: _selectedGender,
                 onChanged: (value) {
                   setModalState(() {
@@ -112,4 +113,3 @@ Future<void> _handleGenderUpdate(BuildContext context, String gender) async {
     );
   }
 }
-

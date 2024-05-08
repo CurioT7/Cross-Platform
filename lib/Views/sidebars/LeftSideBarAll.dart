@@ -84,10 +84,8 @@ class _AllPageState extends State<AllPage> {
       }
       setState(() {
         _posts = (response['posts'] as List<dynamic>)
-            .map((postJson) => Post.fromJson(postJson['post']))
+            .map((postJson) => Post.fromJson(postJson))
             .toList();
-        print('fetched posts');
-        print(_posts);
         _isLoading = false;
       });
       print(response['posts']); // Print fetched posts
@@ -107,7 +105,8 @@ class _AllPageState extends State<AllPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
+        title: const Text('All',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28)),
       ),
       body: Column(
         children: [
@@ -117,13 +116,19 @@ class _AllPageState extends State<AllPage> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    timeSelected =
-                        showSortPostsBottomSheet(context, _selectedSort, _selectedIcon, _updateSortAndIcon, _fetchPosts);
+                    timeSelected = showSortPostsBottomSheet(
+                        context,
+                        _selectedSort,
+                        _selectedIcon,
+                        _updateSortAndIcon,
+                        _fetchPosts);
                   },
                   child: Row(
                     children: [
                       Icon(_selectedIcon),
-                      Text(_selectedSort, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                      Text(_selectedSort,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
                       Icon(Icons.keyboard_arrow_down_outlined),
                     ],
                   ),

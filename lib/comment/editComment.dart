@@ -6,10 +6,11 @@ import 'package:curio/Models/post.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Models/comment.dart';
+
 class editComment extends StatefulWidget {
-  final String postID;
+  final Post post;
   final String commentId;
-  editComment({ required this.postID, required this.commentId});
+  editComment({required this.post, required this.commentId});
   @override
   _editCommentState createState() => _editCommentState();
 }
@@ -29,23 +30,26 @@ class _editCommentState extends State<editComment> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit comment', style: TextStyle(fontSize: 18,)),
+        title: Text('Edit comment',
+            style: TextStyle(
+              fontSize: 18,
+            )),
       ),
       body: Column(
-          children: <Widget>[
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 15.0),
-          child: TextField(
-            controller: _commentController,
-            decoration: InputDecoration(
-              hintText: 'Your comment',
-              border: InputBorder.none,
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 15.0),
+              child: TextField(
+                controller: _commentController,
+                decoration: InputDecoration(
+                  hintText: 'Your comment',
+                  border: InputBorder.none,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      ],
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -57,45 +61,43 @@ class _editCommentState extends State<editComment> {
               onPressed: isAttachmentAdded
                   ? null
                   : () {
-                setState(() {
-                  attachment = Attachment(
-                    type: 'link',
-                    data: linkController.text,
-                    component:
-                    Container(), // Temporary component
-                  );
-                  attachment!.component = URLComponent(
-                    controller: linkController,
-                    onClear: () {
                       setState(() {
-                        attachment = null;
-                        isAttachmentAdded = false;
+                        attachment = Attachment(
+                          type: 'link',
+                          data: linkController.text,
+                          component: Container(), // Temporary component
+                        );
+                        attachment!.component = URLComponent(
+                          controller: linkController,
+                          onClear: () {
+                            setState(() {
+                              attachment = null;
+                              isAttachmentAdded = false;
+                            });
+                          },
+                        );
+                        isAttachmentAdded = true;
                       });
                     },
-                  );
-                  isAttachmentAdded = true;
-                });
-              },
             ),
             IconButton(
               icon: const Icon(FontAwesomeIcons.image),
               onPressed: isAttachmentAdded
                   ? null
                   : () async {
-                final ImagePicker picker0 = ImagePicker();
-                final XFile? image = await picker0.pickImage(
-                    source: ImageSource.gallery);
-                setState(() {
-                  optionSelected = false;
-                  _pickedImage = image;
-                  attachment = Attachment(
-                      type: 'image',
-                      data: image,
-                      component:
-                      Image.file(File(image!.path)));
-                  isAttachmentAdded = true;
-                });
-              },
+                      final ImagePicker picker0 = ImagePicker();
+                      final XFile? image =
+                          await picker0.pickImage(source: ImageSource.gallery);
+                      setState(() {
+                        optionSelected = false;
+                        _pickedImage = image;
+                        attachment = Attachment(
+                            type: 'image',
+                            data: image,
+                            component: Image.file(File(image!.path)));
+                        isAttachmentAdded = true;
+                      });
+                    },
             ),
           ],
         ),
@@ -155,17 +157,13 @@ class _editCommentState extends State<editComment> {
         }
         api.updateComment(widget.commentId, _commentController.text, token);
         Navigator.of(context).pop();
-
-      }
-      catch(e){
+      } catch (e) {
         print(e);
       }
-
     }
   }
-
-
 }
+
 class Attachment {
   final String type;
   final dynamic data;

@@ -6,42 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiServiceMahmoud {
   final String _baseUrlMoch =
       'https://user1709759645693.requestly.tech'; // Base URL for moch
-  final String _baseUrl = 'http://192.168.1.8:3000'; // Base URL for moch
-  //final String _baseUrlDataBase =  'http://10.0.2.2:3000';
-  //final String _baseUrlDataBase= 'http://192.168.1.8:3000';
-  final String _baseUrlDataBase = 'http://192.168.1.8:3000';
-
-  Future<Map<String, dynamic>> markViewed(String token) async {
-    final String url = '$_baseUrlDataBase/api/notifications/mark-all-viewed';
-    print('api called from the api page');
-    print('the token is $token');
-    final Map<String, String> headers = {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    };
-    try {
-      final response = await http.patch(Uri.parse(url), headers: headers);
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        print(
-            "notification  mark-viewed successfully: ${responseData['message']}");
-        print('the response data is $responseData inside tge api page ');
-        return responseData;
-      } else {
-        final errorResponse = jsonDecode(response.body);
-        print('the response data is $errorResponse inside tge api page ');
-        print(
-            "Error mark-viewed notification location: ${errorResponse['message']}");
-        return errorResponse;
-      }
-    } catch (e) {
-      print("Failed to mark-viewed notification: $e");
-      throw Exception("Failed to mark-viewed notification : $e");
-    }
-  }
+  final String _baseUrl = 'http://20.19.89.1'; // Base URL for moch
+  final String _baseUrlDataBase = 'http://10.0.2.2:3000';
+  // final String _baseUrlDataBase= 'http://192.168.1.7';
 
   Future<Map<String, dynamic>> getUnreadNotifications(String token) async {
-    const String endpoint = '/api/notifications/unread';
+    final String endpoint = '/api/notifications/unread';
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
@@ -200,7 +170,7 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getUserProfile(String token) async {
-    const String endpoint =
+    final String endpoint =
         '/api/settings/v1/me'; // Endpoint for fetching user profile
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
@@ -345,89 +315,53 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> unblockUser(
       String token, String usernameToUnblock) async {
-    const String endpoint = '/api/User/unblock'; // Endpoint for blocking a user
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
-
-    print('token is $token');
-    print('the username to block is $usernameToUnblock');
-
-    // Create the request body
-    Map<String, dynamic> body = {
-      "usernameToUnblock": usernameToUnblock,
+    final String apiUrl = '$_baseUrlDataBase/User/unblock';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
     };
+    final body = jsonEncode({'usernameToUnblock': usernameToUnblock});
 
-    // Convert the request body to JSON
-    String requestBodyJson = jsonEncode(body);
-    print('the request body is $requestBodyJson');
+    final response =
+        await http.post(Uri.parse(apiUrl), headers: headers, body: body);
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-        body: requestBodyJson,
-      );
-
-      print('the status code is ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        print("Block updated successfully: ${responseData['message']}");
-        return responseData;
-      } else {
-        // Log the response for further analysis
-        print('Error response: ${response.body}');
-        throw Exception("Failed to update block: ${response.statusCode}");
-      }
-    } catch (e) {
-      // Log any caught exceptions for debugging
-      print("Failed to update block: $e");
-      throw Exception("Failed to update block: $e");
-    }
+    return jsonDecode(response.body);
   }
 
-  Future<Map<String, dynamic>> blockUser(
-      String token, String usernameToBlock) async {
-    const String endpoint = '/api/User/block'; // Endpoint for blocking a user
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
-
-    print('token is $token');
+  Future<Map<String, dynamic>> blockUser(String usernameToBlock) async {
+    final String url = '$_baseUrlDataBase/User/block';
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+    };
     print('the username to block is $usernameToBlock');
-
-    // Create the request body
-    Map<String, dynamic> body = {
+    Map<String, String> body = {
       "usernameToBlock": usernameToBlock,
     };
-
-    // Convert the request body to JSON
     String requestBodyJson = jsonEncode(body);
+    // Convert the request body to JSON
+
     print('the request body is $requestBodyJson');
 
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+      final response = await http.patch(
+        Uri.parse(url),
+        headers: headers,
         body: requestBodyJson,
       );
-
       print('the status code is ${response.statusCode}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        print("Block updated successfully: ${responseData['message']}");
+        print("block updated successfully: ${responseData['message']}");
+        print('the response data is $responseData inside tge api page ');
         return responseData;
       } else {
-        // Log the response for further analysis
-        print('Error response: ${response.body}');
-        throw Exception("Failed to update block: ${response.statusCode}");
+        final errorResponse = jsonDecode(response.body);
+        print('the response data is $errorResponse inside tge api page ');
+        print("Error blocking user: ${errorResponse['message']}");
+        return errorResponse;
       }
     } catch (e) {
-      // Log any caught exceptions for debugging
       print("Failed to update block: $e");
       throw Exception("Failed to update block: $e");
     }
@@ -515,7 +449,7 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> connectWithGoogle(
-      String password, String token, String googleToken) async {
+      String token, String googleToken) async {
     final String url = '$_baseUrlDataBase/api/google/connect';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -523,7 +457,6 @@ class ApiServiceMahmoud {
     };
 
     final Map<String, dynamic> body = {
-      'password': password,
       'token': googleToken,
     };
 
@@ -718,8 +651,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getHotPosts() async {
     print('fetching hot posts  from api service mahmoud ');
-    const String endpoint = '/api/allpage/hot?';
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    final String endpoint = '/api/hot';
+    final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
       final response = await http.get(url);
@@ -738,8 +671,8 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getNewPosts() async {
-    const String endpoint = '/api/allpage/new?';
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    final String endpoint = '/api/new';
+    final url = Uri.parse('$_baseUrlMoch$endpoint');
     print('fetching new posts  from api service mahmoud ');
 
     try {
@@ -759,8 +692,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getRisingPosts() async {
     print('fetching rising posts  from api service mahmoud  ');
-    const String endpoint = '/api/allpage/best?';
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    final String endpoint = '/api/rising';
+    final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
       final response = await http.get(url);
@@ -778,28 +711,29 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getRandomPosts() async {
-    print('fetching random posts  from api service mahmoud  ');
-    const String endpoint = '/api/allpage/random?';
-    final url = Uri.parse('$_baseUrlDataBase$endpoint');
+    print('fetching random posts  from api service mahmoud');
+    final String endpoint = '/api/random';
+    print('$_baseUrlMoch$endpoint');
+    final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
       final response = await http.get(url);
-      print(response.statusCode);
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       } else if (response.statusCode == 404) {
         return {'success': false, 'message': 'Page not found'};
       } else {
-        throw Exception('Failed to fetch rising posts: ${response.statusCode}');
+        throw Exception('Failed to fetch hot posts: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Failed to fetch rising posts: $e');
+      throw Exception('Failed to fetch hot posts: $e');
     }
   }
 
   Future<Map<String, dynamic>> getTopNowPosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/7.2';
+    final String endpoint = '/api/top/7.2';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
@@ -819,7 +753,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopTodayPosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/24.0';
+    final String endpoint = '/api/top/24.0';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
@@ -839,7 +773,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisWeekPosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/168.0';
+    final String endpoint = '/api/top/168.0';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
@@ -859,7 +793,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisMonthPosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/720.0';
+    final String endpoint = '/api/top/720.0';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
@@ -879,7 +813,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisYearPosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/2555.0';
+    final String endpoint = '/api/top/2555.0';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {
@@ -899,7 +833,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopAllTimePosts() async {
     print('fetching top posts  from api service mahmoud');
-    const String endpoint = '/api/top/12000.0';
+    final String endpoint = '/api/top/12000.0';
     final url = Uri.parse('$_baseUrlMoch$endpoint');
 
     try {

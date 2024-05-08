@@ -1,8 +1,9 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:curio/post/community_card.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Models/community_model.dart';
+
 class PostToPage extends StatefulWidget {
   const PostToPage({Key? key}) : super(key: key);
 
@@ -23,27 +24,28 @@ class _PostToPageState extends State<PostToPage> {
     super.initState();
     fetchCommunities();
   }
-Future<void> fetchCommunities() async {
-  final sharedPrefs = await SharedPreferences.getInstance();
-  String token = sharedPrefs.getString('token')!;
-  // get the communities from the API
-  print('Fetching communities from user token: $token');
-  communities = ApiService().getCommunities(token,context);
-  if (communities != null) {
-    print("Number of communities: ${communities}");
-    communityList = await communities!;
-    displayedCommunities = communityList.sublist(0, itemCount);
-    searchController.addListener(() {
-      setState(() {
-        displayedCommunities = communityList
-            .where((community) => community.name
-                .toLowerCase()
-                .contains(searchController.text.toLowerCase()))
-            .toList();
+
+  Future<void> fetchCommunities() async {
+    final sharedPrefs = await SharedPreferences.getInstance();
+    String token = sharedPrefs.getString('token')!;
+    // get the communities from the API
+    print('Fetching communities from user token: $token');
+    communities = ApiService().getCommunities(token, context);
+    if (communities != null) {
+      communityList = await communities!;
+      displayedCommunities = communityList.sublist(0, itemCount);
+      searchController.addListener(() {
+        setState(() {
+          displayedCommunities = communityList
+              .where((community) => community.name
+                  .toLowerCase()
+                  .contains(searchController.text.toLowerCase()))
+              .toList();
+        });
       });
-    });
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
@@ -156,11 +158,7 @@ Future<void> fetchCommunities() async {
                       community: displayedCommunities[index],
                       onTap: () {
                         // send the selected community to the post screen
-                        Navigator.pop(
-                          context,
-                          displayedCommunities[index]
-                        );
-
+                        Navigator.pop(context, displayedCommunities[index]);
                       },
                     );
                   }
@@ -172,5 +170,4 @@ Future<void> fetchCommunities() async {
       ),
     );
   }
-
 }

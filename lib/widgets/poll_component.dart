@@ -2,20 +2,11 @@ import 'package:flutter/material.dart';
 
 class PollComponent extends StatefulWidget {
   final VoidCallback onClear;
-  final GlobalKey<_PollComponentState> pollComponentKey;
 
-  const PollComponent({required this.pollComponentKey, required this.onClear}) : super(key: pollComponentKey);
+  const PollComponent({Key? key, required this.onClear}) : super(key: key);
 
   @override
   _PollComponentState createState() => _PollComponentState();
-
-  List<String>? getOptions() {
-    return pollComponentKey.currentState?.getOptions();
-  }
-
-  String? getSelectedOption() {
-    return pollComponentKey.currentState?.getSelectedOption();
-  }
 }
 
 class _PollComponentState extends State<PollComponent> {
@@ -23,15 +14,6 @@ class _PollComponentState extends State<PollComponent> {
     TextEditingController(),
     TextEditingController()
   ];
-  List<String> getOptions() {
-    // give a default value of the text if nontext is entered
-    return optionControllers.map((controller) => controller.text.isEmpty ? 'Option' : controller.text).toList();
-  }
-
-  String getSelectedOption() {
-    return selectedOption;
-  }
-
   String selectedOption = '3 days';
   List<FocusNode> optionFocusNodes = [FocusNode(), FocusNode()];
   List<UniqueKey> optionKeys = [UniqueKey(), UniqueKey()]; // Add this line
@@ -81,7 +63,7 @@ class _PollComponentState extends State<PollComponent> {
                     },
                     style: ButtonStyle(
                       backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.grey),
+                          MaterialStateProperty.all<Color>(Colors.grey),
                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
@@ -119,27 +101,29 @@ class _PollComponentState extends State<PollComponent> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      text: 'Poll will end in ',
-                      style:
-                      const TextStyle(fontSize: 12, color: Colors.black),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: selectedOption,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
+              Container(
+                child: Row(
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        text: 'Poll will end in ',
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: selectedOption,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero, // Add this line
-                    icon: const Icon(Icons.arrow_drop_down),
-                    onPressed: _showEndPollOptions,
-                  ),
-                ],
+                    IconButton(
+                      padding: EdgeInsets.zero, // Add this line
+                      icon: const Icon(Icons.arrow_drop_down),
+                      onPressed: _showEndPollOptions,
+                    ),
+                  ],
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
@@ -169,7 +153,7 @@ class _PollComponentState extends State<PollComponent> {
                             hintText: 'Option ${index + 1}',
                             border: const OutlineInputBorder(
                               borderRadius:
-                              BorderRadius.all(Radius.circular(20)),
+                                  BorderRadius.all(Radius.circular(20)),
                               borderSide: BorderSide.none,
                             ),
                           ),

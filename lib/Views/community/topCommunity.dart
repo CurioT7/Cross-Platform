@@ -9,7 +9,6 @@ import 'package:curio/Views/community/topAppBar.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:curio/Views/community/SelectionCommunityPopUp.dart';
 
-
 class TopCommunitiesPage extends StatefulWidget {
   @override
   _TopCommunitiesPageState createState() => _TopCommunitiesPageState();
@@ -19,7 +18,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
   final ApiServiceMahmoud _apiService = ApiServiceMahmoud();
   final logicAPI apiLogic = logicAPI();
   Map<String, dynamic>? _topCommunities;
-  Map<String, bool> communityStates = {}; // Store the state of each community button
+  Map<String, bool> communityStates =
+      {}; // Store the state of each community button
   String _username = '';
   String _email = '';
   List<dynamic> communities = [];
@@ -39,14 +39,13 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userProfile = await _apiService.getUserProfile(token);
+      Map<String, dynamic> userProfile =
+          await _apiService.getUserProfile(token);
       setState(() {
         _username = userProfile['username'];
         _email = userProfile['email'];
       });
       _fetchUserCommunities(token);
-
-
     } catch (e) {
       print('Failed to fetch user profile: $e');
     }
@@ -58,7 +57,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userCommunities = await _apiService.getUserCommunities(token, _username);
+      Map<String, dynamic> userCommunities =
+          await _apiService.getUserCommunities(token, _username);
       setState(() {
         communities = userCommunities['communities'];
         print('User communities: $communities');
@@ -76,16 +76,12 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
         _topCommunities = response;
         // Initialize communityStates with false for each community
         _topCommunities!['communities'].forEach((community) {
-
-          final bool isJoined = communities.any((userCommunity)
-
-          {
-
+          final bool isJoined = communities.any((userCommunity) {
             return userCommunity['_id'].toString() == community['_id'];
-          }); communityStates[community['name']] = isJoined;
+          });
+          communityStates[community['name']] = isJoined;
         });
       });
-
 
       print(communityStates);
       print('Top communities response: $_topCommunities');
@@ -116,130 +112,125 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
             },
           ),
         ],
-
       ),
       body: Center(
         child: _topCommunities == null
             ? CircularProgressIndicator()
             : ListView.builder(
-          itemCount: _topCommunities!['communities'].length,
-          itemBuilder: (context, index) {
-            final community = _topCommunities!['communities'][index];
-            final communityMembers = community['members'];
-            final communityMembersCount = communityMembers.toString();
-            final communityName = community['name'];
+                itemCount: _topCommunities!['communities'].length,
+                itemBuilder: (context, index) {
+                  final community = _topCommunities!['communities'][index];
+                  final communityMembers = community['members'];
+                  final communityMembersCount = communityMembers.toString();
+                  final communityName = community['name'];
 
-            return ListTile(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => communityProfile(communityName: communityName,),
-                  ),
-                ).then((_) => _fetchUserProfile());
-              },
-
-
-              leading: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Image.asset('lib/assets/images/Curio.png'),
-                radius: 30,
-              ),
-              title: Text('$communityName '),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Members: $communityMembersCount'),
-                  Text('Category: ${community['category']}'),
-                ],
-              ),
-              trailing: TextButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                      EdgeInsets.only(right: 5.0)),
-                  backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                      return communityStates[communityName] ?? false
-                          ? Colors.white
-                          : Colors.blue.shade900;
-                    },
-                  ),
-                  side: MaterialStateProperty.resolveWith<BorderSide>(
-                        (Set<MaterialState> states) {
-                      return communityStates[communityName] ?? false
-                          ? BorderSide(color: Colors.grey)
-                          : BorderSide.none;
-                    },
-                  ),
-                ),
-                onPressed: () async {
-
-                  final SharedPreferences prefs = await SharedPreferences.getInstance();
-                  String? token = prefs.getString('token');
-                  if (token == null) {
-                    throw Exception('Token is null');
-                  }
-
-                  if (communityStates[communityName] ?? false) {
-                    try {
-                      await apiLogic.leaveCommunity(token, communityName);
-                      final username = await apiLogic.fetchUsername(token);
-                      final data = apiLogic.extractUsername(username);
-
-                      String extractedUsername = data['username'];
-                      apiLogic.fetchJoinedCommunityNames(extractedUsername, token, communityName);
-
-                      setState(() {
-                        showLeaveCommunityDialog(context, communityName);
-                      });
-                    } catch (e) {
-                      print('Error leaving community: $e');
-                    }
-                  } else {
-                    try {
-                      await apiLogic.joinCommunity(token, communityName);
-                      final username = await apiLogic.fetchUsername(token);
-                      final data = apiLogic.extractUsername(username);
-
-                      String extractedUsername = data['username'];
-                      apiLogic.fetchJoinedCommunityNames(extractedUsername, token, communityName);
-                      setState(() {
-                        communityStates[communityName] = true;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            content: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black,
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                              child: Text(
-                                'You have successfully joined the community: $communityName',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
+                  return ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => communityProfile(
+                            communityName: communityName,
                           ),
-                        );
-                      });
-                    } catch (e) {
-                      print('Error joining community: $e');
-                    }
-                  }
+                        ),
+                      ).then((_) => _fetchUserProfile());
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Image.asset('lib/assets/images/Curio.png'),
+                      radius: 30,
+                    ),
+                    title: Text('$communityName '),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Members: $communityMembersCount'),
+                        Text('Category: ${community['category']}'),
+                      ],
+                    ),
+                    trailing: TextButton(
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            EdgeInsets.only(right: 5.0)),
+                        backgroundColor:
+                            MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                            return communityStates[communityName] ?? false
+                                ? Colors.white
+                                : Colors.blue.shade900;
+                          },
+                        ),
+                        side: MaterialStateProperty.resolveWith<BorderSide>(
+                          (Set<MaterialState> states) {
+                            return communityStates[communityName] ?? false
+                                ? BorderSide(color: Colors.grey)
+                                : BorderSide.none;
+                          },
+                        ),
+                      ),
+                      onPressed: () async {
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        String? token = prefs.getString('token');
+                        if (token == null) {
+                          throw Exception('Token is null');
+                        }
+
+                        if (communityStates[communityName] ?? false) {
+                          try {
+                            await apiLogic.leaveCommunity(token, communityName);
+                            setState(() {
+                              showLeaveCommunityDialog(context, communityName);
+                            });
+                          } catch (e) {
+                            print('Error leaving community: $e');
+                          }
+                        } else {
+                          try {
+                            await apiLogic.joinCommunity(token, communityName);
+
+                            setState(() {
+                              communityStates[communityName] = true;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.transparent,
+                                  elevation: 0,
+                                  content: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 8.0),
+                                    child: Text(
+                                      'You have successfully joined the community: $communityName',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+                          } catch (e) {
+                            print('Error joining community: $e');
+                          }
+                        }
+                      },
+                      child: Text(
+                        communityStates[communityName] ?? false
+                            ? 'Joined'
+                            : 'Join',
+                        style: TextStyle(
+                          fontSize: MediaQuery.of(context).size.width * 0.022,
+                          color: communityStates[communityName] ?? false
+                              ? Colors.grey
+                              : Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
                 },
-                child: Text(
-                  communityStates[communityName] ?? false ? 'Joined' : 'Join',
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.022,
-                    color: communityStates[communityName] ?? false ? Colors.grey : Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
               ),
-            );
-          },
-        ),
       ),
     );
   }
@@ -280,7 +271,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                               ),
                               side: BorderSide(color: Colors.grey),
                             ),
-                            child: Text('Cancel', style: TextStyle(color: Colors.grey)),
+                            child: Text('Cancel',
+                                style: TextStyle(color: Colors.grey)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
@@ -300,7 +292,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                                 borderRadius: BorderRadius.circular(30.0),
                               ),
                             ),
-                            child: Text('Leave', style: TextStyle(color: Colors.white)),
+                            child: Text('Leave',
+                                style: TextStyle(color: Colors.white)),
                             onPressed: () {
                               Navigator.of(context).pop();
                               setState(() {
@@ -315,7 +308,8 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
                                       color: Colors.black,
                                       borderRadius: BorderRadius.circular(30.0),
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 8.0),
                                     child: Text(
                                       'You have left the community: $communityName',
                                       style: TextStyle(color: Colors.white),

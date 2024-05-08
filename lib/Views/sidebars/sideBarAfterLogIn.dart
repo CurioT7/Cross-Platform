@@ -7,13 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/history_screen.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:curio/Views/saved_posts_comments/main_view.dart';
 
 import '../my_profile_screen.dart';
 
-class CustomIcons {
-  static const IconData bookmarks_outlined = IconData(0xeee5, fontFamily: 'MaterialIcons');
-}
 class SidebarAfterLogIn extends StatelessWidget {
   //String username = "Maximillian12";
   final logicAPI apiLogic = logicAPI();
@@ -235,7 +231,7 @@ class SidebarAfterLogIn extends StatelessWidget {
                                       return Text(
                                           'Error calculating days since cake day: ${snapshot.error}');
                                     } else {
-                                       days = snapshot.data!;
+                                      days = snapshot.data!;
                                       return Text('${days}d',
                                           style: TextStyle(
                                             fontFamily: 'IBM Plex Sans Light',
@@ -300,7 +296,7 @@ class SidebarAfterLogIn extends StatelessWidget {
                   builder: (context) => MyProfileScreen(
                     userName: username,
                     userDetails: userDetails,
-                    days:days,
+                    days: days,
                   ),
                 ),
               )
@@ -359,31 +355,6 @@ class SidebarAfterLogIn extends StatelessWidget {
               bottom: MediaQuery.of(context).size.width * 0.01,
             ),
             leading: Icon(
-              CustomIcons.bookmarks_outlined,
-
-              color: Colors.grey[500],
-              size: MediaQuery.of(context).size.width * 0.05,
-            ),
-            title: const Text(
-              'Saved',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                //TODO REROUTE TO SAVED POSTS/COMMENTS PAGE
-                MaterialPageRoute(builder: (context) => const PostsCommentsExample()),
-              );
-            },
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width * 0.05,
-              bottom: MediaQuery.of(context).size.width * 0.01,
-            ),
-            leading: Icon(
               Icons.settings_outlined,
               color: Colors.grey[500],
               size: MediaQuery.of(context).size.width * 0.05,
@@ -398,7 +369,6 @@ class SidebarAfterLogIn extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const HistoryScreen()),
-
               );
             },
           ),

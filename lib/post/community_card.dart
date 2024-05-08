@@ -2,23 +2,28 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:curio/Models/community_model.dart';
 
-final icons = [Icons.home, Icons.star, Icons.school, Icons.work, Icons.alarm, Icons.account_balance];
+final icons = [
+  Icons.home,
+  Icons.star,
+  Icons.school,
+  Icons.work,
+  Icons.alarm,
+  Icons.account_balance
+];
 
 class CommunityCard extends StatelessWidget {
   final Community community;
   final Function onTap;
 
-  CommunityCard(
-      {Key? key, required this.community, required this.onTap}) : super(key: key);
+  CommunityCard({Key? key, required this.community, required this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final icon = icons[Random().nextInt(icons.length)];
 
     return GestureDetector(
-      onTap: () => onTap(
-
-      ),
+      onTap: () => onTap(),
       child: Row(
         children: [
           Icon(

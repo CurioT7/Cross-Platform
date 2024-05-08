@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/utils/componentUserInfoSubAppBar.dart';
-import 'package:curio/views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateEmailAdressPage extends StatefulWidget {
+  const UpdateEmailAdressPage({super.key});
+
   @override
   State<UpdateEmailAdressPage> createState() => _UpdateEmailAdressPageState();
 }
@@ -34,8 +34,10 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
       _showSnackBar('Token is null. Please log in again.');
       return;
     }
-    print('the new email is $newEmail,and the pssword is $password ,token $token' );
-    final Map<String, dynamic> result = await ApiServiceMahmoud().changeEmail(newEmail, password, token);
+    print(
+        'the new email is $newEmail,and the pssword is $password ,token $token');
+    final Map<String, dynamic> result =
+        await ApiServiceMahmoud().changeEmail(newEmail, password, token);
 
     if (result['success']) {
       _showSnackBar('Email updated successfully');
@@ -44,7 +46,6 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
       _showSnackBar(result['message']);
     }
   }
-
 
   bool _isValidEmail(String email) {
     // Validation logic for email format
@@ -69,22 +70,22 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Update Email Address'),
+        title: const Text('Update Email Address'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            UserInfoSubBar(),
+            const UserInfoSubBar(),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'New email address',
                 hintText: 'Enter new email address',
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
               decoration: InputDecoration(
@@ -104,10 +105,10 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
               ),
               obscureText: _obscureText,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _validateAndSave,
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         ),

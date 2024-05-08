@@ -18,7 +18,8 @@ class ForgotPasswordPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: redditBackgroundWhite, // Set your desired color
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items to the start and end of the row
+          mainAxisAlignment: MainAxisAlignment
+              .spaceBetween, // Align items to the start and end of the row
           children: [
             Expanded(
               child: Row(
@@ -39,7 +40,8 @@ class ForgotPasswordPage extends StatelessWidget {
                   builder: (BuildContext context) {
                     return AlertDialog(
                       title: const Text('Help'),
-                      content: const Text('For any issues, please contact support at curio.cufe@gmail.com'),
+                      content: const Text(
+                          'For any issues, please contact support at curio.cufe@gmail.com'),
                       actions: [
                         TextButton(
                           child: const Text('OK'),
@@ -60,103 +62,115 @@ class ForgotPasswordPage extends StatelessWidget {
       backgroundColor: redditBackgroundWhite, // Set your desired color
 
       body: SingleChildScrollView(
-        child:  Column(
-        children: <Widget>[
-          SizedBox(height: MediaQuery.of(context).padding.top), // Add spacing to sit under the AppBar
-          const Text('Reset Your Password', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          const Text('Enter your username and email address and we will send you a link to reset your password.', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 18)),
-          const SizedBox(height: 20),
-          CustomTextField('Username', _usernameController),
-          const SizedBox(height: 20),
-          CustomTextField('Email', _emailController),
-          const SizedBox(height: 20),
-          Container(
-            height: 50,
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: redditOrange,
-              ),
-              onPressed: () async {
-                String username = _usernameController.text;
-                String email = _emailController.text;
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+                height: MediaQuery.of(context)
+                    .padding
+                    .top), // Add spacing to sit under the AppBar
+            const Text('Reset Your Password',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            const Text(
+                'Enter your username and email address and we will send you a link to reset your password.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey, fontSize: 18)),
+            const SizedBox(height: 20),
+            CustomTextField('Username', _usernameController),
+            const SizedBox(height: 20),
+            CustomTextField('Email', _emailController),
+            const SizedBox(height: 20),
+            Container(
+              height: 50,
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: redditOrange,
+                ),
+                onPressed: () async {
+                  String username = _usernameController.text;
+                  String email = _emailController.text;
 
-                // Check if the username is empty
-                if (username.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a username.'),
-                    ),
-                  );
-                  return;
-                }
-
-                // Check if the email is empty
-                if (email.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter an email.'),
-                    ),
-                  );
-                  return;
-                }
-
-                // Check if the email is valid
-                if (!email.contains('@') || !email.contains('.')) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid email.'),
-                    ),
-                  );
-                  return;
-                }
-
-                try {
-                  final response = await apiService.resetPassword(username, email);
-                  if (response['success'] == true) {
+                  // Check if the username is empty
+                  if (username.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('An email has been sent to reset your password.'),
+                        content: Text('Please enter a username.'),
                       ),
                     );
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Success'),
-                          content: const Text('Please check your email to continue the password reset process.'),
-                          actions: [
-                            TextButton(
-                              child: const Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
+                    return;
+                  }
+
+                  // Check if the email is empty
+                  if (email.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter an email.'),
+                      ),
                     );
-                  } else {
+                    return;
+                  }
+
+                  // Check if the email is valid
+                  if (!email.contains('@') || !email.contains('.')) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a valid email.'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  try {
+                    final response =
+                        await apiService.resetPassword(username, email);
+                    if (response['success'] == true) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'An email has been sent to reset your password.'),
+                        ),
+                      );
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Success'),
+                            content: const Text(
+                                'Please check your email to continue the password reset process.'),
+                            actions: [
+                              TextButton(
+                                child: const Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              'Failed to reset password: ${response['message']}'),
+                        ),
+                      );
+                    }
+                  } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Failed to reset password: ${response['message']}'),
+                        content: Text('An error occurred: $e'),
                       ),
                     );
                   }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('An error occurred: $e'),
-                    ),
-                  );
-                }
-              },
-              child: const Text('Reset Password', style: TextStyle(color: Colors.white)),
+                },
+                child: const Text('Reset Password',
+                    style: TextStyle(color: Colors.white)),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }

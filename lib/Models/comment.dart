@@ -36,8 +36,6 @@ class Comment {
   }
 
   static List<Comment> getComments(List<dynamic> json) {
-    return json
-        .map((comment) => Comment.fromJson(comment))
-        .toList();
+    return json.map((comment) => Comment.fromJson(comment)).toList();
   }
 }

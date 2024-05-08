@@ -9,7 +9,6 @@ import 'package:curio/Views/signUp/userName.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:curio/Views/saved_posts_comments/main_view.dart';
 
 class SignUpWithEmail extends StatefulWidget {
   const SignUpWithEmail({super.key});
@@ -59,7 +58,8 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                     ),
                   );
                 },
-                child: const Text('Login ', style: TextStyle(color: redditGrey)),
+                child:
+                    const Text('Login ', style: TextStyle(color: redditGrey)),
               ),
             ),
           ],
@@ -82,25 +82,22 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
                   const SizedBox(height: 20),
                   MaterialButton(
                     onPressed: () async {
-
-                    await GoogleSignIn().signOut();
+                      await GoogleSignIn().signOut();
                       // sign in with google
                       UserCredential? userCredential =
                           await googleAuthSignInService.signInWithGoogle();
                       if (userCredential != null) {
                         String? accessToken =
                             userCredential.credential?.accessToken;
-                            await apiService.signInWithToken(accessToken!);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>   HomeScreen(),
-                        ),
-                      );
-                    }
-                      else{
+                        await apiService.signInWithToken(accessToken!);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(),
+                          ),
+                        );
+                      } else {
                         // stay on the same page
-
                       }
                     },
                     color: Colors.grey[200],
@@ -184,6 +181,7 @@ class _SignInWithEmailState extends State<SignUpWithEmail> {
     );
   }
 }
+
 class LoginButton extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailController;
@@ -191,7 +189,8 @@ class LoginButton extends StatelessWidget {
   final bool validInput;
 
   const LoginButton(this.formKey, this.emailController, this.passwordController,
-      {this.validInput = false, Key? key}) : super(key: key);
+      {this.validInput = false, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -204,19 +203,24 @@ class LoginButton extends StatelessWidget {
         child: MaterialButton(
           minWidth: double.infinity,
           height: 60,
-          onPressed: validInput ? () async {
-            print('Email: ${emailController.text}');
-            print('Password: ${passwordController.text}');
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CreateUsernamePage(
-                    email: emailController.text,
-                    password: passwordController.text),
-              ),
-            );
-          } : null, // Disable the button if the inputs are not valid
-          color: validInput ? redditOrange : Colors.grey, // Change the color based on whether the input is valid
+          onPressed: validInput
+              ? () async {
+                  print('Email: ${emailController.text}');
+                  print('Password: ${passwordController.text}');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateUsernamePage(
+                          email: emailController.text,
+                          password: passwordController.text),
+                    ),
+                  );
+                }
+              : null, // Disable the button if the inputs are not valid
+          color: validInput
+              ? redditOrange
+              : Colors
+                  .grey, // Change the color based on whether the input is valid
           disabledColor: Colors.grey, // Set the color of the disabled button
           elevation: 0,
           shape: RoundedRectangleBorder(

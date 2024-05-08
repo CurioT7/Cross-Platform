@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class TagBottomSheet extends StatefulWidget {
   final Function(List<String>) onDismiss;
   final List<String> selectedTags;
@@ -8,6 +9,7 @@ class TagBottomSheet extends StatefulWidget {
   @override
   _TagBottomSheetState createState() => _TagBottomSheetState();
 }
+
 class _TagBottomSheetState extends State<TagBottomSheet> {
   late List<String> selectedTags;
 
@@ -16,6 +18,7 @@ class _TagBottomSheetState extends State<TagBottomSheet> {
     super.initState();
     selectedTags = List.from(widget.selectedTags);
   }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -84,6 +87,7 @@ class _TagBottomSheetState extends State<TagBottomSheet> {
       ),
     );
   }
+
   @override
   void dispose() {
     super.dispose();
@@ -151,7 +155,8 @@ class _TagBarState extends State<TagBar> {
                     if (states.contains(MaterialState.selected)) {
                       return Colors.blue;
                     }
-                    return Colors.grey[200];                  },
+                    return Colors.grey[200];
+                  },
                 ),
                 thumbColor: MaterialStateProperty.all(Colors.white),
                 inactiveThumbColor: Colors.white,
@@ -170,4 +175,3 @@ class _TagBarState extends State<TagBar> {
     );
   }
 }
-

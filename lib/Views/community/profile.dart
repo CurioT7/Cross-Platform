@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
 import 'package:curio/Models/post.dart';
-
+import 'package:curio/Views/moderator/moderator_tools.dart';
 //import postcard.dart
 //import 'package:curio/widgets/postCard.dart';
 
@@ -421,6 +421,10 @@ class _CommunityProfileState extends State<communityProfile> {
                       }
                     }
                     else(){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ModeratorToolsPage(subredditName: widget.communityName,)),
+                      );
 
                       //todo open modtools settings page
                     };

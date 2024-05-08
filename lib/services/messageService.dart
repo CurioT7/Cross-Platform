@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseUrl = 'http://192.168.1.13:3000/api/message';
+  final String baseUrl = 'http://10.0.2.2:3000/api/message';
 
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();

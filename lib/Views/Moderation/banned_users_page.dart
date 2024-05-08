@@ -1,3 +1,4 @@
+import 'package:curio/Views/Moderation/add_banned.dart';
 import 'package:curio/Views/Moderation/user_card.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,10 @@ class BannedUsersPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Handle add user
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddBannedUserPage()),
+              );
             },
           ),
         ],

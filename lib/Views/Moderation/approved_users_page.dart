@@ -1,4 +1,5 @@
 
+import 'package:curio/Views/Moderation/add_approved.dart';
 import 'package:curio/Views/Moderation/user_card.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,12 @@ class ApprovedUsersPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Handle add user
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddApprovedUserPage(),
+                ),
+              );
             },
           ),
         ],

@@ -163,7 +163,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
             onTap: () {
               print('Post');
               print('this is the share to subreddit page');
-              sharePost(titleController.text, widget.oldPostId);
+              sharePost(postTitle, widget.oldPostId);
             },
             child: Container(
               padding: EdgeInsets.all(10.0),

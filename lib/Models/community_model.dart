@@ -73,7 +73,6 @@ class Community {
       allowGif: json['allowGif'],
       members: (json['members'] as List).map((i) => Member.fromJson(i)).toList(),
       moderators: (json['moderators'] as List).map((i) => Moderator.fromJson(i)).toList(),
-
       createdAt: json['createdAt'],
     );
   }
@@ -115,4 +114,3 @@ class Moderator {
     );
   }
 }
-

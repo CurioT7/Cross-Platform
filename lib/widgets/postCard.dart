@@ -33,9 +33,9 @@ class _PostCardState extends State<PostCard> {
   bool downvoted = false;
   bool _isVisible = true;
   bool _canUnhide = true;
-  SharedPreferences? prefs; 
+  SharedPreferences? prefs;
   String voteStatus = 'neutral';
-  
+
   bool isInSubreddit =true;
 
   @override
@@ -43,17 +43,18 @@ class _PostCardState extends State<PostCard> {
     super.initState();
     votes = widget.post.upvotes - widget.post.downvotes;
     SharedPreferences.getInstance().then((value) {
-    prefs = value;
-    setState(() {
-      voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      prefs = value;
+      setState(() {
+        voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+      });
     });
-  });
   }
-Future<String> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String token = prefs.getString('token')!;
-  return token;
-}
+  Future<String> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token')!;
+    print("Token: $token");
+    return token;
+  }
   void _toggleVisibility() async {
     if (_isVisible || _canUnhide) {
       String token = await getToken();
@@ -89,7 +90,7 @@ Future<String> getToken() async {
   Future<void> _upvote() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token')!;
-  
+
     setState(() {
       if (!upvoted) {
         votes++;
@@ -103,18 +104,18 @@ Future<String> getToken() async {
         upvoted = false;
       }
     });
-  
+
     // Save vote status to SharedPreferences
     prefs.setString(widget.post.id, upvoted ? 'upvoted' : 'neutral');
-  
+
     int direction = upvoted ? 1 : 0;
     ApiService().castVote(widget.post.id, direction,token);
   }
-  
+
   Future<void> _downvote() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token')!;
-  
+
     setState(() {
       if (!downvoted) {
         votes--;
@@ -128,10 +129,10 @@ Future<String> getToken() async {
         downvoted = false;
       }
     });
-  
+
     // Save vote status to SharedPreferences
     prefs.setString(widget.post.id, downvoted ? 'downvoted' : 'neutral');
-  
+
     int direction = downvoted ? -1 : 0;
     ApiService().castVote(widget.post.id, direction,token);
   }
@@ -140,7 +141,7 @@ Future<String> getToken() async {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ViewPostComments(post: widget.post),
+        builder: (context) => ViewPostComments(postID: widget.post.id),
       ),
     );
   }
@@ -153,16 +154,16 @@ Future<String> getToken() async {
       print('An error occurred while sharing the post: $e');
     }
   }
-void _launchURL(String url) async {
-  try {
-    await launch(url);
-  } catch (e) {
-    // Show an error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to open link')),
-    );
+  void _launchURL(String url) async {
+    try {
+      await launch(url);
+    } catch (e) {
+      // Show an error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to open link')),
+      );
+    }
   }
-}
   void _moderatorAction() {
     showModalBottomSheet(
       context: context,
@@ -170,66 +171,66 @@ void _launchURL(String url) async {
         return Container(
           child: Wrap(
             children: <Widget>[
-             ListTile(
-              leading: const Icon(Icons.warning_amber_rounded),
-              title: Text(widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
-              onTap: () async {
-                String token = await getToken();
-                String message;
-                if (widget.post.isSpoiler) {
-                  await ApiService().unspoilPost(widget.post.id, token);
-                  message = 'Post has been unmarked as spoiler';
-                } else {
-                  await ApiService().spoilPost(widget.post.id, token);
-                  message = 'Post has been marked as spoiler';
-                }
-                setState(() {
-                  widget.post.isSpoiler = !widget.post.isSpoiler;
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock),
-              title: Text(widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
-              onTap: () async {
-                String token = await getToken();
-                String message;
-                if (widget.post.isLocked) {
-                  await ApiService().unlockPost(widget.post.id, token);
-                  message = 'Comments have been unlocked';
-                } else {
-                  await ApiService().lockPost(widget.post.id, token);
-                  message = 'Comments have been locked';
-                }
-                setState(() {
-                  widget.post.isLocked = !widget.post.isLocked;
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.eighteen_up_rating),
-              title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
-              onTap: () async {
-                String token = await getToken();
-                String message;
-                if (widget.post.isNSFW) {
-                  await ApiService().unmarkAsNsfw(widget.post.id, token);
-                  message = 'Post has been unmarked as NSFW';
-                } else {
-                  await ApiService().markAsNsfw(widget.post.id, token);
-                  message = 'Post has been marked as NSFW';
-                }
-                setState(() {
-                  widget.post.isNSFW = !widget.post.isNSFW;
-                });
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-              },
-            ),
+              ListTile(
+                leading: const Icon(Icons.warning_amber_rounded),
+                title: Text(widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
+                onTap: () async {
+                  String token = await getToken();
+                  String message;
+                  if (widget.post.isSpoiler) {
+                    await ApiService().unspoilPost(widget.post.id, token);
+                    message = 'Post has been unmarked as spoiler';
+                  } else {
+                    await ApiService().spoilPost(widget.post.id, token);
+                    message = 'Post has been marked as spoiler';
+                  }
+                  setState(() {
+                    widget.post.isSpoiler = !widget.post.isSpoiler;
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.lock),
+                title: Text(widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
+                onTap: () async {
+                  String token = await getToken();
+                  String message;
+                  if (widget.post.isLocked) {
+                    await ApiService().unlockPost(widget.post.id, token);
+                    message = 'Comments have been unlocked';
+                  } else {
+                    await ApiService().lockPost(widget.post.id, token);
+                    message = 'Comments have been locked';
+                  }
+                  setState(() {
+                    widget.post.isLocked = !widget.post.isLocked;
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.eighteen_up_rating),
+                title: Text(widget.post.isNSFW ? 'Unmark NSFW' : 'Mark NSFW'),
+                onTap: () async {
+                  String token = await getToken();
+                  String message;
+                  if (widget.post.isNSFW) {
+                    await ApiService().unmarkAsNsfw(widget.post.id, token);
+                    message = 'Post has been unmarked as NSFW';
+                  } else {
+                    await ApiService().markAsNsfw(widget.post.id, token);
+                    message = 'Post has been marked as NSFW';
+                  }
+                  setState(() {
+                    widget.post.isNSFW = !widget.post.isNSFW;
+                  });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                },
+              ),
               ListTile(
                 leading: const Icon(Icons.delete),
                 title: const Text('Remove Post'),
@@ -419,7 +420,7 @@ void _launchURL(String url) async {
             ListTile(
               leading: const Icon(Icons.share),
               title: const Text('Crosspost to Community'),
-  
+
               onTap: () {
                 print('this is the crosspost to community page' );
                 print('widget.post.id' + widget.post.id);
@@ -432,11 +433,11 @@ void _launchURL(String url) async {
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Share to profile'),
-  
+
               onTap: () {
                 print('this is the share to profile page' );
                 print('widget.post.id' + widget.post.id);
-  
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
@@ -551,7 +552,7 @@ void _launchURL(String url) async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewPostComments(post: widget.post),
+                  builder: (context) => ViewPostComments(postID: widget.post.id),
                 ),
               );
             },
@@ -583,7 +584,7 @@ void _launchURL(String url) async {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewPostComments(post: widget.post),
+                    builder: (context) => ViewPostComments(postID: widget.post.id),
                   ),
                 );
               },
@@ -619,8 +620,8 @@ void _launchURL(String url) async {
                         color: upvoted
                             ? redditUpvoteOrange
                             : downvoted
-                                ? redditDownvoteBlue
-                                : Colors.grey)),
+                            ? redditDownvoteBlue
+                            : Colors.grey)),
                 IconButton(
                   icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
                       color: downvoted ? redditDownvoteBlue : Colors.grey),
@@ -648,6 +649,6 @@ void _launchURL(String url) async {
           ),
         ],
       ),
-  );
+    );
   }
 }

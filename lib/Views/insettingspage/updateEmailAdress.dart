@@ -3,8 +3,7 @@ import 'package:curio/utils/componentAppBar.dart';
 import 'package:curio/utils/componentUserInfoSubAppBar.dart';
 import 'package:curio/views/signIn/forgotPassword.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
-import 'package:shared_preferences/shared_preferences.dart ';
-import 'package:shared_preferences/shared_preferences.dart ';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateEmailAdressPage extends StatefulWidget {
   @override
@@ -35,10 +34,8 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
       _showSnackBar('Token is null. Please log in again.');
       return;
     }
-    print(
-        'the new email is $newEmail,and the pssword is $password ,token $token');
-    final Map<String, dynamic> result =
-        await ApiServiceMahmoud().changeEmail(newEmail, password, token);
+    print('the new email is $newEmail,and the pssword is $password ,token $token' );
+    final Map<String, dynamic> result = await ApiServiceMahmoud().changeEmail(newEmail, password, token);
 
     if (result['success']) {
       _showSnackBar('Email updated successfully');
@@ -47,6 +44,7 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
       _showSnackBar(result['message']);
     }
   }
+
 
   bool _isValidEmail(String email) {
     // Validation logic for email format
@@ -78,7 +76,6 @@ class _UpdateEmailAdressPageState extends State<UpdateEmailAdressPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            UserInfoSubBar(),
             UserInfoSubBar(),
             TextField(
               controller: _emailController,

@@ -7,48 +7,57 @@ import 'package:curio/Models/post.dart';
 //import 'package:curio/post/post_card.dart';
 import 'package:curio/comment/newComment.dart';
 import 'package:curio/widgets/postCard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewPostComments extends StatefulWidget {
+  final String postID;
 
-  final Post post;
-
-  ViewPostComments({required this.post});
+  ViewPostComments({required this.postID});
   @override
   _ViewPostCommentsState createState() => _ViewPostCommentsState();
 }
 
 class _ViewPostCommentsState extends State<ViewPostComments> {
-
-
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    logicAPI().fetchPostComments(widget.post.id);
+    logicAPI().fetchPostComments(widget.postID);
+  }
 
-  }@override
+  @override
   Widget build(BuildContext context) {
-    print('Post: ${widget.post.title}');
-    print('Post: ${widget.post.content}');
-String postTitle = widget.post.title;
-String postcontent = widget.post.content;
-
-
     return Scaffold(
       //set color of page to ligth grey
       backgroundColor: Colors.grey[200],
-
-    appBar: topAppBar(context),
+      appBar: topAppBar(context),
       body: Column(
         children: <Widget>[
           Container(
-            child: PostCard(post: widget.post,),
-          ),// Wrap the PostCard widget with an Expanded widget
+            child: FutureBuilder<Post>(
+              future: () async {
+                return logicAPI().fetchPostByID(widget.postID);
+              }(),
+              builder: (BuildContext context, AsyncSnapshot<Post> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container(); // Show a loading spinner while waiting
+                } else if (snapshot.hasError) {
+                  return Text(
+                      'Error: ${snapshot.error}'); // Show error message if something went wrong
+                } else {
+                  return Container(
+                    child: PostCard(post: snapshot.data!),
+                  );
+                }
+              },
+            ),
+          ), // Wrap the PostCard widget with an Expanded widget
           Expanded(
             child: FutureBuilder<List<Comment>>(
-              future: logicAPI().fetchPostComments(widget.post.id),
-              builder: (BuildContext context, AsyncSnapshot<List<Comment>> snapshot) {
+              future: logicAPI().fetchPostComments(widget.postID),
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Comment>> snapshot) {
                 if (snapshot.hasData) {
                   List<Comment> comments = snapshot.data!;
                   return ListView.builder(
@@ -57,7 +66,7 @@ String postcontent = widget.post.content;
                     itemBuilder: (context, index) {
                       print('Comment ${index + 1}: ${comments[index].content}');
                       return CommentCard(
-                        post: widget.post,
+                        postID: widget.postID,
                         id: comments[index].id,
                         content: comments[index].content,
                         authorUsername: comments[index].authorUsername,
@@ -74,7 +83,7 @@ String postcontent = widget.post.content;
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return CircularProgressIndicator();
+                  return Container();
                 }
               },
             ),
@@ -85,13 +94,13 @@ String postcontent = widget.post.content;
               children: <Widget>[
                 Expanded(
                   child: GestureDetector(
-
                     child: TextField(
                       onTap: () {
                         Navigator.push(
                           context,
-
-                          MaterialPageRoute(builder: (context) => newComment(post:widget.post)),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  newComment(postID: widget.postID)),
                         );
                       },
                       decoration: InputDecoration(
@@ -118,4 +127,3 @@ String postcontent = widget.post.content;
     );
   }
 }
-

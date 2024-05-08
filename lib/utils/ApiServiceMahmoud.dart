@@ -2,11 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiServiceMahmoud {
-  final String _baseUrl =
-      'https://user1709759645693.requestly.tech'; // Base URL
+  final String _baseUrl = 'https://user1709759645693.requestly.tech'; // Base URL
 
-  Future<Map<String, dynamic>> changeEmail(
-      String newEmail, String password, String token) async {
+  Future<Map<String, dynamic>> changeEmail(String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
     final Map<String, String> headers = {
       'Authorization': 'Bearer $token',
@@ -18,8 +16,7 @@ class ApiServiceMahmoud {
     };
 
     try {
-      final response = await http.patch(Uri.parse(url),
-          headers: headers, body: jsonEncode(body));
+      final response = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
@@ -33,8 +30,7 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getUserProfile() async {
-    final String endpoint =
-        '/api/settings/v1/me'; // Endpoint for fetching user profile
+    final String endpoint = '/api/settings/v1/me'; // Endpoint for fetching user profile
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -56,8 +52,7 @@ class ApiServiceMahmoud {
 
 
   Future<Map<String, dynamic>> getUserPreferences(String username) async {
-    final String endpoint =
-        '/api/settings/v1/me/prefs'; // Endpoint for fetching user preferences
+    final String endpoint = '/api/settings/v1/me/prefs'; // Endpoint for fetching user preferences
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -70,8 +65,7 @@ class ApiServiceMahmoud {
       } else if (response.statusCode == 500) {
         throw Exception('Internal Server Error: ${response.statusCode}');
       } else {
-        throw Exception(
-            'Failed to fetch user preferences: ${response.statusCode}');
+        throw Exception('Failed to fetch user preferences: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to fetch user preferences: $e');
@@ -79,8 +73,7 @@ class ApiServiceMahmoud {
   }
 
   Future<Map<String, dynamic>> getSubredditInfo(String subredditName) async {
-    final String endpoint =
-        '/api/r/$subredditName'; // Endpoint for fetching subreddit information
+    final String endpoint = '/api/r/$subredditName'; // Endpoint for fetching subreddit information
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -93,8 +86,7 @@ class ApiServiceMahmoud {
       } else if (response.statusCode == 500) {
         throw Exception('Internal Server Error: ${response.statusCode}');
       } else {
-        throw Exception(
-            'Failed to fetch subreddit information: ${response.statusCode}');
+        throw Exception('Failed to fetch subreddit information: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to fetch subreddit information: $e');

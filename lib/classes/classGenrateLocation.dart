@@ -1,3 +1,4 @@
+
 class LocationData {
   static List<String> generateLocations() {
     List<String> locations = [
@@ -254,3 +255,5 @@ class LocationData {
     return locations;
   }
 }
+
+

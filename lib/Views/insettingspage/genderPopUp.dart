@@ -54,7 +54,7 @@ void showGenderBottomSheet(BuildContext context, Function(String) updateGender) 
               ),
               RadioListTile<String>(
                 title: Text('Man'),
-                value: 'Man',
+                value: 'man',
                 groupValue: _selectedGender,
                 onChanged: (value) {
                   setModalState(() {
@@ -64,7 +64,7 @@ void showGenderBottomSheet(BuildContext context, Function(String) updateGender) 
               ),
               RadioListTile<String>(
                 title: Text('Woman'),
-                value: 'Woman',
+                value: 'woman',
                 groupValue: _selectedGender,
                 onChanged: (value) {
                   setModalState(() {

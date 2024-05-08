@@ -31,4 +31,3 @@ AppBar topAppBar(BuildContext context) {
     ),
   );
 }
-

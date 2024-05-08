@@ -2,7 +2,7 @@ import 'package:curio/controller/history_cubit/history_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecentBottomSheet extends StatelessWidget {
+class RecentBottomSheet extends StatelessWidget { 
   const RecentBottomSheet({
     super.key,
   });

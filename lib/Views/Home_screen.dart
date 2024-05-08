@@ -12,10 +12,8 @@ import 'package:curio/services/postService.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/views/sidebars/customSidebar.dart';
 
-import 'Search/searchScreen.dart';
-
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -79,8 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: CustomSidebar(),
       endDrawer: SidebarAfterLogIn(),
-      bottomNavigationBar: const HomeNavigationBar(),
-
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
@@ -94,8 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const SearchScreen()),
-
+                MaterialPageRoute(builder: (context) => SearchScreen()),
               );
             },
           ),

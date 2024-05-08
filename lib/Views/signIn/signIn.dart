@@ -12,11 +12,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 
+
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
+
 
   @override
   _SignInWithEmailState createState() => _SignInWithEmailState();
@@ -94,19 +96,19 @@ class _SignInWithEmailState extends State<SignInPage> {
                       await GoogleSignIn().signOut();
                       // sign in with google
                       UserCredential? userCredential =
-                          await googleAuthSignInService.signInWithGoogle();
+                      await googleAuthSignInService.signInWithGoogle();
                       if (userCredential != null) {
                         String? accessToken =
                             userCredential.credential?.accessToken;
                         await apiService.signInWithToken(accessToken!);
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => HomeScreen(),
-                          ),
-                        );
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(),
+                        ),
+                      );
+                    }
                     },
                     color: Colors.grey[200],
                     shape: RoundedRectangleBorder(

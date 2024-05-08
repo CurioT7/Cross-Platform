@@ -52,7 +52,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         indicatorColor: Colors.blue,
                         labelColor: Colors.blue,
                         tabs: _sections.map(
-                          (section) {
+                              (section) {
                             return Tab(
                               text: section,
                             );
@@ -80,9 +80,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           ),
                           AboutSection(
                             postKarmaNumber:
-                                widget.userDetails?['postKarma'] ?? '0',
+                            widget.userDetails?['postKarma'] ?? '0',
                             commentKarmaNumber:
-                                widget.userDetails?['commentKarma'] ?? '0',
+                            widget.userDetails?['commentKarma'] ?? '0',
                           ),
                         ],
                       ),

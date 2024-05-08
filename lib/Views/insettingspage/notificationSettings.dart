@@ -3,8 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   @override
-  _NotificationSettingsPageState createState() =>
-      _NotificationSettingsPageState();
+  _NotificationSettingsPageState createState() => _NotificationSettingsPageState();
 }
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
@@ -18,6 +17,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
         'Chat requests': false,
       },
       'ACTIVITY': {
+        
         'Mentions of u/username': false,
         'Comments on your posts': false,
         'Upvotes on your posts': false,
@@ -48,60 +48,60 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     };
   }
 
-  IconData _getIconForKey(String key) {
-    switch (key) {
-      case 'Private messages':
-        return FontAwesomeIcons.envelope;
-      case 'Chat messages':
-        return FontAwesomeIcons.comments;
-      case 'Chat requests':
-        return FontAwesomeIcons.plus;
-      case 'Community alerts':
-        return FontAwesomeIcons.users;
-      case 'Mentions of u/username':
-        return FontAwesomeIcons.at;
-      case 'Comments on your posts':
-        return FontAwesomeIcons.commentDots;
-      case 'Upvotes on your posts':
-        return FontAwesomeIcons.arrowUp;
-      case 'Upvotes on your comments':
-        return FontAwesomeIcons.arrowUp;
-      case 'Replies to your comments':
-        return FontAwesomeIcons.reply;
-      case 'Activity on your comments':
-        return FontAwesomeIcons.commentDots;
-      case 'Activity on chat posts you\'re in':
-        return FontAwesomeIcons.comments;
-      case 'New followers':
-        return FontAwesomeIcons.userPlus;
-      case 'Awards you receive':
-        return FontAwesomeIcons.award;
-      case 'Posts you follow':
-        return FontAwesomeIcons.squareRss;
-      case 'Comments you follow':
-        return FontAwesomeIcons.comments;
-      case 'Trending posts':
-        return FontAwesomeIcons.chartLine;
-      case 'Community recommendations':
-        return FontAwesomeIcons.users;
-      case 'ReReddit':
-        return FontAwesomeIcons.reddit;
-      case 'Featured content':
-        return FontAwesomeIcons.star;
-      case 'Reddit announcements':
-        return FontAwesomeIcons.bullhorn;
-      case 'Cake day':
-        return FontAwesomeIcons.cakeCandles;
-      case 'Mod notifications':
-        return FontAwesomeIcons.shieldHalved;
-      case 'r/softwaretest123':
-        return FontAwesomeIcons.reddit;
-      default:
-        return FontAwesomeIcons.bell;
+    IconData _getIconForKey(String key) {
+      switch (key) {
+        case 'Private messages':
+          return FontAwesomeIcons.envelope;
+        case 'Chat messages':
+          return FontAwesomeIcons.comments;
+        case 'Chat requests':
+          return FontAwesomeIcons.plus;
+        case 'Community alerts':
+          return FontAwesomeIcons.users;
+        case 'Mentions of u/username':
+          return FontAwesomeIcons.at;
+        case 'Comments on your posts':
+          return FontAwesomeIcons.commentDots;
+        case 'Upvotes on your posts':
+          return FontAwesomeIcons.arrowUp;
+        case 'Upvotes on your comments':
+          return FontAwesomeIcons.arrowUp;
+        case 'Replies to your comments':
+          return FontAwesomeIcons.reply;
+        case 'Activity on your comments':
+          return FontAwesomeIcons.commentDots;
+        case 'Activity on chat posts you\'re in':
+          return FontAwesomeIcons.comments;
+        case 'New followers':
+          return FontAwesomeIcons.userPlus;
+        case 'Awards you receive':
+          return FontAwesomeIcons.award;
+        case 'Posts you follow':
+          return FontAwesomeIcons.squareRss;
+        case 'Comments you follow':
+          return FontAwesomeIcons.comments;
+        case 'Trending posts':
+          return FontAwesomeIcons.chartLine;
+        case 'Community recommendations':
+          return FontAwesomeIcons.users;
+        case 'ReReddit':
+          return FontAwesomeIcons.reddit;
+        case 'Featured content':
+          return FontAwesomeIcons.star;
+        case 'Reddit announcements':
+          return FontAwesomeIcons.bullhorn;
+        case 'Cake day':
+          return FontAwesomeIcons.cakeCandles;
+        case 'Mod notifications':
+          return FontAwesomeIcons.shieldHalved;
+        case 'r/softwaretest123':
+          return FontAwesomeIcons.reddit;
+        default:
+          return FontAwesomeIcons.bell;
+      }
     }
-  }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -130,39 +130,38 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   ),
                 ),
               ]..addAll(
-                  settings[category]!.keys.map((key) {
-                    return ListTile(
-                      title: Text(key),
-                      trailing: key == 'Community alerts'
-                          ? Icon(Icons.arrow_forward_ios, size: 20.0)
-                          : Transform.scale(
-                              scale: 0.8,
-                              child: Switch(
-                                value: settings[category]![key] ?? false,
-                                onChanged: (value) {
-                                  setState(() {
-                                    settings[category]![key] = value;
-                                  });
-                                },
-                                activeColor: Colors.blue,
-                                activeTrackColor: Colors.lightBlueAccent,
-                                inactiveThumbColor: Colors.grey,
-                                inactiveTrackColor: Colors.grey[300],
-                              ),
-                            ),
-                      leading: FaIcon(_getIconForKey(key), size: 20.0),
-                      onTap: key == 'Community alerts'
-                          ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CommunitiesPage()),
-                              );
-                            }
-                          : null,
-                    );
-                  }).toList(),
-                ),
+                settings[category]!.keys.map((key) {
+                  return ListTile(
+                    title: Text(key),
+                    trailing: key == 'Community alerts'
+                      ? Icon(Icons.arrow_forward_ios, size: 20.0)
+                      : Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: settings[category]![key] ?? false,
+                            onChanged: (value) {
+                              setState(() {
+                                settings[category]![key] = value;
+                              });
+                            },
+                            activeColor: Colors.blue,
+                            activeTrackColor: Colors.lightBlueAccent,
+                            inactiveThumbColor: Colors.grey,
+                            inactiveTrackColor: Colors.grey[300],
+                          ),
+                        ),
+                    leading: FaIcon(_getIconForKey(key), size: 20.0),
+                    onTap: key == 'Community alerts'
+                      ? () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CommunitiesPage()),
+                          );
+                        }
+                      : null,
+                  );
+                }).toList(),
+              ),
             ),
           );
         },
@@ -206,9 +205,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
                     });
                   },
                   child: Icon(
-                    selectedBell[index] == 'Off'
-                        ? FontAwesomeIcons.bellSlash
-                        : FontAwesomeIcons.bell,
+                    selectedBell[index] == 'Off' ? FontAwesomeIcons.bellSlash : FontAwesomeIcons.bell,
                     color: selectedBell[index] == 'Off' ? Colors.black : null,
                   ),
                 ),
@@ -233,8 +230,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
                   },
                   child: Icon(
                     FontAwesomeIcons.solidBell,
-                    color:
-                        selectedBell[index] == 'Frequent' ? Colors.black : null,
+                    color: selectedBell[index] == 'Frequent' ? Colors.black : null,
                   ),
                 ),
               ],

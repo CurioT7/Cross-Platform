@@ -33,8 +33,7 @@ class RulesPage extends StatelessWidget {
                   return ExpansionTile(
                     title: Text(rule['header']!),
                     backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -61,7 +60,7 @@ class RulesPage extends StatelessWidget {
           child: const Text(
             'I Understand',
             style:
-                TextStyle(color: Colors.white), // Set the text color to white
+            TextStyle(color: Colors.white), // Set the text color to white
           ),
         ),
       ),

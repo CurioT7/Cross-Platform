@@ -6,8 +6,7 @@ import 'package:curio/services/ApiServiceMahmoud.dart';
 class AboutComunityPage extends StatefulWidget {
   final String subredditName;
 
-  const AboutComunityPage({Key? key, required this.subredditName})
-      : super(key: key);
+  const AboutComunityPage({Key? key, required this.subredditName}) : super(key: key);
 
   @override
   State<AboutComunityPage> createState() => _AboutComunityPageState();
@@ -44,107 +43,100 @@ class _AboutComunityPageState extends State<AboutComunityPage> {
       appBar: AboutCommunityAppBar(subredditName: widget.subredditName),
       body: subredditInfo.isNotEmpty
           ? Container(
-              color: Color(0xffFfFfFf),
-              child: ListView(
-                children: <Widget>[
-                  SizedBox(
-                      height: 20, child: Container(color: Color(0xffF2F3F5))),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Description',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      Divider(),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          subredditInfo['description'] ??
-                              'Description not available',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
+        color: Color(0xffFfFfFf),
+        child: ListView(
+          children: <Widget>[
+            SizedBox(height: 20, child: Container(color: Color(0xffF2F3F5))),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Description',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    textAlign: TextAlign.left,
                   ),
-                  SizedBox(
-                      height: 20, child: Container(color: Color(0xffF2F3F5))),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Rules',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      Divider(),
-                    ],
+                ),
+                Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    subredditInfo['description'] ?? 'Description not available',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
-                  ListView.separated(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: rules.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return ListTile(
-                        title: Text(rules[index]),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) =>
-                        Divider(),
-                  ),
-                  SizedBox(
-                      height: 20, child: Container(color: Color(0xffF2F3F5))),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          'Moderators',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                      Divider(),
-                    ],
-                  ),
-                  ListView.separated(
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: subredditInfo['moderators'].length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final moderator = subredditInfo['moderators'][index];
-                      return ListTile(
-                        title: Row(
-                          children: [
-                            Text(moderator['username']),
-                            SizedBox(width: 15),
-                            Text(moderator['role']),
-                          ],
-                        ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) =>
-                        Divider(),
-                  ),
-                ],
-              ),
-            )
-          : Center(
-              child: CircularProgressIndicator(),
+                ),
+              ],
             ),
+            SizedBox(height: 20, child: Container(color: Color(0xffF2F3F5))),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Rules',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                Divider(),
+              ],
+            ),
+            ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: rules.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(rules[index]),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+            ),
+            SizedBox(height: 20, child: Container(color: Color(0xffF2F3F5))),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Moderators',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+                Divider(),
+              ],
+            ),
+            ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: subredditInfo['moderators'].length,
+              itemBuilder: (BuildContext context, int index) {
+                final moderator = subredditInfo['moderators'][index];
+                return ListTile(
+                  title: Row(
+                    children: [
+
+                      Text(moderator['username']),
+                      SizedBox(width: 15),
+                      Text(moderator['role']),
+
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) => Divider(),
+            ),
+          ],
+        ),
+      )
+          : Center(
+        child: CircularProgressIndicator(),
+      ),
       bottomNavigationBar: HomeNavigationBar(),
     );
   }

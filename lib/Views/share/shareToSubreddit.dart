@@ -11,8 +11,7 @@ class ShareToSubredditPage extends StatefulWidget {
   final String selectedNewSubreddit;
   final String oldPostId;
 
-  ShareToSubredditPage(
-      {required this.selectedNewSubreddit, required this.oldPostId});
+  ShareToSubredditPage({required this.selectedNewSubreddit, required this.oldPostId});
 
   @override
   _ShareToSubredditPageState createState() => _ShareToSubredditPageState();
@@ -33,6 +32,8 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
   String createdAt = '';
   String mediaUrl = '';
 
+
+
   Future<void> fetchPostInfo(String postId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -41,13 +42,14 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
       try {
         // Call the getInfo function to get post info
         Map<String, dynamic> postInfo =
-            await ApiServiceMahmoud().getInfo(token, postId, 'post');
+        await ApiServiceMahmoud().getInfo(token, postId, 'post');
         // Update state with post information
         setState(() {
           postId = postInfo['item']['_id'] ?? '';
           print('Post ID: $postId ');
           postTitle = postInfo['item']['title'] ?? '';
           print('Post Title: $postTitle');
+          postTitle = postInfo['item']['title'] ?? '';
 
           postContent = postInfo['item']['content'] ?? '';
           print('Post Content: $postContent');
@@ -58,6 +60,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
           createdAt = postInfo['item']['createdAt'] ?? '';
           print('Created At: $createdAt');
           mediaUrl = postInfo['item']['media'] ?? '';
+
         });
       } catch (e) {
         // Handle errors
@@ -69,12 +72,12 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
     }
   }
 
+
   @override
   void initState() {
     super.initState();
     fetchPostInfo(widget.oldPostId);
-    _selectedNewSubreddit = widget
-        .selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
+    _selectedNewSubreddit = widget.selectedNewSubreddit; // Initialize _selectedNewSubreddit from widget
     fetchSubredditInfo(_selectedNewSubreddit);
     samplePost = Post.fromJson({
       "_id": "65fba6e0aab809eceb312466",
@@ -98,6 +101,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
       "isDraft": true,
       "__v": 0
     });
+
   }
 
   Future<void> fetchSubredditInfo(String subredditName) async {
@@ -126,9 +130,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
       print('Token: $token');
       print('Title: $title');
       print('Post ID: $postId');
-      Map<String, dynamic> response = await ApiServiceMahmoud()
-          .sharePostToSubreddit(
-              token, title, postId, _selectedNewSubreddit, isNSFW, isSpoiler);
+      Map<String, dynamic> response = await ApiServiceMahmoud().sharePostToSubreddit(token, title, postId, _selectedNewSubreddit, isNSFW, isSpoiler);
       print(response);
       // Show snackbar based on the response
       if (response['success']) {
@@ -162,7 +164,8 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
             onTap: () {
               print('Post');
               print('this is the share to subreddit page');
-              sharePost(titleController.text, widget.oldPostId);
+              print('Post Title: $postTitle');
+              sharePost(postTitle, widget.oldPostId);
             },
             child: Container(
               padding: EdgeInsets.all(10.0),
@@ -193,15 +196,12 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
                   radius: 30,
                 ),
                 SizedBox(width: 10),
-                Text(_selectedNewSubreddit.isEmpty
-                    ? 'my profile'
-                    : 'r/$_selectedNewSubreddit'),
+                Text(_selectedNewSubreddit.isEmpty ? 'my profile' : 'r/$_selectedNewSubreddit'),
                 GestureDetector(
                   onTap: () async {
                     final newSubreddit = await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => ChooseCommunityPage2()),
+                      MaterialPageRoute(builder: (context) => ChooseCommunityPage2()),
                     );
                     setState(() {
                       _selectedNewSubreddit = newSubreddit;
@@ -275,8 +275,7 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
           ),
           Divider(),
           ListTile(
-            subtitle:
-                Text('r/${subredditInfo['name']}. u/$authorName. $createdAt'),
+            subtitle: Text('r/${subredditInfo['name']}. u/$authorName. $createdAt'),
             title: Text(postTitle ?? 'No Title'),
           ),
           Divider(),
@@ -286,10 +285,9 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                       if (states.contains(MaterialState.pressed) || isNSFW)
-                        return Colors
-                            .grey; // the color when button is pressed or isNSFW is true
+                        return Colors.grey; // the color when button is pressed or isNSFW is true
                       return Colors.blue; // default color
                     },
                   ),
@@ -307,10 +305,9 @@ class _ShareToSubredditPageState extends State<ShareToSubredditPage> {
               ElevatedButton(
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
+                        (Set<MaterialState> states) {
                       if (states.contains(MaterialState.pressed) || isSpoiler)
-                        return Colors
-                            .grey; // the color when button is pressed or isSpoiler is true
+                        return Colors.grey; // the color when button is pressed or isSpoiler is true
                       return Colors.blue; // default color
                     },
                   ),

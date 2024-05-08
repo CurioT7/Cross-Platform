@@ -3,19 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 
-class AboutCommunityAppBar extends StatelessWidget
-    implements PreferredSizeWidget {
+class AboutCommunityAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String subredditName;
 
-  const AboutCommunityAppBar({Key? key, required this.subredditName})
-      : super(key: key);
+  const AboutCommunityAppBar({Key? key, required this.subredditName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // Start by using a Column to stack things vertically.
     return Column(
-      mainAxisSize: MainAxisSize
-          .min, // This makes the Column only as tall as its children need.
+      mainAxisSize: MainAxisSize.min, // This makes the Column only as tall as its children need.
       children: [
         AppBar(
           backgroundColor: Colors.transparent, // Make the app bar transparent
@@ -46,22 +43,19 @@ class AboutCommunityAppBar extends StatelessWidget
                         children: [
                           Text(
                             'r/$subredditName', // Use the subreddit name passed to the widget
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.0),
+                            style: TextStyle(color: Colors.white, fontSize: 20.0),
                           ),
                           SizedBox(height: 8.0),
                           Row(
                             children: [
-                              Icon(Icons.circle,
-                                  color: Colors.green,
-                                  size: 10), // Online status indicator
+                              Icon(Icons.circle, color: Colors.green, size: 10), // Online status indicator
                               SizedBox(width: 4.0),
                               Text(
                                 '366 Collecting Fine Additions', // The online members count.
-                                //todo: change the online members count to the api path when the backend add this feture
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 12.0),
+                                 //todo: change the online members count to the api path when the backend add this feture
+                                style: TextStyle(color: Colors.white, fontSize: 12.0),
                               ),
+
                             ],
                           ),
                         ],
@@ -70,22 +64,19 @@ class AboutCommunityAppBar extends StatelessWidget
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
-                            icon:
-                                Icon(Icons.search_rounded, color: Colors.white),
+                            icon: Icon(Icons.search_rounded, color: Colors.white),
                             onPressed: () {
                               // Implement the search action
                             },
                           ),
                           IconButton(
-                            icon:
-                                Icon(Icons.share_outlined, color: Colors.white),
+                            icon: Icon(Icons.share_outlined, color: Colors.white),
                             onPressed: () {
                               // Implement the join action or bookmarking
                             },
                           ),
                           IconButton(
-                            icon: Icon(Icons.more_vert_outlined,
-                                color: Colors.white),
+                            icon: Icon(Icons.more_vert_outlined, color: Colors.white),
                             onPressed: () {
                               // Implement the join action or bookmarking
                             },
@@ -103,8 +94,7 @@ class AboutCommunityAppBar extends StatelessWidget
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment
-                .spaceEvenly, // This spreads out the buttons evenly in the Row.
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly, // This spreads out the buttons evenly in the Row.
             children: [
               TextButton(
                 onPressed: () {
@@ -128,6 +118,5 @@ class AboutCommunityAppBar extends StatelessWidget
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
-      190); // Adjust the total height to accommodate the buttons.
+  Size get preferredSize => Size.fromHeight(190); // Adjust the total height to accommodate the buttons.
 }

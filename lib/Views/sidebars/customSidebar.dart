@@ -5,6 +5,8 @@ import 'package:curio/services/api_service.dart';
 import 'package:curio/Models/community_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../community/profile.dart';
+
 class CustomSidebar extends StatefulWidget {
   @override
   _CustomSidebarState createState() => _CustomSidebarState();
@@ -106,6 +108,14 @@ class _CustomSidebarState extends State<CustomSidebar> {
                         isFavorite: favoriteCommunities.contains(community),
                         toggleFavorite: toggleFavorite,
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => communityProfile(communityName: community.name),
+                          ),
+                        );
+                      },
                     );
                   }).toList(),
                 ],

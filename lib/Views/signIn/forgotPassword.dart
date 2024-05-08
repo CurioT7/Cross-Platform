@@ -18,8 +18,7 @@ class ForgotPasswordPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: redditBackgroundWhite, // Set your desired color
         title: Row(
-          mainAxisAlignment: MainAxisAlignment
-              .spaceBetween, // Align items to the start and end of the row
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items to the start and end of the row
           children: [
             Expanded(
               child: Row(

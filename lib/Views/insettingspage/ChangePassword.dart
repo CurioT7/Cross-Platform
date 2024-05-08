@@ -45,8 +45,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
 
-    final Map<String, dynamic> response = await ApiServiceMahmoud()
-        .changePassword(currentPassword, newPassword, token);
+    final Map<String, dynamic> response = await ApiServiceMahmoud().changePassword(currentPassword, newPassword, token);
 
     if (response['success']) {
       _showSnackBar('Password updated successfully');
@@ -97,8 +96,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     onPressed: () async {
                       final selectedLocation = await Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => ForgotPasswordPage()),
+                        MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
                       );
                     },
                     child: Text(

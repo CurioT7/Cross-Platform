@@ -70,7 +70,6 @@ class CommunitySearchPage extends SearchDelegate<String> {
 
       if (response.containsKey('success') && response['success'] == true) {
         List<dynamic> communityData = response['subreddits'];
-
         communities = communityData.map<String>((data) => data['name'] as String).toList();
       } else {
         communities = [];

@@ -15,8 +15,7 @@ class UserInfoSubBar extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator(); // Show loading indicator while fetching data
         } else if (snapshot.hasError) {
-          return Text(
-              'Error: ${snapshot.error}'); // Show error message if fetching fails
+          return Text('Error: ${snapshot.error}'); // Show error message if fetching fails
         } else {
           // Extract username and email from the snapshot data
           String username = snapshot.data!['username'];

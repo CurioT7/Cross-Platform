@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,11 +10,15 @@ import 'package:curio/post/community_card.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/Models/community_model.dart';
 import 'logicAPI.dart';
+import 'package:curio/Models/post.dart';
+import 'package:curio/Models/comment.dart';
 
 import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 
 class ApiService {
-  final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  // final String _baseUrl = 'http://20.19.89.1'; // Base URL
+  //final String _baseUrl= 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://192.168.1.8:3000';
 
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -67,12 +72,12 @@ class ApiService {
     //     builder: (context) => EmailVerificationScreen(email: email, password: password, username: username),
     //   ),
     // );
-   // String baseUrl = 'http://20.19.89.1';
-    final String baseUrl= 'http://192.168.1.13:3000';
+    // String baseUrl = 'http://20.19.89.1';
+    //final String baseUrl= 'http://192.168.1.13:3000';
 
     // make a post request to the server api/auth/signup
     final response = await http.post(
-      Uri.parse('$baseUrl/api/auth/signup'),
+      Uri.parse('$_baseUrl/api/auth/signup'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -143,7 +148,8 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> resetPassword(String username, String email) async {
+  Future<Map<String, dynamic>> resetPassword(
+      String username, String email) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/api/auth/password'),
       headers: <String, String>{
@@ -154,7 +160,7 @@ class ApiService {
         'email': email,
       }),
     );
-  
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else if (response.statusCode == 404) {
@@ -166,65 +172,134 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> fetchSavedPostsAndComments(String token) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/saved_categories'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+      List<Post> savedPosts = [];
+      if (body['savedPosts'] != []) {
+        print("Saved Posts: ${body['savedPosts']}");
+        savedPosts = Post.getPosts(body['savedPosts']);
+      }
+      List<Comment> savedComments = [];
+      List<String> titles = [];
+      if (body['savedComments'] != []) {
+        print("Saved Comments: ${body['savedComments']}");
+        savedComments = Comment.getComments(body['savedComments']);
+        // itterate over the saved comments and list all linkedposts
 
-Future<Map<String, dynamic>> submitPost(Map<String, dynamic> post,String token) async {
-  print("submitting post");
-  print(jsonEncode(post));
-  // TODO: change base url to the local as lonng as the server is not up
-  final response = await http.post(
-    Uri.parse('$_baseUrl/api/submit'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode(post),
-  );
+        for (var comment in savedComments) {
+          var objectID = comment.linkedPost;
+          try {
+            print(objectID);
+            final response = await http.get(
+              Uri.parse(
+                  '$_baseUrl/api/info?objectID=$objectID&objectType=post'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+            );
 
-  if (response.statusCode == 201) {
-    return jsonDecode(response.body);
-  } else {
-    print('Server responded with status code ${response.statusCode}');
-    print('Response body: ${response.body}');
-    throw Exception('Failed to submit post');
-  }
-}
-
-Future<List<Community>> getCommunities(String token, BuildContext context) async {
-  final logicAPI apiLogic = logicAPI();
-  Map<String, dynamic> userProfile = await apiLogic.fetchUsername(token);
-  final userName = apiLogic.extractUsername(userProfile);
-  final name = userName['username'];
-  print("User name: $name");
-  final response = await http.get(
-    Uri.parse('$_baseUrl/user/$name/communities'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-  );
-  String errorMessage;
-  if (response.statusCode == 200) {
-    final communities = jsonDecode(response.body)['communities'];
-    final body = communities as List;
-    return body.map((dynamic item) => Community.fromJson(item)).toList();
-  } else {
-
-    if (response.statusCode == 404) {
-      errorMessage = 'User not found';
+            if (response.statusCode == 200) {
+              titles.add(jsonDecode(response.body)['item']['title']);
+            } else {
+              print('Response body: ${response.body}');
+              throw Exception(
+                  'Failed to load info with status code: ${response.statusCode}');
+            }
+          } catch (e) {
+            throw Exception('Failed to load info. Error: $e');
+          }
+        }
+      }
+      return {
+        'savedPosts': savedPosts,
+        'savedComments': savedComments,
+        'titles': titles
+      };
     } else {
-      errorMessage = 'No communities found you have to create/join at least one';
+      throw Exception('Failed to fetch saved posts and comments');
+    }
+  }
+
+  Future<Map<String, dynamic>> submitPost(
+      Map<String, dynamic> post, String token, XFile? imageFile) async {
+    print("submitting post");
+    print(jsonEncode(post));
+
+    var request =
+        http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+
+    request.fields
+        .addAll(post.map((key, value) => MapEntry(key, value.toString())));
+
+    if (imageFile != null) {
+      print("image file: ${imageFile.path}");
+      request.files.add(await http.MultipartFile.fromPath(
+        'media', // consider 'media' as the key for the image file in your server
+        imageFile.path,
+      ));
     }
 
-    // Show snackbar with error message
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(errorMessage),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    request.headers.addAll(<String, String>{
+      'Authorization': 'Bearer $token',
+    });
 
-    throw Exception(errorMessage);
+    var response = await request.send();
+
+    if (response.statusCode == 201) {
+      print("Post submitted");
+      final respStr = await response.stream.bytesToString();
+      return jsonDecode(respStr);
+    } else {
+      print("response body: ${await response.stream.bytesToString()}");
+      return {'success': false, 'message': 'Failed to submit post'};
+    }
   }
-}
+
+  Future<List<Community>> getCommunities(
+      String token, BuildContext context) async {
+    final logicAPI apiLogic = logicAPI();
+    Map<String, dynamic> userProfile = await apiLogic.fetchUsername(token);
+    final userName = apiLogic.extractUsername(userProfile);
+    final name = userName['username'];
+    print("User name: $name");
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/user/$name/communities'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    String errorMessage;
+    if (response.statusCode == 200) {
+      final communities = jsonDecode(response.body)['communities'];
+      final body = communities as List;
+      return body.map((dynamic item) => Community.fromJson(item)).toList();
+    } else {
+      if (response.statusCode == 404) {
+        errorMessage = 'User not found';
+      } else {
+        errorMessage =
+            'No communities found you have to create/join at least one';
+      }
+
+      // Show snackbar with error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+
+      throw Exception(errorMessage);
+    }
+  }
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
     final response = await http.get(
@@ -260,7 +335,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
 
   Future<Map<String, dynamic>> getUserAboutInfo(String username) async {
     final String endpoint =
-        '/user/$username/about'; // Endpoint for fetching user about info
+        '/api/user/$username/about'; // Endpoint for fetching user about info
     final url = Uri.parse('$_baseUrl$endpoint');
 
     try {
@@ -282,7 +357,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
 
   Future<Map<String, dynamic>> createUserSubredditRelationship(
       String userId, String subredditId) async {
-    final String endpoint =
+    const String endpoint =
         '/api/friend'; // Endpoint for creating user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -316,7 +391,7 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
 
   Future<Map<String, dynamic>> removeUserSubredditRelationship(
       String userId, String subredditId) async {
-    final String endpoint =
+    const String endpoint =
         '/api/unfriend'; // Endpoint for removing user-subreddit relationship
     final url = Uri.parse('$_baseUrl$endpoint');
 
@@ -350,10 +425,11 @@ Future<List<Community>> getCommunities(String token, BuildContext context) async
   Future<Map<String, dynamic>> signInWithToken(String token) async {
     const String endpoint =
         '/api/auth/google/'; // Endpoint for signing in with token
-    const baseUrl = 'http://20.19.89.1';
+    // const baseUrl = 'http://20.19.89.1';
+
     // final String baseUrl= 'http://192.168.1.7';
 
-    final url = Uri.parse('$baseUrl$endpoint');
+    final url = Uri.parse('$_baseUrl$endpoint');
 
     // Define the request body
     final Map<String, dynamic> requestBody = {
@@ -407,7 +483,7 @@ class GoogleAuthSignInService {
       }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
+          await googleUser.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(

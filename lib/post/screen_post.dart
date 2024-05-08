@@ -6,9 +6,29 @@ import 'package:image_picker/image_picker.dart';
 import 'package:curio/post/post_to_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/community_bar.dart';
-import '../widgets/poll_component.dart';
 import 'package:curio/Models/community_model.dart';
 import 'package:curio/widgets/tags.dart';
+import 'package:curio/widgets/poll_component.dart';
+import 'package:http/http.dart' as http;
+import 'package:video_player/video_player.dart';
+
+Future<void> uploadImage(XFile imageFile) async {
+  var request =
+      http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
+
+  request.files.add(await http.MultipartFile.fromPath(
+    'image', // consider 'image' as the key for the image file in your server
+    imageFile.path,
+  ));
+
+  var response = await request.send();
+
+  if (response.statusCode == 200) {
+    print("Image uploaded");
+  } else {
+    print("Image upload failed");
+  }
+}
 
 class AddPostScreen extends StatefulWidget {
   final String type;
@@ -28,6 +48,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   bool isCommunitySelected = false;
   Attachment? attachment;
   XFile? _pickedImage;
+  XFile? _pickedVideo;
 
   @override
   void dispose() {
@@ -70,13 +91,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-    final icons = [
-      Icons.home,
-      Icons.star,
-      Icons.school,
-      Icons.work
-    ]; // Add more icons as needed
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom >
+        0; // Add more icons as needed
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -95,26 +111,53 @@ class _AddPostScreenState extends State<AddPostScreen> {
               return ElevatedButton(
                 onPressed: value.text.isNotEmpty
                     ? () async {
-
                         if (isCommunitySelected) {
-                          Map<String,dynamic> post = {
+                          String type =
+                              attachment != null ? attachment!.type : 'post';
+                          if (type == 'image' || type == 'video') {
+                            type = 'media';
+                          }
+                          List<String>? options = [];
+                          String? voteLength = '';
+
+                          if (type == 'poll') {
+                            // get the options list
+                            options = (attachment!.component as PollComponent)
+                                .getOptions();
+
+                            voteLength =
+                                (attachment!.component as PollComponent)
+                                    .getSelectedOption();
+                            // split the vote length string "1 day" to get the number of days into just 1
+                            voteLength = voteLength!.split(' ')[0];
+                          }
+
+                          Map<String, dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
                             'isNSFW': selectedTags.contains('NSFW'),
                             'isSpoiler': selectedTags.contains('Spoiler'),
                             'isOC': selectedTags.contains('isOC'),
                             'subreddit': selectedCommunity.name,
-                            'destination': "subreddit",
+                            // 'destination': "subreddit",
+                            'type': type,
                           };
                           //check if the attachment has been added
-                          if (attachment != null) {
+                          if (attachment != null && attachment!.type == 'url') {
+                            // print the attachment type
                             post['media'] = attachment!.data;
                           }
+                          if (type == 'poll') {
+                            post['options'] = options!.join(',');
+                            post['voteLength'] = voteLength;
+                            post['media'] = 'assets/images/poll.png';
+                          }
 
-
-                          final SharedPreferences prefs = await SharedPreferences.getInstance();
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
                           final String token = prefs.getString('token')!;
-                          final response = await ApiService().submitPost(post, token);
+                          final response = await ApiService().submitPost(
+                              post, token, _pickedImage ?? (_pickedVideo));
                           if (response['success'] == true) {
                             Navigator.pop(context);
                           } else {
@@ -164,179 +207,171 @@ class _AddPostScreenState extends State<AddPostScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(1, 0, 1, 1),
-            child: Column(
-              children: [
-                if (isCommunitySelected)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          // Add this line
-                          child: CommunityBar(
-                              community: selectedCommunity.name,
-                              communityId: selectedCommunity.id,
-                              onTap: () async {
-                                // ignore: unused_local_variable
-                                selectedCommunity = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PostToPage(),
-                                  ),
-                                );
-                                setState(() {
-                                  isCommunitySelected = true;
-                                });
-                              }),
-                        ),
-                      ],
-                    ),
-                  ),
-                SizedBox(
-                  height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
-                  child: Builder(
-                    builder: (context) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Wrap(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 700),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (isCommunitySelected)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
                           children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.warning,
-                                    size: 20), // Add this line
-                                ...selectedTags
-                                    .map(
-                                      (tag) => Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          tag,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
-                                            fontSize: 18,
-                                          ),
-                                        ),
+                            Expanded(
+                              // Add this line
+                              child: CommunityBar(
+                                  community: selectedCommunity.name,
+                                  communityId: selectedCommunity.id,
+                                  onTap: () async {
+                                    // ignore: unused_local_variable
+                                    selectedCommunity = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PostToPage(),
                                       ),
-                                    )
-                                    .toList(),
+                                    );
+                                    setState(() {
+                                      isCommunitySelected = true;
+                                    });
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    SizedBox(
+                      height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
+                      child: Builder(
+                        builder: (context) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: Wrap(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.warning,
+                                        size: 20), // Add this line
+                                    ...selectedTags
+                                        .map(
+                                          (tag) => Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              tag,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ],
+                                ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    hintText: 'Title',
-                    border: InputBorder.none,
-                    fillColor: theme.cardColor,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(
-                  height: 0 + (isCommunitySelected ? 50 : 0),
-                  child: Builder(
-                    builder: (context) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton(
-                          onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              builder: (BuildContext context) {
-                                return TagBottomSheet(
-                                  onDismiss: (List<String> selectedTags) {
-                                    // Handle selectedTags list here
-                                    setState(
-                                      () {
-                                        this.selectedTags.clear();
-                                        this.selectedTags.addAll(selectedTags);
+                          );
+                        },
+                      ),
+                    ),
+                    TextField(
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        hintText: 'Title',
+                        border: InputBorder.none,
+                        fillColor: theme.cardColor,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 0 + (isCommunitySelected ? 50 : 0),
+                      child: Builder(
+                        builder: (context) {
+                          return Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (BuildContext context) {
+                                    return TagBottomSheet(
+                                      onDismiss: (List<String> selectedTags) {
+                                        // Handle selectedTags list here
+                                        setState(
+                                          () {
+                                            this.selectedTags.clear();
+                                            this
+                                                .selectedTags
+                                                .addAll(selectedTags);
+                                          },
+                                        );
                                       },
+                                      selectedTags: this.selectedTags,
                                     );
                                   },
-                                  selectedTags: this.selectedTags,
                                 );
                               },
-                            );
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                            backgroundColor: Colors.grey[300], // text color
-                          ),
-                          child: const Text(
-                            'tags(optional)',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                SizedBox(
-                  height: 0 +
-                      (attachment != null && attachment?.type != 'poll'
-                          ? 50
-                          : 0),
-                  child: Visibility(
-                    visible: attachment != null && !optionSelected,
-                    child: Builder(
-                      builder: (context) {
-                        return Row(
-                          children: [
-                            Expanded(child: attachment!.component),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                if (widget.type == 'text')
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: descriptionController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              hintText: 'body (optional)',
-                              border: InputBorder.none,
-                              fillColor: theme.cardColor,
-                              counterText: '',
-                            ),
-                            maxLines: null,
-                          ),
-                          if (attachment?.type == 'poll' && attachment != null)
-                            SizedBox(
-                              height: 200, // Set the height to 200
-                              child: Visibility(
-                                visible: attachment != null && !optionSelected,
-                                child: Builder(
-                                  builder: (context) {
-                                    return Row(
-                                      children: [
-                                        Expanded(child: attachment!.component),
-                                      ],
-                                    );
-                                  },
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.black,
+                                backgroundColor: Colors.grey[300], // text color
+                              ),
+                              child: const Text(
+                                'tags(optional)',
+                                style: TextStyle(
+                                  fontSize: 16,
                                 ),
                               ),
                             ),
-                        ],
+                          );
+                        },
                       ),
                     ),
-                  ),
-              ],
+                    SizedBox(
+                      height: 0 +
+                          (attachment != null
+                              ? attachment!.type == "poll" || attachment!.type == "video"
+                                  ? 200
+                                  : 50
+                              : 0),
+                      child: Visibility(
+                        visible: attachment != null && !optionSelected,
+                        child: Builder(
+                          builder: (context) {
+                            return Row(
+                              children: [
+                                Expanded(child: attachment!.component),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    if (widget.type == 'text')
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            TextField(
+                              controller: descriptionController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: 'body (optional)',
+                                border: InputBorder.none,
+                                fillColor: theme.cardColor,
+                                counterText: '',
+                              ),
+                              maxLines: null,
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -399,16 +434,26 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                   final ImagePicker picker0 = ImagePicker();
                                   final XFile? image = await picker0.pickImage(
                                       source: ImageSource.gallery);
-                                  setState(() {
-                                    optionSelected = false;
-                                    _pickedImage = image;
-                                    attachment = Attachment(
-                                        type: 'image',
-                                        data: image,
-                                        component:
-                                            Image.file(File(image!.path)));
-                                    isAttachmentAdded = true;
-                                  });
+                                  if (image != null) {
+                                    final File imageFile = File(image.path);
+                                    setState(() {
+                                      optionSelected = false;
+                                      attachment = Attachment(
+                                          type: 'image',
+                                          data: imageFile,
+                                          component: Image.file(imageFile));
+                                      attachment!.component = ImageComponent(
+                                        image: imageFile,
+                                        onClear: () {
+                                          setState(() {
+                                            attachment = null;
+                                            isAttachmentAdded = false;
+                                          });
+                                        },
+                                      );
+                                      isAttachmentAdded = true;
+                                    });
+                                  }
                                 },
                         ),
                         if (!keyboardOpen) const Text('Image'),
@@ -420,11 +465,29 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           icon: const Icon(FontAwesomeIcons.video),
                           onPressed: isAttachmentAdded
                               ? null
-                              : () {
+                              : () async {
                                   final ImagePicker picker = ImagePicker();
-                                  final XFile? video = picker.pickVideo(
-                                      source: ImageSource.gallery) as XFile?;
-                                  // Add your action for the video icon here
+                                  final XFile? video = await picker.pickVideo(
+                                      source: ImageSource.gallery);
+                                  if (video != null) {
+                                    final File videoFile = File(video.path);
+                                    setState(() {
+                                      attachment = Attachment(
+                                        type: 'video',
+                                        data: videoFile,
+                                        component: VideoComponent(
+                                          video: videoFile,
+                                          onClear: () {
+                                            setState(() {
+                                              attachment = null;
+                                              isAttachmentAdded = false;
+                                            });
+                                          },
+                                        ),
+                                      );
+                                      isAttachmentAdded = true;
+                                    });
+                                  }
                                 },
                         ),
                         if (!keyboardOpen) const Text('Video'),
@@ -433,7 +496,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     Column(
                       children: [
                         IconButton(
-                          icon: const Icon(FontAwesomeIcons.chartBar),
+                          icon: const Icon(FontAwesomeIcons.squarePollVertical),
                           onPressed: isAttachmentAdded
                               ? null
                               : () {
@@ -448,6 +511,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                             isAttachmentAdded = false;
                                           });
                                         },
+                                        pollComponentKey: GlobalKey(),
                                       ),
                                     );
                                     isAttachmentAdded = true;
@@ -501,6 +565,120 @@ class URLComponent extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+}
+
+class ImageComponent extends StatefulWidget {
+  final File image;
+  final VoidCallback onClear;
+
+  ImageComponent({Key? key, required this.image, required this.onClear})
+      : super(key: key);
+
+  @override
+  _ImageComponentState createState() => _ImageComponentState();
+}
+
+class _ImageComponentState extends State<ImageComponent> {
+  late Future<File> _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _imageFile = _loadImageFromHDD();
+  }
+
+  Future<File> _loadImageFromHDD() async {
+    // Load image from local storage
+    return widget.image;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<File>(
+      future: _imageFile,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else {
+          if (snapshot.hasError)
+            return Text('Error: ${snapshot.error}');
+          else
+            return Stack(
+              children: [
+                Image.file(snapshot.data!),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: widget.onClear,
+                  ),
+                ),
+              ],
+            );
+        }
+      },
+    );
+  }
+}
+
+class VideoComponent extends StatefulWidget {
+  final File video;
+  final VoidCallback onClear;
+
+  VideoComponent({Key? key, required this.video, required this.onClear})
+      : super(key: key);
+
+  @override
+  _VideoComponentState createState() => _VideoComponentState();
+}
+
+class _VideoComponentState extends State<VideoComponent> {
+  late Future<VideoPlayerController> _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = _loadVideoFromHDD();
+  }
+
+  Future<VideoPlayerController> _loadVideoFromHDD() async {
+    // Load video from local storage
+    final VideoPlayerController controller =
+        VideoPlayerController.file(widget.video);
+    await controller.initialize();
+    return controller;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<VideoPlayerController>(
+      future: _controller,
+      builder: (BuildContext context,
+          AsyncSnapshot<VideoPlayerController> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else {
+          if (snapshot.hasError)
+            return Text('Error: ${snapshot.error}');
+          else
+            return Stack(
+              children: [
+                VideoPlayer(snapshot.data!),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: widget.onClear,
+                  ),
+                ),
+              ],
+            );
+        }
+      },
     );
   }
 }

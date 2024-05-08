@@ -30,8 +30,7 @@ class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userProfile =
-          await _apiService.getUserProfile(token);
+      Map<String, dynamic> userProfile = await _apiService.getUserProfile(token);
       setState(() {
         _username = userProfile['username'];
         _email = userProfile['email'];
@@ -48,8 +47,7 @@ class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
         throw Exception('Token not found');
       }
 
-      Map<String, dynamic> userCommunities =
-          await _apiService.getUserCommunities(token, _username);
+      Map<String, dynamic> userCommunities = await _apiService.getUserCommunities(token, _username);
       setState(() {
         communities = userCommunities['communities'];
       });
@@ -66,12 +64,12 @@ class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
       ),
       body: ListView(
         children: [
+
           Container(
             color: Colors.grey[300],
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text('Profile',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text('Profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ),
           Padding(
@@ -85,6 +83,7 @@ class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
                 ),
                 SizedBox(width: 10),
                 Text('My profile'),
+
               ],
             ),
           ),
@@ -92,8 +91,7 @@ class _ChooseCommunityPage2State extends State<ChooseCommunityPage2> {
             color: Colors.grey[300],
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Text('Joined',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text('Joined', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ),
           Expanded(

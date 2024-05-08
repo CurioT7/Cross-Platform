@@ -5,9 +5,9 @@ class Community {
   final List<dynamic> posts;
   final bool isOver18;
   final String privacyMode;
-  final String banner;
+  final String? banner;
 
-  final String icon;
+  final String? icon;
 
   final bool isNSFW;
   final bool isSpoiler;

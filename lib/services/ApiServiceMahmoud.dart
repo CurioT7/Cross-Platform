@@ -782,7 +782,7 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getRandomPosts() async {
     print('fetching random posts  from api service mahmoud  ');
-    final String endpoint = '/api/allpage/random?page=1';
+    final String endpoint = '/api/allpage/random';
     final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
@@ -803,8 +803,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopNowPosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/7.2';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/hour';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -824,8 +824,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopTodayPosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/24.0';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/day';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -845,8 +845,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisWeekPosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/168.0';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/week';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -866,8 +866,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisMonthPosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/720.0';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/month';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -887,8 +887,8 @@ class ApiServiceMahmoud {
 
   Future<Map<String, dynamic>> getTopThisYearPosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/2555.0';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/year';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);
@@ -906,8 +906,8 @@ class ApiServiceMahmoud {
   }
   Future<Map<String, dynamic>> getTopAllTimePosts() async {
     print('fetching top posts  from api service mahmoud');
-    final String endpoint = '/api/top/12000.0';
-    final url = Uri.parse('$_baseUrlMoch$endpoint');
+    final String endpoint = '/api/allpage/top/year';
+    final url = Uri.parse('$_baseUrlDataBase$endpoint');
 
     try {
       final response = await http.get(url);

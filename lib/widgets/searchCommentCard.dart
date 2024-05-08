@@ -3,6 +3,9 @@ import 'commentConatiner.dart';
 import 'package:curio/comment/viewPostComments.dart';
 
 import 'dart:math';
+import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
+
 
 class SearchCommentCard extends StatelessWidget {
   final String communityImage;
@@ -42,6 +45,14 @@ class SearchCommentCard extends StatelessWidget {
       Icons.work
     ]; // Add more icons as needed
     final iconData = icons[Random().nextInt(icons.length)];
+
+    DateTime parsedCommentDate = DateTime.parse(commentCreatedAt);
+    String formattedCommentDate = timeago.format(parsedCommentDate);
+
+    DateTime parsedPostDate = DateTime.parse(postCreatedAt);
+    String formattedPostDate = timeago.format(parsedPostDate);
+
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -55,7 +66,7 @@ class SearchCommentCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(communityName),
                 const SizedBox(width: 8),
-                Text(postCreatedAt),
+                Text(formattedPostDate),
               ],
             ),
             const SizedBox(height: 8),
@@ -64,7 +75,7 @@ class SearchCommentCard extends StatelessWidget {
             const SizedBox(height: 8),
             CommentContainer(
               userName: userName,
-              createdAt: commentCreatedAt,
+              createdAt: formattedCommentDate,
               commentContent: commentContent,
               upvotes: commentUpvotes,
             ),

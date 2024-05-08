@@ -74,6 +74,7 @@ class _CommentCardState extends State<CommentCard> {
     Map<String, dynamic> userDetails = await api.extractUserDetails(userData);
     setState(() {
       image = userDetails['profilePicture'];
+      print("image link: $image");
     });
   }
 

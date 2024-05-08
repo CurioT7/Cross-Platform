@@ -162,7 +162,11 @@ class _SearchScreenState extends State<SearchScreen>
             },
           ),
           // Replace these with your actual widgets for displaying the search results
-          const Center(child: Text('Comments')),
+          SortAndCommentList(
+              query: _searchController.text,
+              sortOptions: const ['relevance', 'new','top'],
+              onSortOptionSelected: (option) {}),
+
           ValueListenableBuilder<String>(
             valueListenable: searchQueryNotifier,
             builder: (BuildContext context, String value, Widget? child) {

@@ -35,11 +35,9 @@ class CommunityBar extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  radius: MediaQuery.of(context).size.width * 0.05,
-                  backgroundImage: communityIcon.isNotEmpty
-                      ? NetworkImage(communityIcon)
-                      : const NetworkImage(
-                          'https://example.com/default_image.png'), // Replace with your default image URL
+                  backgroundColor: Colors.white,
+                  radius: 30,
+                  child: Image.asset('lib/assets/images/Curio.png'),
                 ),
                 const SizedBox(width: 8),
                 Text(community ?? 'Select a community'),

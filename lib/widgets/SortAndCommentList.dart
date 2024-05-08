@@ -87,14 +87,19 @@ class _SortAndCommentListState extends State<SortAndCommentList> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
-                  } else {
+
+                  }
+                  else if(snapshot.data == null || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('No comments found'));
+                  }
+                  else {
                     return snapshot.data != null
                         ? ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         var data = snapshot.data![index];
                         return SearchCommentCard(
-                          communityImage: "assets/images/loft.png",
+                          communityImage: "assets/images/curio.png",
                           communityName: data['linkedSubreddit'] != null
                               ? data['linkedSubreddit']['name']
                               : 'Unknown',

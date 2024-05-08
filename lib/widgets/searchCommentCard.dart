@@ -63,7 +63,11 @@ class SearchCommentCard extends StatelessWidget {
             Row(
               children: [
                 // any icon
-                Icon(iconData),
+                CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 30,
+                  child: Image.asset('lib/assets/images/Curio.png'),
+                ),
                 const SizedBox(width: 8),
                 Text(communityName),
                 const SizedBox(width: 8),

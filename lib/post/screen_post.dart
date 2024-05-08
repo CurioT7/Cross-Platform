@@ -185,7 +185,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
-
+    titleController = TextEditingController(
+      text: widget.post['title'] ?? '',
+    );
     selectedCommunity = Community(
       id: 'Community ID',
       name: 'Community Name',
@@ -524,7 +526,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                 community: selectedCommunity.name,
                                 communityId: selectedCommunity.id,
                                 communityIcon: selectedCommunity.icon?.toString() ??
-                                    'https://example.com/default_image.png',
+                                    'lib/assets/images/Curio.png',
                                 onTap: widget.canChooseCommunity
                                     ? handleTap
                                     : () {},

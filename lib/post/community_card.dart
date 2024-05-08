@@ -22,8 +22,9 @@ class CommunityCard extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            radius: MediaQuery.of(context).size.width * 0.05,
-            backgroundImage: NetworkImage(community.icon??'https://example.com/default_image.png'), // Replace with your default image URL
+            backgroundColor: Colors.white,
+            radius: 30,
+            child: Image.asset('lib/assets/images/Curio.png'),
           ),
           const SizedBox(width: 10),
           Column(

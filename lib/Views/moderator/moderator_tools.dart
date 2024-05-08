@@ -13,6 +13,9 @@ import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/moderator/moderators.dart';
 
+import 'communityDescription.dart';
+import 'communityPrivacyMode.dart';
+
 class ModeratorToolsPage extends StatefulWidget {
   final String subredditName;
   const ModeratorToolsPage({Key? key, required this.subredditName}) : super(key: key);
@@ -115,6 +118,13 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
 
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommunityDescription(subreddit: widget.subredditName),
+                ),
+              );
+
 
             },
           ),
@@ -124,6 +134,13 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
 
+//open page CommunityType
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CommunityType(subreddit: widget.subredditName),
+                ),
+              );
 
             },
           ),

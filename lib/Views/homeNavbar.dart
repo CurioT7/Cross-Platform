@@ -5,9 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/topCommunity.dart';
 import 'package:curio/services/apiServiceMahmoud.dart';
 
-import 'package:curio/Notifications/viewNotifications.dart';
-
-import 'Home_screen.dart';
+import '../services/logicAPI.dart';
 
 class HomeNavigationBar extends StatefulWidget {
   @override
@@ -17,7 +15,7 @@ class HomeNavigationBar extends StatefulWidget {
 class _HomeNavigationBarState extends State<HomeNavigationBar> {
   String? notficationsMessage;
   int _selectedIndex = 0;
-  int notificationCount = 0; // Notification count
+  String notificationCount = '0'; // Notification count
   void showSnackbar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -37,11 +35,12 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       final notifications = await apiService.getUnreadNotifications(token);
       setState(() {
 
-
-        notificationCount = notifications['unreadCount'];
-        print('$notificationCount notifications found');
-
-
+        if(notifications['message'] == null) {
+          notificationCount = notifications['unreadCount'];
+        }else{
+          notficationsMessage=notifications['message'];
+          notificationCount = '0';
+        }
 
       });
       print(notifications);
@@ -49,34 +48,6 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
       print('Error: $e');
     }
   }
-
-  void markReadNotifications() async {
-    final apiService = ApiServiceMahmoud();
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      String? token = prefs.getString('token');
-
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-      final message = await apiService.markViewed(token);
-      print(message);
-      setState(() {
-          if (message['success']) {
-            showSnackbar(context, 'Notifications marked as read');
-            notificationCount = 0;
-          } else {
-            showSnackbar(context, 'error marking viewed : ${message['message']}');
-          }
-      });
-      print(message);
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
-
-
  @override
   void initState() {
     super.initState();
@@ -88,22 +59,14 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       items: [
+        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
         BottomNavigationBarItem(
-          icon: Icon(_selectedIndex == 0 ? Icons.home : Icons.home_outlined),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(_selectedIndex == 1 ? Icons.supervisor_account : Icons.supervisor_account_outlined),
+          icon: Icon(Icons.supervisor_account_outlined),
           label: 'Communities',
         ),
+        BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Create'),
+        BottomNavigationBarItem(icon: Icon(Icons.textsms_outlined), label: 'Chat'),
         BottomNavigationBarItem(
-          icon: Icon(_selectedIndex == 2 ? Icons.add_box : Icons.add_box_outlined),
-          label: 'Create',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(_selectedIndex == 3 ? Icons.chat : Icons.chat_outlined),
-          label: 'Chat',
-        ), BottomNavigationBarItem(
           icon: NotificationIcon(
             notificationCount: notificationCount,
           ),
@@ -130,10 +93,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
         });
         switch (index) {
           case 0:
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-            );
+          // Handle tap on 'Home'
             break;
           case 1:
             try {
@@ -163,21 +123,38 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
             );
             break;
           case 3:
-          // Handle tap on 'Chat'
+            //! Handle tap on 'Chat'
+            //! Handle tap on 'Chat'
+            //! Handle tap on 'Chat'
+            //! Handle tap on 'Chat'
+            final SharedPreferences prefs =
+                await SharedPreferences.getInstance();
+            String? token = prefs.getString('token');
+            if (token == null) {
+              return;
+            }
+
+
+            final logicAPI apiLogic = logicAPI();
+            final username = await apiLogic.fetchUsername(token);
+            final data = apiLogic.extractUsername(username);
+            ChatCubit.get(context).getChats(token: token);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                    token: token,
+                    myUsername: data['username'],
+                  ),
+                ));
             break;
           case 4:
-            //TODO CORRECT THIS
-            //markReadNotifications();
-            //getUnreadNotifications();
-            // final SharedPreferences prefs = await SharedPreferences.getInstance();
-            // String? token = prefs.getString('token');
-            // if (token == null) {
-            //   return;
-            // }
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ViewNotifications()),
-            );
+            getUnreadNotifications();
+            if(notficationsMessage == null) {
+
+              showSnackbar(context, 'There are no unread notifications');
+
+            }
             break;
         }
       },
@@ -186,7 +163,7 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
 }
 
 class NotificationIcon extends StatelessWidget {
-  final int notificationCount;
+  final String notificationCount;
 
   const NotificationIcon({
     required this.notificationCount,
@@ -194,7 +171,7 @@ class NotificationIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   if(notificationCount == 0){
+   if(notificationCount == '0'){
      return Icon(Icons.notifications_none_outlined);
   }else{
      return Stack(
@@ -215,7 +192,7 @@ class NotificationIcon extends StatelessWidget {
              minHeight: 18,
            ),
            child: Text(
-             '$notificationCount',
+             notificationCount,
              style: TextStyle(
                color: Colors.white,
                fontSize: 12,

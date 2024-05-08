@@ -87,7 +87,11 @@ class _SortAndCommentListState extends State<SortAndCommentList> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
-                  } else {
+                  }else if(commentsFuture.toString() == "Instance of 'Future<List<dynamic>>'") {
+                    return const Center(
+                        child: Text('No comments found for the given query'));
+                  }
+                  else {
                     return snapshot.data != null
                         ? ListView.builder(
                       itemCount: snapshot.data!.length,

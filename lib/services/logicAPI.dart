@@ -1064,55 +1064,79 @@ print("success fetch post by id");
           'Failed to load posts with status code: ${response.statusCode}');
     }
   }
+  Future<void> getCommunitySettings(String subreddit, String token) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/communitySettings/$subreddit'),
+      headers: <String, String>{
+        'Authorization': 'Bearer $token',
+      },
+    );
 
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response, parse the JSON.
+      print('Response data: ${response.body}');
+    } else {
+      // If the server did not return a 200 OK response, throw an exception.
+      throw Exception('Failed to load community settings');
+    }
+  }
   Future<bool> updateCommunitySettingsDescription(String token, String subreddit, String description) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+    getCommunitySettings(subreddit, token);
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/updateCommunitySettings/$subreddit'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode(<String, String>{
+        "name": subreddit,
 
-        'description': description,
+        "description": description,
 
       }),
     );
 
-    switch (response.statusCode) {
-      case 200:
-        return true;
-      case 404:
-        throw Exception('Subreddit not found');
-      case 500:
-        throw Exception('Error retrieving community settings updates');
-      default:
-        throw Exception('Failed to update community settings');
+    if (response.statusCode==200) {
+
+      return true;}
+    else if (response.statusCode==404) {
+      throw Exception('Subreddit not found');
+    } else if (response.statusCode==500) {
+      throw Exception('Error retrieving community settings updates');
+    }
+    else {
+      throw Exception('Failed to update community settings');
     }
   }
 
-  Future<bool> updateCommunitySettingsPrivacy(String token, String subreddit, String privacyMode) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+  Future<bool> updateCommunitySettingsPrivacy(String token, String subreddit, String privacyMode, String isover18) async {
+    getCommunitySettings(subreddit, token);
+
+    print("subeddit ");
+    print(subreddit);
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/updateCommunitySettings/$subreddit'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
       body: jsonEncode(<String, String>{
 
-
-        'privacyMode': privacyMode,
+      "name": subreddit,
+        "isNSFW": isover18,
+        "privacyMode": privacyMode,
       }),
     );
 
-    switch (response.statusCode) {
-      case 200:
-        return true;
-      case 404:
-        throw Exception('Subreddit not found');
-      case 500:
-        throw Exception('Error retrieving community settings updates');
-      default:
+    if (response.statusCode==200) {
+
+        return true;}
+    else if (response.statusCode==404) {
+      throw Exception('Subreddit not found');
+    } else if (response.statusCode==500) {
+      throw Exception('Error retrieving community settings updates');
+    }
+    else {
         throw Exception('Failed to update community settings');
     }
   }

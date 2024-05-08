@@ -11,6 +11,8 @@ import 'package:curio/Notifications/notificationModel.dart';
 import 'package:curio/services/logicAPI.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Views/homeNavbar.dart';
+
 
 class ViewNotifications extends StatefulWidget {
   @override
@@ -46,6 +48,9 @@ class _ViewNotificationsState extends State<ViewNotifications> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: CustomSidebar(),
+      endDrawer: SidebarAfterLogIn(),
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.menu),

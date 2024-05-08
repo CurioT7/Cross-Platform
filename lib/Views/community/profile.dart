@@ -27,7 +27,7 @@ class communityProfile extends StatefulWidget {
 
 class _CommunityProfileState extends State<communityProfile> {
   // bool hasJoined = false;
-
+  Future<bool>? _communityDataFuture;
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
   //String communityName = 'Art eum';
@@ -353,43 +353,54 @@ class _CommunityProfileState extends State<communityProfile> {
                   ),
                 ),
                 onPressed: (privacyMode == 'private' && isJoined == false) ? null : () async {
-                  try {
-                    final SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    String? token = prefs.getString('token');
-                    if (token == null) {
-                      throw Exception('Token is null');
-                    }
-                    _initializeState();
-                    _fetchJoinState();
-                    fetchPreferencesIsJoined();
-                    if (isModerator==false) {
-                      if (isJoined!) {
-                        try {
-                          //await apiLogic.leaveCommunity(token, communityName);
-                          // isJoined = false;
-                          setState(() {
-                            showLeaveCommunityDialog(
-                                context, widget.communityName);
+    if (isModerator) {
+    // If the user is a moderator, navigate to the ModeratorToolsPage
+    Navigator.push(
+    context,
+    MaterialPageRoute(
+    builder: (context) =>
+    ModeratorToolsPage(
+    subredditName: widget.communityName),
+    ),
+    );
+    } else {
+      try {
+        final SharedPreferences prefs =
+        await SharedPreferences.getInstance();
+        String? token = prefs.getString('token');
+        if (token == null) {
+          throw Exception('Token is null');
+        }
+        _initializeState();
+        _fetchJoinState();
+        fetchPreferencesIsJoined();
+        if (isModerator == false) {
+          if (isJoined!) {
+            try {
+              //await apiLogic.leaveCommunity(token, communityName);
+              // isJoined = false;
+              setState(() {
+                showLeaveCommunityDialog(
+                    context, widget.communityName);
 //                             _initializeState();
 //                             _fetchCommunityData();
 // fetchPreferencesIsJoined();
-                          });
-                        } catch (e) {
-                          print('Error leaving community: $e');
-                        }
-                      } else {
-                        try {
-                          await apiLogic.joinCommunity(
-                              token, widget.communityName);
-                          isJoinedChanged = true;
-                          //might change test
-                          setState(() {
-                            isJoined = true;
-                            prefs.setBool('isJoinedSubreddit', true);
-                          });
+              });
+            } catch (e) {
+              print('Error leaving community: $e');
+            }
+          } else {
+            try {
+              await apiLogic.joinCommunity(
+                  token, widget.communityName);
+              isJoinedChanged = true;
+              //might change test
+              setState(() {
+                isJoined = true;
+                prefs.setBool('isJoinedSubreddit', true);
+              });
 
-                          //isJoined = true;
+              //isJoined = true;
 // if (isJoinedChanged==true) {
 //   _initializeState();
 //   _fetchCommunityData();
@@ -397,52 +408,58 @@ class _CommunityProfileState extends State<communityProfile> {
 //   fetchPreferencesIsJoined();
 //   isJoinedChanged=false;
 // }
-                          setState(() {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                                content: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black,
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 8.0),
-                                  child: Text(
-                                      'You have succesfully joined the community: $widget.communityName',
-                                      style: TextStyle(color: Colors.white)),
-                                ),
-                              ),
-                            );
-                          });
-                        } catch (e) {
-                          print('Error joining community: $e');
-                        }
-                      }
-                    }
-                    else(){
-//open ModeratorToolsPage class and send to it this subreddit name
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ModeratorToolsPage(subredditName: widget.communityName),
-                        ),
-                      );
-                      //todo open modtools settings page
-                    };
-                  } catch (e) {
-                    print('Error in SharedPreferences: $e');
-                  }
-                },
-                child: Text(
-                  isModerator ? 'Mod Tools' : (isJoined == true ? 'Joined' : 'Join'),
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width * 0.022,
-                    color: isModerator ? Colors.white : (isJoined == true ? Colors.grey : Colors.white),
-                    fontWeight: FontWeight.bold,
+              setState(() {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    content: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Text(
+                          'You have succesfully joined the community: $widget.communityName',
+                          style: TextStyle(color: Colors.white)),
+                    ),
                   ),
+                );
+              });
+            } catch (e) {
+              print('Error joining community: $e');
+            }
+          }
+        }
+        else
+              () {
+//open ModeratorToolsPage class and send to it this subreddit name
+          };
+      } catch (e) {
+        print('Error in SharedPreferences: $e');
+      }
+    }
+
+
+
+                }, child: Text(
+                isModerator ? 'Mod Tools' : (isJoined == true
+                    ? 'Joined'
+                    : 'Join'),
+                style: TextStyle(
+                  fontSize: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.022,
+                  color: isModerator ? Colors.white : (isJoined == true
+                      ? Colors.grey
+                      : Colors.white),
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
+
+
               ),
             ),
           ],

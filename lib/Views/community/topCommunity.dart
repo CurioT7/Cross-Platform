@@ -9,6 +9,10 @@ import 'package:curio/Views/community/topAppBar.dart';
 import 'package:curio/Views/community/profile.dart';
 import 'package:curio/Views/community/SelectionCommunityPopUp.dart';
 
+import '../homeNavbar.dart';
+import '../sidebars/CustomSidebar.dart';
+import '../sidebars/sideBarAfterLogIn.dart';
+
 
 class TopCommunitiesPage extends StatefulWidget {
   @override
@@ -97,6 +101,9 @@ class _TopCommunitiesPageState extends State<TopCommunitiesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: CustomSidebar(),
+      endDrawer: SidebarAfterLogIn(),
+      bottomNavigationBar: HomeNavigationBar(),
       appBar: AppBar(
         title: Text('Communities'),
         actions: [

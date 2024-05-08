@@ -7,6 +7,8 @@ import 'package:curio/services/apiServiceMahmoud.dart';
 
 import 'package:curio/Notifications/viewNotifications.dart';
 
+import 'Home_screen.dart';
+
 class HomeNavigationBar extends StatefulWidget {
   @override
   _HomeNavigationBarState createState() => _HomeNavigationBarState();
@@ -86,14 +88,22 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
         BottomNavigationBarItem(
-          icon: Icon(Icons.supervisor_account_outlined),
+          icon: Icon(_selectedIndex == 0 ? Icons.home : Icons.home_outlined),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(_selectedIndex == 1 ? Icons.supervisor_account : Icons.supervisor_account_outlined),
           label: 'Communities',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Create'),
-        BottomNavigationBarItem(icon: Icon(Icons.textsms_outlined), label: 'Chat'),
         BottomNavigationBarItem(
+          icon: Icon(_selectedIndex == 2 ? Icons.add_box : Icons.add_box_outlined),
+          label: 'Create',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(_selectedIndex == 3 ? Icons.chat : Icons.chat_outlined),
+          label: 'Chat',
+        ), BottomNavigationBarItem(
           icon: NotificationIcon(
             notificationCount: notificationCount,
           ),
@@ -120,7 +130,10 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
         });
         switch (index) {
           case 0:
-          // Handle tap on 'Home'
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen()),
+            );
             break;
           case 1:
             try {

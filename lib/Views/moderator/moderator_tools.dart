@@ -3,6 +3,7 @@ import 'package:curio/Views/Moderation/approved_users_page.dart';
 import 'package:curio/Views/Moderation/banned_users_page.dart';
 import 'package:curio/Views/Moderation/rules_page.dart';
 import 'package:curio/Views/insettingspage/notificationSettings.dart';
+import 'package:curio/post/schudledPostPage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:curio/utils/constants.dart';
@@ -13,9 +14,11 @@ import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/moderator/moderators.dart';
 
+import '../../Models/community_model.dart';
+import '../../services/ModerationService.dart';
 import 'communityDescription.dart';
 import 'communityPrivacyMode.dart';
-
+import 'package:curio/services/api_service.dart' as APISHAMS;
 class ModeratorToolsPage extends StatefulWidget {
   final String subredditName;
   const ModeratorToolsPage({Key? key, required this.subredditName}) : super(key: key);
@@ -36,9 +39,42 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
   bool _isConnected = false;
   String _username = '';
   String _email = '';
-
+  late Community  communityDetails= Community(
+    id: 'Community ID',
+    name: 'Community Name',
+    description: 'Community Description',
+    posts: [],
+    icon: "",
+    banner: "",
+    isOver18: false,
+    privacyMode: 'Public',
+    isNSFW: false,
+    isSpoiler: false,
+    isOC: false,
+    isCrosspost: false,
+    rules: [],
+    category: 'Category',
+    language: 'Language',
+    allowImages: true,
+    allowVideos: true,
+    allowText: true,
+    allowLink: true,
+    allowPoll: true,
+    allowEmoji: true,
+    allowGif: true,
+    members: [],
+    moderators: [],
+    createdAt: DateTime.now().toString(),
+  );
   ApiServiceMahmoud _apiService = ApiServiceMahmoud();
 
+  Future<void> fetchCommunityDetails() async {
+
+    communityDetails = await APISHAMS.ApiService()
+        .fetchCommunityByName(widget.subredditName);
+    setState(() {});
+
+  }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -52,7 +88,8 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
   void initState() {
     print('Subreddit name: ${widget.subredditName}');
     super.initState();
-    _loadInitialData(); // Load initial data when the widget initializes
+    _loadInitialData();
+    fetchCommunityDetails();
   }
 
   void _loadInitialData() async {
@@ -178,7 +215,7 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             leading: Icon(Icons.access_time, color: KIconColor),
             title: Text('Scheduled posts', style: kTitleHeader),
             onTap: () {
-
+              ScheduledPostsPage(community:{'subreddit': communityDetails});
             },
           ),
           Container(

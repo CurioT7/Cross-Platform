@@ -231,20 +231,7 @@ class _NotificationCardState extends State<NotificationCard> {
                             }
                           },
                         ),
-                        ListTile(
-                          leading: Icon(Icons.highlight_off_outlined,
-                              color: Colors.grey.shade500),
-                          title: Text("Disable updates from this community",
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 14)),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.notifications_off_outlined,
-                              color: Colors.grey.shade500),
-                          title: Text("Turn off this notification type",
-                              style: TextStyle(
-                                  color: Colors.black, fontSize: 14)),
-                        ),
+
                         Center(
                           child: OutlinedButton(
                             onPressed: () {
@@ -270,7 +257,9 @@ class _NotificationCardState extends State<NotificationCard> {
                             ),
                           ),
                         ),
-                      ],
+
+
+]
                     ),
                   ),
                 );

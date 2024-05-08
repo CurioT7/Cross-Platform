@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:curio/Views/sidebars/CustomSidebar.dart';
+import 'package:curio/Views/sidebars/sideBarAfterLogIn.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -8,6 +10,7 @@ import 'package:curio/Models/post.dart';
 import 'package:curio/widgets/postCard.dart';
 
 import '../widgets/recent_widget.dart';
+import 'homeNavbar.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -54,6 +57,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: CustomSidebar(),
+      endDrawer: SidebarAfterLogIn(),
+      bottomNavigationBar: HomeNavigationBar(),
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
         automaticallyImplyLeading: true,

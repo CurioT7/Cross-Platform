@@ -67,7 +67,7 @@ class _CommunityDescriptionState extends State<CommunityDescription> {
             },
             child: Text(
               'Save Text',
-              style: TextStyle(color: Colors.blue),
+              style: TextStyle(color: Colors.blue.shade500),
             ),
           ),
         ],

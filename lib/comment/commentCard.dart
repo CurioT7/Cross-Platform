@@ -126,8 +126,7 @@ class _CommentCardState extends State<CommentCard> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
                         CircleAvatar(
-                          backgroundImage: image != null ? NetworkImage(image!) : null,
-                        ),
+                          backgroundImage: NetworkImage(image != null ? image! : 'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png'),                        ),
                         SizedBox(width: 8.0),
                         Text(widget.authorUsername ?? 'Unknown',  style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold, fontSize: 13),),
                         SizedBox(width: 8.0),

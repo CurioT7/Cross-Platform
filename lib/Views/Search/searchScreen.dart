@@ -109,9 +109,9 @@ class _SearchScreenState extends State<SearchScreen>
           tabs: [
             Tab(text: 'Posts'),
             Tab(text: 'Communities'),
+            Tab(text: 'People'),
             Tab(text: 'Comments'),
             Tab(text: 'Hashtags'),
-            Tab(text: 'People'),
           ],
         ),
       ),

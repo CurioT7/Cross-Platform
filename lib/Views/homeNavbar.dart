@@ -4,7 +4,8 @@ import 'package:curio/Views/community/profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/Views/community/topCommunity.dart';
 import 'package:curio/services/apiServiceMahmoud.dart';
-
+import 'package:curio/Views/chat/chat_screen.dart';
+import '../controller/chat_cubit/chat_cubit.dart';
 import '../services/logicAPI.dart';
 
 class HomeNavigationBar extends StatefulWidget {

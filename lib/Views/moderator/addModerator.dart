@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:curio/services/ApiServiceMahmoud.dart ';
+import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddModeratorPage extends StatefulWidget {

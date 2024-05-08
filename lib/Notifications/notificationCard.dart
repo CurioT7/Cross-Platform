@@ -89,7 +89,7 @@ class _NotificationCardState extends State<NotificationCard> {
         },
         contentPadding: const EdgeInsets.all(8.0),
         tileColor: tileColor,
-        leading: Image.asset("lib/assets/images/example.jpg"),
+        leading: widget.notification.media != null ? Image.network(widget.notification.media!) : null,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[

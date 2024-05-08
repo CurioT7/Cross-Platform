@@ -6,7 +6,7 @@ class NotificationModel {
   final bool isRead;
   final DateTime timestamp;
   final bool isSent;
-
+final String? media;
   NotificationModel({
     required this.id,
     required this.title,
@@ -15,6 +15,7 @@ class NotificationModel {
     required this.isRead,
     required this.timestamp,
     required this.isSent,
+    this.media,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +27,7 @@ class NotificationModel {
       isRead: json['isRead'],
       timestamp: DateTime.parse(json['timestamp']),
       isSent: json['isSent'],
+      media: json['media'],
     );
   }
 

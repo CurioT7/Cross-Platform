@@ -245,6 +245,7 @@ class logicAPI {
         'membersCount': subredditData['members'].length,
         'banner': subredditData['banner'],
         'icon': subredditData['icon'],
+        "isOver18": subredditData['isOver18'],
         'moderators': subredditData['moderators'].map((
             moderator) => moderator['username']).toList(),
       };
@@ -1063,4 +1064,57 @@ print("success fetch post by id");
           'Failed to load posts with status code: ${response.statusCode}');
     }
   }
+
+  Future<bool> updateCommunitySettingsDescription(String token, String subreddit, String description) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+
+        'description': description,
+
+      }),
+    );
+
+    switch (response.statusCode) {
+      case 200:
+        return true;
+      case 404:
+        throw Exception('Subreddit not found');
+      case 500:
+        throw Exception('Error retrieving community settings updates');
+      default:
+        throw Exception('Failed to update community settings');
+    }
+  }
+
+  Future<bool> updateCommunitySettingsPrivacy(String token, String subreddit, String privacyMode) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+
+
+        'privacyMode': privacyMode,
+      }),
+    );
+
+    switch (response.statusCode) {
+      case 200:
+        return true;
+      case 404:
+        throw Exception('Subreddit not found');
+      case 500:
+        throw Exception('Error retrieving community settings updates');
+      default:
+        throw Exception('Failed to update community settings');
+    }
+  }
+
 }

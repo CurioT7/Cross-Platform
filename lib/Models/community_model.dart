@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class Community {
   final String id;
   final String name;
@@ -6,9 +8,7 @@ class Community {
   final bool isOver18;
   final String privacyMode;
   final String? banner;
-
   final String? icon;
-
   final bool isNSFW;
   final bool isSpoiler;
   final bool isOC;
@@ -26,6 +26,10 @@ class Community {
   final List<Member> members;
   final List<Moderator> moderators;
   final String createdAt;
+  @override
+  String toString() {
+    return 'Community{id: $id, name: $name, description: $description, isOver18: $isOver18, privacyMode: $privacyMode, isNSFW: $isNSFW, isSpoiler: $isSpoiler, isOC: $isOC, isCrosspost: $isCrosspost, rules: $rules, category: $category, language: $language, allowImages: $allowImages, allowVideos: $allowVideos, allowText: $allowText, allowLink: $allowLink, allowPoll: $allowPoll, allowEmoji: $allowEmoji, allowGif: $allowGif, createdAt: $createdAt}';
+  }
 
   Community({
     required this.id,
@@ -53,9 +57,11 @@ class Community {
     required this.members,
     required this.moderators,
     required this.createdAt,
+
   });
 
   factory Community.fromJson(Map<String, dynamic> json) {
+
     return Community(
       id: json['_id'],
       name: json['name'],
@@ -82,6 +88,7 @@ class Community {
       members: (json['members'] as List).map((i) => Member.fromJson(i)).toList(),
       moderators: (json['moderators'] as List).map((i) => Moderator.fromJson(i)).toList(),
       createdAt: json['createdAt'],
+
     );
   }
 }

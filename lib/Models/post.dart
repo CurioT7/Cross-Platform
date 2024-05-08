@@ -106,4 +106,34 @@ class Post {
         .map((post) => Post.fromJson(post as Map<String, dynamic>))
         .toList();
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'authorName': authorName,
+      'views': views,
+      'createdAt': createdAt.toIso8601String(),
+      'upvotes': upvotes,
+      'downvotes': downvotes,
+      'linkedSubreddit': linkedSubreddit,
+      'comments': comments,
+      'shares': shares,
+      'isNSFW': isNSFW,
+      'isSpoiler': isSpoiler,
+      'isOC': isOC,
+      'isCrosspost': isCrosspost,
+      'awards': awards,
+      'media': media,
+      'link': link,
+      'isDraft': isDraft,
+      'isLocked': isLocked,
+      'isSaved': isSaved,
+      'voteStatus': voteStatus,
+      'isUserMemberOfItemSubreddit': isUserMemberOfItemSubreddit,
+      'subredditName': subredditName,
+      'pollVote': pollVote,
+      'pollEnded': pollEnded,
+    };
+  }
 }

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
@@ -10,8 +8,41 @@ class ApiServiceMahmoud {
 
   final String _baseUrlDataBase = 'http://10.0.2.2:3000';
 
+
   //final String _baseUrlDataBase= 'http://192.168.1.8:3000';
   //final String _baseUrlDataBase= 'http://20.199.94.136';
+
+  Future<Map<String, dynamic>> fetchCommunities(String query) async {
+    try {
+
+      final String url = '$_baseUrlDataBase/api/searchCommunities/$query';
+      print('Fetching communities from: $url');
+
+      final response = await http.get(Uri.parse(url));
+
+      print('Response body: ${response.body}');
+      print('Status code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+           final responseData = jsonDecode(response.body);
+        return responseData;
+      } else if (response.statusCode == 404) {
+        // Not Found error
+        return {'success': false, 'message': 'No communities found for the given query'};
+      } else if (response.statusCode == 500) {
+        // Internal Server Error
+        return {'success': false, 'message': 'Error retrieving search results'};
+      } else {
+        // Handle other status codes
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      // Handle network errors
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+
 
 
 

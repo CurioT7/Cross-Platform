@@ -12,11 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:curio/utils/reddit_colors.dart';
 import '../controller/report/report_cubit.dart';
+import '../post/screen_post.dart';
 import 'report_user_or_post_bottom_sheet.dart';
 import 'package:curio/comment/viewPostComments.dart';
 import 'package:curio/Views/share/shareToProfile.dart';
 import 'package:curio/Views/community/chooseCommunity.dart';
 import 'join_button.dart';
+
 class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
@@ -30,7 +32,8 @@ class PostCard extends StatefulWidget {
   _PostCardState createState() => _PostCardState();
 }
 
-class _PostCardState extends State<PostCard> with AutomaticKeepAliveClientMixin {
+class _PostCardState extends State<PostCard>
+    with AutomaticKeepAliveClientMixin {
   late int votes;
   bool upvoted = false;
   bool downvoted = false;
@@ -50,13 +53,13 @@ class _PostCardState extends State<PostCard> with AutomaticKeepAliveClientMixin 
     fetchAndSetUserImage();
     votes = widget.post.upvotes - widget.post.downvotes;
     SharedPreferences.getInstance().then((value) {
-    prefs = value;
-    setState(() {
-      voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
-      upvoted = voteStatus == 'upvoted';
-      downvoted = voteStatus == 'downvoted';
+      prefs = value;
+      setState(() {
+        voteStatus = prefs?.getString(widget.post.id) ?? 'neutral';
+        upvoted = voteStatus == 'upvoted';
+        downvoted = voteStatus == 'downvoted';
+      });
     });
-  });
   }
 
 Future<String> getToken() async {
@@ -94,7 +97,8 @@ void fetchAndSetUserImage() async {
           print('Failed to hide post');
         }
       } else {
-        bool unhideResult = await ApiService().unhidePost(widget.post.id, token);
+        bool unhideResult =
+            await ApiService().unhidePost(widget.post.id, token);
         if (unhideResult) {
           setState(() {
             _isVisible = !_isVisible;
@@ -128,7 +132,7 @@ void fetchAndSetUserImage() async {
     prefs.setString(widget.post.id, upvoted ? 'upvoted' : 'neutral');
 
     int direction = upvoted ? 1 : 0;
-    ApiService().castVote(widget.post.id, direction,token);
+    ApiService().castVote(widget.post.id, direction, token);
   }
 
   Future<void> _downvote() async {
@@ -153,7 +157,7 @@ void fetchAndSetUserImage() async {
     prefs.setString(widget.post.id, downvoted ? 'downvoted' : 'neutral');
 
     int direction = downvoted ? -1 : 0;
-    ApiService().castVote(widget.post.id, direction,token);
+    ApiService().castVote(widget.post.id, direction, token);
   }
 
   void _navigateToComments() {
@@ -173,6 +177,7 @@ void fetchAndSetUserImage() async {
       print('An error occurred while sharing the post: $e');
     }
   }
+
   void _launchURL(String url) async {
     try {
       await launch(url);
@@ -183,6 +188,7 @@ void fetchAndSetUserImage() async {
       );
     }
   }
+
   void _moderatorAction() {
     showModalBottomSheet(
       context: context,
@@ -192,7 +198,8 @@ void fetchAndSetUserImage() async {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.warning_amber_rounded),
-                title: Text(widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
+                title: Text(
+                    widget.post.isSpoiler ? 'Unmark Spoiler' : 'Mark Spoiler'),
                 onTap: () async {
                   String token = await getToken();
                   String message;
@@ -207,12 +214,14 @@ void fetchAndSetUserImage() async {
                     widget.post.isSpoiler = !widget.post.isSpoiler;
                   });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(message)));
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.lock),
-                title: Text(widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
+                title: Text(
+                    widget.post.isLocked ? 'Unlock Comments' : 'Lock Comments'),
                 onTap: () async {
                   String token = await getToken();
                   String message;
@@ -227,7 +236,8 @@ void fetchAndSetUserImage() async {
                     widget.post.isLocked = !widget.post.isLocked;
                   });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(message)));
                 },
               ),
               ListTile(
@@ -247,7 +257,8 @@ void fetchAndSetUserImage() async {
                     widget.post.isNSFW = !widget.post.isNSFW;
                   });
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(message)));
                 },
               ),
               ListTile(
@@ -455,44 +466,59 @@ void fetchAndSetUserImage() async {
               leading: const Icon(Icons.copy),
               title: const Text('Copy Text'),
               onTap: () {
-                Clipboard.setData(
-                    ClipboardData(text: widget.post.content ));
+                Clipboard.setData(ClipboardData(text: widget.post.content));
                 Navigator.pop(context);
               },
             ),
             ListTile(
               leading: const Icon(Icons.share),
               title: const Text('Crosspost to Community'),
-
               onTap: () {
-                print('this is the crosspost to community page' );
+                print('this is the crosspost to community page');
                 print('widget.post.id' + widget.post.id);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ChooseCommunityPage(oldPostId: widget.post.id)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          ChooseCommunityPage(oldPostId: widget.post.id)),
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Share to profile'),
-
               onTap: () {
-                print('this is the share to profile page' );
+                print('this is the share to profile page');
                 print('widget.post.id' + widget.post.id);
 
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ShareToProfilePage(oldPostId: widget.post.id ,)),
+                  MaterialPageRoute(
+                      builder: (context) => ShareToProfilePage(
+                            oldPostId: widget.post.id,
+                          )),
                 );
               },
             ),
-            if (widget.isMyPost) ...[ // Check if it's the user's post
+            if (true) ...[
+              // Check if it's the user's post
               ListTile(
                 leading: const Icon(Icons.edit),
                 title: const Text('Edit'),
                 onTap: () {
-                  // Code to edit post goes here...
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddPostScreen(
+                        post: widget.post.toJson(),
+                        type: 'text',
+                        editingPost: true,
+                        canChooseCommunity: false,
+                        subreddit: {'subreddit': widget.post.subredditName},
+                      ),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -572,19 +598,23 @@ void fetchAndSetUserImage() async {
             ),
             title: Text(
               'r/${widget.post.subredditName}',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.black),
             ),
             subtitle: Text(
               'u/${widget.post.authorName} • ${timeago.format(widget.post.createdAt)}',
               style: const TextStyle(color: Colors.grey),
             ),
             trailing: Row(
-              mainAxisSize: MainAxisSize.min, // set to minimum to prevent overflow
+              mainAxisSize:
+                  MainAxisSize.min, // set to minimum to prevent overflow
               children: [
                 JoinButton(
-                  isUserMemberOfItemSubreddit: widget.post.isUserMemberOfItemSubreddit,
+                  isUserMemberOfItemSubreddit:
+                      widget.post.isUserMemberOfItemSubreddit,
                   communityName: widget.post.subredditName,
-                ),                IconButton(
+                ),
+                IconButton(
                   icon: const Icon(Icons.more_vert, color: Colors.grey),
                   onPressed: _additionalOptions,
                 ),
@@ -596,7 +626,8 @@ void fetchAndSetUserImage() async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ViewPostComments(postID: widget.post.id),
+                  builder: (context) =>
+                      ViewPostComments(postID: widget.post.id),
                 ),
               );
             },
@@ -606,8 +637,11 @@ void fetchAndSetUserImage() async {
                 children: [
                   Expanded(
                     child: Text(
-                      widget.post.title ,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                      widget.post.title,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
                     ),
                   ),
                   if (widget.post.isLocked)
@@ -628,13 +662,15 @@ void fetchAndSetUserImage() async {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ViewPostComments(postID: widget.post.id),
+                    builder: (context) =>
+                        ViewPostComments(postID: widget.post.id),
                   ),
                 );
               },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: Text(widget.post.content, style: const TextStyle(color: Colors.black)),
+                child: Text(widget.post.content,
+                    style: const TextStyle(color: Colors.black)),
               ),
             ),
           if (widget.post.media != null && widget.post.media!.isNotEmpty)
@@ -643,7 +679,8 @@ void fetchAndSetUserImage() async {
               child: Image.network(
                 widget.post.media!,
                 fit: BoxFit.cover,
-                errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                errorBuilder: (BuildContext context, Object exception,
+                    StackTrace? stackTrace) {
                   // Return an empty Container when image fails to load
                   return Container();
                 },
@@ -678,8 +715,8 @@ void fetchAndSetUserImage() async {
                         color: upvoted
                             ? redditUpvoteOrange
                             : downvoted
-                            ? redditDownvoteBlue
-                            : Colors.grey)),
+                                ? redditDownvoteBlue
+                                : Colors.grey)),
                 IconButton(
                   icon: Icon(const IconData(0xe801, fontFamily: 'MyFlutterApp'),
                       color: downvoted ? redditDownvoteBlue : Colors.grey),
@@ -689,7 +726,8 @@ void fetchAndSetUserImage() async {
                   icon: const Icon(Icons.comment, color: Colors.grey),
                   onPressed: _navigateToComments,
                 ),
-                Text('${widget.post.comments.length}', style: const TextStyle(color: Colors.grey)),
+                Text('${widget.post.comments.length}',
+                    style: const TextStyle(color: Colors.grey)),
                 if (widget.isModerator)
                   IconButton(
                     icon: const Icon(Icons.shield_outlined, color: Colors.grey),
@@ -700,7 +738,8 @@ void fetchAndSetUserImage() async {
                     icon: const Icon(Icons.share, color: Colors.grey),
                     onPressed: _sharePost,
                   ),
-                  Text('${widget.post.shares}', style: const TextStyle(color: Colors.grey)),
+                  Text('${widget.post.shares}',
+                      style: const TextStyle(color: Colors.grey)),
                 ],
               ],
             ),

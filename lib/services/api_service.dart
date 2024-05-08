@@ -227,10 +227,28 @@ class ApiService {
       throw Exception('Failed to fetch saved posts and comments');
     }
   }
+Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
+  final response = await http.get(
+    Uri.parse(
+        '$_baseUrl/api/info?objectID=$communityId&objectType=community'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+  );
 
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)['item'];
+  } else {
+    print('Response body: ${response.body}');
+    throw Exception(
+        'Failed to load info with status code: ${response.statusCode}');
+  }
+}
   Future<Map<String, dynamic>> submitPost(
       Map<String, dynamic> post, String token, File? imageFile) async {
     // load the image file into binary
+    print('Post: $post');
+    print('Image file: $imageFile');
     var imageData = imageFile != null
         ? await imageFile.readAsBytes()
         : null; // image data is null if no image is selected
@@ -244,9 +262,6 @@ class ApiService {
     if (imageData != null) {
       request.files.add(http.MultipartFile.fromBytes('media', imageData,
           filename: imageFile!.path.split('/').last));
-
-
-
     }
   if (imageFile != null) {
   var imageData = await imageFile.readAsBytes();

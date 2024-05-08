@@ -1,18 +1,22 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import this package to format the date and time
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
+
+import '../Models/community_model.dart';
+import '../post/screen_post.dart';
 
 class ScheduledPostCard extends StatelessWidget {
   final Map<String, dynamic> post;
+  final Function updatePost;
 
-  ScheduledPostCard({required this.post});
+  final Community community;
+
+  ScheduledPostCard(
+      {required this.post, required this.community, required this.updatePost});
 
   @override
   Widget build(BuildContext context) {
-    print(post);
+    print("Post in card: $post");
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Add this line
@@ -22,7 +26,10 @@ class ScheduledPostCard extends StatelessWidget {
             title: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                  'Scheduled: ${DateFormat('MM/dd').format(post['date'])} @ ${post['time'].format(context)}'),
+                post['repeatOption'] != 'does_not_repeat'
+                    ? 'Repeat Weekly: ${DateFormat('MM/dd').format(DateTime.parse(post['scheduledPublishDate']))}'
+                    : 'Scheduled: ${DateFormat('MM/dd').format(DateTime.parse(post['scheduledPublishDate']))}',
+              ),
             ),
           ),
           Padding(
@@ -30,7 +37,7 @@ class ScheduledPostCard extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'r/' + post['subreddit'],
+                'r/${community.name}',
                 style: const TextStyle(color: Colors.grey, fontSize: 16),
               ),
             ),
@@ -107,6 +114,7 @@ class ScheduledPostCard extends StatelessWidget {
                 child: _buildMediaWidget(post['type'], post['media']),
               ),
             ),
+          _buildEditBar(context),
         ],
       ),
     );
@@ -133,7 +141,7 @@ class ScheduledPostCard extends StatelessWidget {
           onTap: () async {
             String url = media;
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-              url = "http://" + url;
+              url = "http://$url";
             }
             if (await canLaunch(url)) {
               await launch(url);
@@ -157,9 +165,94 @@ class ScheduledPostCard extends StatelessWidget {
         );
 
       case 'poll':
-        return Text('Poll: $media'); // Display the poll data as text
+        List<String> options = post['options'].split(',');
+        return Column(
+          children: options
+              .map((option) => Row(
+                    children: [
+                      Radio(
+                        value: option,
+                        groupValue: post['selectedOption'],
+                        onChanged: (value) {
+                          // Add your action here
+                        },
+                      ),
+                      Text(option),
+                    ],
+                  ))
+              .toList(),
+        );
       default:
         return const Text('Unknown media type');
     }
+  }
+
+  Widget _buildEditBar(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TextButton.icon(
+            icon: const Icon(
+              Icons.send,
+              color: Colors.green,
+            ),
+            label: const Text(
+              'Post Now',
+              style: TextStyle(
+                color: Colors.green,
+              ),
+            ),
+            onPressed: () {
+              // Add your action here
+              updatePost(post);
+            },
+          ),
+          TextButton.icon(
+            icon: const Icon(
+              Icons.edit,
+              color: Colors.blue,
+            ),
+            label: const Text(
+              'Edit Post',
+              style: TextStyle(
+                color: Colors.blue,
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddPostScreen(
+                    post: post,
+                    type: 'text',
+                    isScheduled: true,
+                    canChooseCommunity: false,
+                    subreddit: {'subreddit': community},
+                  ),
+                ),
+              );
+            },
+          ),
+          TextButton.icon(
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            label: const Text(
+              'Delete Post',
+              style: TextStyle(
+                color: Colors.red,
+              ),
+            ),
+            onPressed: () {
+              // Add your action here
+              updatePost(post);
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

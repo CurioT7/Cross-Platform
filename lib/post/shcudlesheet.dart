@@ -3,8 +3,9 @@ import 'package:curio/post/schudleConfig.dart';
 
 class PostSettingsBottomSheet extends StatelessWidget {
    Map<String,dynamic> post;
+   Map<String,dynamic> community;
 
-   PostSettingsBottomSheet({super.key, required this.post});
+   PostSettingsBottomSheet({super.key, required this.post,  this.community = const {}});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class PostSettingsBottomSheet extends StatelessWidget {
                   showModalBottomSheet(
                     context: context,
                     builder: (BuildContext context) {
-                      return  SchedulePostBottomSheet(post: post);
+                      return  SchedulePostBottomSheet(post: post,community: community);
                     },
                   );
                 },

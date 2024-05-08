@@ -22,6 +22,10 @@ class Community {
   final List<Member> members;
   final List<Moderator> moderators;
   final String createdAt;
+  @override
+  String toString() {
+    return 'Community{id: $id, name: $name, description: $description, isOver18: $isOver18, privacyMode: $privacyMode, isNSFW: $isNSFW, isSpoiler: $isSpoiler, isOC: $isOC, isCrosspost: $isCrosspost, rules: $rules, category: $category, language: $language, allowImages: $allowImages, allowVideos: $allowVideos, allowText: $allowText, allowLink: $allowLink, allowPoll: $allowPoll, allowEmoji: $allowEmoji, allowGif: $allowGif, createdAt: $createdAt}';
+  }
 
   Community({
     required this.id,
@@ -47,9 +51,11 @@ class Community {
     required this.members,
     required this.moderators,
     required this.createdAt,
+
   });
 
   factory Community.fromJson(Map<String, dynamic> json) {
+
     return Community(
       id: json['_id'],
       name: json['name'],

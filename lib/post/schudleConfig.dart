@@ -4,10 +4,11 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'schudledPostPage.dart';
 
-
 class SchedulePostBottomSheet extends StatefulWidget {
   Map<String, dynamic> post;
-  SchedulePostBottomSheet({super.key, required this.post});
+  Map<String, dynamic> community;
+  SchedulePostBottomSheet(
+      {super.key, required this.post, this.community = const {}});
 
   @override
   _SchedulePostBottomSheetState createState() =>
@@ -18,6 +19,37 @@ class _SchedulePostBottomSheetState extends State<SchedulePostBottomSheet> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
   bool isRepeatingWeekly = false;
+bool validateDateSelection(DateTime selectedDate, TimeOfDay selectedTime, BuildContext context) {
+  DateTime now = DateTime.now();
+  DateTime selectedDateTime = DateTime(
+    selectedDate.year,
+    selectedDate.month,
+    selectedDate.day,
+    selectedTime.hour,
+    selectedTime.minute,
+  );
+
+  if (selectedDateTime.isBefore(now)) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return const SizedBox(
+          width: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Text(
+              'Please select a date and time in the future',
+              style: TextStyle(fontSize: 20, color: Colors.red),
+            ),
+          ),
+        );
+      },
+    );
+
+    return false;
+  }
+  return true;
+}
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -86,6 +118,7 @@ class _SchedulePostBottomSheetState extends State<SchedulePostBottomSheet> {
               ),
               ElevatedButton(
                 onPressed: () async {
+
                   // final SharedPreferences prefs =
                   //     await SharedPreferences.getInstance();
                   // final String token = prefs.getString('token')!;
@@ -101,12 +134,33 @@ class _SchedulePostBottomSheetState extends State<SchedulePostBottomSheet> {
                   //     ),
                   //   );
                   // }
-                  widget.post['date'] = selectedDate;
-                  widget.post['time'] = selectedTime;
+                  // check the picked days/year and time
+                  if (!validateDateSelection(selectedDate, selectedTime, context)) {
+                    return;
+                  }
+                  selectedTime ??= TimeOfDay.now();
+                  selectedDate ??= DateTime.now();
+
+                  DateTime selectedDateTime = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                    selectedTime.hour,
+                    selectedTime.minute,
+                  );
+
+                  String formattedDateTime =
+                      selectedDateTime.toUtc().toIso8601String();
+                  print(formattedDateTime);
+                  widget.post['scheduledPublishDate'] = formattedDateTime;
+                  widget.post['repeatOption'] =
+                      isRepeatingWeekly ? 'weekly' : 'does_not_repeat';
+                  widget.post['isScheduled'] = true;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>ScheduledPostsPage(post: widget.post),
+                      builder: (context) => ScheduledPostsPage(
+                          post: widget.post, community: widget.community),
                     ),
                   );
                 },

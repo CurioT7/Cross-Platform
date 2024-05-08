@@ -1,4 +1,5 @@
 import 'package:curio/Views/Messages/new_message_screen.dart';
+import 'package:curio/Views/my_profile_screen.dart';
 import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
@@ -61,7 +62,15 @@ class _UserCardState extends State<UserCard> {
                       leading: Icon(Icons.person),
                       title: Text('View Profile'),
                       onTap: () {
-                        // Handle view profile
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MyProfileScreen(
+                              isUser: true,
+                              userName: widget.username,  
+                            ),
+                          ),
+                        );
                       },
                     ),
                     if (widget.isBanned)

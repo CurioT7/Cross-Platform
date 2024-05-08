@@ -40,7 +40,7 @@ class ApiService {
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
 
-    return jsonDecode(response.body);
+    return response;
   }
 
   Future<dynamic> unbanUser(String subredditName, String bannedUser) async {

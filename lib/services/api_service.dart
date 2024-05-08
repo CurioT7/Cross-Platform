@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:curio/Views/Home_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +18,7 @@ import 'package:curio/Views/signUp/EmailVerificationPage.dart';
 
 class ApiService {
   // final String _baseUrl = 'http://20.19.89.1'; // Base URL
-  final String _baseUrl= 'http://10.0.2.2:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
   // final String _baseUrl = 'http://192.168.1.13:3000';
   Future<http.Response> signIn(String usernameOrEmail, String password) async {
     final response = await http.post(
@@ -61,6 +62,27 @@ class ApiService {
     } catch (e) {
       return {'success': false, 'message': 'Error: $e'};
     }
+  }
+
+  Future<bool> editusertext(String ID, String content) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/editusertext'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'postId': ID,
+        'content': content,
+      }),
+    );
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      return false;
+    }
+    return true;
   }
 
   Future<String?> signup(String email, String password, String username,
@@ -208,7 +230,6 @@ class ApiService {
             if (response.statusCode == 200) {
               titles.add(jsonDecode(response.body)['item']['title']);
             } else {
-              print('Response body: ${response.body}');
               throw Exception(
                   'Failed to load info with status code: ${response.statusCode}');
             }
@@ -227,29 +248,122 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> submitPost(
-      Map<String, dynamic> post, String token, XFile? imageFile) async {
-    print("submitting post");
-    print(jsonEncode(post));
+  Future<Map<String, dynamic>> fetchCommunity(String communityId) async {
+    final response = await http.get(
+      Uri.parse(
+          '$_baseUrl/api/info?objectID=$communityId&objectType=community'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
 
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['item'];
+    } else {
+      throw Exception(
+          'Failed to load info with status code: ${response.statusCode}');
+    }
+  }
+
+  Future<List<dynamic>> fetchScheduledPosts(String subreddit) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/getScheduledPost/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['scheduledPosts'];
+    } else {
+      print('Response body: ${response.body}');
+      throw Exception(
+          'Failed to load scheduled posts with status code: ${response.statusCode}');
+    }
+  }
+
+  Future<bool> deleteScheduledPost(String postId) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.delete(
+      Uri.parse('$_baseUrl/api/deleteScheduledPost/$postId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      throw Exception('Failed to delete scheduled post');
+      return false;
+    }
+    return true;
+  }
+
+  Future<Community> fetchCommunityByName(String communityName) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode == 200) {
+      return Community.fromJson(jsonDecode(response.body)['subreddit']);
+    } else {
+      throw Exception('Failed to fetch community');
+    }
+  }
+
+  Future<bool> submitScheduledPost(
+      Map<String, dynamic> post, File? Image) async {
+    print('Post: $post');
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.post(
+      Uri.parse('$_baseUrl/api/scheduledPost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(post),
+    );
+    if (response.statusCode != 201) {
+      print('Response body: ${response.body}');
+      throw Exception('Failed to submit scheduled post');
+    }
+    return true;
+  }
+
+  Future<Map<String, dynamic>> submitPost(
+      Map<String, dynamic> post, String token, File? imageFile) async {
+    // load the image file into binary
+    var imageData = imageFile != null
+        ? await imageFile.readAsBytes()
+        : null; // image data is null if no image is selected
+
+    print("image data: $imageData");
     var request =
-    http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
+        http.MultipartRequest('POST', Uri.parse('$_baseUrl/api/submit'));
 
     request.fields
         .addAll(post.map((key, value) => MapEntry(key, value.toString())));
-
+    if (imageData != null) {
+      request.files.add(http.MultipartFile.fromBytes('media', imageData,
+          filename: imageFile!.path.split('/').last));
+    }
     if (imageFile != null) {
-      print("image file: ${imageFile.path}");
-      request.files.add(await http.MultipartFile.fromPath(
-        'media', // consider 'media' as the key for the image file in your server
-        imageFile.path,
-      ));
+      var imageData = await imageFile.readAsBytes();
+      request.files.add(http.MultipartFile.fromBytes('file', imageData));
     }
 
     request.headers.addAll(<String, String>{
       'Authorization': 'Bearer $token',
     });
-
+    // print the request
     var response = await request.send();
 
     if (response.statusCode == 201) {
@@ -258,8 +372,30 @@ class ApiService {
       return jsonDecode(respStr);
     } else {
       final respStr = await response.stream.bytesToString();
+      print("Failed to submit post: $respStr");
       return {'success': false, 'message': respStr};
     }
+  }
+
+  Future<bool> editScheduledPost(String postId, String content) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/editScheduledPost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'scheduledPostId': postId,
+        'content': content,
+      }),
+    );
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      return false;
+    }
+    return true;
   }
 
   Future<List<Community>> getCommunities(
@@ -285,7 +421,7 @@ class ApiService {
         errorMessage = 'User not found';
       } else {
         errorMessage =
-        'No communities found you have to create/join at least one';
+            'No communities found you have to create/join at least one';
       }
 
       // Show snackbar with error message
@@ -307,38 +443,6 @@ class ApiService {
     final String sortOption = searchOpts['sortOption'];
     final sharedPreferences = await SharedPreferences.getInstance();
     final token = sharedPreferences.getString('token');
-    // just retun the mock api
-    // return [
-    //   {
-    //     'authorName': 'John Doe',
-    //     'content': 'This is a comment',
-    //     'upvotes': 10,
-    //     'downvotes': 2,
-    //     'linkedPostTitle': 'This is a post',
-    //     'linkedPostAuthor': 'Jane Doe',
-    //     'linkedPostNumComments': 5,
-    //     'linkedPostNumUpvotes': 20,
-    //     'linkedSubreddit': '123',
-    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
-    //     'createdAt': '2021-09-01T12:00:00.000Z',
-    //     'linkedPostId': '123'
-    //   },
-    //   {
-    //     'authorName': 'Jane Doe',
-    //     'content': 'This is another comment',
-    //     'upvotes': 5,
-    //     'downvotes': 1,
-    //     'linkedPostTitle': 'This is another post',
-    //     'linkedPostAuthor': 'John Doe',
-    //     'linkedPostNumComments': 10,
-    //     'linkedPostNumUpvotes': 30,
-    //     'linkedSubreddit': '456',
-    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
-    //     'createdAt': '2021-09-01T12:00:00.000Z',
-    //     'linkedPostId': '456'
-    //   },
-    // ];
-
     final String url =
         '$_baseUrl/api/searchCommentsOrPosts/$query/$type/$sortOption/';
     print('Fetching comments from: $url');
@@ -349,17 +453,16 @@ class ApiService {
         'Authorization': 'Bearer $token',
       },
     );
-    // result is a list of comments with the follwoing additional fields:
-    // linkedPostTitle, linkedPostAuthor, linkedPostNumComments, linkedPostNumUpvotes
     final List<dynamic> result = [];
 
     if (response.statusCode == 200) {
       final List<dynamic> comments = jsonDecode(response.body)['content'];
       return comments;
     } else {
-      return result;
+      print('Response body: ${response.body}');
+      throw Exception(
+          'Failed to load comments with status code: ${response.statusCode}');
     }
-
   }
 
   Future<Map<String, dynamic>> getCommunityMembers(String communityId) async {
@@ -544,7 +647,7 @@ class GoogleAuthSignInService {
       }
       // Obtain the GoogleSignInAuthentication object
       final GoogleSignInAuthentication googleAuth =
-      await googleUser!.authentication;
+          await googleUser!.authentication;
       // Create a new credential
 
       final googleCredential = GoogleAuthProvider.credential(
@@ -556,7 +659,7 @@ class GoogleAuthSignInService {
       print("Token from google: ${googleAuth.accessToken}");
       // Once signed in, return the UserCredential
       final userCredential =
-      await FirebaseAuth.instance.signInWithCredential(googleCredential);
+          await FirebaseAuth.instance.signInWithCredential(googleCredential);
       return userCredential;
     } catch (e) {
       print(e.toString());

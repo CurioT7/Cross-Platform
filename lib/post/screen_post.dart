@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:curio/post/schudledPostPage.dart';
 import 'package:curio/services/api_service.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +12,9 @@ import 'package:curio/widgets/tags.dart';
 import 'package:curio/widgets/poll_component.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_player/video_player.dart';
+import 'package:curio/post/shcudlesheet.dart';
 
-Future<void> uploadImage(XFile imageFile) async {
+Future<void> uploadImage(File imageFile) async {
   var request =
       http.MultipartRequest('POST', Uri.parse('your_server_endpoint_here'));
 
@@ -30,25 +32,70 @@ Future<void> uploadImage(XFile imageFile) async {
   }
 }
 
+String validatePost(Map<String, dynamic> post, Community community) {
+  // Check if images are allowed and if the post type is 'image'
+  if (!community.allowImages && post['type'] == 'media' ||
+      !community.allowVideos && post['type'] == 'media') {
+    return 'Images and videos are not allowed in this community';
+  }
+  // Check if text posts are allowed and if the post type is 'text'
+  if (!community.allowText && post['content'] != '') {
+    return 'Text posts are not allowed in this community';
+  }
+
+  // Check if link posts are allowed and if the post type is 'link'
+  if (!community.allowLink && post['type'] == 'link') {
+    return 'Link posts are not allowed in this community';
+  }
+
+  // Check if poll posts are allowed and if the post type is 'poll'
+  if (!community.allowPoll && post['type'] == 'poll') {
+    return 'Poll posts are not allowed in this community';
+  }
+
+  // Check if the post contains any tags that are not allowed in the community
+  if (!community.isNSFW && post['isNSFW'] ||
+      !community.isSpoiler && post['isSpoiler'] ||
+      !community.isOC && post['isOC']) {
+    return 'The post contains tags that are not allowed in this community';
+  }
+  // If all checks pass, return true
+  return '';
+}
+
 class AddPostScreen extends StatefulWidget {
   final String type;
-  const AddPostScreen({super.key, required this.type});
+  final bool isScheduled;
+  final Map<String, dynamic> post;
+  final Map<String, dynamic> subreddit;
+  final bool canChooseCommunity;
+  final bool editingPost;
+  final bool schudlePostEdit;
+
+  const AddPostScreen(
+      {super.key,
+      required this.type,
+      this.isScheduled = false,
+      this.post = const {},
+      this.subreddit = const {},
+      this.editingPost = false,
+      this.schudlePostEdit = false,
+      this.canChooseCommunity = true});
   @override
   _AddPostScreenState createState() => _AddPostScreenState();
 }
 
 class _AddPostScreenState extends State<AddPostScreen> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
-  final linkController = TextEditingController();
-  final selectedTags = <String>[];
-  bool optionSelected = false; // Add this line
-  bool isAttachmentAdded = false; // Add this line
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
+  late TextEditingController linkController;
+  List<String>? selectedTags;
+  late bool isAttachmentAdded;
   late Community selectedCommunity;
-  bool isCommunitySelected = false;
+  late bool isCommunitySelected;
+  File? image;
+  File? video;
   Attachment? attachment;
-  XFile? _pickedImage;
-  XFile? _pickedVideo;
 
   @override
   void dispose() {
@@ -58,34 +105,226 @@ class _AddPostScreenState extends State<AddPostScreen> {
     linkController.dispose();
   }
 
+  void handleTap() async {
+    // ignore: unused_local_variable
+    selectedCommunity = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PostToPage(),
+      ),
+    );
+    setState(() {
+      isCommunitySelected = true;
+    });
+  }
+
+  Future<void> _submitPost(Map<String, dynamic> post) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String token = prefs.getString('token')!;
+    var media = post['type'] == 'media' ? image ?? video : null;
+    final response = await ApiService().submitPost(post, token, media);
+    if (response['success'] == true) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(response['message']),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> _editSchudledPost(Map<String, dynamic> post) async {
+    var content = post['content'];
+    var id = widget.post['_id'];
+    // call the api to save the post
+    var success = await ApiService().editScheduledPost(id, content);
+    if (success) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ScheduledPostsPage(
+              post: post, community: {'subreddit': selectedCommunity}),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to schedule post'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> _editPost(Map<String, dynamic> post) async {
+    var id = widget.post['id'];
+    var content = post['content'];
+    var success = await ApiService().editusertext(id, content);
+    if (success) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to edit post'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> fetchCommunityDetails() async {
+    if (widget.editingPost) {
+      selectedCommunity = await ApiService()
+          .fetchCommunityByName(widget.subreddit['subreddit']);
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    selectedCommunity = Community(
-      id: 'Community ID',
-      name: 'Community Name',
-      description: 'Community Description',
-      posts: [],
-      isOver18: false,
-      privacyMode: 'Public',
-      isNSFW: false,
-      isSpoiler: false,
-      isOC: false,
-      isCrosspost: false,
-      rules: [],
-      category: 'Category',
-      language: 'Language',
-      allowImages: true,
-      allowVideos: true,
-      allowText: true,
-      allowLink: true,
-      allowPoll: true,
-      allowEmoji: true,
-      allowGif: true,
-      members: [],
-      moderators: [],
-      createdAt: DateTime.now().toString(),
+    titleController = TextEditingController(
+      text:
+          widget.post['title'] ?? (widget.isScheduled ? 'Scheduled Post' : ''),
     );
+    descriptionController = TextEditingController(
+      text: widget.post['content'] ?? '',
+    );
+    linkController = TextEditingController(
+      text: widget.post['type'] == 'link' ? widget.post['media'] : '',
+    );
+
+    selectedTags = [];
+    if (widget.post['isNSFW'] != null && widget.post['isNSFW']) {
+      selectedTags!.add('NSFW');
+    }
+    if (widget.post['isSpoiler'] != null && widget.post['isSpoiler']) {
+      selectedTags!.add('Spoiler');
+    }
+    if (widget.post['isOC'] != null && widget.post['isOC']) {
+      selectedTags!.add('OC');
+    }
+    // check if the media is there if it is there then make it true
+    isAttachmentAdded = widget.post['media'] != null;
+    isCommunitySelected = widget.subreddit['subreddit'] != null;
+    if (widget.subreddit['subreddit'] != null &&
+        widget.subreddit['subreddit'] is Community) {
+      selectedCommunity = widget.subreddit['subreddit'];
+    } else {
+      selectedCommunity = Community(
+        id: '1', // Change this to the actual community id
+        name: widget.subreddit['subreddit'] ?? 'General',
+        allowImages: true,
+        allowVideos: true,
+        allowText: true,
+        allowLink: true,
+        allowPoll: true,
+        isNSFW: true,
+        isSpoiler: true,
+        isOC: true,
+        description: '',
+        posts: [],
+        isOver18: false,
+        privacyMode: 'public',
+        members: [],
+        moderators: [],
+        createdAt: '1',
+        isCrosspost: false,
+        rules: [],
+        category: 'General',
+        language: 'English',
+        allowEmoji: false,
+        allowGif: true,
+        icon: 'assets/images/loft.png',
+      );
+      fetchCommunityDetails();
+    }
+    if (widget.post['type'] == 'media') {
+      if (widget.post['media'] is ImageComponent) {
+        isAttachmentAdded = true;
+        attachment = Attachment(
+          type: 'image',
+          data: null,
+          component: ImageComponent(
+            image: widget.post['media'].image,
+            onClear: () {
+              setState(() {
+                attachment = null;
+                isAttachmentAdded = false;
+              });
+            },
+          ),
+        );
+      } else if (widget.post['media'] is VideoComponent) {
+        isAttachmentAdded = true;
+        attachment = Attachment(
+          type: 'video',
+          data: null,
+          component: VideoComponent(
+            video: widget.post['media'].video,
+            onClear: () {
+              setState(() {
+                attachment = null;
+                isAttachmentAdded = false;
+              });
+            },
+          ),
+        );
+      } else if (widget.post['media'] is VideoComponent) {
+        isAttachmentAdded = true;
+        attachment = Attachment(
+          type: 'video',
+          data: null,
+          component: VideoComponent(
+            video: widget.post['media'],
+            onClear: () {
+              setState(() {
+                attachment = null;
+                isAttachmentAdded = false;
+              });
+            },
+          ),
+        );
+      }
+    } else if (widget.post['type'] == 'poll') {
+      isAttachmentAdded = true;
+      attachment = Attachment(
+        type: 'poll',
+        data: null,
+        component: PollComponent(
+          onClear: () {
+            setState(() {
+              attachment = null;
+              isAttachmentAdded = false;
+            });
+          },
+          pollComponentKey: GlobalKey(),
+        ),
+      );
+    } else if (widget.post['type'] == 'link') {
+      isAttachmentAdded = true;
+      linkController = TextEditingController(
+        text: widget.post['media'],
+      );
+      attachment = Attachment(
+        type: 'link',
+        data: widget.post['media'],
+        component: URLComponent(
+          controller: linkController,
+          onClear: () {
+            setState(() {
+              attachment = null;
+              isAttachmentAdded = false;
+            });
+          },
+        ),
+      );
+    } else {
+      attachment = Attachment(type: 'post', data: null, component: Container());
+      isAttachmentAdded = false;
+    }
   }
 
   @override
@@ -112,6 +351,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 onPressed: value.text.isNotEmpty
                     ? () async {
                         if (isCommunitySelected) {
+                          dynamic media;
                           String type =
                               attachment != null ? attachment!.type : 'post';
                           if (type == 'image' || type == 'video') {
@@ -135,40 +375,73 @@ class _AddPostScreenState extends State<AddPostScreen> {
                           Map<String, dynamic> post = {
                             'title': titleController.text,
                             'content': descriptionController.text,
-                            'isNSFW': selectedTags.contains('NSFW'),
-                            'isSpoiler': selectedTags.contains('Spoiler'),
-                            'isOC': selectedTags.contains('isOC'),
+                            'isNSFW': selectedTags!.contains('NSFW'),
+                            'isSpoiler': selectedTags!.contains('Spoiler'),
+                            'isOC': selectedTags!.contains('isOC'),
                             'subreddit': selectedCommunity.name,
-                            // 'destination': "subreddit",
                             'type': type,
                           };
                           //check if the attachment has been added
-                          if (attachment != null && attachment!.type == 'url') {
-                            // print the attachment type
-                            post['media'] = attachment!.data;
+                          if (attachment != null &&
+                              attachment!.type == 'link') {
+                            post['media'] = linkController.text;
                           }
                           if (type == 'poll') {
                             post['options'] = options!.join(',');
                             post['voteLength'] = voteLength;
                             post['media'] = 'assets/images/poll.png';
                           }
-
-                          final SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          final String token = prefs.getString('token')!;
-                          final response = await ApiService().submitPost(
-                              post, token, _pickedImage ?? (_pickedVideo));
-                          if (response['success'] == true) {
-                            Navigator.pop(context);
-                          } else {
+                          String validate =
+                              validatePost(post, selectedCommunity);
+                          if (validate != '') {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(response['message']),
+                                backgroundColor: Colors
+                                    .blue, // Change this to your desired color
+                                content: Text(
+                                  validate,
+                                  style: const TextStyle(
+                                      color: Colors
+                                          .white), // Change this to your desired style
+                                ),
                                 duration: const Duration(seconds: 3),
                               ),
                             );
+                            return;
                           }
-                        } else {
+
+                          if (widget.isScheduled && !widget.schudlePostEdit) {
+                            if (post['type'] == 'media') {
+                              print("Schdeuling media post");
+                              print(
+                                  "The component is ${attachment?.component}");
+                              post['media'] = attachment?.component;
+                            }
+                            showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return PostSettingsBottomSheet(
+                                    post: post,
+                                    community: {
+                                      'subreddit': selectedCommunity,
+                                    });
+                              },
+                            );
+                          } else {
+                            if (widget.schudlePostEdit) {
+                              print("Editing the schudled post");
+                              _editSchudledPost(post);
+                            } else if (widget.editingPost) {
+                              _editPost(post);
+                            } else {
+                              _submitPost(post);
+                            }
+                          }
+                        } else if (!isCommunitySelected &&
+                            widget.canChooseCommunity) {
+                          print("Navigating to the post to page");
+                          print(
+                              "widget.canChooseCommunity ${widget.canChooseCommunity}");
                           selectedCommunity = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -197,7 +470,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                   ),
                 ),
                 child: // I want make it Post when the selected Community is set and Post whenn the selecetcommunity is not set
-                    Text(isCommunitySelected ? 'Post' : 'Next'),
+                    Text(isCommunitySelected
+                        ? widget.isScheduled
+                            ? 'Schedule'
+                            : 'Post'
+                        : 'Next'),
               );
             },
           ),
@@ -220,27 +497,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             Expanded(
                               // Add this line
                               child: CommunityBar(
-                                  community: selectedCommunity.name,
-                                  communityId: selectedCommunity.id,
-                                  onTap: () async {
-                                    // ignore: unused_local_variable
-                                    selectedCommunity = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const PostToPage(),
-                                      ),
-                                    );
-                                    setState(() {
-                                      isCommunitySelected = true;
-                                    });
-                                  }),
+                                community: selectedCommunity.name,
+                                communityId: selectedCommunity.id,
+                                communityIcon: selectedCommunity.icon,
+                                onTap: widget.canChooseCommunity
+                                    ? handleTap
+                                    : () {},
+                              ),
                             ),
                           ],
                         ),
                       ),
                     SizedBox(
-                      height: 0 + (selectedTags.isNotEmpty ? 50 : 0),
+                      height: 0 + (selectedTags!.isNotEmpty ? 50 : 0),
                       child: Builder(
                         builder: (context) {
                           return Align(
@@ -251,7 +520,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                   children: [
                                     const Icon(Icons.warning,
                                         size: 20), // Add this line
-                                    ...selectedTags
+                                    ...selectedTags!
                                         .map(
                                           (tag) => Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -304,14 +573,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                         // Handle selectedTags list here
                                         setState(
                                           () {
-                                            this.selectedTags.clear();
+                                            this.selectedTags!.clear();
                                             this
-                                                .selectedTags
+                                                .selectedTags!
                                                 .addAll(selectedTags);
                                           },
                                         );
                                       },
-                                      selectedTags: this.selectedTags,
+                                      selectedTags: selectedTags!,
                                     );
                                   },
                                 );
@@ -333,13 +602,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                     ),
                     SizedBox(
                       height: 0 +
-                          (attachment != null
-                              ? attachment!.type == "poll" || attachment!.type == "video"
+                          (attachment != null && isAttachmentAdded
+                              ? attachment!.type == "poll" ||
+                                      attachment!.type == "video"
                                   ? 200
                                   : 50
                               : 0),
                       child: Visibility(
-                        visible: attachment != null && !optionSelected,
+                        visible: attachment != null && isAttachmentAdded,
                         child: Builder(
                           builder: (context) {
                             return Row(
@@ -432,15 +702,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               ? null
                               : () async {
                                   final ImagePicker picker0 = ImagePicker();
-                                  final XFile? image = await picker0.pickImage(
-                                      source: ImageSource.gallery);
+                                  final dynamic image = (await picker0
+                                      .pickImage(source: ImageSource.gallery));
                                   if (image != null) {
-                                    final File imageFile = File(image.path);
+                                    final dynamic imageFile = File(image.path);
                                     setState(() {
-                                      optionSelected = false;
                                       attachment = Attachment(
                                           type: 'image',
-                                          data: imageFile,
+                                          data: image,
                                           component: Image.file(imageFile));
                                       attachment!.component = ImageComponent(
                                         image: imageFile,
@@ -452,6 +721,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                         },
                                       );
                                       isAttachmentAdded = true;
+                                      this.image = imageFile;
                                     });
                                   }
                                 },
@@ -467,14 +737,14 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               ? null
                               : () async {
                                   final ImagePicker picker = ImagePicker();
-                                  final XFile? video = await picker.pickVideo(
-                                      source: ImageSource.gallery);
+                                  final dynamic video = (await picker.pickVideo(
+                                      source: ImageSource.gallery));
                                   if (video != null) {
                                     final File videoFile = File(video.path);
                                     setState(() {
                                       attachment = Attachment(
                                         type: 'video',
-                                        data: videoFile,
+                                        data: video,
                                         component: VideoComponent(
                                           video: videoFile,
                                           onClear: () {
@@ -486,6 +756,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
                                         ),
                                       );
                                       isAttachmentAdded = true;
+                                      this.video = videoFile;
                                     });
                                   }
                                 },
@@ -575,7 +846,9 @@ class ImageComponent extends StatefulWidget {
 
   ImageComponent({Key? key, required this.image, required this.onClear})
       : super(key: key);
-
+  Map<String, dynamic> toJson() => {
+        'image': image.path,
+      };
   @override
   _ImageComponentState createState() => _ImageComponentState();
 }
@@ -595,6 +868,11 @@ class _ImageComponentState extends State<ImageComponent> {
   }
 
   @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'VideoComponent{video: ${widget.image.path}}';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
       future: _imageFile,
@@ -602,9 +880,9 @@ class _ImageComponentState extends State<ImageComponent> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
-          else
+          } else {
             return Stack(
               children: [
                 Image.file(snapshot.data!),
@@ -618,6 +896,7 @@ class _ImageComponentState extends State<ImageComponent> {
                 ),
               ],
             );
+          }
         }
       },
     );
@@ -628,6 +907,9 @@ class VideoComponent extends StatefulWidget {
   final File video;
   final VoidCallback onClear;
 
+  Map<String, dynamic> toJson() => {
+        'video': video.path,
+      };
   VideoComponent({Key? key, required this.video, required this.onClear})
       : super(key: key);
 
@@ -637,6 +919,10 @@ class VideoComponent extends StatefulWidget {
 
 class _VideoComponentState extends State<VideoComponent> {
   late Future<VideoPlayerController> _controller;
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'VideoComponent{video: ${widget.video.path}}';
+  }
 
   @override
   void initState() {
@@ -661,9 +947,9 @@ class _VideoComponentState extends State<VideoComponent> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}');
-          else
+          } else {
             return Stack(
               children: [
                 VideoPlayer(snapshot.data!),
@@ -677,6 +963,7 @@ class _VideoComponentState extends State<VideoComponent> {
                 ),
               ],
             );
+          }
         }
       },
     );

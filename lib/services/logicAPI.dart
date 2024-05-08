@@ -17,7 +17,7 @@ import 'package:flutter/material.dart';
 class logicAPI {
   // final String _baseUrl = 'http://20.19.89.1';// Replace with your backend URL
   //  final String _baseUrl = 'http://192.168.1.8:3000';
-  final String _baseUrl = 'http://192.168.1.13:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
 
 //final String _baseUrl= 'http://20.199.94.136';
 

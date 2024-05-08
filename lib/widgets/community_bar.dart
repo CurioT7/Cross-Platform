@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'dart:math';
 import 'rules_page.dart';
 
-final icons = [Icons.home, Icons.star, Icons.school, Icons.work]; // Add more icons as needed
 
 class CommunityBar extends StatelessWidget {
   final String? community;
   final IconData? icon;
   final VoidCallback onTap;
   final String communityId;
+  final String communityIcon;
 
   const CommunityBar({
     Key? key,
     required this.community,
+    required this.communityIcon,
     required this.onTap,
     required this.communityId,
     this.icon,
@@ -20,8 +21,6 @@ class CommunityBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconData = icon ?? icons[Random().nextInt(icons.length)];
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -35,7 +34,13 @@ class CommunityBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(iconData),
+                CircleAvatar(
+                  radius: MediaQuery.of(context).size.width * 0.05,
+                  backgroundImage: communityIcon.isNotEmpty
+                      ? NetworkImage(communityIcon)
+                      : const NetworkImage(
+                          'https://example.com/default_image.png'), // Replace with your default image URL
+                ),
                 const SizedBox(width: 8),
                 Text(community ?? 'Select a community'),
               ],
@@ -44,7 +49,9 @@ class CommunityBar extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) =>  RulesPage(communityId: communityId)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          RulesPage(communityId: communityId)),
                 );
               },
               child: const Text('Rules'),

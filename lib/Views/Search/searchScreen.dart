@@ -131,7 +131,7 @@ class _SearchScreenState extends State<SearchScreen>
               if (responseForCommunity == null ||
                   responseForCommunity!['subreddits'] == null) {
                 return ListTile(
-                  title: Text('Error: Unable to fetch communities'),
+                  title: Text('No communities found for the given query'),
                 );
               } else {
                 var subreddit = responseForCommunity!['subreddits'][index];

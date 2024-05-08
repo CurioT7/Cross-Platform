@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:curio/Views/moderator/addModerator.dart';
+import 'package:curio/Views/moderator/editPermissons.dart';
+import 'package:curio/Views/my_profile_screen.dart';
 
 class ModeratorsPage extends StatefulWidget {
   final String subredditName;
@@ -78,7 +81,13 @@ class _ModeratorsPageState extends State<ModeratorsPage>
               children.add(
                 GestureDetector(
                   onTap: () {
-                    print('Row tapped');
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditModeratorPage(subredditName: widget.subredditName, Username: username),
+                      ),
+                    );
                   },
                   child: Container(
                     height: 60, // specify the height of the container
@@ -102,7 +111,15 @@ class _ModeratorsPageState extends State<ModeratorsPage>
             children.addAll([
               GestureDetector(
                 onTap: () {
-                  print('Row tapped');
+                          print('View Profile');
+                          print(username) ;
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MyProfileScreen(isUser: true,userName: username,),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 60, // specify the height of the container
@@ -122,8 +139,9 @@ class _ModeratorsPageState extends State<ModeratorsPage>
               ),
               GestureDetector(
                 onTap: () {
-                  print('Row tapped');
+
                   showLeaveCommunityDialog(context, username, widget.subredditName,role);
+
                 },
                 child: Container(
                   height: 60, // specify the height of the container
@@ -164,7 +182,12 @@ class _ModeratorsPageState extends State<ModeratorsPage>
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                  builder: (context) => AddModeratorPage(subredditName: widget.subredditName,),
+              ),
+              );
 
             },
           ),

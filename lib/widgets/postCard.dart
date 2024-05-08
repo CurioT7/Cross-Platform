@@ -467,14 +467,12 @@ class _PostCardState extends State<PostCard>
                 );
               },
             ),
-            if (widget.isMyPost) ...[
+            if (true) ...[
               // Check if it's the user's post
               ListTile(
                 leading: const Icon(Icons.edit),
                 title: const Text('Edit'),
                 onTap: () {
-                  // Code to edit post goes here...
-                  // fetch the community info from the backend
 
                   Navigator.push(
                     context,
@@ -482,7 +480,7 @@ class _PostCardState extends State<PostCard>
                       builder: (context) => AddPostScreen(
                         post: widget.post.toJson(),
                         type: 'text',
-                        isScheduled: true,
+                        editingPost: true,
                         canChooseCommunity: false,
                         subreddit: {'subreddit': widget.post.subredditName},
                       ),

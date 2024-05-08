@@ -1,6 +1,9 @@
+import 'package:flutter/material.dart';
+
 class Community {
   final String id;
   final String name;
+  final String icon;
   final String description;
   final List<dynamic> posts;
   final bool isOver18;
@@ -51,6 +54,7 @@ class Community {
     required this.members,
     required this.moderators,
     required this.createdAt,
+    this.icon = 'assets/images/default_community_icon.png',
 
   });
 
@@ -80,6 +84,7 @@ class Community {
       members: (json['members'] as List).map((i) => Member.fromJson(i)).toList(),
       moderators: (json['moderators'] as List).map((i) => Moderator.fromJson(i)).toList(),
       createdAt: json['createdAt'],
+      icon: json['icon']??'assets/images/default_community_icon.png',
     );
   }
 }

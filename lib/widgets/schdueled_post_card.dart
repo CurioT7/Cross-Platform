@@ -15,7 +15,7 @@ class ScheduledPostCard extends StatelessWidget {
       {required this.post, required this.community, required this.updatePost, required this.submitPost});
   @override
   Widget build(BuildContext context) {
-
+    print("WTF $post");
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start, // Add this line

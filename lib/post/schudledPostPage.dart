@@ -88,7 +88,7 @@ class _ScheduledPostsPageState extends State<ScheduledPostsPage> {
     var posts = await ApiService()
         .fetchScheduledPosts(widget.community['subreddit'].name);
     scheduledPosts = List<Map<String, dynamic>>.from(posts);
-    // mock the api call with a delay
+    print("Scheduled Posts: $scheduledPosts");
     setState(() {
       showPostCard = true;
     });

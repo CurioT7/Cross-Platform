@@ -15,7 +15,7 @@ class _PostToPageState extends State<PostToPage> {
   Future<List<Community>>? communities;
   List<Community> communityList = [];
   List<Community> displayedCommunities = [];
-  int itemCount = 3; // Initial number of items to display
+  int itemCount = 0;
   bool showButton = true; // Flag to control the visibility of the button
 
   @override
@@ -147,7 +147,10 @@ Future<void> fetchCommunities() async {
                               splashFactory: NoSplash
                                   .splashFactory, // Make splash color transparent
                             ),
-                            child: const Text('See More'),
+                            child: const Text(
+                              'Load More',
+                              style: TextStyle(color: Colors.blue),
+                            ),
                           )
                         : Container(); // Return an empty Container when the button should not be shown
                   } else {

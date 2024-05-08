@@ -75,7 +75,7 @@ class AddPostScreen extends StatefulWidget {
   const AddPostScreen(
       {super.key,
       required this.type,
-      this.isScheduled = true,
+      this.isScheduled = false,
       this.post = const {},
       this.subreddit = const {},
       this.editingPost = false,
@@ -105,6 +105,19 @@ class _AddPostScreenState extends State<AddPostScreen> {
     linkController.dispose();
   }
 
+  void handleTap() async {
+    // ignore: unused_local_variable
+    selectedCommunity = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PostToPage(),
+      ),
+    );
+    setState(() {
+      isCommunitySelected = true;
+    });
+  }
+
   Future<void> _submitPost(Map<String, dynamic> post) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String token = prefs.getString('token')!;
@@ -122,13 +135,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
     }
   }
 
-
-
   Future<void> _editSchudledPost(Map<String, dynamic> post) async {
     var content = post['content'];
     var id = widget.post['_id'];
     // call the api to save the post
-    var success = await ApiService().editScheduledPost(id,content);
+    var success = await ApiService().editScheduledPost(id, content);
     if (success) {
       Navigator.push(
         context,
@@ -144,6 +155,30 @@ class _AddPostScreenState extends State<AddPostScreen> {
           duration: Duration(seconds: 3),
         ),
       );
+    }
+  }
+
+  Future<void> _editPost(Map<String, dynamic> post) async {
+    var id = widget.post['id'];
+    var content = post['content'];
+    var success = await ApiService().editusertext(id, content);
+    if (success) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to edit post'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
+  Future<void> fetchCommunityDetails() async {
+    if (widget.editingPost) {
+      selectedCommunity = await ApiService()
+          .fetchCommunityByName(widget.subreddit['subreddit']);
+      setState(() {});
     }
   }
 
@@ -179,33 +214,34 @@ class _AddPostScreenState extends State<AddPostScreen> {
       selectedCommunity = widget.subreddit['subreddit'];
     } else {
       selectedCommunity = Community(
-        id: '1',
-        name: widget.subreddit['subreddit'] ?? 'Community Name',
-        description: 'Community Description',
-        posts: [],
-        isOver18: false,
-        privacyMode: 'public',
-        isNSFW: false,
-        isSpoiler: false,
-        isOC: false,
-        isCrosspost: false,
-        rules: [],
-        category: 'Category',
-        language: 'Language',
+        id: '1', // Change this to the actual community id
+        name: widget.subreddit['subreddit'] ?? 'General',
         allowImages: true,
         allowVideos: true,
         allowText: true,
         allowLink: true,
         allowPoll: true,
-        allowEmoji: true,
-        allowGif: true,
+        isNSFW: true,
+        isSpoiler: true,
+        isOC: true,
+        description: '',
+        posts: [],
+        isOver18: false,
+        privacyMode: 'public',
         members: [],
         moderators: [],
-        createdAt: DateTime.now().toString(),
+        createdAt: '1',
+        isCrosspost: false,
+        rules: [],
+        category: 'General',
+        language: 'English',
+        allowEmoji: false,
+        allowGif: true,
+        icon: 'assets/images/loft.png',
       );
+      fetchCommunityDetails();
     }
     if (widget.post['type'] == 'media') {
-      // check the media if it is image or video component
       if (widget.post['media'] is ImageComponent) {
         isAttachmentAdded = true;
         attachment = Attachment(
@@ -355,7 +391,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             post['voteLength'] = voteLength;
                             post['media'] = 'assets/images/poll.png';
                           }
-                          //TODO: func to check the post against the community rules
                           String validate =
                               validatePost(post, selectedCommunity);
                           if (validate != '') {
@@ -393,16 +428,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               },
                             );
                           } else {
-                            // check if is post is being edited by the schuleded post
                             if (widget.schudlePostEdit) {
                               print("Editing the schudled post");
                               _editSchudledPost(post);
+                            } else if (widget.editingPost) {
+                              _editPost(post);
                             } else {
                               _submitPost(post);
                             }
                           }
                         } else if (!isCommunitySelected &&
                             widget.canChooseCommunity) {
+                          print("Navigating to the post to page");
+                          print(
+                              "widget.canChooseCommunity ${widget.canChooseCommunity}");
                           selectedCommunity = await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -458,21 +497,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             Expanded(
                               // Add this line
                               child: CommunityBar(
-                                  community: selectedCommunity.name,
-                                  communityId: selectedCommunity.id,
-                                  onTap: () async {
-                                    // ignore: unused_local_variable
-                                    selectedCommunity = await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const PostToPage(),
-                                      ),
-                                    );
-                                    setState(() {
-                                      isCommunitySelected = true;
-                                    });
-                                  }),
+                                community: selectedCommunity.name,
+                                communityId: selectedCommunity.id,
+                                communityIcon: selectedCommunity.icon,
+                                onTap: widget.canChooseCommunity
+                                    ? handleTap
+                                    : () {},
+                              ),
                             ),
                           ],
                         ),
@@ -816,8 +847,8 @@ class ImageComponent extends StatefulWidget {
   ImageComponent({Key? key, required this.image, required this.onClear})
       : super(key: key);
   Map<String, dynamic> toJson() => {
-    'image': image.path,
-  };
+        'image': image.path,
+      };
   @override
   _ImageComponentState createState() => _ImageComponentState();
 }
@@ -835,10 +866,12 @@ class _ImageComponentState extends State<ImageComponent> {
     // Load image from local storage
     return widget.image;
   }
+
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'VideoComponent{video: ${widget.image.path}}';
   }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File>(
@@ -875,15 +908,13 @@ class VideoComponent extends StatefulWidget {
   final VoidCallback onClear;
 
   Map<String, dynamic> toJson() => {
-    'video': video.path,
-  };
+        'video': video.path,
+      };
   VideoComponent({Key? key, required this.video, required this.onClear})
       : super(key: key);
 
   @override
   _VideoComponentState createState() => _VideoComponentState();
-
-
 }
 
 class _VideoComponentState extends State<VideoComponent> {
@@ -892,6 +923,7 @@ class _VideoComponentState extends State<VideoComponent> {
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
     return 'VideoComponent{video: ${widget.video.path}}';
   }
+
   @override
   void initState() {
     super.initState();

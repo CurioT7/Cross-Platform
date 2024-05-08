@@ -21,10 +21,12 @@ class CommunityCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 40,
-            color: Colors.black,
+          CircleAvatar(
+            radius: MediaQuery.of(context).size.width * 0.05,
+            backgroundImage: community.icon.isNotEmpty
+                ? NetworkImage(community.icon)
+                : const NetworkImage(
+                'https://example.com/default_image.png'), // Replace with your default image URL
           ),
           const SizedBox(width: 10),
           Column(

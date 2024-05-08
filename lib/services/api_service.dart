@@ -64,6 +64,27 @@ class ApiService {
     }
   }
 
+  Future<bool> editusertext(String ID, String content) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/editusertext'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'postId': ID,
+        'content': content,
+      }),
+    );
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      return false;
+    }
+    return true;
+  }
+
   Future<String?> signup(String email, String password, String username,
       BuildContext context) async {
     // Navigator.push(
@@ -264,25 +285,41 @@ class ApiService {
     }
   }
 
-Future<bool> deleteScheduledPost(String postId) async {
+  Future<bool> deleteScheduledPost(String postId) async {
     var sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString('token');
-  final response = await http.delete(
-    Uri.parse('$_baseUrl/api/deleteScheduledPost/$postId'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-  );
+    final response = await http.delete(
+      Uri.parse('$_baseUrl/api/deleteScheduledPost/$postId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-  if (response.statusCode != 200) {
-    print('Response body: ${response.body}');
-    throw Exception('Failed to delete scheduled post');
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      throw Exception('Failed to delete scheduled post');
+      return false;
+    }
+    return true;
   }
-  return true;
-}
 
-Future<bool> submitScheduledPost(Map<String, dynamic> post, File?Image) async {
+  Future<Community> fetchCommunityByName(String communityName) async {
+    final response = await http.get(
+      Uri.parse('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode == 200) {
+      return Community.fromJson(jsonDecode(response.body)['subreddit']);
+    } else {
+      throw Exception('Failed to fetch community');
+    }
+  }
+
+  Future<bool> submitScheduledPost(
+      Map<String, dynamic> post, File? Image) async {
     print('Post: $post');
     var sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString('token');
@@ -339,26 +376,28 @@ Future<bool> submitScheduledPost(Map<String, dynamic> post, File?Image) async {
       return {'success': false, 'message': respStr};
     }
   }
-Future<bool> editScheduledPost(String postId, String content) async {
-  var sharedPreferences = await SharedPreferences.getInstance();
-  var token = sharedPreferences.getString('token');
-  final response = await http.patch(
-    Uri.parse('$_baseUrl/api/editScheduledPost'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    },
-    body: jsonEncode(<String, String>{
-      'scheduledPostId': postId,
-      'content': content,
-    }),
-  );
-  if (response.statusCode != 200) {
-    print('Response body: ${response.body}');
-    return false;
+
+  Future<bool> editScheduledPost(String postId, String content) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    final response = await http.patch(
+      Uri.parse('$_baseUrl/api/editScheduledPost'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+        'scheduledPostId': postId,
+        'content': content,
+      }),
+    );
+    if (response.statusCode != 200) {
+      print('Response body: ${response.body}');
+      return false;
+    }
+    return true;
   }
-  return true;
-}
+
   Future<List<Community>> getCommunities(
       String token, BuildContext context) async {
     final logicAPI apiLogic = logicAPI();
@@ -404,38 +443,6 @@ Future<bool> editScheduledPost(String postId, String content) async {
     final String sortOption = searchOpts['sortOption'];
     final sharedPreferences = await SharedPreferences.getInstance();
     final token = sharedPreferences.getString('token');
-    // just retun the mock api
-    // return [
-    //   {
-    //     'authorName': 'John Doe',
-    //     'content': 'This is a comment',
-    //     'upvotes': 10,
-    //     'downvotes': 2,
-    //     'linkedPostTitle': 'This is a post',
-    //     'linkedPostAuthor': 'Jane Doe',
-    //     'linkedPostNumComments': 5,
-    //     'linkedPostNumUpvotes': 20,
-    //     'linkedSubreddit': '123',
-    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
-    //     'createdAt': '2021-09-01T12:00:00.000Z',
-    //     'linkedPostId': '123'
-    //   },
-    //   {
-    //     'authorName': 'Jane Doe',
-    //     'content': 'This is another comment',
-    //     'upvotes': 5,
-    //     'downvotes': 1,
-    //     'linkedPostTitle': 'This is another post',
-    //     'linkedPostAuthor': 'John Doe',
-    //     'linkedPostNumComments': 10,
-    //     'linkedPostNumUpvotes': 30,
-    //     'linkedSubreddit': '456',
-    //     'postCreatedAt': '2021-09-01T12:00:00.000Z',
-    //     'createdAt': '2021-09-01T12:00:00.000Z',
-    //     'linkedPostId': '456'
-    //   },
-    // ];
-
     final String url =
         '$_baseUrl/api/searchCommentsOrPosts/$query/$type/$sortOption/';
     print('Fetching comments from: $url');
@@ -446,8 +453,6 @@ Future<bool> editScheduledPost(String postId, String content) async {
         'Authorization': 'Bearer $token',
       },
     );
-    // result is a list of comments with the follwoing additional fields:
-    // linkedPostTitle, linkedPostAuthor, linkedPostNumComments, linkedPostNumUpvotes
     final List<dynamic> result = [];
 
     if (response.statusCode == 200) {

@@ -15,6 +15,26 @@ class editComment extends StatefulWidget {
 }
 
 class _editCommentState extends State<editComment> {
+  Comment? _comment;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchComment();
+  }
+  Future<void> _fetchComment() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token is null');
+    }
+    logicAPI api = logicAPI();
+    Comment comment = await api.fetchCommentByID(widget.commentId );
+    setState(() {
+      _comment = comment;
+      _commentController.text = comment.content;
+    });
+  }
   final linkController = TextEditingController();
   bool optionSelected = false; // Add this line
   bool isAttachmentAdded = false; // Add this line

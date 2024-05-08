@@ -185,9 +185,33 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
-    titleController = TextEditingController(
-      text:
-          widget.post['title'] ?? (widget.isScheduled ? 'Scheduled Post' : ''),
+
+    selectedCommunity = Community(
+      id: 'Community ID',
+      name: 'Community Name',
+      description: 'Community Description',
+      posts: [],
+      icon: "",
+      banner: "",
+      isOver18: false,
+      privacyMode: 'Public',
+      isNSFW: false,
+      isSpoiler: false,
+      isOC: false,
+      isCrosspost: false,
+      rules: [],
+      category: 'Category',
+      language: 'Language',
+      allowImages: true,
+      allowVideos: true,
+      allowText: true,
+      allowLink: true,
+      allowPoll: true,
+      allowEmoji: true,
+      allowGif: true,
+      members: [],
+      moderators: [],
+      createdAt: DateTime.now().toString(),
     );
     descriptionController = TextEditingController(
       text: widget.post['content'] ?? '',
@@ -237,7 +261,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
         language: 'English',
         allowEmoji: false,
         allowGif: true,
-        icon: 'assets/images/loft.png',
+        icon: 'assets/images/loft.png', banner: 'assets/images/loft.png',
       );
       fetchCommunityDetails();
     }
@@ -499,7 +523,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
                               child: CommunityBar(
                                 community: selectedCommunity.name,
                                 communityId: selectedCommunity.id,
-                                communityIcon: selectedCommunity.icon,
+                                communityIcon: selectedCommunity.icon?.toString() ??
+                                    'https://example.com/default_image.png',
                                 onTap: widget.canChooseCommunity
                                     ? handleTap
                                     : () {},

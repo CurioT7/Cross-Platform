@@ -245,6 +245,7 @@ class logicAPI {
         'membersCount': subredditData['members'].length,
         'banner': subredditData['banner'],
         'icon': subredditData['icon'],
+        "isOver18": subredditData['isOver18'],
         'moderators': subredditData['moderators'].map((
             moderator) => moderator['username']).toList(),
       };
@@ -692,7 +693,8 @@ class logicAPI {
 
       if (response.statusCode == 200) {
         Post post = Post.fromJson((jsonDecode(response.body)['item']));
-        print('Post: $post'); 
+        print('Post: $post');
+        print("post fetched successfully by id");
         return post;
       } else {
         print('Response body: ${response.body}');
@@ -1042,15 +1044,19 @@ class logicAPI {
       List<Map<String, dynamic>> postsData = jsonDecode(
           response.body)['posts'] != null ? List<Map<String, dynamic>>.from(
           jsonDecode(response.body)['posts']) : [];
-
+print("success fetch post by id");
       print('Posts: $postsData');
-      List<MiniPost> posts = MiniPost.getMiniPosts(jsonDecode(response.body)['posts'])
-          .toList();
+      // List<MiniPost> posts = MiniPost.getMiniPosts(jsonDecode(response.body)['posts'])
+      //     .toList();
+
+      List<MiniPost> posts = postsData.map((post) => MiniPost.fromJson(post)).toList();
+
       return posts;
     }
     else if (response.statusCode == 404)
 
     {
+      print('no posts found in search by hashtag');
       List<MiniPost> posts = [];
       return posts;
     }else {
@@ -1058,4 +1064,57 @@ class logicAPI {
           'Failed to load posts with status code: ${response.statusCode}');
     }
   }
+
+  Future<bool> updateCommunitySettingsDescription(String token, String subreddit, String description) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+
+        'description': description,
+
+      }),
+    );
+
+    switch (response.statusCode) {
+      case 200:
+        return true;
+      case 404:
+        throw Exception('Subreddit not found');
+      case 500:
+        throw Exception('Error retrieving community settings updates');
+      default:
+        throw Exception('Failed to update community settings');
+    }
+  }
+
+  Future<bool> updateCommunitySettingsPrivacy(String token, String subreddit, String privacyMode) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/updateCommunitySettings/$subreddit'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(<String, String>{
+
+
+        'privacyMode': privacyMode,
+      }),
+    );
+
+    switch (response.statusCode) {
+      case 200:
+        return true;
+      case 404:
+        throw Exception('Subreddit not found');
+      case 500:
+        throw Exception('Error retrieving community settings updates');
+      default:
+        throw Exception('Failed to update community settings');
+    }
+  }
+
 }

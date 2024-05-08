@@ -1,3 +1,4 @@
+import 'package:curio/Models/minipost.dart';
 import 'package:curio/widgets/searchCommentCard.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/services/logicAPI.dart';
@@ -18,7 +19,7 @@ class SearchHashtag extends StatefulWidget {
 
 class _SearchHashtagState extends State<SearchHashtag> {
   Future<List<dynamic>>? commentsFuture;
-  Future<List<dynamic>>? postsFuture;
+  Future<List<MiniPost>>? postsFuture;
   final logicAPI _logicAPI = logicAPI(); // Replace with the correct class name from your logicAPI file
 
   @override
@@ -34,58 +35,59 @@ class _SearchHashtagState extends State<SearchHashtag> {
       child: ListView(
         children: [
           FutureBuilder<List<dynamic>>(
-            future: commentsFuture,
-            builder: (context, snapshot) {
+            future: Future.wait([
+              if (commentsFuture != null) commentsFuture!,
+              if (postsFuture != null) postsFuture!,
+            ]), builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
-                return snapshot.data != null ? ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    var data = snapshot.data![index];
-                    return SearchCommentCard(
-                      communityImage: "assets/images/loft.png",
-                      communityName: data['linkedSubreddit'],
-                      postCreatedAt: data['postCreatedAt'],
-                      commentCreatedAt: data['createdAt'],
-                      userName: data['authorName'],
-                      postTitle: data['linkedPostTitle'],
-                      commentContent: data['content'],
-                      postUpvotes: data['linkedPostNumUpvotes'],
-                      commentUpvotes: data['upvotes'],
-                      numberOfComments: data['linkedPostNumComments'],
-                      postID: data['linkedPostId'],
-                    );
-                  },
-                ) : Container();
+                var allData = [];
+                if (snapshot.data != null) {
+                  allData = [...snapshot.data![0], ...snapshot.data![1]];
+                }
+                return Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(10.0),
+                    width: MediaQuery.of(context).size.width*0.99,
+                    height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
+                    child: ListView.builder(
+                      itemCount: allData.length,
+                      itemBuilder: (context, index) {
+                        var data = allData[index];
+                        if (data is MiniPost) {
+                          try {
+                            return MiniPostCard(miniPost: data);
+                          } catch (e) {
+                            print('Error building MiniPostCard: $e');
+                            return Container();
+                          }
+                        } else {
+                          return SearchCommentCard(
+                            communityImage: "assets/images/loft.png",
+                            communityName: data['linkedSubreddit'],
+                            postCreatedAt: data['postCreatedAt'],
+                            commentCreatedAt: data['createdAt'],
+                            userName: data['authorName'],
+                            postTitle: data['linkedPostTitle'],
+                            commentContent: data['content'],
+                            postUpvotes: data['linkedPostNumUpvotes'],
+                            commentUpvotes: data['upvotes'],
+                            numberOfComments: data['linkedPostNumComments'],
+                            postID: data['linkedPostId'],
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                );
               }
             },
-          ),
-          FutureBuilder<List<dynamic>>(
-            future: postsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                return snapshot.data != null ? ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return MiniPostCard(miniPost: snapshot.data![index]);
-                  },
-                ) : Container();
-              }
-            },
-          ),
-
+          )
         ],
       ),
     );
   }
-
 }

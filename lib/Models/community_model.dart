@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class Community {
   final String id;
   final String name;
-  final String icon;
   final String description;
   final List<dynamic> posts;
   final bool isOver18;
   final String privacyMode;
+  final String? banner;
+  final String? icon;
   final bool isNSFW;
   final bool isSpoiler;
   final bool isOC;
@@ -35,6 +36,8 @@ class Community {
     required this.name,
     required this.description,
     required this.posts,
+    required this.banner,
+    required this.icon,
     required this.isOver18,
     required this.privacyMode,
     required this.isNSFW,
@@ -54,7 +57,6 @@ class Community {
     required this.members,
     required this.moderators,
     required this.createdAt,
-    this.icon = 'assets/images/default_community_icon.png',
 
   });
 
@@ -65,6 +67,8 @@ class Community {
       name: json['name'],
       description: json['description'],
       posts: json['posts'],
+      banner: json['banner'],
+      icon: json['icon'],
       isOver18: json['isOver18'],
       privacyMode: json['privacyMode'],
       isNSFW: json['isNSFW'],
@@ -84,7 +88,7 @@ class Community {
       members: (json['members'] as List).map((i) => Member.fromJson(i)).toList(),
       moderators: (json['moderators'] as List).map((i) => Moderator.fromJson(i)).toList(),
       createdAt: json['createdAt'],
-      icon: json['icon']??'assets/images/default_community_icon.png',
+
     );
   }
 }

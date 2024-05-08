@@ -12,6 +12,7 @@ import 'package:curio/Models/post.dart';
 //import postcard.dart
 //import 'package:curio/widgets/postCard.dart';
 
+import '../moderator/moderator_tools.dart';
 import 'aboutComunity.dart';
 
 class communityProfile extends StatefulWidget {
@@ -273,7 +274,7 @@ class _CommunityProfileState extends State<communityProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: topAppBar(context, blurValue),
+      appBar: topAppBar(context, blurValue, banner ?? ''),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -284,8 +285,7 @@ class _CommunityProfileState extends State<communityProfile> {
 
               //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-              backgroundImage: AssetImage('assets/images/example.jpg'),
-            ),
+              backgroundImage: icon != null ? NetworkImage(icon!) : null,),
             SizedBox(width: MediaQuery.of(context).size.width * 0.03),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,7 +422,13 @@ class _CommunityProfileState extends State<communityProfile> {
                       }
                     }
                     else(){
-
+//open ModeratorToolsPage class and send to it this subreddit name
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ModeratorToolsPage(subredditName: widget.communityName),
+                        ),
+                      );
                       //todo open modtools settings page
                     };
                   } catch (e) {

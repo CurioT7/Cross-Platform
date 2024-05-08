@@ -25,6 +25,8 @@ class Post {
   String subredditName;
   dynamic pollVote;
   bool pollEnded;
+  List<dynamic> options;
+
 
   Post({
     this.id = '',
@@ -53,6 +55,8 @@ class Post {
     this.subredditName = 'Unknown',
     this.pollVote,
     this.pollEnded = false,
+    this.options = const [],
+
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -92,6 +96,7 @@ class Post {
       subredditName: detailsData['subredditName'] as String? ?? 'Unknown',
       pollVote: detailsData['pollVote'],
       pollEnded: detailsData['pollEnded'] as bool? ?? false,
+      options: detailsData['options'] as List<dynamic>? ?? [],
     );
   }
 

@@ -57,6 +57,7 @@ class MockApiService {
       subredditName : 'subreddit_$index',
       pollVote : 'yes',
       pollEnded : false,
+      options: List.generate(index, (i) => 'Option $i'), // Generate some fake options
     ));
   }
 

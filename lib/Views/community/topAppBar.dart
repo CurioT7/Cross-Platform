@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
-AppBar topAppBar(BuildContext context, ValueNotifier<double> blurValue) {
+AppBar topAppBar(BuildContext context, ValueNotifier<double> blurValue, String bannerImage) {
   return AppBar(
     flexibleSpace: Stack(
       children: [
@@ -11,8 +11,8 @@ AppBar topAppBar(BuildContext context, ValueNotifier<double> blurValue) {
             builder: (context, value, child) {
               return ImageFiltered(
                 imageFilter: ui.ImageFilter.blur(sigmaX: value, sigmaY: value),
-                child: Image.asset(
-                    'lib/assets/images/example.jpg',
+                child: Image.network(
+                  bannerImage,
                   width: MediaQuery.of(context).size.width * 1.5,
                   height: MediaQuery.of(context).size.width * 0.15,
                   fit: BoxFit.fill,

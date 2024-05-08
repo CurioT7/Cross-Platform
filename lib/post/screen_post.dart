@@ -66,6 +66,8 @@ class _AddPostScreenState extends State<AddPostScreen> {
       name: 'Community Name',
       description: 'Community Description',
       posts: [],
+      icon: "",
+      banner: "",
       isOver18: false,
       privacyMode: 'Public',
       isNSFW: false,

@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class newComment extends StatefulWidget {
   final String postID;
-  newComment({ required this.postID});
+  newComment({required this.postID});
   @override
   _newCommentState createState() => _newCommentState();
 }
@@ -21,14 +21,16 @@ class _newCommentState extends State<newComment> {
     super.initState();
     _fetchPost();
   }
-Future<String> getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String token = prefs.getString('token')!;
-  return token;
-}
-  void _fetchPost() async {
 
-    _postFuture = logicAPI().fetchPostByID(widget.postID , await getToken() );
+  void _fetchPost() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      throw Exception('Token is null');
+    }
+    setState(() {
+    _postFuture = logicAPI().fetchPostByID( widget.postID, token);
+    });
   }
 
   final linkController = TextEditingController();
@@ -50,12 +52,16 @@ Future<String> getToken() async {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(); // Show a loading spinner while waiting
         } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Show error message if something went wrong
-        } else {
+          return Text(
+              'Error: ${snapshot.error}'); // Show error message if something went wrong
+        } else if (snapshot.hasData) {
           Post post = snapshot.data!;
           return Scaffold(
             appBar: AppBar(
-              title: Text('Add Comment', style: TextStyle(fontSize: 18,)),
+              title: Text('Add Comment',
+                  style: TextStyle(
+                    fontSize: 18,
+                  )),
             ),
             body: Column(
               children: <Widget>[
@@ -67,11 +73,13 @@ Future<String> getToken() async {
                     children: <Widget>[
                       Text(
                         post.title, // Access the post title from the fetched post
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       IconButton(
                         icon: Icon(Icons.expand_more),
-                        onPressed: () => _showBottomSheet(context, post), // Pass the fetched post to _showBottomSheet
+                        onPressed: () => _showBottomSheet(context,
+                            post), // Pass the fetched post to _showBottomSheet
                       ),
                     ],
                   ),
@@ -79,7 +87,9 @@ Future<String> getToken() async {
                 Divider(color: Colors.grey[300]),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 15.0,),
+                    padding: const EdgeInsets.only(
+                      left: 15.0,
+                    ),
                     child: TextField(
                       controller: _commentController,
                       decoration: InputDecoration(
@@ -101,45 +111,43 @@ Future<String> getToken() async {
                     onPressed: isAttachmentAdded
                         ? null
                         : () {
-                      setState(() {
-                        attachment = Attachment(
-                          type: 'link',
-                          data: linkController.text,
-                          component:
-                          Container(), // Temporary component
-                        );
-                        attachment!.component = URLComponent(
-                          controller: linkController,
-                          onClear: () {
                             setState(() {
-                              attachment = null;
-                              isAttachmentAdded = false;
+                              attachment = Attachment(
+                                type: 'link',
+                                data: linkController.text,
+                                component: Container(), // Temporary component
+                              );
+                              attachment!.component = URLComponent(
+                                controller: linkController,
+                                onClear: () {
+                                  setState(() {
+                                    attachment = null;
+                                    isAttachmentAdded = false;
+                                  });
+                                },
+                              );
+                              isAttachmentAdded = true;
                             });
                           },
-                        );
-                        isAttachmentAdded = true;
-                      });
-                    },
                   ),
                   IconButton(
                     icon: const Icon(FontAwesomeIcons.image),
                     onPressed: isAttachmentAdded
                         ? null
                         : () async {
-                      final ImagePicker picker0 = ImagePicker();
-                      final XFile? image = await picker0.pickImage(
-                          source: ImageSource.gallery);
-                      setState(() {
-                        optionSelected = false;
-                        _pickedImage = image;
-                        attachment = Attachment(
-                            type: 'image',
-                            data: image,
-                            component:
-                            Image.file(File(image!.path)));
-                        isAttachmentAdded = true;
-                      });
-                    },
+                            final ImagePicker picker0 = ImagePicker();
+                            final XFile? image = await picker0.pickImage(
+                                source: ImageSource.gallery);
+                            setState(() {
+                              optionSelected = false;
+                              _pickedImage = image;
+                              attachment = Attachment(
+                                  type: 'image',
+                                  data: image,
+                                  component: Image.file(File(image!.path)));
+                              isAttachmentAdded = true;
+                            });
+                          },
                   ),
                 ],
               ),
@@ -149,6 +157,9 @@ Future<String> getToken() async {
               child: Icon(Icons.send),
             ),
           );
+        }
+        else {
+          return Text('No data'); // Handle the case when snapshot.data is null
         }
       },
     );
@@ -202,8 +213,7 @@ Future<String> getToken() async {
         }
         api.postComment(widget.postID, _commentController.text, token);
         Navigator.of(context).pop();
-      }
-      catch(e){
+      } catch (e) {
         print(e);
       }
     }

@@ -7,9 +7,123 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ApiServiceMahmoud {
   final String _baseUrlMoch = 'https://user1709759645693.requestly.tech'; // Base URL for moch
   final String _baseUrl =  'http://192.168.1.13:3000'; // Base URL for moch
-  final String _baseUrlDataBase =  'http://10.0.2.2:3000';
+
+  final String _baseUrlDataBase = 'http://10.0.2.2:3000';
+
   //final String _baseUrlDataBase= 'http://192.168.1.8:3000';
   //final String _baseUrlDataBase= 'http://20.199.94.136';
+
+
+
+  Future<Map<String, dynamic>> editPermissions(String token, String moderationName, String subredditName, bool manageUsers, bool createLiveChats, bool manageSettings, bool managePostsAndComments, bool everything) async {
+    final String url = '$_baseUrlDataBase/api/moderator/editPermissions/  $subredditName';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('the headers are $headers ');
+    print('the url is $url');
+
+    // Construct the request body
+    final Map<String, dynamic> requestBody = {
+      'role': 'moderator', // Role is 'moderator'
+      'moderationName': moderationName,
+      'manageUsers': manageUsers,
+      'createLiveChats': createLiveChats,
+      'manageSettings': manageSettings,
+      'managePostsAndComments': managePostsAndComments,
+      'everything': everything,
+    };
+    print('the request body is ');
+    print(requestBody);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+
+      print(response.statusCode);
+      print(response.body);
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        // Success response
+        return {'success': true, 'message': 'Permissions updated successfully'};
+      } else if (response.statusCode == 403) {
+        // Bad Request error
+        return {'success': false, 'message': 'Only the creator of the subreddit can edit permissions'};
+      } else if (response.statusCode == 404) {
+        // Not Found error
+        return {'success': false, 'message': 'Moderator not found | User not found | Subreddit not found'};
+      } else if (response.statusCode == 500) {
+        // Internal Server Error
+        return {'success': false, 'message': 'Internal server error message'};
+      } else {
+        // Handle other status codes
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      // Handle network errors
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
+
+  Future<Map<String, dynamic>> inviteModerator(String token, String moderationName, String subredditName, bool manageUsers, bool createLiveChats, bool manageSettings, bool managePostsAndComments, bool everything) async {
+    final String url = '$_baseUrlDataBase/api/moderationInvite/$subredditName';
+    final Map<String, String> headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+    print('the headers are $headers ');
+    print('the url is $url');
+
+    // Construct the request body
+    final Map<String, dynamic> requestBody = {
+      'role': 'moderator', // Role is 'moderator'
+      'moderationName': moderationName,
+      'manageUsers': manageUsers,
+      'createLiveChats': createLiveChats,
+      'manageSettings': manageSettings,
+      'managePostsAndComments': managePostsAndComments,
+      'everything': everything,
+    };
+    print('the request body is ');
+    print(requestBody);
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+
+      print(response.statusCode);
+      print(response.body);
+
+      // Check the response status code
+      if (response.statusCode == 200) {
+        // Success response
+        return {'success': true, 'message': 'Permissions updated successfully'};
+      } else if (response.statusCode == 403) {
+        // Bad Request error
+        return {'success': false, 'message': 'Only the creator of the subreddit can edit permissions'};
+      } else if (response.statusCode == 404) {
+        // Not Found error
+        return {'success': false, 'message': 'Moderator not found | User not found | Subreddit not found'};
+      } else if (response.statusCode == 500) {
+        // Internal Server Error
+        return {'success': false, 'message': 'Internal server error message'};
+      } else {
+        // Handle other status codes
+        return {'success': false, 'message': 'Unexpected error occurred'};
+      }
+    } catch (e) {
+      // Handle network errors
+      return {'success': false, 'message': 'Error: $e'};
+    }
+  }
 
   Future<Map<String, dynamic>> removeModerator(String token, String subredditName, String role, String moderationName) async {
     print('the token is $token');

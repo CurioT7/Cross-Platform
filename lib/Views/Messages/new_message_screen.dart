@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:curio/services/messageService.dart';
 
 class NewMessageScreen extends StatefulWidget {
-  const NewMessageScreen({Key? key}) : super(key: key);
+  final String? username;
+
+  const NewMessageScreen({Key? key, this.username}) : super(key: key);
 
   @override
   _NewMessageScreenState createState() => _NewMessageScreenState();
 }
 
 class _NewMessageScreenState extends State<NewMessageScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  late final TextEditingController _usernameController;
   final TextEditingController _subjectController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController(text: widget.username ?? '');
+  }
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,

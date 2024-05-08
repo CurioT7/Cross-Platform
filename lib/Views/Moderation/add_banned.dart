@@ -2,6 +2,10 @@ import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
 class AddBannedUserPage extends StatefulWidget {
+  final String subredditName;
+
+  AddBannedUserPage({required this.subredditName});
+
   @override
   _AddBannedUserPageState createState() => _AddBannedUserPageState();
 }
@@ -28,7 +32,7 @@ class _AddBannedUserPageState extends State<AddBannedUserPage> {
             child: Text('Add', style: TextStyle(color: Colors.blue)),
             onPressed: () async {
               // Handle add user
-              String subredditName = 'software12346'; // Replace with your subreddit name
+              String subredditName = widget.subredditName;
               String userToBan = _usernameController.text;
               String violation = _banReason;
               String modNote = _modNotesController.text;
@@ -36,7 +40,7 @@ class _AddBannedUserPageState extends State<AddBannedUserPage> {
 
               var response = await _apiService.banUser(subredditName, userToBan, violation, modNote, userMessage);
 
-              if (response['success'] != null && response['success']) {
+              if (response.statusCode == 200) {
                 // User was banned successfully
                 // Show a success message
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +58,7 @@ class _AddBannedUserPageState extends State<AddBannedUserPage> {
                 // Show an error message
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('${response['message']}'),
+                    content: Text('Error: ${response.statusCode}'),
                     duration: Duration(seconds: 2),
                   ),
                 );

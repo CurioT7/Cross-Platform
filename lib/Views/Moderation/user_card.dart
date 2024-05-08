@@ -9,6 +9,8 @@ class UserCard extends StatefulWidget {
   final bool isApproved;
   final bool isBanned;
   final String linkedSubreddit;
+  final Function? onUnban;
+
 
   UserCard({
     this.username = '',
@@ -18,6 +20,7 @@ class UserCard extends StatefulWidget {
     this.isApproved = false,
     this.isBanned = false,
     this.linkedSubreddit = '',
+    this.onUnban,
   });
 
   @override
@@ -65,7 +68,9 @@ class _UserCardState extends State<UserCard> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('User has been unbanned successfully')),
                           );
-                          setState(() {});  // This will trigger a rebuild of the widget
+                          if (widget.onUnban != null) {
+                            widget.onUnban!();
+                          }
                         },
                       )
                     else

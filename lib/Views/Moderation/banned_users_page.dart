@@ -33,11 +33,14 @@ class _BannedUsersPageState extends State<BannedUsersPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddBannedUserPage()),
+                MaterialPageRoute(builder: (context) => AddBannedUserPage(subredditName: widget.subredditName)),
               );
+              setState(() {
+                futureBannedUsers = ApiService().getBannedUsers(widget.subredditName);
+              });
             },
           ),
         ],
@@ -61,6 +64,11 @@ class _BannedUsersPageState extends State<BannedUsersPage> {
             userMessage: banDetails['userMessage'],
             linkedSubreddit: widget.subredditName,
             isBanned: true,
+            onUnban: () {
+              setState(() {
+                futureBannedUsers = ApiService().getBannedUsers(widget.subredditName);
+              });
+            },
           );
         }).toList(),
       );

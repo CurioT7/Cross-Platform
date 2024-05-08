@@ -1,8 +1,26 @@
 import 'package:curio/Views/Moderation/add_banned.dart';
 import 'package:curio/Views/Moderation/user_card.dart';
+import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
-class BannedUsersPage extends StatelessWidget {
+class BannedUsersPage extends StatefulWidget {
+  final String subredditName;
+
+  BannedUsersPage({required this.subredditName});
+
+  @override
+  _BannedUsersPageState createState() => _BannedUsersPageState();
+}
+
+class _BannedUsersPageState extends State<BannedUsersPage> {
+  late Future<dynamic> futureBannedUsers;
+
+  @override
+  void initState() {
+    super.initState();
+    futureBannedUsers = ApiService().getBannedUsers(widget.subredditName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,13 +42,31 @@ class BannedUsersPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        children: [
-          UserCard(username: 'user1', time: '1h', reason: 'Banned', isBanned: true),
-          UserCard(username: 'user2', time: '2h', reason: 'Banned', isBanned: true),
-          // Add more UserCards
-        ],
-      ),
+      body: FutureBuilder<dynamic>(
+  future: futureBannedUsers,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      return Text('Error: ${snapshot.error}');
+    } else {
+      List<dynamic> bannedUsers = snapshot.data['bannedUsers'] ?? [];
+      return ListView(
+        children: bannedUsers.map((user) {
+          var banDetails = user['banDetails'][0];
+          return UserCard(
+            username: banDetails['bannedUsername'],
+            reason: banDetails['violation'],
+            modNote: banDetails['modNote'],
+            userMessage: banDetails['userMessage'],
+            linkedSubreddit: widget.subredditName,
+            isBanned: true,
+          );
+        }).toList(),
+      );
+    }
+  },
+),
     );
   }
 }

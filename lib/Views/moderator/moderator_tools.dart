@@ -1,4 +1,7 @@
 
+import 'package:curio/Views/Moderation/approved_users_page.dart';
+import 'package:curio/Views/Moderation/banned_users_page.dart';
+import 'package:curio/Views/Moderation/rules_page.dart';
 import 'package:curio/Views/insettingspage/notificationSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -145,6 +148,12 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             leading: Icon(Icons.description, color: KIconColor),
             title: Text('Rules', style: kTitleHeader),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RulesPage(subredditName: widget.subredditName),
+                ),
+              );
 
             },
           ),
@@ -182,6 +191,12 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             title: Text('Approved users', style: kTitleHeader),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ApprovedUsersPage(),
+                ),
+              );
 
             },
           ),
@@ -190,6 +205,13 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             title: Text('Banned users', style: kTitleHeader),
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BannedUsersPage(subredditName: widget.subredditName),
+                ),
+              );
+
 
             },
           ),

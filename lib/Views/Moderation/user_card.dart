@@ -1,25 +1,37 @@
+import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
-class UserCard extends StatelessWidget {
+class UserCard extends StatefulWidget {
   final String username;
-  final String time;
   final String reason;
+  final String modNote;
+  final String userMessage;
+  final bool isApproved;
   final bool isBanned;
+  final String linkedSubreddit;
 
   UserCard({
-    required this.username,
-    required this.time,
-    required this.reason,
+    this.username = '',
+    this.reason = '',
+    this.modNote = '',
+    this.userMessage = '',
+    this.isApproved = false,
     this.isBanned = false,
+    this.linkedSubreddit = '',
   });
 
+  @override
+  _UserCardState createState() => _UserCardState();
+}
+
+class _UserCardState extends State<UserCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         leading: CircleAvatar(),
-        title: Text('u/$username'),
-        subtitle: Text('$time • $reason'),
+        title: Text('u/${widget.username}'),
+        subtitle: widget.isApproved ? null : Text('Reason: ${widget.reason}\nMod Note: ${widget.modNote}\nUser Message: ${widget.userMessage}\nSubreddit: ${widget.linkedSubreddit}'),
         trailing: GestureDetector(
           onTap: () {
             showModalBottomSheet(
@@ -28,24 +40,14 @@ class UserCard extends StatelessWidget {
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    if (isBanned)
-                      ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text('See Details'),
-                        trailing: Icon(Icons.arrow_forward),
-                        onTap: () {
-                          // Handle see details
-                        },
-                      )
-                    else
-                      ListTile(
-                        leading: Icon(Icons.mail),
-                        title: Text('Send Message'),
-                        trailing: Icon(Icons.arrow_forward),
-                        onTap: () {
-                          // Handle send message
-                        },
-                      ),
+                    ListTile(
+                      leading: Icon(Icons.mail),
+                      title: Text('Send Message'),
+                      trailing: Icon(Icons.arrow_forward),
+                      onTap: () {
+                        //Navigate to message screen with username as argument
+                      },
+                    ),
                     ListTile(
                       leading: Icon(Icons.person),
                       title: Text('View Profile'),
@@ -53,12 +55,17 @@ class UserCard extends StatelessWidget {
                         // Handle view profile
                       },
                     ),
-                    if (isBanned)
+                    if (widget.isBanned)
                       ListTile(
                         leading: Icon(Icons.gavel , color: Colors.red),
                         title: Text('Unban', style: TextStyle(color: Colors.red)),
-                        onTap: () {
-                          // Handle unban
+                        onTap: () async {
+                          await ApiService().unbanUser(widget.linkedSubreddit, widget.username);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('User has been unbanned successfully')),
+                          );
+                          setState(() {});  // This will trigger a rebuild of the widget
                         },
                       )
                     else

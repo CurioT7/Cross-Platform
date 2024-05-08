@@ -29,9 +29,14 @@ class ApprovedUsersPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          UserCard(username: 'user1', time: '1h', reason: 'Approved'),
-          UserCard(username: 'user2', time: '2h', reason: 'Approved'),
-          // Add more UserCards
+          UserCard(
+            username: 'john_doe',
+            isApproved: true,  
+          ),
+          UserCard(
+            username: 'jane_doe',
+            isApproved: true,  
+          ),
         ],
       ),
     );

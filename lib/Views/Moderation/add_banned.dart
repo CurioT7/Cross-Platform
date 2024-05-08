@@ -1,3 +1,4 @@
+import 'package:curio/services/ModerationService.dart';
 import 'package:flutter/material.dart';
 
 class AddBannedUserPage extends StatefulWidget {
@@ -11,6 +12,8 @@ class _AddBannedUserPageState extends State<AddBannedUserPage> {
   final TextEditingController _banMessageController = TextEditingController();
   String _banReason = 'Spam';
 
+  final ApiService _apiService = ApiService(); 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,8 +26,39 @@ class _AddBannedUserPageState extends State<AddBannedUserPage> {
         actions: [
           TextButton(
             child: Text('Add', style: TextStyle(color: Colors.blue)),
-            onPressed: () {
+            onPressed: () async {
               // Handle add user
+              String subredditName = 'software12346'; // Replace with your subreddit name
+              String userToBan = _usernameController.text;
+              String violation = _banReason;
+              String modNote = _modNotesController.text;
+              String userMessage = _banMessageController.text;
+
+              var response = await _apiService.banUser(subredditName, userToBan, violation, modNote, userMessage);
+
+              if (response['success'] != null && response['success']) {
+                // User was banned successfully
+                // Show a success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('User banned successfully'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+                // Close the page after 2 seconds
+                Future.delayed(Duration(seconds: 2), () {
+                  Navigator.pop(context);
+                });
+              } else {
+                // An error occurred
+                // Show an error message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${response['message']}'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
             },
             style: TextButton.styleFrom(
               foregroundColor: Colors.blue,

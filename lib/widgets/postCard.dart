@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:curio/services/logicAPI.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:curio/Views/my_profile_screen.dart';
 import 'package:curio/services/postService.dart';
@@ -22,12 +23,10 @@ class PostCard extends StatefulWidget {
   final Post post;
   final bool isModerator;
   final bool isMyPost;
+  final String communityName;
 
-  const PostCard(
-      {super.key,
-      required this.post,
-      this.isModerator = false,
-      this.isMyPost = false});
+
+  const PostCard({super.key, required this.post, this.isModerator = false,  this.isMyPost=false, this.communityName=''});
 
   @override
   _PostCardState createState() => _PostCardState();
@@ -42,8 +41,8 @@ class _PostCardState extends State<PostCard>
   bool _canUnhide = true;
   SharedPreferences? prefs;
   String voteStatus = 'neutral';
-
-  bool isInSubreddit = true;
+  String image = 'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png';
+  bool isInSubreddit =true;
 
   @override
   bool get wantKeepAlive => true; // Add this line
@@ -51,6 +50,7 @@ class _PostCardState extends State<PostCard>
   @override
   void initState() {
     super.initState();
+    fetchAndSetUserImage();
     votes = widget.post.upvotes - widget.post.downvotes;
     SharedPreferences.getInstance().then((value) {
       prefs = value;
@@ -62,10 +62,19 @@ class _PostCardState extends State<PostCard>
     });
   }
 
-  Future<String> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token = prefs.getString('token')!;
-    return token;
+Future<String> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = prefs.getString('token')!;
+  return token;
+}
+void fetchAndSetUserImage() async {
+    logicAPI api = logicAPI();
+    Map<String, dynamic> userData = await api.fetchUserData(widget.post.authorName?? 'default');
+    Map<String, dynamic> userDetails = await api.extractUserDetails(userData);
+    setState(() {
+      image = userDetails['profilePicture'];
+      print("image link: $image");
+    });
   }
 
   void _toggleVisibility() async {
@@ -255,15 +264,46 @@ class _PostCardState extends State<PostCard>
               ListTile(
                 leading: const Icon(Icons.delete),
                 title: const Text('Remove Post'),
-                onTap: () {
-                  // TODO: Implement the logic for removing post
+                onTap: () async {
+                  try {
+                    String token = await getToken();
+                    await ApiService().removePost(widget.post.id, 'post', widget.communityName,token);
+                    // Update the UI after the post is removed
+                    setState(() {
+                      // Remove the post from your data source
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Post removed successfully')),
+                    );
+                  } catch (e) {
+                    // Handle the error
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to remove post: $e')),
+                    );
+                  }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.check),
                 title: const Text('Approve Post'),
-                onTap: () {
-                  // TODO: Implement the logic for approving post
+                onTap: () async {
+                  try {
+                    String token = await getToken();
+                    ApiService apiService = ApiService();
+                    await apiService.approvePost(widget.post.id, 'post', widget.post.subredditName, token);
+                    // Update the UI after the post is approved
+                    setState(() {
+                      // Update the post in your data source
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Post approved successfully')),
+                    );
+                  } catch (e) {
+                    // Handle the error
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to approve post: $e')),
+                    );
+                  }
                 },
               ),
               SizedBox(
@@ -423,13 +463,6 @@ class _PostCardState extends State<PostCard>
               },
             ),
             ListTile(
-              leading: const Icon(Icons.block),
-              title: const Text('Block Account'),
-              onTap: () {
-                // TODO: Implement the logic for blocking the account
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.copy),
               title: const Text('Copy Text'),
               onTap: () {
@@ -560,10 +593,8 @@ class _PostCardState extends State<PostCard>
                 ),
               );
             },
-            leading: const CircleAvatar(
-              backgroundImage: NetworkImage(
-                'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png',
-              ),
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(image),
             ),
             title: Text(
               'r/${widget.post.subredditName}',
@@ -655,6 +686,20 @@ class _PostCardState extends State<PostCard>
                 },
               ),
             ),
+            if (widget.post.options != null && widget.post.options.isNotEmpty)
+              Column(
+                children: widget.post.options.map((option) {
+                  return ListTile(
+                    title: Text(option),
+                    trailing: IconButton(
+                      icon: Icon(Icons.radio_button_unchecked),
+                      onPressed: () {
+                        // Handle poll option selection
+                      },
+                    ),
+                  );
+                }).toList(),
+              ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(

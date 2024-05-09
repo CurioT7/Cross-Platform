@@ -364,6 +364,65 @@ Future<Map<String, dynamic>> getPosts(String type, {int page = 1 , String? token
     }
 
   }
+Future<void> approvePost(String itemId, String itemType, String subredditName, String token) async {
+  try {
+    print('itemId: $itemId'); // Debug print
+    print('itemType: $itemType'); // Debug print
+    print('subredditName: $subredditName'); // Debug print
+    print('token: $token'); // Debug print
 
+    final response = await http.post(
+      Uri.parse('$baseUrl/moderator/approve'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'itemID': itemId,
+        'itemType': itemType,
+        'subredditName': subredditName,
+      }),
+    );
+
+    print('Approve post response status: ${response.statusCode}');
+    print('Approve post response body: ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to approve post');
+    }
+  } catch (e) {
+    print('Approve post error: $e');
+        print('itemId when error occurred: $itemId'); // Debug print
+
+    throw e;
+  }
+}
+
+Future<void> removePost(String itemId, String itemType, String subredditName, String token) async {
+  try {
+    final response = await http.post(
+      Uri.parse('$baseUrl/moderator/approveRemoval'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'itemID': itemId,
+        'itemType': itemType,
+        'subredditName': subredditName,
+      }),
+    );
+
+    print('Remove post response status: ${response.statusCode}');
+    print('Remove post response body: ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to remove post');
+    }
+  } catch (e) {
+    print('Remove post error: $e');
+    throw e;
+  }
+}
 
 }

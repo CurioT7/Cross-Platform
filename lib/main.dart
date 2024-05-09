@@ -1,4 +1,6 @@
 import 'package:curio/Views/signUp/signup_email.dart';
+import 'package:curio/bloc_observer.dart';
+import 'package:curio/controller/chat_cubit/chat_cubit.dart';
 import 'package:flutter/material.dart';
 
 import 'package:curio/Views/sidebars/sideBarBeforeLogIn.dart';
@@ -37,6 +39,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   const storage = FlutterSecureStorage();
+  Bloc.observer = MyBlocObserver();
   await storage.deleteAll();
   runApp(const MyApp());
 }
@@ -44,10 +47,17 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-   @override
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HistoryCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => HistoryCubit(),
+        ),
+        BlocProvider(
+          create: (context) => ChatCubit(),
+        ),
+      ],
       child: MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
@@ -59,11 +69,11 @@ class MyApp extends StatelessWidget {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
           ),
-          textTheme: TextTheme(
-            bodyText1: TextStyle(color: Colors.black),
-            bodyText2: TextStyle(color: Colors.black),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black),
           ),
-          colorScheme: ColorScheme.light(
+          colorScheme: const ColorScheme.light(
             primary: Colors.white,
             onPrimary: Colors.black,
             secondary: Colors.deepOrange,
@@ -81,7 +91,7 @@ class MyApp extends StatelessWidget {
               backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
             ),
           ),
-          progressIndicatorTheme: ProgressIndicatorThemeData(
+          progressIndicatorTheme: const ProgressIndicatorThemeData(
             color: Colors.deepOrange,
           ),
         ),

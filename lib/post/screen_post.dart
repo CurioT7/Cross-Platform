@@ -213,6 +213,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
       moderators: [],
       createdAt: DateTime.now().toString(),
     );
+    titleController = TextEditingController(
+      text: widget.post['title'] ?? '',
+    );
     descriptionController = TextEditingController(
       text: widget.post['content'] ?? '',
     );

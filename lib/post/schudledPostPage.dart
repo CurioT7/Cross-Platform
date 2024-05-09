@@ -85,6 +85,7 @@ class _ScheduledPostsPageState extends State<ScheduledPostsPage> {
 
   Future<void> fetchScheduledPosts() async {
     // Add your API call here
+    print('widget.community: ${widget.community}');
     var posts = await ApiService()
         .fetchScheduledPosts(widget.community['subreddit'].name);
     scheduledPosts = List<Map<String, dynamic>>.from(posts);
@@ -113,9 +114,9 @@ class _ScheduledPostsPageState extends State<ScheduledPostsPage> {
           );
         } else {
           if (snapshot.hasError) {
-            return const Scaffold(
+            return  Scaffold(
               body: Center(
-                child: Text('Error fetching posts'),
+                child: Text('Error fetching posts ${snapshot.error}'),
               ),
             );
           } else {

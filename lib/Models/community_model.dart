@@ -1,5 +1,36 @@
 import 'package:flutter/material.dart';
-
+class Moderator {
+  final String username;
+  final String role;
+  final bool manageUsers;
+  final bool createLiveChats;
+  final bool manageSettings;
+  final bool managePostsAndComments;
+  final bool everything;
+  final String id;
+  Moderator({
+    required this.username,
+    required this.role,
+    required this.manageUsers,
+    required this.createLiveChats,
+    required this.manageSettings,
+    required this.managePostsAndComments,
+    required this.everything,
+    required this.id,
+  });
+  factory Moderator.fromJson(Map<String, dynamic> json) {
+    return Moderator(
+      username: json['username'],
+      role: json['role'],
+      manageUsers: json['manageUsers'],
+      createLiveChats: json['createLiveChats'],
+      manageSettings: json['manageSettings'],
+      managePostsAndComments: json['managePostsAndComments'],
+      everything: json['everything'],
+      id: json['_id'],
+    );
+  }
+}
 class Community {
   final String id;
   final String name;
@@ -30,6 +61,7 @@ class Community {
   String toString() {
     return 'Community{id: $id, name: $name, description: $description, isOver18: $isOver18, privacyMode: $privacyMode, isNSFW: $isNSFW, isSpoiler: $isSpoiler, isOC: $isOC, isCrosspost: $isCrosspost, rules: $rules, category: $category, language: $language, allowImages: $allowImages, allowVideos: $allowVideos, allowText: $allowText, allowLink: $allowLink, allowPoll: $allowPoll, allowEmoji: $allowEmoji, allowGif: $allowGif, createdAt: $createdAt}';
   }
+
 
   Community({
     required this.id,
@@ -105,26 +137,6 @@ class Member {
   factory Member.fromJson(Map<String, dynamic> json) {
     return Member(
       username: json['username'],
-      id: json['_id'],
-    );
-  }
-}
-
-class Moderator {
-  final String username;
-  final String role;
-  final String id;
-
-  Moderator({
-    required this.username,
-    required this.role,
-    required this.id,
-  });
-
-  factory Moderator.fromJson(Map<String, dynamic> json) {
-    return Moderator(
-      username: json['username'],
-      role: json['role'],
       id: json['_id'],
     );
   }

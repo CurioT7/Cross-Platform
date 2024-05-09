@@ -26,11 +26,11 @@ AppBar topAppBar(BuildContext context, ValueNotifier<double> blurValue, String b
           top: MediaQuery.of(context).size.width * 0.04,
           child: ElevatedButton(
             onPressed: () {},
-            child: Icon(Icons.search, color: Colors.white),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.grey[900]?.withOpacity(0.5),
-              shape: CircleBorder(),
+              shape: const CircleBorder(),
             ),
+            child: const Icon(Icons.search, color: Colors.white),
           ),
         ),
       ],

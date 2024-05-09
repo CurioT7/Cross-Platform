@@ -233,8 +233,7 @@ class logicAPI {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-// print(communityName);
-// print('$_baseUrl/api/r/${Uri.encodeComponent(communityName)}');
+
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = json.decode(response.body);
       Map<String, dynamic> subredditData = responseData['subreddit'];

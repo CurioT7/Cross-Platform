@@ -15,124 +15,34 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:curio/Views/moderator/moderators.dart';
 
 import '../../Models/community_model.dart';
+import '../../post/post_types.dart';
 import '../../services/ModerationService.dart';
 import 'communityDescription.dart';
 import 'communityPrivacyMode.dart';
 import 'package:curio/services/api_service.dart' as APISHAMS;
 class ModeratorToolsPage extends StatefulWidget {
-  final String subredditName;
-  const ModeratorToolsPage({Key? key, required this.subredditName}) : super(key: key);
+  String? subredditName;
+  Community? communityDetails;
+   ModeratorToolsPage({super.key,  this.subredditName, this.communityDetails});
   @override
   State<ModeratorToolsPage> createState() => _ModeratorToolsPageState();
 }
 
 class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+
   bool validEmail = false;
-  bool _createdPassword = false;
   bool validPassword = false;
   final storage = FlutterSecureStorage();
-  String _selectedGender = 'Man'; // Initial selected gender
-  String _selectedLocation = 'Mexico';
-  bool _isConnected = false;
-  String _username = '';
-  String _email = '';
-  late Community  communityDetails= Community(
-    id: 'Community ID',
-    name: 'Community Name',
-    description: 'Community Description',
-    posts: [],
-    icon: "",
-    banner: "",
-    isOver18: false,
-    privacyMode: 'Public',
-    isNSFW: false,
-    isSpoiler: false,
-    isOC: false,
-    isCrosspost: false,
-    rules: [],
-    category: 'Category',
-    language: 'Language',
-    allowImages: true,
-    allowVideos: true,
-    allowText: true,
-    allowLink: true,
-    allowPoll: true,
-    allowEmoji: true,
-    allowGif: true,
-    members: [],
-    moderators: [],
-    createdAt: DateTime.now().toString(),
-  );
-  ApiServiceMahmoud _apiService = ApiServiceMahmoud();
 
-  Future<void> fetchCommunityDetails() async {
 
-    communityDetails = await APISHAMS.ApiService()
-        .fetchCommunityByName(widget.subredditName);
-    setState(() {});
-
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
 
   @override
   void initState() {
     print('Subreddit name: ${widget.subredditName}');
     super.initState();
-    _loadInitialData();
-    fetchCommunityDetails();
   }
 
-  void _loadInitialData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var value = prefs.getString('token');
 
-    print('the value of the token inside the settings page is  $value');
-    String? initialGender = prefs.getString('selectedGender');
-    if (initialGender != null) {
-      setState(() {
-        _selectedGender = initialGender;
-      });
-    }
-    _fetchUserProfile();
-  }
-
-  void _fetchUserProfile() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      String? token = prefs.getString('token');
-
-      if (token == null) {
-        throw Exception('Token not found');
-      }
-
-      Map<String, dynamic> userProfile =
-      await _apiService.getUserProfile(token);
-      print(userProfile); // Print the fetched data for debugging
-      // Fetch user preferences
-
-      Map<String, dynamic> userPref = await _apiService.getUserPreferences(token);
-
-      print('$userPref'); // Print the fetched data for debugging
-
-
-      setState(() {
-
-      });
-    } catch (e) {
-      print('Failed to fetch user profile: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,11 +64,11 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
 
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
-
+              print('subreddit name: ${widget.subredditName}');
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CommunityDescription(subreddit: widget.subredditName),
+                  builder: (context) => CommunityDescription(subreddit: widget.subredditName??''),
                 ),
               );
 
@@ -175,7 +85,7 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CommunityType(subreddit: widget.subredditName),
+                  builder: (context) => CommunityType(subreddit: widget.subredditName??''),
                 ),
               );
 
@@ -187,6 +97,13 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             trailing: Icon(Icons.arrow_forward, color: KIconColor),
             onTap: () {
 
+              //Navigate to the PostTypesPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PostTypesPage(),
+                ),
+              );
 
             },
           ),
@@ -205,7 +122,7 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => RulesPage(subredditName: widget.subredditName),
+                  builder: (context) => RulesPage(subredditName: widget.subredditName??''),
                 ),
               );
 
@@ -215,7 +132,14 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
             leading: Icon(Icons.access_time, color: KIconColor),
             title: Text('Scheduled posts', style: kTitleHeader),
             onTap: () {
-              ScheduledPostsPage(community:{'subreddit': communityDetails});
+              // navagate to scheduled post page ScheduledPostsPage
+              print('Community Details: ${widget.communityDetails}');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ScheduledPostsPage(post:const {},community: {'subreddit':widget.communityDetails}),
+                ),
+              );
             },
           ),
           Container(
@@ -234,7 +158,7 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ModeratorsPage(subredditName: widget.subredditName ),
+                  builder: (context) => ModeratorsPage(subredditName: widget.subredditName??''),
                 ),
               );
             },
@@ -262,7 +186,7 @@ class _ModeratorToolsPageState extends State<ModeratorToolsPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => BannedUsersPage(subredditName: widget.subredditName),
+                  builder: (context) => BannedUsersPage(subredditName: widget.subredditName??''),
                 ),
               );
 

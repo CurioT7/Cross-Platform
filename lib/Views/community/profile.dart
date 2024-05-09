@@ -1,49 +1,42 @@
 import 'package:flutter/material.dart';
-//import 'dart:ui' as ui;
 import 'package:curio/Views/community/topAppBar.dart';
-//import logicAPI.dart
 import 'package:curio/services/logicAPI.dart';
-//import postcard
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:curio/widgets/postCard.dart';
 import 'package:curio/utils/componentSelectionPopUPPage.dart';
 import 'package:curio/Models/post.dart';
-
-//import postcard.dart
-//import 'package:curio/widgets/postCard.dart';
-
+import '../../Models/community_model.dart';
 import '../moderator/moderator_tools.dart';
 import 'aboutComunity.dart';
+import 'package:curio/services/api_service.dart' as APIShams;
 
 class communityProfile extends StatefulWidget {
   final String communityName;
+  late Community? communityData;
 
-  const communityProfile({Key? key, required this.communityName})
-      : super(key: key);
+  communityProfile({super.key, required this.communityName, this.communityData});
 
   @override
   _CommunityProfileState createState() => _CommunityProfileState();
 }
 
 class _CommunityProfileState extends State<communityProfile> {
-  // bool hasJoined = false;
-  Future<bool>? _communityDataFuture;
+
   Future<double?> timeSelection = Future.value(0.0);
   final ValueNotifier<double> blurValue = ValueNotifier<double>(0.0);
-  //String communityName = 'Art eum';
   bool? isJoined;
-  late List<String> moderators;
-  bool isModerator =false;
+  late List<Moderator> moderators;
+  bool isModerator = false;
   bool isJoinedChanged = false;
   Future<void> fetchPreferencesIsJoined() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    //_fetchJoinState();
     isJoined = prefs.getBool('isJoinedSubreddit');
-    // You can now use isJoined
   }
 
   void _fetchJoinState() async {
     try {
+      // delay for 1 second
+      await Future.delayed(Duration(seconds: 1));
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
       if (token == null) {
@@ -51,14 +44,20 @@ class _CommunityProfileState extends State<communityProfile> {
       }
       final username = await apiLogic.fetchUsername(token);
       final data = apiLogic.extractUsername(username);
-
       String extractedUsername = data['username'];
-      if (moderators.contains(extractedUsername)) {
-        isModerator = true;
+
+      // list<string> username;
+      List<String> userNames=[];
+      for (var element in moderators) {
+        userNames.add(element.username);
       }
-      logicAPI().fetchJoinedCommunityNames(
-          extractedUsername, token, widget.communityName);
-      //  return joinedCommunities.contains(communityName);
+      print('Usernames: $userNames');
+
+      if (userNames.contains(extractedUsername)) {
+        setState(() {
+          isModerator = true;
+        });
+      }
     } catch (e) {
       throw Exception('Error fetching user details: $e');
     }
@@ -80,26 +79,25 @@ class _CommunityProfileState extends State<communityProfile> {
   }
 
   void _fetchCommunityData() async {
-    print('Fetching community data');
-    logicAPI api = logicAPI();
-    Map<String, dynamic> communityData =
-        await api.fetchCommunityData(widget.communityName);
+
+     Community? tempCommunityData =
+        await APIShams.ApiService().fetchCommunityByName(widget.communityName);
+     print('Community Data: $tempCommunityData');
+
     setState(() {
-      privacyMode = communityData['privacyMode'];
-      name = communityData['name'];
-      description = communityData['description'];
-      membersCount = communityData['membersCount'];
-      banner = communityData['banner'];
-      icon = communityData['icon'];
-      moderators = List<String>.from(communityData['moderators'] ?? []);
-      print('Community Data: $communityData');
-      print('privacyMode');
-      print(privacyMode);
+      privacyMode = widget.communityData?.privacyMode;
+      widget.communityData = tempCommunityData;
+      name = widget.communityData?.name;
+      description = widget.communityData?.description;
+      membersCount = widget.communityData?.members.length;
+      banner = 'lib/assets/images/bannerimage.png'; // Default banner
+      icon = widget.communityData?.icon;
+      moderators = widget.communityData!.moderators;
     });
   }
 
-  String _selectedSort = 'Hot';
-  IconData _selectedIcon = Icons.whatshot; // Default icon
+  String _selectedSort = 'hot';
+  final IconData _selectedIcon = Icons.whatshot; // Default icon
 
   void fetchPosts(String newSort) async {
     setState(() {
@@ -113,10 +111,6 @@ class _CommunityProfileState extends State<communityProfile> {
             await api.fetchCommunityProfilePosts(widget.communityName, 'hot');
         setState(() {
           posts = fetchedPosts;
-          print("fetchedposts");
-
-          print("fetchedposts");
-          print(posts);
         });
         break;
       case 'new':
@@ -124,24 +118,16 @@ class _CommunityProfileState extends State<communityProfile> {
             await api.fetchCommunityProfilePosts(widget.communityName, 'new');
         setState(() {
           posts = fetchedPosts;
-          print("fetchedposts");
-          print("fetchedposts");
-          print(posts);
         });
         break;
       default:
-        print("im here");
         var timeInterval = await timeSelection;
-
-        print("Time interval");
-        print(timeInterval);
         if (timeInterval! < 1) {
           List<Post>? fetchedPosts =
               await api.fetchTopPosts(widget.communityName, "now");
           setState(() {
             if (fetchedPosts != null) {
               posts = fetchedPosts;
-              print(posts);
             } else {
               posts = [];
             }
@@ -149,7 +135,7 @@ class _CommunityProfileState extends State<communityProfile> {
           return;
         }
         List<Post>? fetchedPosts = await api.fetchTopPosts(
-            widget.communityName, (timeInterval!).toString());
+            widget.communityName, (timeInterval).toString());
         setState(() {
           if (fetchedPosts != null) {
             posts = fetchedPosts;
@@ -166,42 +152,21 @@ class _CommunityProfileState extends State<communityProfile> {
 
   @override
   void initState() {
+    moderators = [];
     super.initState();
-
-    _scrollController.addListener(_scrollListener);
-    _fetchCommunityData();
-
-    //isJoined = null;
-    _initializeState();
-
-    //TODO FETCH COMMUNITY JOIN STATE
-    //hasJoined = _fetchJoinState() ;
-
-    fetchPosts('hot');
-    //fetchPosts();
-    // WidgetsBinding.instance?.addPostFrameCallback((_) {
-    //   showSortPostsBottomSheet(context, _selectedSort, fetchPosts, true);
-    // });
+   _fetchJoinState();
+  // _scrollController.addListener(_scrollListener);
+   _fetchCommunityData();
+   fetchPreferencesIsJoined();
+    // fetchPosts(_selectedSort);
   }
 
-  void _initializeState() async {
-    _fetchJoinState();
-    await fetchPreferencesIsJoined();
-    print('Is Joined: $isJoined');
-
-    setState(() {});
-  }
-  // void fetchPosts() async {
-  //   logicAPI api = logicAPI();
-  //   List<Map<String, dynamic>> fetchedPosts = await api.fetchCommunityProfilePosts(communityName);
-  //   Map<String, dynamic> fetchedUserDetails = await _fetchUserDetails();
-  //   String profilePicture = fetchedUserDetails['profilePicture'];
-  //   setState(() {
-  //     posts = fetchedPosts.map((post) => {
-  //       ...post,
-  //       'userImage': profilePicture,
-  //     }).toList();
-  //   });
+  // void _initializeState() async {
+  //   // _fetchJoinState();
+  //   await fetchPreferencesIsJoined();
+  //   print('Is Joined: $isJoined');
+  //
+  //   setState(() {});
   // }
 
   @override
@@ -226,55 +191,11 @@ class _CommunityProfileState extends State<communityProfile> {
   final logicAPI apiLogic = logicAPI();
   Map<String, dynamic>? userDetails;
 
-  // Future<Map<String, dynamic>> _fetchUsername() async {
-  //   try {
-  //     final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString('token');
-  //     if (token == null) {
-  //       throw Exception('Token is null');
-  //       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
-  //     }
-  //     final username = await apiLogic.fetchUsername(token);
-  //     final data = await apiLogic.extractUsername(username);
-  //     print('DATA HERE');
-  //     print(data);
-  //     return data;
-  //     //await prefs.remove('token');
-  //   }
-  //   catch (e) {
-  //     throw Exception('Error fetching user details: $e');
-  //   }
-  // }
-  //
-  // Future<Map<String, dynamic>> _fetchUserDetails() async {
-  //   try {
-  //     final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString('token');
-  //     print(token);
-  //     if (token == null) {
-  //       throw Exception('Token is null');
-  //       // token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWZhZmViMGU0MDRjZjVkM2YwYmU5ODUiLCJpYXQiOjE3MTA5NDgwMTgsImV4cCI6MTcxMTAzNDQxOH0.8UTASn0Z3dUiCPGl92ITqwN8GOQm_VIQX6ZW2fOYl2Y";
-  //
-  //     }
-  //
-  //     final usernameData = await _fetchUsername();
-  //     String username = usernameData['username'];
-  //
-  //     final userData = await apiLogic.fetchUserData(username);
-  //     final data = await apiLogic.extractUserDetails(userData);
-  //
-  //     print('DATA HERE');
-  //     print(data);
-  //     return data;
-  //   } catch (e) {
-  //     throw Exception('Error fetching user details: $e');
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: topAppBar(context, blurValue, banner ?? ''),
+
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -285,7 +206,8 @@ class _CommunityProfileState extends State<communityProfile> {
 
               //backgroundImage: NetworkImage(icon ?? 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vectorstock.com%2Froyalty-free-vector%2Fno-connection-icon-wifi-vector-46940244&psig=AOvVaw1HGJnDaDIO_US78iYBz5FH&ust=1711800821175000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCJC61pO5mYUDFQAAAAAdAAAAABAE') , // check is correct
 
-              backgroundImage: icon != null ? NetworkImage(icon!) : null,),
+              backgroundImage: icon != null ? NetworkImage(icon!) : null,
+            ),
             SizedBox(width: MediaQuery.of(context).size.width * 0.03),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,17 +246,15 @@ class _CommunityProfileState extends State<communityProfile> {
                       EdgeInsets.only(right: 8.0, left: 8.0)),
                   backgroundColor: MaterialStateProperty.resolveWith<Color>(
                     (Set<MaterialState> states) {
-                      _initializeState();
-                      _fetchJoinState();
-                      fetchPreferencesIsJoined();
+                      // _initializeState();
 
-                      if (isJoined == true && isModerator==false) {
+                      if (isJoined == true && isModerator == false) {
                         return Colors
                             .white; // Set the button color to white if the user has joined
-                      }
-                      else if (privacyMode == 'private' && isJoined == false) { return Colors
-                          .grey;}
-                      else {
+                      } else if (privacyMode == 'private' &&
+                          isJoined == false) {
+                        return Colors.grey;
+                      } else {
                         return Colors
                             .blue.shade900; // Otherwise, set it to dark blue
                       }
@@ -342,7 +262,7 @@ class _CommunityProfileState extends State<communityProfile> {
                   ),
                   side: MaterialStateProperty.resolveWith<BorderSide>(
                     (Set<MaterialState> states) {
-                      if (isJoined == true && isModerator==false){
+                      if (isJoined == true && isModerator == false) {
                         return BorderSide(
                             color: Colors
                                 .grey); // Set the border color to dark grey if the user has joined
@@ -352,55 +272,55 @@ class _CommunityProfileState extends State<communityProfile> {
                     },
                   ),
                 ),
-                onPressed: (privacyMode == 'private' && isJoined == false) ? null : () async {
-    if (isModerator) {
-    // If the user is a moderator, navigate to the ModeratorToolsPage
-    Navigator.push(
-    context,
-    MaterialPageRoute(
-    builder: (context) =>
-    ModeratorToolsPage(
-    subredditName: widget.communityName),
-    ),
-    );
-    } else {
-      try {
-        final SharedPreferences prefs =
-        await SharedPreferences.getInstance();
-        String? token = prefs.getString('token');
-        if (token == null) {
-          throw Exception('Token is null');
-        }
-        _initializeState();
-        _fetchJoinState();
-        fetchPreferencesIsJoined();
-        if (isModerator == false) {
-          if (isJoined!) {
-            try {
-              //await apiLogic.leaveCommunity(token, communityName);
-              // isJoined = false;
-              setState(() {
-                showLeaveCommunityDialog(
-                    context, widget.communityName);
+                onPressed: (privacyMode == 'private' && isJoined == false)
+                    ? null
+                    : () async {
+                        if (isModerator) {
+                          // If the user is a moderator, navigate to the ModeratorToolsPage
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ModeratorToolsPage(
+                                  subredditName: widget.communityData!.name,communityDetails: widget.communityData),
+                            ),
+                          );
+                        } else {
+                          try {
+                            final SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            String? token = prefs.getString('token');
+                            if (token == null) {
+                              throw Exception('Token is null');
+                            }
+                            // _initializeState();
+
+                            if (isModerator == false) {
+                              if (isJoined!) {
+                                try {
+                                  //await apiLogic.leaveCommunity(token, communityName);
+                                  // isJoined = false;
+                                  setState(() {
+                                    showLeaveCommunityDialog(
+                                        context, widget.communityName);
 //                             _initializeState();
 //                             _fetchCommunityData();
 // fetchPreferencesIsJoined();
-              });
-            } catch (e) {
-              print('Error leaving community: $e');
-            }
-          } else {
-            try {
-              await apiLogic.joinCommunity(
-                  token, widget.communityName);
-              isJoinedChanged = true;
-              //might change test
-              setState(() {
-                isJoined = true;
-                prefs.setBool('isJoinedSubreddit', true);
-              });
+                                  });
+                                } catch (e) {
+                                  print('Error leaving community: $e');
+                                }
+                              } else {
+                                try {
+                                  await apiLogic.joinCommunity(
+                                      token, widget.communityName);
+                                  isJoinedChanged = true;
+                                  //might change test
+                                  setState(() {
+                                    isJoined = true;
+                                    prefs.setBool('isJoinedSubreddit', true);
+                                  });
 
-              //isJoined = true;
+                                  //isJoined = true;
 // if (isJoinedChanged==true) {
 //   _initializeState();
 //   _fetchCommunityData();
@@ -408,58 +328,52 @@ class _CommunityProfileState extends State<communityProfile> {
 //   fetchPreferencesIsJoined();
 //   isJoinedChanged=false;
 // }
-              setState(() {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    content: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: Text(
-                          'You have succesfully joined the community: $widget.communityName',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                );
-              });
-            } catch (e) {
-              print('Error joining community: $e');
-            }
-          }
-        }
-        else
-              () {
+                                  setState(() {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        backgroundColor: Colors.transparent,
+                                        elevation: 0,
+                                        content: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius:
+                                                BorderRadius.circular(30.0),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.0, vertical: 8.0),
+                                          child: Text(
+                                              'You have succesfully joined the community: $widget.communityName',
+                                              style: TextStyle(
+                                                  color: Colors.white)),
+                                        ),
+                                      ),
+                                    );
+                                  });
+                                } catch (e) {
+                                  print('Error joining community: $e');
+                                }
+                              }
+                            } else
+                              () {
 //open ModeratorToolsPage class and send to it this subreddit name
-          };
-      } catch (e) {
-        print('Error in SharedPreferences: $e');
-      }
-    }
-
-
-
-                }, child: Text(
-                isModerator ? 'Mod Tools' : (isJoined == true
-                    ? 'Joined'
-                    : 'Join'),
-                style: TextStyle(
-                  fontSize: MediaQuery
-                      .of(context)
-                      .size
-                      .width * 0.022,
-                  color: isModerator ? Colors.white : (isJoined == true
-                      ? Colors.grey
-                      : Colors.white),
-                  fontWeight: FontWeight.bold,
+                              };
+                          } catch (e) {
+                            print('Error in SharedPreferences: $e');
+                          }
+                        }
+                      },
+                child: Text(
+                  isModerator
+                      ? 'Mod Tools'
+                      : (isJoined == true ? 'Joined' : 'Join'),
+                  style: TextStyle(
+                    fontSize: MediaQuery.of(context).size.width * 0.022,
+                    color: isModerator
+                        ? Colors.white
+                        : (isJoined == true ? Colors.grey : Colors.white),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-
-
               ),
             ),
           ],
@@ -537,7 +451,7 @@ class _CommunityProfileState extends State<communityProfile> {
             ],
           ),
         ),
-        if (privacyMode == 'private' && isModerator==false) ...[
+        if (privacyMode == 'private' && isModerator == false) ...[
           SizedBox(
             height: 50,
             width: 50,
@@ -691,8 +605,8 @@ class _CommunityProfileState extends State<communityProfile> {
                               // }
                               Navigator.of(context).pop();
                               // isJoined = false;
-                              _fetchCommunityData();
-                              fetchPreferencesIsJoined();
+                              // _fetchCommunityData();
+                              // _initializeState();
 
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(

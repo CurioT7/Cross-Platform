@@ -316,6 +316,7 @@ class ApiService {
       },
     );
     if (response.statusCode == 200) {
+      print('Response body: ${jsonDecode(response.body)['subreddit']}');
       return Community.fromJson(jsonDecode(response.body)['subreddit']);
     } else {
       throw Exception('Failed to fetch community');

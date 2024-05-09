@@ -1,11 +1,17 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:ffi';
+
 import 'package:curio/services/ahmed_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../controller/report/report_cubit.dart';
 import 'block_dialog.dart';
 import 'report_user_or_post_bottom_sheet.dart';
+import 'package:http/http.dart' as http;
 
 class ProfileAppBar extends StatefulWidget {
   const ProfileAppBar({
@@ -48,6 +54,43 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
         return BlockDialog(userName: widget.userName);
       },
     );
+  }
+
+  void getFriends() async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/getfriends/followings'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success']) {
+          log(responseBody['friendsArray'].toString());
+          for (var user in responseBody['friendsArray']) {
+            if (user['username'] == widget.userName) {
+              setState(() {
+                _isFollowing = true;
+              });
+            }
+          }
+        }
+      } else {
+        log(response.body.toString());
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getFriends();
   }
 
   @override
@@ -138,7 +181,7 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
                 backgroundImage: widget.userDetails == null
                     ? const AssetImage('lib/assets/images/avatar.jpeg')
                     : NetworkImage(widget.userDetails!['profilePicture'])
-                        as ImageProvider,
+                as ImageProvider,
               ),
               const SizedBox(height: 12.0),
               Visibility(
@@ -149,7 +192,7 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
                       onPressed: () async {
                         if (!_isFollowing) {
                           await ApiService().followUser(widget.userName!).then(
-                            (value) {
+                                (value) {
                               setState(() {
                                 _isFollowing = true;
                               });
@@ -174,7 +217,7 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
                             });
                             Fluttertoast.showToast(
                               msg:
-                                  'You are no longer following ${widget.userName}',
+                              'You are no longer following ${widget.userName}',
                               backgroundColor: Colors.black54,
                               textColor: Colors.white,
                               gravity: ToastGravity.BOTTOM,

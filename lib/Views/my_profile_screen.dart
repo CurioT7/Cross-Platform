@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../widgets/about_section.dart';
+import '../widgets/comments_tab.dart';
 import '../widgets/profile_app_bar.dart';
 import '../widgets/profile_posts_tab.dart';
 
@@ -63,20 +64,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     SliverFillRemaining(
                       child: TabBarView(
                         children: [
-                          const ProfilePostsTab(),
-                          const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.reddit,
-                                  size: 50.0,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 5.0),
-                                Text('Wow, such empty'),
-                              ],
-                            ),
+                          ProfilePostsTab(
+                            userName: widget.userName ?? 'testing',
+                          ),
+                          CommentsTab(
+                            userName: widget.userName ?? 'testing',
                           ),
                           AboutSection(
                             postKarmaNumber:

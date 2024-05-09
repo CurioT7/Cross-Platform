@@ -81,7 +81,7 @@
     print(objectID);
     final response = await http.get(
       Uri.parse(&#39;$_baseUrl&#47;api&#47;info?objectID=$objectID&amp;objectType=comment&#39;),
-      headers:&lt;String, String&gt; {
+      headers: &lt;String, String&gt;{
         &#39;Content-Type&#39;: &#39;application&#47;json; charset=UTF-8&#39;,
 
       },
@@ -92,7 +92,8 @@
     } else {
       print(&#39;Response body: ${response.body}&#39;);
 
-      throw Exception(&#39;Failed to load info with status code: ${response.statusCode}&#39;);
+      throw Exception(
+          &#39;Failed to load info with status code: ${response.statusCode}&#39;);
     }
   } catch (e) {
     throw Exception(&#39;Failed to load info. Error: $e&#39;);

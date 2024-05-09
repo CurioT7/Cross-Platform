@@ -90,15 +90,15 @@ final Map&lt;String, dynamic&gt; body = {
   &#39;direction&#39;: direction,
 };
 
-final response = await http.post(
-  Uri.parse(url),
-  headers: headers,
-  body: jsonEncode(body),
-);
+  final response = await http.post(
+    Uri.parse(url),
+    headers: headers,
+    body: jsonEncode(body),
+  );
 
-if (response.statusCode != 200) {
-  throw Exception(&#39;Failed to cast vote: ${response.body}&#39;);
-}
+  if (response.statusCode != 200) {
+    throw Exception(&#39;Failed to cast vote: ${response.body}&#39;);
+  }
 }</code></pre>
 </section>
 

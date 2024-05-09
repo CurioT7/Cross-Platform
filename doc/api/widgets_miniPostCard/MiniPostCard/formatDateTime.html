@@ -80,19 +80,19 @@
   final now = DateTime.now();
   final difference = now.difference(dateTime);
 
-  if (difference.inDays &gt; 365) {
-    return &#39;${difference.inDays ~&#47; 365}y&#39;;
-  } else if (difference.inDays &gt; 30) {
-    return &#39;${difference.inDays ~&#47; 30}mo&#39;;
-  } else if (difference.inDays &gt; 0) {
-    return &#39;${difference.inDays}d&#39;;
-  } else if (difference.inHours &gt; 0) {
-    return &#39;${difference.inHours}h&#39;;
-  } else if (difference.inMinutes &gt; 0) {
-    return &#39;${difference.inMinutes}m&#39;;
-  } else {
-    return &#39;now&#39;;
-  }
+if (difference.inDays &gt; 365) {
+  return &#39;${difference.inDays ~&#47; 365}y&#39;;
+} else if (difference.inDays &gt; 30) {
+  return &#39;${difference.inDays ~&#47; 30}mo&#39;;
+} else if (difference.inDays &gt; 0) {
+  return &#39;${difference.inDays}d&#39;;
+} else if (difference.inHours &gt; 0) {
+  return &#39;${difference.inHours}h&#39;;
+} else if (difference.inMinutes &gt; 0) {
+  return &#39;${difference.inMinutes}m&#39;;
+} else {
+  return &#39;now&#39;;
+}
 }</code></pre>
 </section>
 

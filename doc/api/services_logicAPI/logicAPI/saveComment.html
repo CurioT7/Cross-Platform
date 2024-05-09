@@ -78,7 +78,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void saveComment(String commentId, String token) async {
- print(&quot;inside save comment&quot;);
+  print(&quot;inside save comment&quot;);
   final response = await http.post(
     Uri.parse(&#39;$_baseUrl&#47;api&#47;save&#39;),
     headers: &lt;String, String&gt;{
@@ -91,22 +91,27 @@
     }),
   );
 
- if (response.statusCode == 200) {
-   print(&quot;Comment saved successfully&quot;);
- } else if (response.statusCode == 400) {
-   throw Exception(&#39;Bad Request: The server could not understand the request due to invalid syntax.&#39;);
- } else if (response.statusCode == 401) {
-   throw Exception(&#39;Unauthorized: The client must authenticate itself to get the requested response.&#39;);
- } else if (response.statusCode == 403) {
-   throw Exception(&#39;Forbidden: The client does not have access rights to the content.&#39;);
- } else if (response.statusCode == 404) {
-   throw Exception(&#39;Not Found: The server can not find the requested resource.&#39;);
- } else if (response.statusCode == 500) {
-   throw Exception(&#39;Internal Server Error: The server has encountered a situation it doesnt know how to handle&#39;);
-
- } else {
-   throw Exception(&#39;Failed to save comment. Status code: ${response.statusCode}&#39;);
-   }
+  if (response.statusCode == 200) {
+    print(&quot;Comment saved successfully&quot;);
+  } else if (response.statusCode == 400) {
+    throw Exception(
+        &#39;Bad Request: The server could not understand the request due to invalid syntax.&#39;);
+  } else if (response.statusCode == 401) {
+    throw Exception(
+        &#39;Unauthorized: The client must authenticate itself to get the requested response.&#39;);
+  } else if (response.statusCode == 403) {
+    throw Exception(
+        &#39;Forbidden: The client does not have access rights to the content.&#39;);
+  } else if (response.statusCode == 404) {
+    throw Exception(
+        &#39;Not Found: The server can not find the requested resource.&#39;);
+  } else if (response.statusCode == 500) {
+    throw Exception(
+        &#39;Internal Server Error: The server has encountered a situation it doesnt know how to handle&#39;);
+  } else {
+    throw Exception(
+        &#39;Failed to save comment. Status code: ${response.statusCode}&#39;);
+  }
 }</code></pre>
 </section>
 

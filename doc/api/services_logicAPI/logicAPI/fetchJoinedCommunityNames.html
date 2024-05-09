@@ -78,7 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">void fetchJoinedCommunityNames(String username, String token, String name) async {
+  <pre class="language-dart"><code class="language-dart">void fetchJoinedCommunityNames(String username, String token,
+    String name) async {
   try {
     final response = await http.get(
       Uri.parse(&#39;$_baseUrl&#47;api&#47;user&#47;$username&#47;communities&#39;),
@@ -91,23 +92,24 @@
       Map&lt;String, dynamic&gt; responseBody = json.decode(response.body);
       if (responseBody[&#39;success&#39;]) {
         List&lt;dynamic&gt; communitiesJson = responseBody[&#39;communities&#39;];
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
 
         for (var community in communitiesJson) {
           String communityName = community[&#39;name&#39;];
           bool isJoined = name == communityName;
 
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
           if (isJoined) {
             await prefs.setBool(&#39;isJoinedSubreddit&#39;, true);
             return;
           }
-          await prefs.setBool(&#39;isJoinedSubreddit&#39;, false);
         }
+        await prefs.setBool(&#39;isJoinedSubreddit&#39;, false);
       } else {
         throw Exception(&#39;Failed to load communities&#39;);
       }
     } else {
-      throw Exception(&#39;Failed to load communities with status code: ${response.statusCode}&#39;);
+      throw Exception(&#39;Failed to load communities with status code: ${response
+          .statusCode}&#39;);
     }
   } catch (e) {
     print(&#39;Error: $e&#39;);

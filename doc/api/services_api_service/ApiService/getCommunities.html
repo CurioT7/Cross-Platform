@@ -77,7 +77,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;Community&gt;&gt; getCommunities(String token, BuildContext context) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;Community&gt;&gt; getCommunities(
+    String token, BuildContext context) async {
   final logicAPI apiLogic = logicAPI();
   Map&lt;String, dynamic&gt; userProfile = await apiLogic.fetchUsername(token);
   final userName = apiLogic.extractUsername(userProfile);
@@ -95,11 +96,11 @@
     final body = communities as List;
     return body.map((dynamic item) =&gt; Community.fromJson(item)).toList();
   } else {
-
     if (response.statusCode == 404) {
       errorMessage = &#39;User not found&#39;;
     } else {
-      errorMessage = &#39;No communities found you have to create&#47;join at least one&#39;;
+      errorMessage =
+          &#39;No communities found you have to create&#47;join at least one&#39;;
     }
 
     &#47;&#47; Show snackbar with error message

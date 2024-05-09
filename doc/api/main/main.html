@@ -79,6 +79,7 @@
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   const storage = FlutterSecureStorage();
+  Bloc.observer = MyBlocObserver();
   await storage.deleteAll();
   runApp(const MyApp());
 }</code></pre>

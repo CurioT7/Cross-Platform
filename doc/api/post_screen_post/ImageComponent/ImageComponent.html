@@ -31,7 +31,7 @@
     <li><a href="../../index.html">curio</a></li>
     <li><a href="../../post_screen_post/post_screen_post-library.html">post\screen_post.dart</a></li>
     <li><a href="../../post_screen_post/ImageComponent-class.html">ImageComponent</a></li>
-    <li class="self-crumb">ImageComponent const constructor</li>
+    <li class="self-crumb">ImageComponent constructor</li>
   </ol>
   <div class="self-name">ImageComponent</div>
   <form class="search navbar-right" role="search">
@@ -61,9 +61,9 @@
 </h1></div>
 
     <section class="multi-line-signature">
-      const
+      
       <span class="name ">ImageComponent</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-key">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span></li>
-<li><span class="parameter" id="-param-image"><span>required</span> <span class="type-annotation"><a href="https://pub.dev/documentation/cross_file/0.3.4+1/cross_file/XFile-class.html">XFile</a></span> <span class="parameter-name">image</span>, </span></li>
+<li><span class="parameter" id="-param-image"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-io/File-class.html">File</a></span> <span class="parameter-name">image</span>, </span></li>
 <li><span class="parameter" id="-param-onClear"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">onClear</span>}</span></li>
 </ol>)
     </section>
@@ -74,7 +74,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const ImageComponent({super.key, required this.image, required this.onClear});</code></pre>
+  <pre class="language-dart"><code class="language-dart">ImageComponent({Key? key, required this.image, required this.onClear})
+    : super(key: key);</code></pre>
 </section>
 
 
@@ -92,7 +93,7 @@
     <li><a href="../../index.html">curio</a></li>
     <li><a href="../../post_screen_post/post_screen_post-library.html">screen_post</a></li>
     <li><a href="../../post_screen_post/ImageComponent-class.html">ImageComponent</a></li>
-    <li class="self-crumb">ImageComponent const constructor</li>
+    <li class="self-crumb">ImageComponent constructor</li>
 </ol>
 
 

@@ -74,15 +74,11 @@
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory Post.fromJson(Map&lt;String, dynamic&gt; json) {
   var postData = json.containsKey(&#39;post&#39;) ? json[&#39;post&#39;] : json;
-  var detailsData = {};
+var detailsData = json.containsKey(&#39;details&#39;) ? json[&#39;details&#39;] : postData[&#39;details&#39;] ?? {};
 
-  if (postData[&#39;details&#39;] != null) {
-    if (postData[&#39;details&#39;] is List) {
-      detailsData = (postData[&#39;details&#39;] as List).isEmpty ? {} : postData[&#39;details&#39;][0];
-    } else if (postData[&#39;details&#39;] is Map) {
-      detailsData = postData[&#39;details&#39;];
-    }
-  }
+if (detailsData is List) {
+  detailsData = detailsData.isEmpty ? {} : detailsData[0];
+}
 
   return Post(
     id: postData[&#39;_id&#39;] as String? ?? &#39;&#39;,
@@ -109,10 +105,11 @@
     isLocked: postData[&#39;isLocked&#39;] as bool? ?? false,
     isSaved: postData[&#39;isSaved&#39;] as bool? ?? false,
     voteStatus: detailsData[&#39;voteStatus&#39;] as String? ?? &#39;unvoted&#39;,
-    isUserMemberOfItemSubreddit: detailsData[&#39;isUserMemberOfItemSubreddit&#39;] as bool? ?? false,
+    isUserMemberOfItemSubreddit: detailsData[&#39;isUserMemberOfItemSubreddit&#39;] as bool? ?? true,
     subredditName: detailsData[&#39;subredditName&#39;] as String? ?? &#39;Unknown&#39;,
     pollVote: detailsData[&#39;pollVote&#39;],
     pollEnded: detailsData[&#39;pollEnded&#39;] as bool? ?? false,
+    options: detailsData[&#39;options&#39;] as List&lt;dynamic&gt;? ?? [],
   );
 }</code></pre>
 </section>

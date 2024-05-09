@@ -63,7 +63,7 @@
     <section class="multi-line-signature">
       
 
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/firebase_auth/4.19.1/firebase_auth/UserCredential-class.html">UserCredential</a>?</span>&gt;</span></span>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/firebase_auth/4.19.4/firebase_auth/UserCredential-class.html">UserCredential</a>?</span>&gt;</span></span>
 <span class="name ">signInWithGoogle</span>(<wbr>)
 
       
@@ -79,13 +79,13 @@
   try {
     &#47;&#47; Trigger the Google Sign In process
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    if(googleUser == null) {
+    if (googleUser == null) {
       print(&quot;Google Sign In failed&quot;);
       return null;
     }
     &#47;&#47; Obtain the GoogleSignInAuthentication object
-    final GoogleSignInAuthentication googleAuth = await googleUser!
-        .authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
     &#47;&#47; Create a new credential
 
     final googleCredential = GoogleAuthProvider.credential(
@@ -96,10 +96,10 @@
     &#47;&#47; Once signed in, return the UserCredential
     print(&quot;Token from google: ${googleAuth.accessToken}&quot;);
     &#47;&#47; Once signed in, return the UserCredential
-    final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        googleCredential);
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(googleCredential);
     return userCredential;
-  }catch (e) {
+  } catch (e) {
     print(e.toString());
   }
   return null;

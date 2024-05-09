@@ -78,7 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; updateComment(String commentId, String content, String token) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; updateComment(String commentId, String content,
+    String token) async {
   try {
     final response = await http.patch(
       Uri.parse(&#39;$_baseUrl&#47;api&#47;updatecomments&#39;),
@@ -100,9 +101,11 @@
       throw Exception(&#39;Error 404: Not Found. Failed to update comment.&#39;);
     } else if (response.statusCode == 500) {
       print(&#39;Error 500: Internal Server Error. Failed to update comment.&#39;);
-      throw Exception(&#39;Error 500: Internal Server Error. Failed to update comment.&#39;);
+      throw Exception(
+          &#39;Error 500: Internal Server Error. Failed to update comment.&#39;);
     } else {
-      throw Exception(&#39;Failed to update comment with status code: ${response.statusCode}. Error: ${response.body}&#39;);
+      throw Exception(&#39;Failed to update comment with status code: ${response
+          .statusCode}. Error: ${response.body}&#39;);
     }
   } catch (e) {
     print(&#39;Exception: $e&#39;);

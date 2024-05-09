@@ -118,8 +118,6 @@ and</li>
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
 Widget build(BuildContext context) {
-  final iconData = icon ?? icons[Random().nextInt(icons.length)];
-
   return GestureDetector(
     onTap: onTap,
     child: Container(
@@ -133,7 +131,13 @@ Widget build(BuildContext context) {
         children: [
           Row(
             children: [
-              Icon(iconData),
+              CircleAvatar(
+                radius: MediaQuery.of(context).size.width * 0.05,
+                backgroundImage: communityIcon.isNotEmpty
+                    ? NetworkImage(communityIcon)
+                    : const NetworkImage(
+                        &#39;https:&#47;&#47;example.com&#47;default_image.png&#39;), &#47;&#47; Replace with your default image URL
+              ),
               const SizedBox(width: 8),
               Text(community ?? &#39;Select a community&#39;),
             ],
@@ -142,7 +146,9 @@ Widget build(BuildContext context) {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =&gt;  RulesPage(communityId: communityId)),
+                MaterialPageRoute(
+                    builder: (context) =&gt;
+                        RulesPage(communityId: communityId)),
               );
             },
             child: const Text(&#39;Rules&#39;),

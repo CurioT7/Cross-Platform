@@ -62,7 +62,7 @@
 
     <section class="multi-line-signature">
       const
-      <span class="name ">PollComponent</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-key">{<span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span></li>
+      <span class="name ">PollComponent</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="-param-pollComponentKey">{<span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter">_PollComponentState</span>&gt;</span></span> <span class="parameter-name">pollComponentKey</span>, </span></li>
 <li><span class="parameter" id="-param-onClear"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">onClear</span>}</span></li>
 </ol>)
     </section>
@@ -73,7 +73,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">const PollComponent({Key? key, required this.onClear}) : super(key: key);</code></pre>
+  <pre class="language-dart"><code class="language-dart">const PollComponent({required this.pollComponentKey, required this.onClear}) : super(key: pollComponentKey);</code></pre>
 </section>
 
 

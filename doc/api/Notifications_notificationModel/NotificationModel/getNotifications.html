@@ -79,7 +79,9 @@
   <pre class="language-dart"><code class="language-dart">static List&lt;NotificationModel&gt; getNotifications(List&lt;dynamic&gt; json) {
   return json
       .map((notification) =&gt; NotificationModel.fromJson(notification))
-      .toList();
+      .take(30).toList();
+
+  &#47;&#47;TODO Correct amount of notifications returned
 }</code></pre>
 </section>
 

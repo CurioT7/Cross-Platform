@@ -63,7 +63,7 @@
     <section class="multi-line-signature">
       
 
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../Notifications_notificationModel/NotificationModel-class.html">NotificationModel</a></span>&gt;</span></span>&gt;</span></span>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>&gt;</span></span>
 <span class="name ">getReadNotifications</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="getReadNotifications-param-token"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">token</span></span></li>
 </ol>)
 
@@ -76,7 +76,7 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;NotificationModel&gt;&gt; getReadNotifications(String token) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;String&gt;&gt; getReadNotifications(String token) async {
   final response = await http.get(
     Uri.parse(&#39;$_baseUrl&#47;api&#47;notifications&#47;read&#39;),
     headers: {
@@ -86,8 +86,14 @@
 
   if (response.statusCode == 200) {
     var data = jsonDecode(response.body);
-    List notificationsJson = data[&#39;readNotifications&#39;];
-    return NotificationModel.getNotifications(notificationsJson);
+    List? notificationsJson = data[&#39;readNotifications&#39;];
+    if (notificationsJson != null) {
+      List&lt;NotificationModel&gt; notifications = NotificationModel
+          .getNotifications(notificationsJson);
+      return notifications.map((notification) =&gt; notification.id).toList();
+    } else {
+      return [];
+    }
   } else {
     throw Exception(&#39;Failed to load notifications&#39;);
   }

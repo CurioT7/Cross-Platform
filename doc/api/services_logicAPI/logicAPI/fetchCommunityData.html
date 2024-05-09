@@ -83,8 +83,7 @@
       &#39;Content-Type&#39;: &#39;application&#47;json; charset=UTF-8&#39;,
     },
   );
-&#47;&#47; print(communityName);
-&#47;&#47; print(&#39;$_baseUrl&#47;api&#47;r&#47;${Uri.encodeComponent(communityName)}&#39;);
+
   if (response.statusCode == 200) {
     Map&lt;String, dynamic&gt; responseData = json.decode(response.body);
     Map&lt;String, dynamic&gt; subredditData = responseData[&#39;subreddit&#39;];
@@ -95,6 +94,9 @@
       &#39;membersCount&#39;: subredditData[&#39;members&#39;].length,
       &#39;banner&#39;: subredditData[&#39;banner&#39;],
       &#39;icon&#39;: subredditData[&#39;icon&#39;],
+      &quot;isOver18&quot;: subredditData[&#39;isOver18&#39;],
+      &#39;moderators&#39;: subredditData[&#39;moderators&#39;].map((
+          moderator) =&gt; moderator[&#39;username&#39;]).toList(),
     };
   } else if (response.statusCode == 404) {
     throw Exception(&#39;Subreddit not found&#39;);

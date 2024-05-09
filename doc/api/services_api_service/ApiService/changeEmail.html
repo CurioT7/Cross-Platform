@@ -78,8 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; changeEmail(String newEmail, String password,
-    String token) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; changeEmail(
+    String newEmail, String password, String token) async {
   final String url = &#39;$_baseUrl&#47;api&#47;auth&#47;change_email&#39;;
   final Map&lt;String, String&gt; headers = {
     &#39;Authorization&#39;: &#39;Bearer $token&#39;,
@@ -91,13 +91,14 @@
   };
 
   try {
-    final response = await http.patch(
-        Uri.parse(url), headers: headers, body: jsonEncode(body));
+    final response = await http.patch(Uri.parse(url),
+        headers: headers, body: jsonEncode(body));
     final responseData = jsonDecode(response.body);
 
     if (response.statusCode == 200) {
       &#47;&#47; Edit the success message here
-      String editedMessage = &quot;Your email has been successfully changed to $newEmail. Please verify your new email address.&quot;;
+      String editedMessage =
+          &quot;Your email has been successfully changed to $newEmail. Please verify your new email address.&quot;;
       return {&#39;success&#39;: true, &#39;message&#39;: editedMessage};
     } else {
       return {&#39;success&#39;: false, &#39;message&#39;: responseData[&#39;message&#39;]};

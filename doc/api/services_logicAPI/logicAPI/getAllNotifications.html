@@ -76,35 +76,34 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;NotificationModel&gt;&gt;  getAllNotifications(String token) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;List&lt;NotificationModel&gt;&gt; getAllNotifications(String token) async {
   final url = Uri.parse(&#39;$_baseUrl&#47;api&#47;notifications&#47;history&#39;);
 
-  try {
-    final response = await http.get(
-      url,
-      headers: {
-        &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
-        &#39;Authorization&#39;: &#39;Bearer $token&#39;,
-      },
-    );
 
-    if (response.statusCode == 200) {
-      print(&#39;success 200 notifications&#39;);
-      Map&lt;String, dynamic&gt; responseBody = json.decode(response.body);
-      if (responseBody[&#39;success&#39;]) {
-        List&lt;dynamic&gt; notificationsJson = responseBody[&#39;notifications&#39;];
-        print(&#39;success: code 200 notifications&#39;);
-        return NotificationModel.getNotifications(notificationsJson);
-      } else {
-        throw Exception(&#39;Failed to load notifications&#39;);
-      }
+  final response = await http.get(
+    url,
+    headers: {
+      &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
+      &#39;Authorization&#39;: &#39;Bearer $token&#39;,
+    },
+  );
+
+  if (response.statusCode == 200) {
+    print(&#39;success 200 notifications&#39;);
+    print(response.body);
+
+    Map&lt;String, dynamic&gt; responseBody = json.decode(response.body);
+    if (responseBody[&#39;success&#39;]) {
+      List&lt;dynamic&gt; notificationsJson = responseBody[&#39;notifications&#39;];
+      print(&#39;success: code 200 notifications&#39;);
+      return NotificationModel.getNotifications(notificationsJson);
     } else {
-      throw Exception(
-          &#39;Failed to load notifications with status code: ${response
-              .statusCode}&#39;);
+      throw Exception(&#39;Failed to load notifications&#39;);
     }
-  } catch (e) {
-    throw Exception(&#39;Failed to fetch notifications: $e&#39;);
+  } else {
+    throw Exception(
+        &#39;Failed to load notifications with status code: ${response
+            .statusCode}&#39;);
   }
 }</code></pre>
 </section>

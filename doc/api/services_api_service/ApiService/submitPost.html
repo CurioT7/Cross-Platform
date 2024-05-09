@@ -66,7 +66,7 @@
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
 <span class="name ">submitPost</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="submitPost-param-post"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">post</span>, </span></li>
 <li><span class="parameter" id="submitPost-param-token"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">token</span>, </span></li>
-<li><span class="parameter" id="submitPost-param-imageFile"><span class="type-annotation"><a href="https://pub.dev/documentation/cross_file/0.3.4+1/cross_file/XFile-class.html">XFile</a>?</span> <span class="parameter-name">imageFile</span></span></li>
+<li><span class="parameter" id="submitPost-param-imageFile"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-io/File-class.html">File</a>?</span> <span class="parameter-name">imageFile</span></span></li>
 </ol>)
 
       
@@ -78,29 +78,32 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; submitPost(Map&lt;String, dynamic&gt; post, String token, XFile? imageFile) async {
-  print(&quot;submitting post&quot;);
-  print(jsonEncode(post));
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; submitPost(
+    Map&lt;String, dynamic&gt; post, String token, File? imageFile) async {
+  &#47;&#47; load the image file into binary
+  var imageData = imageFile != null
+      ? await imageFile.readAsBytes()
+      : null; &#47;&#47; image data is null if no image is selected
 
+  print(&quot;image data: $imageData&quot;);
+  var request =
+      http.MultipartRequest(&#39;POST&#39;, Uri.parse(&#39;$_baseUrl&#47;api&#47;submit&#39;));
 
-
-
-  var request = http.MultipartRequest(&#39;POST&#39;, Uri.parse(&#39;$_baseUrl&#47;api&#47;submit&#39;));
-
-  request.fields.addAll(post.map((key, value) =&gt; MapEntry(key, value.toString())));
-
+  request.fields
+      .addAll(post.map((key, value) =&gt; MapEntry(key, value.toString())));
+  if (imageData != null) {
+    request.files.add(http.MultipartFile.fromBytes(&#39;media&#39;, imageData,
+        filename: imageFile!.path.split(&#39;&#47;&#39;).last));
+  }
   if (imageFile != null) {
-  print(&quot;image file: ${imageFile.path}&quot;);
-    request.files.add(await http.MultipartFile.fromPath(
-      &#39;media&#39;, &#47;&#47; consider &#39;media&#39; as the key for the image file in your server
-      imageFile.path,
-    ));
+    var imageData = await imageFile.readAsBytes();
+    request.files.add(http.MultipartFile.fromBytes(&#39;file&#39;, imageData));
   }
 
   request.headers.addAll(&lt;String, String&gt;{
     &#39;Authorization&#39;: &#39;Bearer $token&#39;,
   });
-
+  &#47;&#47; print the request
   var response = await request.send();
 
   if (response.statusCode == 201) {
@@ -108,8 +111,9 @@
     final respStr = await response.stream.bytesToString();
     return jsonDecode(respStr);
   } else {
-    print(&quot;response body: ${await response.stream.bytesToString()}&quot;);
-    return {&#39;success&#39;: false, &#39;message&#39;: &#39;Failed to submit post&#39;};
+    final respStr = await response.stream.bytesToString();
+    print(&quot;Failed to submit post: $respStr&quot;);
+    return {&#39;success&#39;: false, &#39;message&#39;: respStr};
   }
 }</code></pre>
 </section>

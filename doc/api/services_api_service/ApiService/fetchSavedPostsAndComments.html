@@ -86,17 +86,47 @@
   );
   if (response.statusCode == 200) {
     Map&lt;String, dynamic&gt; body = jsonDecode(response.body);
-    if(body.isEmpty){
-      return {&#39;savedPosts&#39;: [], &#39;savedComments&#39;: []};
+    List&lt;Post&gt; savedPosts = [];
+    if (body[&#39;savedPosts&#39;] != []) {
+      print(&quot;Saved Posts: ${body[&#39;savedPosts&#39;]}&quot;);
+      savedPosts = Post.getPosts(body[&#39;savedPosts&#39;]);
     }
-    if(body[&#39;savedPosts&#39;] == null || body[&#39;savedComments&#39;] == null){
-      return {&#39;savedPosts&#39;: [], &#39;savedComments&#39;: []};
+    List&lt;Comment&gt; savedComments = [];
+    List&lt;String&gt; titles = [];
+    if (body[&#39;savedComments&#39;] != []) {
+      print(&quot;Saved Comments: ${body[&#39;savedComments&#39;]}&quot;);
+      savedComments = Comment.getComments(body[&#39;savedComments&#39;]);
+      &#47;&#47; itterate over the saved comments and list all linkedposts
+
+      for (var comment in savedComments) {
+        var objectID = comment.linkedPost;
+        try {
+          print(objectID);
+          final response = await http.get(
+            Uri.parse(
+                &#39;$_baseUrl&#47;api&#47;info?objectID=$objectID&amp;objectType=post&#39;),
+            headers: &lt;String, String&gt;{
+              &#39;Content-Type&#39;: &#39;application&#47;json; charset=UTF-8&#39;,
+            },
+          );
+
+          if (response.statusCode == 200) {
+            titles.add(jsonDecode(response.body)[&#39;item&#39;][&#39;title&#39;]);
+          } else {
+            throw Exception(
+                &#39;Failed to load info with status code: ${response.statusCode}&#39;);
+          }
+        } catch (e) {
+          throw Exception(&#39;Failed to load info. Error: $e&#39;);
+        }
+      }
     }
-    List&lt;Post&gt; savedPosts = (body[&#39;savedPosts&#39;] as List).map((i) =&gt; Post.fromJson(i)).toList();
-    List&lt;Comment&gt; savedComments = (body[&#39;savedComments&#39;] as List).map((i) =&gt; Comment.fromJson(i)).toList();
-    return {&#39;savedPosts&#39;: savedPosts, &#39;savedComments&#39;: savedComments};
-  }
-  else{
+    return {
+      &#39;savedPosts&#39;: savedPosts,
+      &#39;savedComments&#39;: savedComments,
+      &#39;titles&#39;: titles
+    };
+  } else {
     throw Exception(&#39;Failed to fetch saved posts and comments&#39;);
   }
 }</code></pre>

@@ -126,10 +126,9 @@ Widget build(BuildContext context) {
     ),
     child: Row(
       children: [
-        Icon(
-          icon,
-          size: 40,
-          color: Colors.black,
+        CircleAvatar(
+          radius: MediaQuery.of(context).size.width * 0.05,
+          backgroundImage: NetworkImage(community.icon??&#39;https:&#47;&#47;example.com&#47;default_image.png&#39;), &#47;&#47; Replace with your default image URL
         ),
         const SizedBox(width: 10),
         Column(

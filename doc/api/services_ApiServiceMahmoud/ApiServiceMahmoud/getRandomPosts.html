@@ -76,23 +76,23 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; getRandomPosts() async {
-  print(&#39;fetching random posts  from api service mahmoud&#39;);
-  final String endpoint = &#39;&#47;api&#47;random&#39;;
-  print(&#39;$_baseUrlMoch$endpoint&#39;);
-  final url = Uri.parse(&#39;$_baseUrlMoch$endpoint&#39;);
+  print(&#39;fetching random posts  from api service mahmoud  &#39;);
+  final String endpoint = &#39;&#47;api&#47;allpage&#47;random&#39;;
+  final url = Uri.parse(&#39;$_baseUrlDataBase$endpoint&#39;);
 
   try {
     final response = await http.get(url);
-
+    print(response.statusCode);
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
+
     } else if (response.statusCode == 404) {
       return {&#39;success&#39;: false, &#39;message&#39;: &#39;Page not found&#39;};
     } else {
-      throw Exception(&#39;Failed to fetch hot posts: ${response.statusCode}&#39;);
+      throw Exception(&#39;Failed to fetch rising posts: ${response.statusCode}&#39;);
     }
   } catch (e) {
-    throw Exception(&#39;Failed to fetch hot posts: $e&#39;);
+    throw Exception(&#39;Failed to fetch rising posts: $e&#39;);
   }
 }</code></pre>
 </section>

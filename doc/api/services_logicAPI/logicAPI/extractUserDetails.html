@@ -76,9 +76,11 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; extractUserDetails(Map&lt;String, dynamic&gt; userData) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; extractUserDetails(
+    Map&lt;String, dynamic&gt; userData) async {
   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setInt(&#39;karma&#39;, userData[&#39;postKarma&#39;]+ userData[&#39;commentKarma&#39;]);
+  await prefs.setInt(
+      &#39;karma&#39;, userData[&#39;postKarma&#39;] + userData[&#39;commentKarma&#39;]);
   return {
     &#39;postKarma&#39;: userData[&#39;postKarma&#39;],
     &#39;commentKarma&#39;: userData[&#39;commentKarma&#39;],

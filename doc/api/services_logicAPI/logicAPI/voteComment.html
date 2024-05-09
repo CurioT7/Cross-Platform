@@ -78,7 +78,8 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; voteComment(String commentId, int direction, String token) async {
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; voteComment(String commentId, int direction,
+    String token) async {
   final response = await http.post(
     Uri.parse(&#39;$_baseUrl&#47;api&#47;vote&#39;),
     headers: &lt;String, String&gt;{
@@ -108,7 +109,8 @@
   } else if (response.statusCode == 401) {
     throw Exception(responseBody[&#39;message&#39;]);
   } else {
-    throw Exception(&#39;Failed to vote on comment. Status code: ${response.statusCode}&#39;);
+    throw Exception(
+        &#39;Failed to vote on comment. Status code: ${response.statusCode}&#39;);
   }
 }</code></pre>
 </section>

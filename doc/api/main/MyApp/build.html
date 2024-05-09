@@ -117,50 +117,57 @@ and</li>
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">@override
-  Widget build(BuildContext context) {
- return BlocProvider(
-   create: (context) =&gt; HistoryCubit(),
-   child: MaterialApp(
-     title: &#39;Flutter Demo&#39;,
-     debugShowCheckedModeBanner: false,
-     theme: ThemeData(
-       primaryColor: Colors.white,
-       scaffoldBackgroundColor: Colors.white,
-       cardColor: Colors.white,
-       appBarTheme: const AppBarTheme(
-         backgroundColor: Colors.white,
-         foregroundColor: Colors.black,
-       ),
-       textTheme: TextTheme(
-         bodyText1: TextStyle(color: Colors.black),
-         bodyText2: TextStyle(color: Colors.black),
-       ),
-       colorScheme: ColorScheme.light(
-         primary: Colors.white,
-         onPrimary: Colors.black,
-         secondary: Colors.deepOrange,
-         onSecondary: Colors.black,
-         surface: Colors.white,
-         onSurface: Colors.black,
-         background: Colors.white,
-         onBackground: Colors.black,
-         error: Colors.red,
-         onError: Colors.white,
-         brightness: Brightness.light,
-       ),
-       elevatedButtonTheme: ElevatedButtonThemeData(
-         style: ButtonStyle(
-           backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-         ),
-       ),
-       progressIndicatorTheme: ProgressIndicatorThemeData(
-         color: Colors.deepOrange,
-       ),
-     ),
-     home: const SignUpWithEmail(),
-   ),
- );
-  }</code></pre>
+Widget build(BuildContext context) {
+  return MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (context) =&gt; HistoryCubit(),
+      ),
+      BlocProvider(
+        create: (context) =&gt; ChatCubit(),
+      ),
+    ],
+    child: MaterialApp(
+      title: &#39;Flutter Demo&#39;,
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
+        cardColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black),
+        ),
+        colorScheme: const ColorScheme.light(
+          primary: Colors.white,
+          onPrimary: Colors.black,
+          secondary: Colors.deepOrange,
+          onSecondary: Colors.black,
+          surface: Colors.white,
+          onSurface: Colors.black,
+          background: Colors.white,
+          onBackground: Colors.black,
+          error: Colors.red,
+          onError: Colors.white,
+          brightness: Brightness.light,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+          ),
+        ),
+        progressIndicatorTheme: const ProgressIndicatorThemeData(
+          color: Colors.deepOrange,
+        ),
+      ),
+      home: const SignUpWithEmail(),
+    ),
+  );
+}</code></pre>
 </section>
 
 

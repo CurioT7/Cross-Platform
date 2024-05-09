@@ -121,37 +121,37 @@ Widget build(BuildContext context) {
   return GestureDetector(
     onTap: () =&gt; _navigateToComments(context), &#47;&#47; Use the _navigateToComments method here
     child: Card(
-    margin: EdgeInsets.all(8.0),
-    child: Padding(
-      padding: EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                child: Text(miniPost.authorName[0].toUpperCase()),  &#47;&#47; display the first letter of the author&#39;s name
-              ),
-              SizedBox(width: 10.0),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(&#39;r&#47;${miniPost.subredditName}&#39;, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
-                    Text(formatDateTime(miniPost.createdAt), style: TextStyle(color: Colors.grey[600])),  &#47;&#47; replace with your short time format
-                  ],
+      margin: EdgeInsets.all(8.0),
+      child: Padding(
+        padding: EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  child: Text(miniPost.authorName[0].toUpperCase()),  &#47;&#47; display the first letter of the author&#39;s name
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10.0),
-          Text(miniPost.title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
-          SizedBox(height: 10.0),
-          Text(&#39;${miniPost.upvotes} upvotes • ${miniPost.comments} comments&#39;, style: TextStyle(color: Colors.grey[600])), &#47;&#47; Change this line
-        ],
+                SizedBox(width: 10.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(&#39;r&#47;${miniPost.subredditName}&#39;, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+                      Text(formatDateTime(miniPost.createdAt), style: TextStyle(color: Colors.grey[600])),  &#47;&#47; replace with your short time format
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.0),
+            Text(miniPost.title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10.0),
+            Text(&#39;${miniPost.upvotes} upvotes • ${miniPost.comments} comments&#39;, style: TextStyle(color: Colors.grey[600])), &#47;&#47; Change this line
+          ],
+        ),
       ),
     ),
-  ),
   );
 }</code></pre>
 </section>

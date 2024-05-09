@@ -77,10 +77,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; signInWithToken(String token) async {
-  const String endpoint = &#39;&#47;api&#47;auth&#47;google&#47;&#39;; &#47;&#47; Endpoint for signing in with token
-  &#47;&#47;const baseUrl = &#39;http:&#47;&#47;20.19.89.1&#39;;
+  const String endpoint =
+      &#39;&#47;api&#47;auth&#47;google&#47;&#39;; &#47;&#47; Endpoint for signing in with token
+  &#47;&#47; const baseUrl = &#39;http:&#47;&#47;20.19.89.1&#39;;
 
-   &#47;&#47; final String baseUrl= &#39;http:&#47;&#47;192.168.1.7&#39;;
+  &#47;&#47; final String baseUrl= &#39;http:&#47;&#47;192.168.1.7&#39;;
 
   final url = Uri.parse(&#39;$_baseUrl$endpoint&#39;);
 

@@ -78,21 +78,21 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; deletePost(String postId, String token) async {
-final response = await http.delete(
-  Uri.parse(&#39;$baseUrl&#47;deletepost&#47;$postId&#39;),
-  headers: {
-    &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
-    &#39;Authorization&#39;: &#39;Bearer $token&#39;,
-  },
-);
+  final response = await http.delete(
+    Uri.parse(&#39;$baseUrl&#47;deletepost&#47;$postId&#39;),
+    headers: {
+      &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
+      &#39;Authorization&#39;: &#39;Bearer $token&#39;,
+    },
+  );
 
-if (response.statusCode == 200) {
-  return jsonDecode(response.body);
-} else {
-  print(&#39;Server responded with status code: ${response.statusCode}&#39;);
-  print(&#39;Response body: ${response.body}&#39;);
-  throw Exception(&#39;Failed to delete post&#39;);
-}
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    print(&#39;Server responded with status code: ${response.statusCode}&#39;);
+    print(&#39;Response body: ${response.body}&#39;);
+    throw Exception(&#39;Failed to delete post&#39;);
+  }
 
 }</code></pre>
 </section>

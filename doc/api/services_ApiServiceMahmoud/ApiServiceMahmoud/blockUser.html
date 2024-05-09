@@ -64,7 +64,8 @@
       
 
 <span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>
-<span class="name ">blockUser</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="blockUser-param-usernameToBlock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">usernameToBlock</span></span></li>
+<span class="name ">blockUser</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="blockUser-param-token"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">token</span>, </span></li>
+<li><span class="parameter" id="blockUser-param-usernameToBlock"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">usernameToBlock</span></span></li>
 </ol>)
 
       
@@ -76,40 +77,45 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; blockUser(String usernameToBlock) async {
-  final String url = &#39;$_baseUrlDataBase&#47;User&#47;block&#39;;
-  final Map&lt;String, String&gt; headers = {
-    &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
-  };
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; blockUser(String token, String usernameToBlock) async {
+  final String endpoint = &#39;&#47;api&#47;User&#47;block&#39;; &#47;&#47; Endpoint for blocking a user
+  final url = Uri.parse(&#39;$_baseUrlDataBase$endpoint&#39;);
+
+  print(&#39;token is $token&#39;);
   print(&#39;the username to block is $usernameToBlock&#39;);
-  Map&lt;String, String&gt; body = {
+
+  &#47;&#47; Create the request body
+  Map&lt;String, dynamic&gt; body = {
     &quot;usernameToBlock&quot;: usernameToBlock,
   };
-  String requestBodyJson = jsonEncode(body);
-  &#47;&#47; Convert the request body to JSON
 
+  &#47;&#47; Convert the request body to JSON
+  String requestBodyJson = jsonEncode(body);
   print(&#39;the request body is $requestBodyJson&#39;);
 
   try {
-    final response = await http.patch(
-      Uri.parse(url),
-      headers: headers,
+    final response = await http.post(
+      url,
+      headers: {
+        &#39;Authorization&#39;: &#39;Bearer $token&#39;,
+        &#39;Content-Type&#39;: &#39;application&#47;json&#39;,
+      },
       body: requestBodyJson,
     );
+
     print(&#39;the status code is ${response.statusCode}&#39;);
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      print(&quot;block updated successfully: ${responseData[&#39;message&#39;]}&quot;);
-      print(&#39;the response data is $responseData inside tge api page &#39;);
+      print(&quot;Block updated successfully: ${responseData[&#39;message&#39;]}&quot;);
       return responseData;
     } else {
-      final errorResponse = jsonDecode(response.body);
-      print(&#39;the response data is $errorResponse inside tge api page &#39;);
-      print(&quot;Error blocking user: ${errorResponse[&#39;message&#39;]}&quot;);
-      return errorResponse;
+      &#47;&#47; Log the response for further analysis
+      print(&#39;Error response: ${response.body}&#39;);
+      throw Exception(&quot;Failed to update block: ${response.statusCode}&quot;);
     }
   } catch (e) {
+    &#47;&#47; Log any caught exceptions for debugging
     print(&quot;Failed to update block: $e&quot;);
     throw Exception(&quot;Failed to update block: $e&quot;);
   }

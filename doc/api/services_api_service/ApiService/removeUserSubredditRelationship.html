@@ -77,9 +77,10 @@
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; removeUserSubredditRelationship(String userId,
-    String subredditId) async {
-  final String endpoint = &#39;&#47;api&#47;unfriend&#39;; &#47;&#47; Endpoint for removing user-subreddit relationship
+  <pre class="language-dart"><code class="language-dart">Future&lt;Map&lt;String, dynamic&gt;&gt; removeUserSubredditRelationship(
+    String userId, String subredditId) async {
+  final String endpoint =
+      &#39;&#47;api&#47;unfriend&#39;; &#47;&#47; Endpoint for removing user-subreddit relationship
   final url = Uri.parse(&#39;$_baseUrl$endpoint&#39;);
 
   &#47;&#47; Define the request body
@@ -102,8 +103,7 @@
       throw Exception(&#39;Subreddit not found: ${response.body}&#39;);
     } else {
       throw Exception(
-          &#39;Failed to remove user-subreddit relationship: ${response
-              .statusCode}&#39;);
+          &#39;Failed to remove user-subreddit relationship: ${response.statusCode}&#39;);
     }
   } catch (e) {
     throw Exception(&#39;Failed to remove user-subreddit relationship: $e&#39;);

@@ -91,6 +91,7 @@
     if (response.statusCode == 200) {
       Post post = Post.fromJson((jsonDecode(response.body)[&#39;item&#39;]));
       print(&#39;Post: $post&#39;);
+      print(&quot;post fetched successfully by id&quot;);
       return post;
     } else {
       print(&#39;Response body: ${response.body}&#39;);

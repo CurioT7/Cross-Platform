@@ -73,11 +73,14 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">factory Community.fromJson(Map&lt;String, dynamic&gt; json) {
+
   return Community(
     id: json[&#39;_id&#39;],
     name: json[&#39;name&#39;],
     description: json[&#39;description&#39;],
     posts: json[&#39;posts&#39;],
+    banner: json[&#39;banner&#39;],
+    icon: json[&#39;icon&#39;],
     isOver18: json[&#39;isOver18&#39;],
     privacyMode: json[&#39;privacyMode&#39;],
     isNSFW: json[&#39;isNSFW&#39;],
@@ -97,6 +100,7 @@
     members: (json[&#39;members&#39;] as List).map((i) =&gt; Member.fromJson(i)).toList(),
     moderators: (json[&#39;moderators&#39;] as List).map((i) =&gt; Moderator.fromJson(i)).toList(),
     createdAt: json[&#39;createdAt&#39;],
+
   );
 }</code></pre>
 </section>

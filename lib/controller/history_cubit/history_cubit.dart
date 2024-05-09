@@ -103,6 +103,62 @@ class HistoryCubit extends Cubit<HistoryState> {
     }
   }
 
+  void getUpVotedPosts() async {
+    try {
+      emit(GetLoadingState());
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/user/upvoted'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      log(response.statusCode.toString());
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+
+        posts = responseBody['votedPosts'];
+        emit(GetSuccessState());
+      } else {
+        log(response.body.toString());
+        emit(GetErrorState());
+      }
+    } catch (e) {
+      log('Exception occurred: $e');
+      emit(GetErrorState());
+    }
+  }
+
+  void getDownVotedPosts() async {
+    try {
+      emit(GetLoadingState());
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = prefs.getString('token') ?? '';
+
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:3000/api/user/downvoted'),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+      log(response.statusCode.toString());
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = json.decode(response.body);
+
+        posts = responseBody['votedPosts'];
+        emit(GetSuccessState());
+      } else {
+        log(response.body.toString());
+        emit(GetErrorState());
+      }
+    } catch (e) {
+      log('Exception occurred: $e');
+      emit(GetErrorState());
+    }
+  }
+
   getHistory() {
     switch (_selectedSort['title']) {
       case 'Hidden':
@@ -110,6 +166,12 @@ class HistoryCubit extends Cubit<HistoryState> {
         break;
       case 'Recent':
         getRecentPosts();
+        break;
+      case 'Upvoted':
+        getUpVotedPosts();
+        break;
+      case 'Downvoted':
+        getDownVotedPosts();
         break;
       default:
         posts = [];

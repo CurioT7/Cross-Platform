@@ -1,55 +1,65 @@
-import 'package:intl/intl.dart';
+import 'dart:convert';
 
+// Class representing a single message
+
+// Class representing a single chat
 class Chat {
   String id;
-  List<Participant> participants;
   List<Message> messages;
-  bool isRead;
-  bool isSent;
-  bool isDelivered;
-  bool isGroupChat;
-  bool isPendingRequest;
-  DateTime timestamp;
+  String participants;
+  int unReadMessagesNumber;
+  String? profilePicture;
+  String sender;
 
   Chat({
     required this.id,
-    required this.participants,
     required this.messages,
-    required this.isRead,
-    required this.isSent,
-    required this.isDelivered,
-    required this.isGroupChat,
-    required this.isPendingRequest,
-    required this.timestamp,
+    required this.participants,
+    required this.unReadMessagesNumber,
+    this.profilePicture,
+    required this.sender,
   });
 
   factory Chat.fromJson(Map<String, dynamic> json) => Chat(
-        id: json['_id'],
-        participants: (json['participants'] as List<dynamic>)
-            .map((p) => Participant.fromJson(p))
-            .toList(),
-        messages: (json['messages'] as List<dynamic>)
-            .map((m) => Message.fromJson(m))
-            .toList(),
-        isRead: json['isRead'] ?? false,
-        isSent: json['isSent'] ?? false,
-        isDelivered: json['isDelivered'] ?? false,
-        isGroupChat: json['isGroupChat'] ?? false,
-        isPendingRequest: json['isPendingRequest'] ?? false,
-        timestamp: DateTime.parse(json['timestamp']),
-      );
+    id: json['_id'],
+    messages: (json['messages'] as List<dynamic>)
+        .map((message) => Message.fromJson(message))
+        .toList(),
+    participants: json['participants'] ?? '',
+    unReadMessagesNumber: json['unReadMessagesNumber'] ?? '',
+    profilePicture: json['profilePicture'] ?? '',
+    sender: json['sender'] ?? '',
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'participants': participants.map((p) => p.toJson()).toList(),
-        'messages': messages.map((m) => m.toJson()).toList(),
-        'isRead': isRead,
-        'isSent': isSent,
-        'isDelivered': isDelivered,
-        'isGroupChat': isGroupChat,
-        'isPendingRequest': isPendingRequest,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    '_id': id,
+    'messages': messages.map((message) => message.toJson()).toList(),
+    'participants': participants,
+    'unReadMessagesNumber': unReadMessagesNumber,
+    'profilePicture': profilePicture,
+    'sender': sender,
+  };
+
+  @override
+  String toString() =>
+      'Chat(id: $id, messages: $messages, participants: $participants, unReadMessagesNumber: $unReadMessagesNumber, profilePicture: $profilePicture, sender: $sender)';
+
+  Chat copyWith({
+    String? id,
+    List<Message>? messages,
+    String? participants,
+    int? unReadMessagesNumber,
+    String? profilePicture,
+    String? sender,
+  }) =>
+      Chat(
+        id: id ?? this.id,
+        messages: messages ?? this.messages,
+        participants: participants ?? this.participants,
+        unReadMessagesNumber: unReadMessagesNumber ?? this.unReadMessagesNumber,
+        profilePicture: profilePicture ?? this.profilePicture,
+        sender: sender ?? this.sender,
+      );
 }
 
 class Participant {
@@ -63,47 +73,68 @@ class Participant {
     required this.profilePicture,
   });
 
-  factory Participant.fromJson(Map<String, dynamic> json) => Participant(
-        id: json['_id'],
-        username: json['username'] ?? '',
-        profilePicture: json['profilePicture'] ?? '',
-      );
+  factory Participant.fromJson(json) {
+    return Participant(
+      id: json['_id'] ?? '', // directly access the value using the key
+      username: json['username'] ?? '',
+      profilePicture: json['profilePicture'] ?? '',
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'username': username,
-        'profilePicture': profilePicture,
-      };
+    '_id': id,
+    'username': username,
+    'profilePicture': profilePicture,
+  };
 }
 
 class Message {
-  String id;
-  Participant sender;
+  String sender;
   String message;
-  String media;
-  DateTime timestamp;
+  String status;
+  String id; // Use lowercase 'id' to avoid conflicts with Dart's 'Id'
+  String timestamp;
 
   Message({
-    required this.id,
     required this.sender,
     required this.message,
-    this.media = '',
+    required this.status,
+    required this.id,
     required this.timestamp,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        id: json['_id'],
-        sender: Participant.fromJson(json['sender']),
-        message: json['message'],
-        media: json['media'] ?? '',
-        timestamp: DateTime.parse(json['timestamp']),
-      );
+    sender: json['sender'] ?? '',
+    message: json['message'] ?? '',
+    status: json['status'] ?? '',
+    id: json['_id'] ?? '',
+    timestamp: json['timestamp'] ?? '',
+  );
 
   Map<String, dynamic> toJson() => {
-        '_id': id,
-        'sender': sender.toJson(),
-        'media': media ?? '',
-        'message': message,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'sender': sender,
+    'message': message,
+    'status': status,
+    '_id': id,
+    'timestamp': timestamp,
+  };
+
+  @override
+  String toString() =>
+      'Message(sender: $sender, message: $message, status: $status, id: $id, timestamp: $timestamp)';
+
+  Message copyWith({
+    String? sender,
+    String? message,
+    String? status,
+    String? id,
+    String? timestamp,
+  }) =>
+      Message(
+          sender: sender ?? this.sender,
+          message: message ?? this.message,
+          status: status ?? this.status,
+          id: id ?? this.id,
+          timestamp: timestamp ?? this.timestamp,
+          );
 }

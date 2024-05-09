@@ -37,7 +37,22 @@ class ApiService {
     );
     return response;
   }
-
+Future<List<dynamic>> fetchUsers(String query) async {
+  final sharedPreferences = await SharedPreferences.getInstance();
+  final token = sharedPreferences.getString('token');
+  final response = await http.get(
+    Uri.parse('$_baseUrl/api/search/people/$query'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    },
+  );
+  if(response.statusCode == 200){
+    return jsonDecode(response.body)['users'];
+  }else{
+    return [];
+  }
+}
   Future<Map<String, dynamic>> changeEmail(
       String newEmail, String password, String token) async {
     final String url = '$_baseUrl/api/auth/change_email';
@@ -119,6 +134,8 @@ class ApiService {
     }
     return response.body;
   }
+
+
 
   Future<List<Map<String, String>>> communityRules(String communityId) async {
     //TODO: Implement this method to fetch community rules from the API

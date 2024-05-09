@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:curio/Models/chat_details_model.dart';
 import 'package:curio/Models/chat_request_model.dart';
 import 'package:curio/Models/chatmodel.dart';
 import 'package:http/http.dart' as http;
 
 class ChatApiServices {
-  final String _baseUrl = 'http://192.168.1.8:3000';
+  final String _baseUrl = 'http://10.0.2.2:3000';
   // final String _baseUrl = 'http://192.168.43.158:3000';
 
   Future<List<Chat>> getChats(
@@ -26,8 +27,9 @@ class ChatApiServices {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       log(data.toString());
-      log(data.toString());
-      final chatsJson = data['chats'] as List<dynamic>;
+      List<dynamic> chatsJson = data['chats'];
+      log(data['chats'].toString());
+
       final chats =
           chatsJson.map((chatJson) => Chat.fromJson(chatJson)).toList();
 
@@ -160,7 +162,7 @@ class ChatApiServices {
   //!--------------------------------------------------------------------------------
   //!--------------------------------------------------------------------------------
   // Assuming you have a function to make HTTP requests (replace with your actual implementation)
-  Future<Chat> getChatMessages(String chatId, String token) async {
+  Future<ChatDetails> getChatMessages(String chatId, String token) async {
     final url = Uri.parse('$_baseUrl/api/chat/$chatId');
 
     final headers = {
@@ -172,8 +174,24 @@ class ChatApiServices {
 
     final response = await request.send();
     var data = jsonDecode(await response.stream.bytesToString())['chat'];
-    Chat chat = Chat.fromJson(data);
+    log(data.toString());
+
+    ChatDetails chat = ChatDetails.fromJson(data[0]);
     return (chat);
+  }
+
+  void printAttributeTypes(data) {
+    if (data is List) {
+      for (var item in data) {
+        printAttributeTypes(item); // Recursive call for nested lists
+      }
+    } else if (data is Map) {
+      data.forEach((key, value) {
+        log('Key: $key, Type: ${value.runtimeType}');
+      });
+    } else {
+      log('Value: $data, Type: ${data.runtimeType}');
+    }
   }
 
   //!--------------------------------------------------------------------------------

@@ -70,7 +70,6 @@ class _CommunityProfileState extends State<communityProfile> {
   int? membersCount;
   String? banner;
   String? icon;
-
   void _updateSortAndIcon(String newSort, IconData newIcon) {
     setState(() {
       newSort = _selectedSort;
@@ -90,9 +89,16 @@ class _CommunityProfileState extends State<communityProfile> {
       name = widget.communityData?.name;
       description = widget.communityData?.description;
       membersCount = widget.communityData?.members.length;
-      banner = 'lib/assets/images/bannerimage.png'; // Default banner
-      icon = widget.communityData?.icon;
+      //if banner is null iwant to keep its old value
+      if (widget.communityData!.banner != null) {
+        banner = widget.communityData?.banner;
+      }// Default banner
+      if (widget.communityData!.icon != null) {
+
+        icon = widget.communityData?.icon;}
       moderators = widget.communityData!.moderators;
+
+
     });
   }
 
@@ -511,7 +517,7 @@ class _CommunityProfileState extends State<communityProfile> {
               itemCount: posts.length,
               itemBuilder: (context, index) {
                 Post post = posts[index];
-                return PostCard(post: post);
+                return PostCard(post: post, isModerator: true,);
               },
             ),
           ),

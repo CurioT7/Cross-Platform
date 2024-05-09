@@ -91,8 +91,7 @@ class _CommunityTypeState extends State<CommunityType> {
                     else{
                       over18="true";
                     }
-                    Future <bool> issuccessful =logicAPI().updateCommunitySettingsPrivacy(token, widget.subreddit, privacyMode!, over18);
-                    if (issuccessful==true){
+                    bool? issuccessful = await logicAPI().updateCommunitySettingsPrivacy(token, widget.subreddit, privacyMode!, over18);                    if (issuccessful==true){
                       Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(

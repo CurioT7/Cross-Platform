@@ -55,7 +55,7 @@ final class SendMessageError extends ChatState {
 final class GetAllMessagesLoading extends ChatState {}
 
 final class GetAllMessagesSuccess extends ChatState {
-  final Chat chats;
+  final ChatDetails chats;
   GetAllMessagesSuccess(this.chats);
 }
 

@@ -27,8 +27,6 @@ class logicAPI {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },);
-
-
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else if (response.statusCode == 404) {
@@ -401,12 +399,11 @@ class logicAPI {
       print("inside LOGICAPI TIME INTERVAL = ");
       print(timeinterval);
       final response = await http.get(Uri.parse(
-          '$_baseUrl/api/r/${Uri.encodeComponent(subreddit)}/top/${Uri
-              .encodeComponent(timeinterval)}'));
+          '$_baseUrl/api/r/$subreddit/top/$timeinterval'));
 
 
       if (response.statusCode == 200) {
-        return Post.getPosts((jsonDecode(response.body)['post']));
+        return Post.getPosts((jsonDecode(response.body)['posts']));
       }
 
       else if (response.statusCode == 404) {

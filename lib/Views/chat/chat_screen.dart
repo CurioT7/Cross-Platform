@@ -57,16 +57,16 @@ class ChatScreen extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      cubit.getChatRequest(token: token!);
-                      ();
-                    },
-                    child: const Text(
-                      'chat requests',
-                      style: TextStyle(color: Colors.black),
-                    ))
+              actions: const [
+                // TextButton(
+                //     onPressed: () {
+                //       cubit.getChatRequest(token: token!);
+                //       ();
+                //     },
+                //     child: const Text(
+                //       'chat requests',
+                //       style: TextStyle(color: Colors.black),
+                //     ))
               ],
             ),
             body: (cubit.chats.isEmpty)
@@ -92,9 +92,7 @@ favorite topics.""",
                   ))
                 : ListView.builder(
                     itemBuilder: (context, index) {
-                      String? profilePicture =
-                          cubit.chats[index].participants[0].profilePicture ??
-                              '';
+                      String? profilePicture = '';
                       ImageProvider image = profilePicture == ''
                           ? const AssetImage('lib/assets/images/Curio.png')
                               as ImageProvider<Object>

@@ -1,3 +1,4 @@
+import 'package:curio/Notifications/viewNotifications.dart';
 import 'package:flutter/material.dart';
 import 'package:curio/post/screen_post.dart';
 import 'package:curio/Views/community/profile.dart';
@@ -150,12 +151,15 @@ class _HomeNavigationBarState extends State<HomeNavigationBar> {
                 ));
             break;
           case 4:
-            getUnreadNotifications();
-            if(notficationsMessage == null) {
+            //open viewNotification.dart
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewNotifications(
 
-              showSnackbar(context, 'There are no unread notifications');
+                  ),
+                ));
 
-            }
             break;
         }
       },

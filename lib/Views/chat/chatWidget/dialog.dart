@@ -57,3 +57,4 @@ class _NewChatDialogState extends State<NewChatDialog> {
     );
   }
 }
+

@@ -2,9 +2,13 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:curio/Models/chat_details_model.dart';
 import 'package:curio/Models/chat_request_model.dart';
 import 'package:curio/Models/chatmodel.dart';
+import 'package:curio/Views/chat/chat_details_screen.dart';
 import 'package:curio/services/chat_api_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -95,7 +99,7 @@ class ChatCubit extends Cubit<ChatState> {
           token: token, message: message, chatID: chatID, media: media);
       if (response['success'] == true) {
         emit(SendMessageSuccess(response));
-        getAllMessages(index, token: token, chatID: chatID);
+        getAllMessages(index, token: token, chatID: chatID, isRequest: true);
       } else {
         emit(SendMessageError(response['message']));
       }
@@ -110,13 +114,42 @@ class ChatCubit extends Cubit<ChatState> {
   //!-----------------------------------Get all Message------------------------------
   //!--------------------------------------------------------------------------------
   //!--------------------------------------------------------------------------------
-  Chat? chat;
-  getAllMessages(index, {required String token, required String chatID}) async {
+  ChatDetails? chat;
+  getAllMessages(index,
+      {required String token,
+      required String chatID,
+      username,
+      bool isRequest = false,
+      context,
+      image}) async {
     emit(GetAllMessagesLoading());
     try {
-      chat = await _api.getChatMessages(chatID, token);
-      log(chat!.messages.length.toString());
-      chats[index].messages = chat!.messages;
+      if (isRequest) {
+        await _api.getChatMessages(chatID, token).then((value) {
+          chat = value;
+        });
+      } else {
+        await _api.getChatMessages(chatID, token).then((value) {
+          chat = value;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return ChatDetailsScreen(
+                  username: username ?? "",
+                  index: index,
+                  chat: value,
+                  image: image,
+                  token: token,
+                );
+              },
+            ),
+          );
+        });
+      }
+
+      // chats[index].messages = chat!.messages;
       emit(GetAllMessagesSuccess(chat!));
     } catch (error) {
       log(error.toString());

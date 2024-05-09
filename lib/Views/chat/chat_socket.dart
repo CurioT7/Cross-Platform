@@ -34,3 +34,4 @@ class ChatSocket {
     _socket!.emit('newMessage', [message, recipient]);
   }
 }
+

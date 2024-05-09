@@ -1,3 +1,4 @@
+import 'package:curio/Models/chat_details_model.dart';
 import 'package:curio/Models/chatmodel.dart';
 import 'package:curio/Views/chat/chat_details_screen.dart';
 import 'package:curio/controller/chat_cubit/chat_cubit.dart';
@@ -28,20 +29,13 @@ class ChatItemWidget extends StatelessWidget {
         var cubit = ChatCubit.get(context);
         return InkWell(
           onTap: () {
-            cubit.getAllMessages(index, token: token, chatID: chat.id);
-            cubit.chat = chat;
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return ChatDetailsScreen(
-                    index: index,
-                    chat: cubit.chat!,
-                    image: image,
-                    token: token,
-                  );
-                },
-              ),
+            cubit.getAllMessages(
+              index,
+              token: token,
+              chatID: chat.id,
+              context: context,
+              image: image,
+              username: chat.participants,
             );
           },
           child: Row(children: [
@@ -53,14 +47,14 @@ class ChatItemWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  chat.participants[0].username ?? '',
+                  chat.participants ?? '',
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
                 Text(
-                  "${(chat.messages[chat.messages.length - 1].sender.username) == myUsername ? 'You' : chat.messages[chat.messages.length - 1].sender.username} : ${chat.messages[chat.messages.length - 1].message ?? ''}",
+                  "${(chat.messages[chat.messages.length - 1].sender) == myUsername ? 'You' : chat.messages[chat.messages.length - 1].sender} : ${chat.messages[chat.messages.length - 1].message ?? ''}",
                   style: const TextStyle(
                     fontSize: 13,
                   ),

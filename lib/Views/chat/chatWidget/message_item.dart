@@ -1,10 +1,11 @@
+import 'package:curio/Models/chat_details_model.dart';
 import 'package:curio/Models/chatmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class MessageItemWidget extends StatelessWidget {
-  Message message;
+  MessageInChatDetails message;
   ImageProvider<Object> image;
   String myUsername;
   int index;
@@ -42,7 +43,7 @@ class MessageItemWidget extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(message.sender.username ?? '',
+                      Text(myUsername ?? '',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                           )),

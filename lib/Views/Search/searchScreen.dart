@@ -6,6 +6,8 @@ import 'package:curio/widgets/miniPostCard.dart';
 import 'package:curio/widgets/SortAndCommentList.dart';
 import 'package:curio/services/ApiServiceMahmoud.dart';
 import 'package:curio/Views/community/profile.dart';
+import 'package:curio/widgets/user_card.dart';
+import 'package:curio/services/api_service.dart' as APIShams;
 
 
 class SearchScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class _SearchScreenState extends State<SearchScreen>
   List<MiniPost> searchResults = [];
   List<String> suggestions = [];
   Map<String, dynamic> responseForCommunity = {};
+  List<dynamic> responseForPeople = [];
   String dropdownValue = 'Hot';
   late TabController _tabController;
   ValueNotifier<String> searchQueryNotifier = ValueNotifier<String>('');
@@ -37,7 +40,15 @@ class _SearchScreenState extends State<SearchScreen>
     _tabController.dispose();
     super.dispose();
   }
+  void _fetchUsers(String query) async{
 
+      APIShams.ApiService apiService = APIShams.ApiService();
+      await apiService.fetchUsers(query).then((value) {
+        setState(() {
+          responseForPeople = value;
+        });
+      });
+  }
   void _fetchCommunities(String query) async {
     try {
       ApiServiceMahmoud apiService = ApiServiceMahmoud();
@@ -46,7 +57,7 @@ class _SearchScreenState extends State<SearchScreen>
       setState(() {
         responseForCommunity = response;
       });
-      print('User profile: $responseForCommunity');
+      // print('User profile: $responseForCommunity');
     } catch (e) {
       print('Error: $e');
     }
@@ -54,13 +65,13 @@ class _SearchScreenState extends State<SearchScreen>
 
   Future<void> search(String query) async {
     try {
-      print('Search query: $query');
+      // print('Search query: $query');
       searchQueryNotifier.value = query;
-      print("Search Query Notifier: ${searchQueryNotifier.value}");
+      // print("Search Query Notifier: ${searchQueryNotifier.value}");
       final List<MiniPost> results = await _searchService
           .searchPost(query); // Changed function name to searchPost
 
-      print('Posts: $results');
+      // print('Posts: $results');
 
       if (results.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -97,6 +108,7 @@ class _SearchScreenState extends State<SearchScreen>
           onSubmitted: (value) {
             _fetchCommunities(value);
             search(value);
+            _fetchUsers(value);
           },
         ),
         bottom: TabBar(
@@ -135,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen>
             itemBuilder: (context, index) {
               if (responseForCommunity == null ||
                   responseForCommunity!['subreddits'] == null) {
-                return ListTile(
+                return const ListTile(
                   title: Text('No communities found for the given query'),
                 );
               } else {
@@ -143,8 +155,8 @@ class _SearchScreenState extends State<SearchScreen>
                 return ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: Image.asset('lib/assets/images/Curio.png'),
                     radius: 30,
+                    child: Image.asset('lib/assets/images/Curio.png'),
                   ),
                   title: Text(subreddit['name']),
                   subtitle: Text('Members: ${subreddit['members']}'),
@@ -161,8 +173,25 @@ class _SearchScreenState extends State<SearchScreen>
               }
             },
           ),
-          // Replace these with your actual widgets for displaying the search results
-          const Center(child: Text('Comments')),
+          // display people
+          ListView.builder(
+            itemCount: responseForPeople != null ? responseForPeople.length : 1,
+            itemBuilder: (context, index) {
+              if (responseForPeople == null || responseForPeople.isEmpty) {
+                return const ListTile(
+                  title: Text('No people found for the given query'),
+                );
+              } else {
+                var user = responseForPeople[index];
+                return UserCard(
+                  userName: user['username'],
+                  profilePic: user['profilePicture']?? 'https://cdn.fakercloud.com/avatars/doronmalki_128.jpg',
+                  karma: user['karma'],
+                );
+              }
+            },
+          ),
+
           ValueListenableBuilder<String>(
             valueListenable: searchQueryNotifier,
             builder: (BuildContext context, String value, Widget? child) {
@@ -184,7 +213,6 @@ class _SearchScreenState extends State<SearchScreen>
               );
             },
           ),
-          const Center(child: Text('People')),
         ],
       ),
     );

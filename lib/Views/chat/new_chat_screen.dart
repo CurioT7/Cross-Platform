@@ -46,6 +46,8 @@ class _CreateNewChatScreenState extends State<CreateNewChatScreen> {
               backgroundColor: Colors.blue,
             ),
           );
+          var cubit = ChatCubit.get(context);
+          cubit.getChats(token: widget.token!);
         }
         if (state is CreateNewChatSuccess) {
           Navigator.pop(context);
@@ -55,6 +57,8 @@ class _CreateNewChatScreenState extends State<CreateNewChatScreen> {
               backgroundColor: Colors.blue,
             ),
           );
+          var cubit = ChatCubit.get(context);
+          cubit.getChats(token: widget.token!);
         }
       },
       builder: (context, state) {

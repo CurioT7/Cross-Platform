@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:curio/services/ahmed_api.dart';
 import 'package:flutter/material.dart';
@@ -193,15 +192,17 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
                         if (!_isFollowing) {
                           await ApiService().followUser(widget.userName!).then(
                                 (value) {
-                              setState(() {
-                                _isFollowing = true;
-                              });
-                              Fluttertoast.showToast(
-                                msg: 'Following ${widget.userName}',
-                                backgroundColor: Colors.green,
-                                textColor: Colors.white,
-                                gravity: ToastGravity.BOTTOM,
-                              );
+                              if (value == 200) {
+                                setState(() {
+                                  _isFollowing = true;
+                                });
+                                Fluttertoast.showToast(
+                                  msg: 'Following ${widget.userName}',
+                                  backgroundColor: Colors.green,
+                                  textColor: Colors.white,
+                                  gravity: ToastGravity.BOTTOM,
+                                );
+                              }
                             },
                           ).catchError((error) {
                             setState(() {
@@ -212,16 +213,18 @@ class _ProfileAppBarState extends State<ProfileAppBar> {
                           await ApiService()
                               .unfollowUser(widget.userName!)
                               .then((value) {
-                            setState(() {
-                              _isFollowing = false;
-                            });
-                            Fluttertoast.showToast(
-                              msg:
-                              'You are no longer following ${widget.userName}',
-                              backgroundColor: Colors.black54,
-                              textColor: Colors.white,
-                              gravity: ToastGravity.BOTTOM,
-                            );
+                            if (value == 200) {
+                              setState(() {
+                                _isFollowing = false;
+                              });
+                              Fluttertoast.showToast(
+                                msg:
+                                'You are no longer following ${widget.userName}',
+                                backgroundColor: Colors.black54,
+                                textColor: Colors.white,
+                                gravity: ToastGravity.BOTTOM,
+                              );
+                            }
                           }).catchError((error) {
                             setState(() {
                               _isFollowing = true;

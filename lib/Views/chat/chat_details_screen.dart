@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:curio/Models/chatmodel.dart';
 import 'package:curio/Views/chat/chatWidget/message_item.dart';
 import 'package:curio/Views/chat/chat_socket.dart';
@@ -7,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../Models/chat_details_model.dart';
+
 class ChatDetailsScreen extends StatefulWidget {
-  Chat chat;
+  ChatDetails chat;
   ImageProvider<Object> image;
   String token;
   int index;
+  String username;
 
   ChatDetailsScreen({
     super.key,
@@ -19,6 +24,7 @@ class ChatDetailsScreen extends StatefulWidget {
     required this.image,
     required this.index,
     required this.token,
+    required this.username,
   });
 
   @override
@@ -27,11 +33,17 @@ class ChatDetailsScreen extends StatefulWidget {
 
 class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   var messageController;
+  late String myID;
 
   @override
   initState() {
     // ChatSocket.initializeSocket();
     // ChatSocket.connect();
+
+    myID = widget.chat.participants[0].username == widget.username
+        ? myID = widget.chat.participants[1].id
+        : myID = widget.chat.participants[0].id;
+
     messageController = TextEditingController();
     super.initState();
   }
@@ -53,8 +65,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         }
       },
       builder: (context, state) {
-        String? profilePicture =
-            widget.chat.participants[0].profilePicture ?? '';
+        String? profilePicture = '';
         ImageProvider image = profilePicture == ''
             ? const NetworkImage(
                     'https://www.redditstatic.com/avatars/avatar_default_13_46D160.png')
@@ -70,7 +81,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     radius: 14,
                   ),
                   const SizedBox(width: 10),
-                  Text(widget.chat.participants[0].username ?? ''),
+                  Text(widget.username ?? ''),
                 ],
               ),
             ),
@@ -83,7 +94,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  widget.chat.participants[0].username ?? '',
+                  widget.username ?? '',
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.w600),
                 ),
@@ -93,18 +104,24 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       shrinkWrap: true,
                       itemCount: cubit.chat!.messages.length,
                       itemBuilder: (context, index) {
+                        List<MessageInChatDetails> reversedMessages =
+                            cubit.chat!.messages.reversed.toList();
+
                         return MessageItemWidget(
                             index: index,
                             image: image,
-                            message: cubit.chat!.messages[index],
-                            myUsername:
-                                widget.chat.participants[0].username ?? '',
+                            message: reversedMessages[index],
+                            myUsername: (reversedMessages[index].sender ==
+                                    widget.chat.participants[0].id)
+                                ? widget.chat.participants[0].username
+                                    .toString()
+                                : widget.chat.participants[1].username
+                                        .toString() ??
+                                    '',
                             isSame: (index == 0)
                                 ? false
-                                : (cubit.chat!.messages[index].sender
-                                            .username ==
-                                        cubit.chat!.messages[index - 1].sender
-                                            .username)
+                                : (reversedMessages[index].sender ==
+                                        reversedMessages[index - 1].sender)
                                     ? true
                                     : false);
                       }),
@@ -115,26 +132,25 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     const SizedBox(
                       width: 10,
                     ),
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        // TODO: implement camera option
-                      },
-                      child: const CircleAvatar(
-                        backgroundColor: Colors.black12,
-                        child: Icon(Icons.camera_alt_outlined),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
+                    // CupertinoButton(
+                    //   padding: EdgeInsets.zero,
+                    //   onPressed: () {
+                    //     // TODO: implement camera option
+                    //   },
+                    //   child: const CircleAvatar(
+                    //     backgroundColor: Colors.black12,
+                    //     child: Icon(Icons.camera_alt_outlined),
+                    //   ),
+                    // ),
+                    // const SizedBox(
+                    //   width: 10,
+                    // ),
                     Expanded(
                       child: TextField(
                           controller: messageController,
                           decoration: InputDecoration(
                             border: InputBorder.none,
-                            hintText:
-                                'Messgae ${widget.chat.participants[0].username ?? ''}',
+                            hintText: 'Messgae ${widget.username ?? ''}',
                           )),
                     ),
                     const SizedBox(

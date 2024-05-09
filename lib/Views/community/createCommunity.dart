@@ -64,7 +64,8 @@ class _createCommunityState extends State<createCommunity> {
             ),
           ),
         ),
-        body: Center(
+      body: SingleChildScrollView(
+        child: Center(
           child: Column(
             // mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,11 +317,11 @@ class _createCommunityState extends State<createCommunity> {
                       setState(() {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Error creating community: $error'),
+                            content: Text('Error creating community: Community name exists already'),
                             duration: Duration(seconds: 2),
                           ),
                         );
-                        print('Error creating community: $error');
+                        print('Error creating community: Community name exists already');
                       });
                     });
                   }
@@ -369,7 +370,9 @@ class _createCommunityState extends State<createCommunity> {
               )
             ],
           ),
-        ));
+        )
+      )
+    );
   }
 
   FocusNode myFocusNode = FocusNode();

@@ -51,6 +51,7 @@ dependencies:
   video_editor: ^3.0.0
   firebase_messaging: ^14.9.1
   socket_io_client: ^2.0.0-beta.4-nullsafety.0
+  dio: ^4.0.0
 
   # flutter_signin_button: ^latest_version # Optional, for styled sign-in buttons
 
@@ -69,6 +70,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^5.0.16
+  # The following adds the Cupertino Icons font to your application.
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
